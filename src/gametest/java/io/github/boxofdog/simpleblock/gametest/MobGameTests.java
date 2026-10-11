@@ -472,10 +472,11 @@ public class MobGameTests {
 	/**
 	 * MOB-02 of the test plan, light behind walls: two identical closed stone boxes, one lit inside.
 	 * The light can't be reached, but zombies gather round the lit box more than round the dark one
-	 * and never get inside. More zombies and longer phases than the open test: presence along a
-	 * wall is a smaller effect, and the control (vanilla random walks) is noisy.
+	 * and never get inside. More zombies and longer phases than the open test: light shut inside a
+	 * box is found by sampling more slowly than light spilling over open ground, and the control
+	 * (vanilla random walks of zombies starting side by side) is noisy.
 	 */
-	@GameTest(environment = "simple_block-gametest:mob_box_night", skyAccess = true, maxTicks = 9000)
+	@GameTest(environment = "simple_block-gametest:mob_box_night", skyAccess = true, maxTicks = 12000)
 	public void lightBehindWallsStillAttracts(GameTestHelper helper) {
 		Arena arena = new Arena(helper, 1, 34);
 		int[] litBox = {-24, -12, -6, 6};
@@ -487,21 +488,21 @@ public class MobGameTests {
 		double[] control = new double[3];
 		double[] test = new double[3];
 		boolean[] inside = {false};
-		int[] startZ = new int[24];
+		int[] startZ = new int[32];
 		for (int i = 0; i < startZ.length; i++) {
-			startZ[i] = -12 + i;
+			startZ[i] = -16 + i;
 		}
-		offThenOn(arena, startZ, 1200, control, test, (a, counts) -> sample(a, counts, AROUND_LIT_BOX, AROUND_DARK_BOX))
+		offThenOn(arena, startZ, 2400, control, test, (a, counts) -> sample(a, counts, AROUND_LIT_BOX, AROUND_DARK_BOX))
 			.thenExecute(() -> {
 				for (Mob mob : arena.mobs) {
 					inside[0] |= arena.inBox(mob, litBox) || arena.inBox(mob, darkBox);
 				}
-				SimpleBlockTestLog.info("MOB-01 walled: two closed boxes, one lit inside, 24 zombies; share of zombie-samples round the lit box / round the dark box: "
+				SimpleBlockTestLog.info("MOB-01 walled: two closed boxes, one lit inside, 32 zombies; share of zombie-samples round the lit box / round the dark box: "
 					+ "control {} / {}, attraction on {} / {} ({} samples); any zombie inside a box at the end: {}", pct(control[0], control[2]),
 					pct(control[1], control[2]), pct(test[0], test[2]), pct(test[1], test[2]), (int) test[2], inside[0]);
 				double gap = (test[0] - test[1]) / test[2];
 				helper.assertTrue(!inside[0], "a zombie got inside a closed box");
-				helper.assertTrue(test[0] > 2 * test[1] && gap > 0.15, "zombies should gather round the lit box more than the dark one");
+				helper.assertTrue(test[0] > 2.5 * test[1] && gap > 0.2, "zombies should gather round the lit box more than the dark one");
 				helper.assertTrue(gap > (control[0] - control[1]) / control[2] + 0.1, "attraction should raise presence round the lit box over the control");
 			})
 			.thenSucceed();

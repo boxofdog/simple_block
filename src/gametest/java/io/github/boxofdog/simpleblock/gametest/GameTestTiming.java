@@ -37,15 +37,16 @@ final class GameTestTiming {
 
 	/**
 	 * Night tests also get their midnight from a test environment, but now and then the overworld
-	 * clock is back at the previous batch's daytime value when the test starts (seen as clock 25742
-	 * in a {@code phantom_night} batch whose environment sets 18000). The cause is in the game-test
-	 * runner, not in the mod, so a night test sets midnight itself when the clock is not at night,
-	 * and logs that it had to.
+	 * clock is back at the previous batch's value when the test starts (seen as clock 25742, and as
+	 * 22682 just before dawn with sky darkness 8, in {@code phantom_night} batches whose environment
+	 * sets 18000). The cause is in the game-test runner, not in the mod, so a night test sets
+	 * midnight itself unless the clock is in the deep night (14000-22000, full sky darkness), and
+	 * logs that it had to.
 	 */
 	static void ensureNight(GameTestHelper helper) {
 		ServerLevel level = helper.getLevel();
 		long timeOfDay = level.getOverworldClockTime() % 24000L;
-		if (timeOfDay < 13000L || timeOfDay > 23000L) {
+		if (timeOfDay < 14000L || timeOfDay > 22000L) {
 			SimpleBlockTestLog.info("night environment was not in effect at test start (overworld clock {}); setting midnight",
 					level.getOverworldClockTime());
 			helper.setTime(18000L);
