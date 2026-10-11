@@ -89,7 +89,7 @@ Methods:
 
 | Test | Result | Method and evidence | Limitations |
 |---|---|---|---|
-| T01 baseline, packaging | PASS | Baseline 65/65 (`baseline-build.txt`). Final build 80/80. CI artifact: see section 9 | |
+| T01 baseline, packaging | PASS | Baseline 65/65 (`baseline-build.txt`). Final build 80/80. CI Build #14 published `simple-block-mod` | |
 | T02 get and place a cart | PASS | GT `minecartPlacesOnRailsButNobodyRidesIt`: the minecart item used on a rail makes one cart and is used up. Client: placed with the use key. Craftable: GT `noRecipeMakesEnderChestsOrChestMinecarts` checks the minecart recipe | |
 | T03 straight, curved, sloped, powered rails | PASS | GT `cartsRunALoopOfEveryRailKind`: a 6x6 loop with four curves, a climb to y+1 and back, and four powered rails. Loaded (256 raw iron) and empty carts each did 3 laps in 300 ticks; cargo still 256 | Detector and activator rails not tested |
 | T04 load 1, 63, stacks | PASS | GT `loadingIsExactAndSingleKind`: 1 → 1, +63 → 64, +64 +64 +63 → 255; hand emptied exactly each time. Client: 3 × 64 → 192 on server and client | |
@@ -106,7 +106,7 @@ Methods:
 | T15 riding, container use | PASS | GT: using the cart doesn't seat the player, `startRiding` is refused, and a NoAI zombie in the path of a cart rolling at 0.4 b/t is not picked up (the cart rolled 3.2 blocks). The minecart is not a `Container`. GT `hopperCannotUnloadACart`. Client: use with an empty hand → not riding | |
 | T16 server authority | PASS | Every transfer runs in the server's handler for a use-entity packet (`Player.interactOn`); the client only shows synced cargo. The client test compares server and client cargo after loading, unloading and reloading. Dedicated: `runServer` starts ("Done (0.477s)") and stops | Remote client joining a dedicated server: NOT RUN |
 | T17 M01/M02 regression | PASS | All 65 earlier game tests pass in the 80-test build. The client bed, shulker, movement, elytra, inventory, light, creeper and food steps pass | |
-| T18 build, client, screenshots, artifact | PASS | `./gradlew build`; client screenshots in `evidence/milestone-03/screenshots/`; CI: section 9 | Software renderer, not a desktop GPU |
+| T18 build, client, screenshots, artifact | PASS | `./gradlew build`; client screenshots in `evidence/milestone-03/screenshots/`; CI Build #14 green with the artifact | Software renderer, not a desktop GPU |
 | T19 ender chest recipe and loot | PASS | GT `noRecipeMakesEnderChestsOrChestMinecarts`: recipe and advancement gone, the obsidian + eye of ender shape crafts nothing, and none of 1,940 recipes yields one. GT `noLootGivesEnderChestsOrChestMinecarts`: none of 1,447 loot tables gives one, and a silk-touched ender chest drops 8 obsidian. GT `creativeTabsLeaveThemOut` | |
 | T20 ender chest place, open | PASS | GT `enderChestsCannotBePlacedOrOpened`: placement refused in survival and creative; an existing one doesn't open. Client: refused with "Ender chests don't work in this world" | |
 | T21 chest minecart recipe, place | PASS | GT: recipe gone, chest + minecart crafts nothing, not in any creative tab. GT `chestMinecartsCannotBePlacedButMinecartsCan`: refused by hand and by dispenser (both keep the item), while a plain minecart dispenses. Client: refused with a message | |
@@ -151,6 +151,8 @@ Methods:
 | `./gradlew runClient` / `runServer` | Dev client / dedicated server |
 | `XDG_RUNTIME_DIR=/tmp/xdg xvfb-run -a -s "-screen 0 1280x720x24 +extension GLX +render" ./gradlew runClientGameTest` | Real-client test |
 | `JAVA_TOOL_OPTIONS="$JAVA_TOOL_OPTIONS -Dfabric-api.gametest.filter=simple_block-gametest:minecart_cargo_game_tests_*" ./gradlew runGameTest` | Just the cargo tests |
+
+**CI:** Build run #14 on `69ed216` passed and published `simple-block-mod` (jar + `build-info.json`).
 
 **Installing:** pushing to `main` runs `.github/workflows/build.yml`, which publishes `simple-block-mod`. On Windows, run **Update Simple Block**, then **create a new world**. The workflow file, artifact name and `build-info.json` are unchanged.
 
