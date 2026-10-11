@@ -114,7 +114,8 @@ The same names work as parameters, e.g. `Update-SimpleBlock.bat -Force` reinstal
 Verified automatically:
 
 - **CI:** the GitHub "Build" workflow builds the jar, runs the game tests and publishes it with `build-info.json`.
-- **Production jar:** the CI-style jar loads in a stock Fabric 26.3 install alongside Fabric API.
+- **Production jar:** the jar from GitHub build #3 (`0.1.0+build.3.9fc657c`) loads in a stock Fabric 26.3 install alongside Fabric API.
+- **Real artifact through the updater:** that build's actual download was run through the updater, with GitHub's answers replayed from the real API responses. It passed every check, installed next to Fabric API, and a second run reported "already up to date".
 - **Updater logic:** 29 scenario tests with GitHub faked, on PowerShell 7 (Linux). They cover install, up to date, replacement with backup, jars found by mod id, sources/dev jars ignored, six kinds of bad downloads refused, unavailable/expired/failed builds, failed downloads, rollback after a failed swap, a missing game directory, settings, and command-line matching. Each safety check was also broken on purpose to confirm a test catches it.
 - **Real Windows:** the "Windows updater" workflow runs the same tests on Windows in **Windows PowerShell 5.1** (what the `.bat` uses) and PowerShell 7. That includes Windows file locking, and a real Java process that holds the jar open with `--gameDir` on its command line, like Minecraft. It also checks that the `.bat` passes arguments and exit codes through.
 - **Static analysis:** PSScriptAnalyzer reports no Windows PowerShell 5.1 compatibility problems.
