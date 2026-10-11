@@ -8,9 +8,6 @@ import net.minecraft.world.level.block.Blocks;
  * of hand-made torch and gets 12 too. Lanterns already give 15 in vanilla and are unchanged, as are
  * soul torches/lanterns, redstone torches and every other light source.
  * Applied in {@code mixin/light/BlockStateBaseMixin}.
- *
- * <p><b>Work in progress:</b> not wired in yet (its mixin is not in simple_block.mixins.json); see
- * docs/MILESTONE_02_CHECKPOINT.md.
  */
 public final class LightLevels {
 	public static final int TORCH = 12;

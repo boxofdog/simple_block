@@ -46,3 +46,48 @@ CLIENT INVENTORY: 27 usable inventory slots on screen; heavy load client 8640 / 
 ```
 
 Screenshots: `inventory-and-weight/`.
+
+## 02C (light and hostile mobs)
+
+`./gradlew build` after 02C: **61 required server game tests passed** (the 48 above plus 13 in `MobGameTests`). Evidence lines:
+
+```
+LIGHT-01: torch block light 12 (block above 11), lantern 15; Overworld monster spawn block-light limit 0; monster spawn check passed 0 of 50 times beside the torch (block light 10, sky light 0) and 50 of 50 in an unlit closed box; emission problems []
+MOB-01 open ground, 24 zombies, night: share of zombie-samples on lit ground / on the dark mirror area: control (attraction off) 34% / 32%, attraction on 83% / 2% (2160 samples each); at the end 22 zombies on lit ground on 22 different blocks
+MOB-01 walled: two closed boxes, one lit inside, 24 zombies; share of zombie-samples round the lit box / round the dark box: control 11% / 20%, attraction on 43% / 10% (2160 samples); any zombie inside a box at the end: false
+MOB-04 daytime, 16 husks: share of husk-samples on lit ground / on the dark mirror area 27% / 20% (960 samples)
+MOB-05: 4 entranced zombies spent 100% of 300 ticks on lit ground; 3 targeted the survival player by tick 313 and closed from 25.8 to 20.6 blocks on average in 60 ticks; all dropped the target by tick 373 when the player went creative; afterwards 100% of samples (ticks 300-1200 after) on lit ground
+MOB-07: 40 zombies among torches at night; 400 ticks took 661 ms with the attraction off and 621 ms with it on (1.65 vs 1.55 ms per tick); 92 wander decisions with the attraction cost 4.72 ms in total, 51.3 us each
+ZOMB-01 oak_door on normal: door shut in the chasing zombie's face at tick 5, zombie started breaking at tick 61, door broken at tick 300 (239 ticks of breaking; vanilla Hard 240)
+ZOMB-01 crimson_door on normal: door shut in the chasing zombie's face at tick 16, zombie started breaking at tick 60, door broken at tick 299 (239 ticks of breaking; vanilla Hard 240)
+ZOMB-02 metal doors: pursuing zombie spent 202 ticks attacking the iron door and 260 ticks the copper door (of 300 each); both doors and the blocks round them unchanged
+ZOMB-03 unaware: 4 zombies outside a closed oak door with a torch-lit room behind it, 900 ticks at night: door intact, door-breaking goal ran 0 ticks, 17% of zombie-samples within 4 blocks of the door
+CREEP-01 sun: creeper started smoking at tick 39, gone at tick 48 (9 ticks of effect, 0.45 s); drops 0, floor intact true, removal reason DISCARDED, swell -1
+CREEP-02 shade: 600 ticks at noon, creeper under a roof still there true, creeper in a torch-lit closed room still there true, any smoking false
+CREEP-02 night: 600 ticks in the open at midnight, creeper still there true, smoking false
+```
+
+How the mob experiments work (`MobGameTests`):
+
+- Each test builds its own walled arena 512 blocks north of the test grid, in a region no other test uses. Arenas next to the grid overlapped the neighbouring test positions. The runner unforces every forced chunk at the end of each batch, and an arena built on chunks that were still unloading never got its light computed.
+- Mobs are spawned only once the light engine and the arena's entity sections are ready (`Arena.whenLit`). Game-test ticks take about 1 ms, while light and entity loading run on other threads.
+- MOB-01 compares two phases with the same zombies on the same start line midway between the lit area and its dark mirror image: attraction off (vanilla wandering, the control), then on.
+  - "Lit ground" is the attraction's own definition: block light above 0. Torch light reaches about 11 blocks past the torches.
+  - Presence is sampled every 10 ticks after the first 300 ticks of each 1200-tick phase.
+
+Stability: the 13 mob tests were run repeatedly while the experiments were tuned. The last five runs all passed: two before and two after the final pursuit-test change (at least three of four zombies need to notice the player), plus the full build.
+- Open ground: lit ground 67–83% vs dark 0–6% (control 24–39% / 21–32%).
+- Walled boxes: 43–59% round the lit box vs 2–10% round the dark one.
+
+Real-client test, 02C steps (`runClientGameTest`):
+
+```
+CLIENT LIGHT: client block light at a torch 12, at a lantern 15
+CLIENT CREEPER: creeper in the noon sun started smoking: true; afterwards creepers on server 0 / client 0, item drops 0, player health 20.0 -> 20.0
+```
+
+Screenshots in `mobs-and-light/`:
+- `creeper-smoking-in-sunlight.png`: smoke and ash on the creeper, three ticks into the effect.
+- `creeper-gone.png`: the final poof, about one second later, with the creeper gone.
+
+The creeper has no AI so it stands still in front of the camera; evaporation does not depend on the AI.

@@ -19,7 +19,8 @@
 			"io.github.boxofdog.simpleblock.gametest.MiningGameTests",
 			"io.github.boxofdog.simpleblock.gametest.WorldgenGameTests",
 			"io.github.boxofdog.simpleblock.gametest.InventoryGameTests",
-			"io.github.boxofdog.simpleblock.gametest.HeavyLoadGameTests"
+			"io.github.boxofdog.simpleblock.gametest.HeavyLoadGameTests",
+			"io.github.boxofdog.simpleblock.gametest.MobGameTests"
 		],
 		"fabric-client-gametest": [
 			"io.github.boxofdog.simpleblock.gametest.client.SurvivalSmokeClientTest"

@@ -2,7 +2,7 @@
 
 Written at the end of a session that ran out of context. **Read this first when resuming Milestone 02**, then continue with "Next steps". Do not redo finished phases and do not widen the scope beyond `docs/MILESTONE_02.md`.
 
-State at the checkpoint: `main` builds and passes all **48 server game tests** (`./gradlew build`). The real-client test passes. CI Build runs #4 (02A) and #5 (02B) published updater-installable artifacts; the checkpoint commit's run should be checked too.
+State: `main` builds and passes all **61 server game tests** (`./gradlew build`), and the real-client test passes. 02A, 02B and 02C are done; **02D is next**. CI Build runs #4 (02A), #5 (02B) and #6 (checkpoint) published updater-installable artifacts.
 
 ## Done and verified
 
@@ -14,62 +14,34 @@ State at the checkpoint: `main` builds and passes all **48 server game tests** (
 
 Key measured results (02A): diamonds 0.354× vanilla (per seed 0.33–0.38). Ordinary stone iron 0.70× vanilla. Deepslate is 1.4–1.8× stone and deep-ocean deepslate is 2.0–2.7× ordinary deepslate on every seed. Removed rock: 0 (control 1.2 M per seed). Trial chambers convert 1:1 to deepslate bricks with all spawners and vaults intact. Ore veins keep their ore and raw blocks, minus the filler.
 
-Also done: the `CLAUDE.md` scope was updated narrowly and the README has 02A/02B rows. The tuning table moved to an overrides-only `config/simple_block/tuning.json` plus a regenerated `tuning-defaults.json`. The night-test flakes were fixed in `GameTestTiming` (wait a tick; set midnight when the batch clock is not in effect). A MINE-01 bug was fixed: a refused break no longer jams vanilla's delayed destroy (`ServerPlayerGameModeMixin`).
+Also done: the `CLAUDE.md` scope was updated narrowly and the README has rows for every finished item. The tuning table moved to an overrides-only `config/simple_block/tuning.json` plus a regenerated `tuning-defaults.json`. The night-test flakes were fixed in `GameTestTiming` (wait a tick; set midnight when the batch clock is not in effect). A MINE-01 bug was fixed: a refused break no longer jams vanilla's delayed destroy (`ServerPlayerGameModeMixin`).
 
-## In progress: 02C (inactive code committed, NOT wired, NOT tested)
+## Done: 02C (light and hostile mobs)
 
-These files compile but do nothing yet: their mixins are **not** listed in `simple_block.mixins.json` and nothing calls them.
+| Items | Verification | Evidence |
+|---|---|---|
+| LIGHT-01, MOB-01, MOB-02, MOB-03 | 13 game tests (`MobGameTests`), all passing in the 61-test build; negative control (8 expected failures); real-client step: client light 12/15 and creeper poof screenshots | `gametest-evidence.md` (02C), `negative-controls.md` (02C), `mobs-and-light/` |
 
-- `feature/LightLevels.java` + `mixin/light/BlockStateBaseMixin.java`: torch, wall torch, copper torch and copper wall torch emit 12. The lantern is already 15 in vanilla and is left alone.
-- `feature/Entrancement.java` + `mixin/mobs/RandomStrollGoalMixin.java` (MOB-01):
-  - Hooks the destination returned by `getPosition()` inside `RandomStrollGoal.canUse`.
-  - Applies to `Enemy` mobs with no target, at Overworld night (clock 13000–23000).
-  - At each wander decision it samples 24 positions within the locked 20-block radius where block light exceeds the dimension's monster-spawn limit, and remembers up to 8 lit spots.
-  - It then picks one at random, walks towards it with `LandRandomPos.getPosTowards`, and has a 15% chance of losing interest.
-- New tuning keys in `Tuning.java`: `mob.entrancement.{enabled,samples,memory,lose_interest_chance,step}` and `mob.creeper.evaporation_ticks` (10).
+What was built:
+- **LIGHT-01:** torches, wall torches and copper torches emit 12 (`mixin/light/BlockStateBaseMixin`). Lanterns are unchanged at 15.
+- **MOB-01:** at Overworld night (clock 13000–23000), ground-navigating `Enemy` mobs with a `RandomStrollGoal` get their wander destination redirected towards remembered lit spots (block light > 0) within 20 blocks.
+  - Memory drifts towards brighter spots; a random spot is chosen each time, so mobs spread out.
+  - Within a step of a spot, the mob walks to the spot itself. Vanilla's own random positions favour darkness for monsters and kept mobs at the dim edge.
+  - An unreachable spot (light behind walls) gives a partial path, so the mob loiters outside.
+  - 15% lose-interest chance per wander decision. The audit list is in the `Entrancement` Javadoc.
+- **MOB-02:** zombies, husks and zombie villagers. Vanilla `setCanBreakDoors` is forced off.
+  - A `BreakDoorGoal` subclass (240 ticks, every difficulty except Peaceful) breaks only `#minecraft:wooden_doors`, and only while pursuing a player.
+  - "Pursuing" means the target is a player now, or was within the last 300 ticks; vanilla forgets a player about 3 s after a door closes.
+  - While breaking with no target, the zombie stays at the door.
+  - Paths may open doors only while pursuing. A metal-door goal swings and bangs, and never damages the door.
+- **MOB-03:** a creeper meeting vanilla's sun-burn test stops (fuse out), smokes for `mob.creeper.evaporation_ticks` (10) and is discarded: no explosion, no drops. Rain protects it, as it protects zombies.
 
 ## Next steps
-
-### 02C (finish)
-
-1. **Wire LIGHT-01 and MOB-01.**
-   - Add `"light.BlockStateBaseMixin"` and `"mobs.RandomStrollGoalMixin"` to `simple_block.mixins.json`.
-   - List both in the `SimpleBlock` Javadoc and the README table.
-2. **MOB-02 zombie doors** (design settled, verified against the 26.3 sources).
-   - Family: `Zombie`, `Husk` and `ZombieVillager` share `Zombie.addBehaviourGoals`. Exclude `Drowned` (amphibious navigation) and `ZombifiedPiglin` (neutral Nether mob); both override `addBehaviourGoals`. Document the exclusions.
-   - Mixin `Zombie.setCanBreakDoors` to always pass `false`, so vanilla's random Hard-mode door breakers (passive vandalism through `MoveThroughVillageGoal`) are gone.
-   - Inject at TAIL of `Zombie.addBehaviourGoals` to add a `BreakDoorGoal` subclass at priority 1:
-     - predicate: difficulty is not peaceful; break time is vanilla's `DEFAULT_DOOR_BREAK_TIME` of 240;
-     - `canUse`/`canContinueToUse` also require `getTarget() instanceof Player`;
-     - only `#minecraft:wooden_doors`. Vanilla `DoorBlock.isWoodenDoor` also accepts copper doors because they open by hand.
-   - Each tick, set `navigation.setCanOpenDoors(target is Player)`.
-   - Add a metal-door goal: while pursuing and within about 2 blocks of a closed non-wooden `DoorBlock`, swing and play `levelEvent(1020)` (`SOUND_ZOMBIE_IRON_DOOR`) every ~20–40 ticks, never damaging the door.
-   - `BreakDoorGoal` already respects the `mob_griefing` game rule.
-3. **MOB-03 creepers.**
-   - In a `Creeper.tick` mixin (server side), add a `@Unique` countdown.
-   - Start it under the same conditions as `Mob.isSunBurnTick`: environment attribute `MONSTERS_BURN` at the position, `getLightLevelDependentMagicValue() > 0.5`, the random onset `nextFloat()*30 < (br-0.4)*2`, not in water/rain/powder snow, and `canSeeSky(eye pos)`.
-   - When it starts: `setSwellDir(-1)`, stop navigation, and freeze the AI.
-   - For `mob.creeper.evaporation_ticks` ticks, send smoke/ash/poof particles with `ServerLevel.sendParticles` and a soft fizz sound.
-   - Then `discard()`: no explosion, no loot, no death event.
-4. **Tests** (new `MobGameTests`, own test environments so each runs alone in its batch; force-load the chunks used with `setChunkForced`; clean up mobs and blocks at the end).
-   - Torch emits 12 and lantern 15 (`getLightEmission` and real block light next to a placed torch).
-   - Statistical MOB-01:
-     - about 20 persistent zombies midway between a torch-lit zone and an equal dark zone at night, 600 ticks, compare time spent within 6 blocks of each;
-     - a walled lit enclosure vs a walled dark one (presence along the outside perimeter);
-     - daytime with husks, which don't burn: no difference;
-     - spread of the final positions;
-     - pursuit: a survival player is targeted, and when they switch to creative the zombie loses the target and drifts back to the light;
-     - tick time with 40 mobs, on vs off.
-   - Use a creative player within 32 blocks, or wandering stops (vanilla's `noActionTime`).
-   - Negative control: `Tuning.set("mob.entrancement.enabled", false)`.
-   - Doors on Normal difficulty: pursuing zombie breaks oak/spruce doors in about 240 ticks; an iron door gets attacked but stays; an unaware zombie by a closed door with light behind it leaves it intact.
-   - Creepers: direct sun → removed after the effect with no explosion or drops; roofed, torch-lit cave and night → survive. Client screenshot of the poof.
-5. Run the negative control for the 02C restriction tests, build, commit, push and check CI.
 
 ### 02D
 
 1. **FOOD-01.**
-   - Halve sprint, jump, swim and mining exhaustion (locked 0.5, a constant) with `@ModifyArg` on the `causeFoodExhaustion` calls in `Player` (sprint, jump, swim) and `Block.playerDestroy`.
+   - Halve sprint, jump, swim and mining exhaustion (locked 0.5, a constant) with `@ModifyArg` on the `causeFoodExhaustion` calls in `ServerPlayer.checkMovementStatistics` (sprint, swim), `ServerPlayer.jumpFromGround` and `Block.playerDestroy`.
    - Leave combat (attack/hurt) and regeneration exhaustion unchanged.
 2. **Saturation HUD.** Draw a saturation outline over the food bar with the Fabric HUD API (client), on by default.
 3. **Tests.**
@@ -82,6 +54,19 @@ These files compile but do nothing yet: their mixins are **not** listed in `simp
    - Push, then confirm the CI Build is green and its artifact has the new `build-info.json`.
 
 ## Decisions flagged for the user (go in the report)
+
+02C additions:
+
+- **Copper doors:** they count as metal doors (attacked, never broken), although vanilla's "wooden door" check (`DoorBlock.isWoodenDoor` = opens by hand) includes them. Wooden means `#minecraft:wooden_doors`.
+- **Pursuit memory:** a zombie counts as chasing for 300 ticks after it last had a player target, so a door shut in its face still gets broken (vanilla forgets the player after about 3 s). Paths through doors (opening them) are also only allowed during a chase.
+- **Excluded from the attraction:**
+  - Flying and water-bound mobs (the Wither, guardians), because land destinations would break their movement.
+  - Mobs whose AI has no wander goal (slimes, phantoms, ghasts, wardens, piglins and others).
+  - Drowned *are* attracted.
+- **Rain:** rain and thunderstorms protect creepers from evaporating, exactly as they protect zombies from burning.
+- **Exhaustion factor:** `M02_HUNGER_HUD.md` asks for a config key for it, but `M02_DECISIONS_AND_TUNING.md` locks 50% for the first balance pass. It will be a constant (the CLAUDE.md rule for locked values); turning it into a tuning key is a one-line change.
+
+02A/02B:
 
 1. Heavy accounting is in 1/216 ingot (rails 3/8, hanging signs 11/27) instead of ninths. The capacity is the same 64.
 2. Any spawn-preventing block light counts for attraction, including lava, glow lichen and so on.

@@ -37,3 +37,33 @@ heavy_load_game_tests_bundles_creative_and_mode_changes failed at 1320601, 4, 96
 ```
 
 Passing without the change, as expected: the weight-table and recipe audits (they check data), crafting at the cap (a "no false refusal" check), sorting (calls the sort directly) and movement speed.
+
+## 02C (light and hostile mobs)
+
+Removed: the `light.BlockStateBaseMixin`, `mobs.RandomStrollGoalMixin`, `mobs.ZombieMixin` and `mobs.CreeperMixin` mixins. The test-only `mobs.MobAccessor` stays, because the door tests use it to read the goal selector. Ran `MobGameTests`. Result: **8 failures**:
+
+```
+mob_game_tests_torch_and_lantern_light failed: Block{minecraft:torch} emits 14, expected 12; Block{minecraft:wall_torch} emits 14, expected 12; Block{minecraft:copper_torch} emits 14, expected 12; Block{minecraft:copper_wall_torch} emits 14, expected 12
+mob_game_tests_zombies_drift_to_lit_ground_at_night failed: lit ground should be far busier than the dark area   (control 38% / 21%, "on" 41% / 28%)
+mob_game_tests_light_behind_walls_still_attracts failed: zombies should gather round the lit box more than the dark one   (control 20% / 23%, "on" 20% / 12%)
+mob_game_tests_pursuing_zombie_breaks_oak_door failed: waiting for the oak_door to be broken on tick 6902
+mob_game_tests_pursuing_zombie_breaks_crimson_door failed: waiting for the crimson_door to be broken on tick 6902
+mob_game_tests_metal_doors_are_attacked_but_not_damaged failed: zombie should attack the iron door
+mob_game_tests_creeper_dissolves_in_sunlight failed: waiting for the creeper to dissolve on tick 6702
+mob_game_tests_attraction_is_cheap failed: zombies should have made wander decisions: 0
+```
+
+All but the last are expected:
+- Vanilla torches give 14.
+- Vanilla mobs show no lit/dark difference.
+- Vanilla zombies on Normal never break doors.
+- Vanilla has no metal-door attack and no evaporation.
+
+`attraction_is_cheap` fails only because its decision counter lives in the removed hook. It measures cost; it is not a restriction test.
+
+Passing without the change, as they should, because each checks that vanilla behaviour is kept:
+- `unaware_zombies_leave_doors_alone`
+- `creepers_in_shade_or_torchlight_stay`
+- `creepers_at_night_stay`
+- `no_attraction_in_daytime`: husks 18% / 47%.
+- `pursuit_overrides_then_attraction_resumes`: the zombies start in the lit area and vanilla wandering leaves them there 74% of the time, so this test shows that combat still comes first, not the attraction itself.

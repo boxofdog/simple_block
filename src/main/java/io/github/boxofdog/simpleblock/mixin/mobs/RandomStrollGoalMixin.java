@@ -26,6 +26,6 @@ abstract class RandomStrollGoalMixin {
 	@ModifyExpressionValue(method = "canUse", at = @At(value = "INVOKE",
 		target = "Lnet/minecraft/world/entity/ai/goal/RandomStrollGoal;getPosition()Lnet/minecraft/world/phys/Vec3;"))
 	private Vec3 simpleBlock$drawnToLight(Vec3 wanted) {
-		return wanted == null ? null : Entrancement.redirect(this.mob, wanted);
+		return Entrancement.redirect(this.mob, wanted);
 	}
 }

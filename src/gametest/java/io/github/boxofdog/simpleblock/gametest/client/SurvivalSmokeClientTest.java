@@ -14,14 +14,19 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.item.ItemEntity;
+import net.minecraft.world.entity.monster.Creeper;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.level.LightLayer;
 import net.minecraft.world.level.levelgen.Heightmap;
+import net.minecraft.world.phys.AABB;
 
 import net.fabricmc.fabric.api.client.gametest.v1.FabricClientGameTest;
 import net.fabricmc.fabric.api.client.gametest.v1.context.ClientGameTestContext;
 import net.fabricmc.fabric.api.client.gametest.v1.context.TestServerContext;
 import net.fabricmc.fabric.api.client.gametest.v1.context.TestSingleplayerContext;
 
+import io.github.boxofdog.simpleblock.feature.CreeperEvaporation;
 import io.github.boxofdog.simpleblock.feature.HeavyLoad;
 import io.github.boxofdog.simpleblock.feature.InventorySlots;
 import io.github.boxofdog.simpleblock.gametest.SimpleBlockTestLog;
@@ -49,6 +54,8 @@ public class SurvivalSmokeClientTest implements FabricClientGameTest {
 			movement(context, server, ground);
 			elytra(context, server, ground);
 			inventory(context, server);
+			light(context, server, ground);
+			creeper(context, server, ground);
 		}
 	}
 
@@ -217,6 +224,56 @@ public class SurvivalSmokeClientTest implements FabricClientGameTest {
 		assertTrue(fullServer == HeavyLoad.CAPACITY && fullClient == fullServer, "load should stop at 64 and the indicator agree");
 		server.runCommand("kill @e[type=minecraft:item]");
 		server.runCommand("clear @a");
+	}
+
+	/** LIGHT-01 in the client's own light data: a placed torch gives 12, a lantern 15. */
+	private static void light(ClientGameTestContext context, TestServerContext server, int ground) {
+		BlockPos torch = new BlockPos(-3, ground, 0);
+		BlockPos lantern = new BlockPos(3, ground, 0);
+		server.runCommand("setblock " + torch.getX() + " " + ground + " 0 minecraft:torch");
+		server.runCommand("setblock " + lantern.getX() + " " + ground + " 0 minecraft:lantern");
+		context.waitFor(client -> client.level.getBrightness(LightLayer.BLOCK, torch) > 0 && client.level.getBrightness(LightLayer.BLOCK, lantern) > 0, 100);
+		context.waitTicks(5);
+		int torchLight = context.computeOnClient(client -> client.level.getBrightness(LightLayer.BLOCK, torch));
+		int lanternLight = context.computeOnClient(client -> client.level.getBrightness(LightLayer.BLOCK, lantern));
+		SimpleBlockTestLog.info("CLIENT LIGHT: client block light at a torch {}, at a lantern {}", torchLight, lanternLight);
+		assertTrue(torchLight == 12, "client torch light should be 12, was " + torchLight);
+		assertTrue(lanternLight == 15, "client lantern light should be 15, was " + lanternLight);
+		server.runCommand("fill -3 " + ground + " 0 3 " + ground + " 0 minecraft:air");
+	}
+
+	/**
+	 * MOB-03 on screen: a creeper in the noon sun smokes for half a second and is gone, without an
+	 * explosion or drops. It has no AI so that it stands still in front of the camera rather than
+	 * chasing the survival player (the evaporation does not depend on the AI).
+	 */
+	private static void creeper(ClientGameTestContext context, TestServerContext server, int ground) {
+		server.runCommand("time set noon");
+		server.runCommand("weather clear");
+		server.runCommand("tp @a 0.5 " + ground + " 0.5 0 10");
+		context.waitTicks(5);
+		float health = context.computeOnClient(client -> client.player.getHealth());
+		server.runCommand("summon minecraft:creeper 0.5 " + ground + " 4.5 {NoAI:1b,Rotation:[180f,0f]}");
+		boolean smoking = false;
+		for (int tick = 0; tick < 400 && !smoking; tick++) {
+			context.waitTick();
+			smoking = server.computeOnServer(s -> s.overworld().getEntitiesOfClass(Creeper.class, new AABB(new BlockPos(0, ground, 4)).inflate(4))
+					.stream().anyMatch(CreeperEvaporation::isEvaporating));
+		}
+		context.waitTicks(3);
+		context.takeScreenshot("creeper-smoking-in-sunlight");
+		context.waitTicks(20);
+		context.takeScreenshot("creeper-gone");
+		int creepers = server.computeOnServer(s -> s.overworld().getEntitiesOfClass(Creeper.class, new AABB(new BlockPos(0, ground, 4)).inflate(8)).size());
+		int clientCreepers = context.computeOnClient(client -> client.level.getEntitiesOfClass(Creeper.class, new AABB(new BlockPos(0, ground, 4)).inflate(8)).size());
+		int drops = server.computeOnServer(s -> s.overworld().getEntitiesOfClass(ItemEntity.class, new AABB(new BlockPos(0, ground, 4)).inflate(8)).size());
+		float healthAfter = context.computeOnClient(client -> client.player.getHealth());
+		SimpleBlockTestLog.info("CLIENT CREEPER: creeper in the noon sun started smoking: {}; afterwards creepers on server {} / client {}, item drops {}, "
+				+ "player health {} -> {}", smoking, creepers, clientCreepers, drops, health, healthAfter);
+		assertTrue(smoking, "the creeper should start smoking in the sun");
+		assertTrue(creepers == 0 && clientCreepers == 0, "the creeper should be gone on server and client");
+		assertTrue(drops == 0, "no drops");
+		assertTrue(healthAfter >= health, "no explosion damage");
 	}
 
 	private static ServerPlayer playerOf(ServerLevel level) {

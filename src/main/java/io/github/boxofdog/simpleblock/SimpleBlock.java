@@ -42,6 +42,13 @@ import io.github.boxofdog.simpleblock.worldgen.IronWorldgen;
  *   <li>INV-03 hotbar fills from the left — {@code mixin/inventory/AbstractContainerMenuMixin}</li>
  *   <li>INV-04 64-ingot heavy load — {@link HeavyLoad}, {@code feature/HeavyTransfers},
  *       {@code mixin/inventory/*}, {@code simple_block/heavy_weights.json}, client indicator</li>
+ *   <li>LIGHT-01 torches give 12 — {@code feature/LightLevels}, {@code mixin/light}</li>
+ *   <li>MOB-01 night attraction to lit ground — {@code feature/Entrancement},
+ *       {@code mixin/mobs/RandomStrollGoalMixin}</li>
+ *   <li>MOB-02 zombies break wooden doors only in pursuit — {@code feature/ZombieDoors},
+ *       {@code mixin/mobs/ZombieMixin}</li>
+ *   <li>MOB-03 creepers dissolve in sunlight — {@code feature/CreeperEvaporation},
+ *       {@code mixin/mobs/CreeperMixin}</li>
  * </ul>
  */
 public class SimpleBlock implements ModInitializer {
