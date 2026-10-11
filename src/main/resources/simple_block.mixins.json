@@ -4,6 +4,8 @@
 	"compatibilityLevel": "JAVA_25",
 	"mixins": [
 		"elytra.EndCityPieceMixin",
+		"food.BlockMixin",
+		"food.ServerPlayerMixin",
 		"geology.OreVeinRuleMixin",
 		"geology.WorldGenRegionMixin",
 		"inventory.AbstractContainerMenuMixin",

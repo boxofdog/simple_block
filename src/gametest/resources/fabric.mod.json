@@ -20,7 +20,8 @@
 			"io.github.boxofdog.simpleblock.gametest.WorldgenGameTests",
 			"io.github.boxofdog.simpleblock.gametest.InventoryGameTests",
 			"io.github.boxofdog.simpleblock.gametest.HeavyLoadGameTests",
-			"io.github.boxofdog.simpleblock.gametest.MobGameTests"
+			"io.github.boxofdog.simpleblock.gametest.MobGameTests",
+			"io.github.boxofdog.simpleblock.gametest.FoodGameTests"
 		],
 		"fabric-client-gametest": [
 			"io.github.boxofdog.simpleblock.gametest.client.SurvivalSmokeClientTest"

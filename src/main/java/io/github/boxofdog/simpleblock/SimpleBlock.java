@@ -10,6 +10,7 @@ import io.github.boxofdog.simpleblock.feature.InventorySlots;
 import io.github.boxofdog.simpleblock.feature.InventorySort;
 import io.github.boxofdog.simpleblock.feature.NoElytraFlight;
 import io.github.boxofdog.simpleblock.feature.RemovedRocks;
+import io.github.boxofdog.simpleblock.feature.SaturationSync;
 import io.github.boxofdog.simpleblock.tuning.Tuning;
 import io.github.boxofdog.simpleblock.worldgen.IronWorldgen;
 
@@ -49,6 +50,9 @@ import io.github.boxofdog.simpleblock.worldgen.IronWorldgen;
  *       {@code mixin/mobs/ZombieMixin}</li>
  *   <li>MOB-03 creepers dissolve in sunlight — {@code feature/CreeperEvaporation},
  *       {@code mixin/mobs/CreeperMixin}</li>
+ *   <li>FOOD-01 half activity exhaustion — {@code feature/Exhaustion}, {@code mixin/food};
+ *       saturation display — {@link SaturationSync}, {@code network/SaturationPayload}, client
+ *       {@code SaturationHud}</li>
  * </ul>
  */
 public class SimpleBlock implements ModInitializer {
@@ -64,5 +68,6 @@ public class SimpleBlock implements ModInitializer {
 		HeavyLoad.load();
 		InventorySlots.register();
 		InventorySort.register();
+		SaturationSync.register();
 	}
 }

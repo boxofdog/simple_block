@@ -33,6 +33,7 @@ Milestone 02 (world, night, inventory) is in progress; see [`docs/MILESTONE_02.m
 | MOB-01 | At Overworld night, hostile mobs that wander drift towards ground with block light within 20 blocks and loiter there, spread out. Walls don't hide the light but do stop the mobs, so they hang about outside. A player in sight still comes first. | `feature/Entrancement`, `mixin/mobs/RandomStrollGoalMixin` |
 | MOB-02 | Zombies, husks and zombie villagers break wooden doors only while chasing a player, on every difficulty except Peaceful, at the vanilla Hard pace (12 s). Iron and copper doors get attacked but never damaged. No door breaking without a chase. | `feature/ZombieDoors`, `mixin/mobs/ZombieMixin` |
 | MOB-03 | Creepers in direct sunlight smoke for half a second and are gone: no explosion, no drops. Shade, caves, rain and night keep them. | `feature/CreeperEvaporation`, `mixin/mobs/CreeperMixin` |
+| FOOD-01 | Sprinting, jumping, swimming and breaking blocks cost half the vanilla hunger exhaustion; fighting, taking damage, healing and the Hunger effect are unchanged. Saturation is shown on the food bar: the food icons it covers are drawn in gold and underlined. | `feature/Exhaustion`, `mixin/food/*`, `feature/SaturationSync`, client `SaturationHud` |
 
 Provisional numbers (ore amounts, deposit shapes, the diamond share) are in one table, `tuning/Tuning.java`. To change one in a game, copy its line from `config/simple_block/tuning-defaults.json` into `config/simple_block/tuning.json` and restart; worldgen values affect newly generated chunks.
 

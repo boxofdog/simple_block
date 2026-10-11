@@ -67,3 +67,14 @@ Passing without the change, as they should, because each checks that vanilla beh
 - `creepers_at_night_stay`
 - `no_attraction_in_daytime`: husks 18% / 47%.
 - `pursuit_overrides_then_attraction_resumes`: the zombies start in the lit area and vanilla wandering leaves them there 74% of the time, so this test shows that combat still comes first, not the attraction itself.
+
+## 02D (hunger)
+
+Removed: the `food.ServerPlayerMixin` and `food.BlockMixin` mixins. Ran `FoodGameTests`. Result: `activity_exhaustion_is_halved` **fails**; every activity costs exactly vanilla's exhaustion:
+
+```
+FOOD-01 activities: sprint 10 blocks 1.0000 (vanilla 1.0000, x1.00); walk 10 blocks 0.0000 (vanilla 0.0000, x0.00); swim 10 blocks 0.1000 (vanilla 0.1000, x1.00); 10 jumps 0.5000 (vanilla 0.5000, x1.00); 10 sprint-jumps 2.0000 (vanilla 2.0000, x1.00); break 10 dirt 0.0500 (vanilla 0.0500, x1.00)
+food_game_tests_activity_exhaustion_is_halved failed: walk 10 blocks under water: 0.099999994 instead of 0.049999997 (vanilla 0.099999994)
+```
+
+`combat_regeneration_and_hunger_effect_unchanged` passes without the change, as it should: it checks that those costs stay vanilla.

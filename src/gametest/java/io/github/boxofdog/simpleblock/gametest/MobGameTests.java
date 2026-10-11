@@ -460,10 +460,10 @@ public class MobGameTests {
 				SimpleBlockTestLog.info("MOB-01 open ground, 24 zombies, night: share of zombie-samples on lit ground / on the dark mirror area: "
 					+ "control (attraction off) {} / {}, attraction on {} / {} ({} samples each); at the end {} zombies on lit ground on {} different blocks",
 					pct(control[0], control[2]), pct(control[1], control[2]), pct(test[0], test[2]), pct(test[1], test[2]), (int) test[2], onLit, blocks.size());
+				double gap = litShare - test[1] / test[2];
 				helper.assertTrue(litShare > 0.35, "lit-ground presence with attraction: " + pct(test[0], test[2]));
-				helper.assertTrue(test[0] > 4 * test[1], "lit ground should be far busier than the dark area");
-				helper.assertTrue(litShare - test[1] / test[2] > controlLitShare - control[1] / control[2] + 0.3,
-					"attraction should raise lit-ground presence over the control");
+				helper.assertTrue(test[0] > 2.5 * test[1] && gap > 0.3, "lit ground should be far busier than the dark area");
+				helper.assertTrue(gap > controlLitShare - control[1] / control[2] + 0.25, "attraction should raise lit-ground presence over the control");
 				helper.assertTrue(blocks.size() >= Math.max(3, onLit * 2 / 3), "zombies should spread out, not stack on one spot");
 			})
 			.thenSucceed();

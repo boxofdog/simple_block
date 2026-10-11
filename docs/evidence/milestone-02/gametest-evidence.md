@@ -75,6 +75,11 @@ How the mob experiments work (`MobGameTests`):
   - "Lit ground" is the attraction's own definition: block light above 0. Torch light reaches about 11 blocks past the torches.
   - Presence is sampled every 10 ticks after the first 300 ticks of each 1200-tick phase.
 
+Follow-up (commit `9c5a486`, after CI run 7 failed on a night-timing flake):
+- The walled experiment now uses 32 zombies and 2400-tick phases. With the mod it measured 40–58% round the lit box vs 4–8% (6 runs plus the 63-test build); without the mixins it failed every time (3 runs).
+- The open-ground test asserts a lit-minus-dark gap (> 30 points and 25 more than the control) instead of a 4× ratio.
+- Build of 02D: open ground 89% / 6% (control 35% / 24%); walled 58% / 6% (control 13% / 16%).
+
 Stability: the 13 mob tests were run repeatedly while the experiments were tuned. The last five runs all passed: two before and two after the final pursuit-test change (at least three of four zombies need to notice the player), plus the full build.
 - Open ground: lit ground 67–83% vs dark 0–6% (control 24–39% / 21–32%).
 - Walled boxes: 43–59% round the lit box vs 2–10% round the dark one.
@@ -91,3 +96,37 @@ Screenshots in `mobs-and-light/`:
 - `creeper-gone.png`: the final poof, about one second later, with the creeper gone.
 
 The creeper has no AI so it stands still in front of the camera; evaporation does not depend on the AI.
+
+## 02D (hunger and saturation display)
+
+`./gradlew build` after 02D: **63 required server game tests passed** (adds 2 in `FoodGameTests`). Evidence lines (exhaustion added; vanilla 26.3 value; ratio):
+
+```
+FOOD-01 activities: sprint 10 blocks 0.5000 (vanilla 1.0000, x0.50); walk 10 blocks 0.0000 (vanilla 0.0000, x0.00); swim 10 blocks 0.0500 (vanilla 0.1000, x0.50); 10 jumps 0.2500 (vanilla 0.5000, x0.50); 10 sprint-jumps 1.0000 (vanilla 2.0000, x0.50); break 10 dirt 0.0250 (vanilla 0.0500, x0.50)
+FOOD-01 activities: walk 10 blocks under water 0.0500 (vanilla 0.1000, x0.50)
+FOOD-02 unchanged costs: attack a zombie 0.1000 (vanilla 0.1000, x1.00); take a zombie hit 0.1000 (vanilla 0.1000, x1.00); regenerate from saturation (10 food ticks) 3.0000 (vanilla 3.0000, x1.00); regenerate from food (80 food ticks) 6.0000 (vanilla 6.0000, x1.00); Hunger effect, 20 ticks 0.1000 (vanilla 0.1000, x1.00)
+```
+
+The activities run through the methods vanilla itself calls:
+- `ServerPlayer.checkMovementStatistics`, which handles a player's movement packets.
+- `ServerPlayer.jumpFromGround`.
+- `ServerPlayerGameMode.destroyBlock`.
+- `Player.attack` and `hurtServer`.
+- `FoodData.tick`.
+- The Hunger effect's tick.
+
+Real-client test, 02D step:
+
+```
+CLIENT FOOD: saturation server/client after eating a steak 12.8 / 12.8, after 4.5 exhaustion 11.8 / 11.8, after regeneration 8.8 / 8.8 (health 14 -> 16.0); sprinted 11.19 blocks for 0.5440 exhaustion = 0.0486 per block (vanilla 0.1)
+```
+
+- The exertion step changes saturation without changing food or health, which vanilla does not sync to the client. The client still matched the server, through `SaturationPayload`.
+- The sprint was real keyboard input in the real client, charged by the server from the movement packets: 0.049 exhaustion per block against vanilla's 0.1 (the first ticks of acceleration are not yet sprinting).
+
+Screenshots in `food-and-hud/`:
+- `hud-saturation-after-eating.png`: saturation 12.8, so 6 gold, underlined icons over 9 food icons; 854×480, auto scale 2.
+- `hud-saturation-gui-scale-1/2/3.png`: saturation 7, so 3.5 icons; 1280×720.
+- `inventory-gui-scale-3.png`: the 27-slot inventory at the largest scale.
+- `hud-hidden-f1.png`: F1, nothing drawn.
+- `hud-creative-no-food-bar.png`: creative, no food bar and no overlay.

@@ -4,6 +4,8 @@ import net.minecraft.client.Minecraft;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.mojang.blaze3d.platform.InputConstants;
+
 import net.minecraft.client.gui.screens.InBedChatScreen;
 import net.minecraft.client.gui.screens.inventory.InventoryScreen;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -16,6 +18,7 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.monster.Creeper;
+import net.minecraft.world.food.FoodData;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.LightLayer;
 import net.minecraft.world.level.levelgen.Heightmap;
@@ -56,6 +59,7 @@ public class SurvivalSmokeClientTest implements FabricClientGameTest {
 			inventory(context, server);
 			light(context, server, ground);
 			creeper(context, server, ground);
+			food(context, server, ground);
 		}
 	}
 
@@ -274,6 +278,158 @@ public class SurvivalSmokeClientTest implements FabricClientGameTest {
 		assertTrue(creepers == 0 && clientCreepers == 0, "the creeper should be gone on server and client");
 		assertTrue(drops == 0, "no drops");
 		assertTrue(healthAfter >= health, "no explosion damage");
+	}
+
+	/**
+	 * FOOD-01 on screen and over the network: the saturation shown by the client follows the server
+	 * after eating, after exertion (a change vanilla does not send by itself) and during
+	 * regeneration; a real sprint costs half of vanilla's 0.1 exhaustion per block; screenshots of
+	 * the gold saturation icons at GUI scales 1-3 and of creative mode (no food bar, no overlay).
+	 */
+	private static void food(ClientGameTestContext context, TestServerContext server, int ground) {
+		server.runCommand("clear @a");
+		server.runCommand("effect clear @a");
+		server.runCommand("gamemode survival @a");
+		server.runCommand("tp @a 0.5 " + ground + " 0.5 0 0");
+		server.computeOnServer(s -> {
+			ServerPlayer player = playerOf(s.overworld());
+			player.setHealth(20.0F);
+			player.getFoodData().setFoodLevel(10);
+			player.getFoodData().setSaturation(0.0F);
+			return null;
+		});
+		server.runCommand("item replace entity @a weapon.mainhand with minecraft:cooked_beef 4");
+		context.waitTicks(5);
+		context.getInput().holdKeyFor(options -> options.keyUse, 40);
+		context.waitTicks(5);
+		float[] afterEating = saturations(context, server);
+		context.takeScreenshot("hud-saturation-after-eating");
+
+		// Exertion: the next food tick turns 4 exhaustion into 1 saturation; food and health stay as they are.
+		server.computeOnServer(s -> {
+			playerOf(s.overworld()).causeFoodExhaustion(4.5F);
+			return null;
+		});
+		context.waitTicks(5);
+		float[] afterExertion = saturations(context, server);
+
+		// Regeneration from saturation: full food and missing health.
+		server.computeOnServer(s -> {
+			ServerPlayer player = playerOf(s.overworld());
+			player.getFoodData().setFoodLevel(20);
+			player.setHealth(14.0F);
+			return null;
+		});
+		context.waitTicks(25);
+		float[] afterHealing = saturations(context, server);
+		float healthAfterHealing = server.computeOnServer(s -> playerOf(s.overworld()).getHealth());
+
+		// A real sprint: the client sends its movement and the server charges it.
+		server.computeOnServer(s -> {
+			ServerPlayer player = playerOf(s.overworld());
+			player.setHealth(20.0F);
+			player.getFoodData().setFoodLevel(18);
+			player.getFoodData().setSaturation(5.0F);
+			setExhaustion(player, 0.0F);
+			return null;
+		});
+		context.waitTicks(2);
+		double startX = server.computeOnServer(s -> playerOf(s.overworld()).getX());
+		double startZ = server.computeOnServer(s -> playerOf(s.overworld()).getZ());
+		context.getInput().holdKey(options -> options.keySprint);
+		context.getInput().holdKeyFor(options -> options.keyUp, 40);
+		context.getInput().releaseKey(options -> options.keySprint);
+		context.waitTicks(5);
+		double sprinted = server.computeOnServer(s -> Math.hypot(playerOf(s.overworld()).getX() - startX, playerOf(s.overworld()).getZ() - startZ));
+		float sprintExhaustion = server.computeOnServer(s -> exhaustion(playerOf(s.overworld())));
+
+		// GUI scales at 1280x720 (auto would be 3), then creative.
+		server.computeOnServer(s -> {
+			ServerPlayer player = playerOf(s.overworld());
+			player.getFoodData().setFoodLevel(20);
+			player.getFoodData().setSaturation(7.0F);
+			return null;
+		});
+		context.getInput().resizeWindow(1280, 720);
+		for (int scale = 1; scale <= 3; scale++) {
+			int guiScale = scale;
+			context.runOnClient(client -> {
+				client.options.guiScale().set(guiScale);
+				client.resizeGui();
+			});
+			context.waitTicks(3);
+			context.takeScreenshot("hud-saturation-gui-scale-" + scale);
+		}
+		// At the largest scale: the 27-slot inventory, then the HUD hidden with F1.
+		context.getInput().pressKey(options -> options.keyInventory);
+		context.waitForScreen(InventoryScreen.class);
+		context.waitTicks(2);
+		context.takeScreenshot("inventory-gui-scale-3");
+		context.getInput().pressKey(options -> options.keyInventory);
+		context.waitTicks(3);
+		context.getInput().pressKey(InputConstants.KEY_F1);
+		context.waitTicks(3);
+		boolean hidden = context.computeOnClient(client -> client.gui.hud.isHidden());
+		context.takeScreenshot("hud-hidden-f1");
+		context.getInput().pressKey(InputConstants.KEY_F1);
+		context.waitTicks(3);
+		assertTrue(hidden, "F1 should hide the HUD");
+		server.runCommand("gamemode creative @a");
+		context.waitTicks(5);
+		context.takeScreenshot("hud-creative-no-food-bar");
+		server.runCommand("gamemode survival @a");
+		context.runOnClient(client -> {
+			client.options.guiScale().set(0);
+			client.resizeGui();
+		});
+		context.getInput().resizeWindow(854, 480);
+		context.waitTicks(3);
+
+		SimpleBlockTestLog.info("CLIENT FOOD: saturation server/client after eating a steak {} / {}, after 4.5 exhaustion {} / {}, after regeneration "
+				+ "{} / {} (health 14 -> {}); sprinted {} blocks for {} exhaustion = {} per block (vanilla 0.1)", afterEating[0], afterEating[1],
+				afterExertion[0], afterExertion[1], afterHealing[0], afterHealing[1], healthAfterHealing, String.format("%.2f", sprinted),
+				String.format("%.4f", sprintExhaustion), String.format("%.4f", sprintExhaustion / sprinted));
+		assertTrue(afterEating[0] > 0.0F && afterEating[0] == afterEating[1], "client saturation should match the server after eating");
+		assertTrue(afterExertion[0] == afterEating[0] - 1.0F && afterExertion[1] == afterExertion[0], "client saturation should follow exertion");
+		assertTrue(afterHealing[0] < afterExertion[0] && afterHealing[1] == afterHealing[0], "client saturation should follow regeneration");
+		assertTrue(sprinted > 5.0, "the player should have sprinted");
+		double perBlock = sprintExhaustion / sprinted;
+		assertTrue(perBlock > 0.035 && perBlock < 0.0525, "sprinting should cost about 0.05 exhaustion per block, was " + perBlock);
+		server.runCommand("clear @a");
+	}
+
+	/** Server and client saturation of the player: [0] server, [1] client. */
+	private static float[] saturations(ClientGameTestContext context, TestServerContext server) {
+		float serverValue = server.computeOnServer(s -> playerOf(s.overworld()).getFoodData().getSaturationLevel());
+		float clientValue = context.computeOnClient(client -> client.player.getFoodData().getSaturationLevel());
+		return new float[] {serverValue, clientValue};
+	}
+
+	private static final java.lang.reflect.Field EXHAUSTION;
+
+	static {
+		try {
+			EXHAUSTION = FoodData.class.getDeclaredField("exhaustionLevel");
+			EXHAUSTION.setAccessible(true);
+		} catch (ReflectiveOperationException e) {
+			throw new IllegalStateException(e);
+		}
+	}
+
+	private static float exhaustion(ServerPlayer player) {
+		try {
+			return EXHAUSTION.getFloat(player.getFoodData());
+		} catch (IllegalAccessException e) {
+			throw new IllegalStateException(e);
+		}
+	}
+
+	private static void setExhaustion(ServerPlayer player, float value) {
+		try {
+			EXHAUSTION.setFloat(player.getFoodData(), value);
+		} catch (IllegalAccessException e) {
+			throw new IllegalStateException(e);
+		}
 	}
 
 	private static ServerPlayer playerOf(ServerLevel level) {

@@ -7,5 +7,6 @@ public class SimpleBlockClient implements ClientModInitializer {
 	@Override
 	public void onInitializeClient() {
 		InventoryScreenAddons.register();
+		SaturationHud.register();
 	}
 }

@@ -2,7 +2,7 @@
 
 Written at the end of a session that ran out of context. **Read this first when resuming Milestone 02**, then continue with "Next steps". Do not redo finished phases and do not widen the scope beyond `docs/MILESTONE_02.md`.
 
-State: `main` builds and passes all **61 server game tests** (`./gradlew build`), and the real-client test passes. 02A, 02B and 02C are done; **02D is next**. CI Build runs #4 (02A), #5 (02B) and #6 (checkpoint) published updater-installable artifacts.
+State: **Milestone 02 is complete.** `main` builds and passes all **63 server game tests** (`./gradlew clean build`), and the real-client test passes. The final report is `docs/MILESTONE_02_REPORT.md` (test matrix, configuration, decisions). CI Build runs #4 (02A), #5 (02B), #6 (checkpoint) and #8 (02C) published updater-installable artifacts; run #7 failed on a test-timing flake fixed in #8.
 
 ## Done and verified
 
@@ -36,22 +36,20 @@ What was built:
   - Paths may open doors only while pursuing. A metal-door goal swings and bangs, and never damages the door.
 - **MOB-03:** a creeper meeting vanilla's sun-burn test stops (fuse out), smokes for `mob.creeper.evaporation_ticks` (10) and is discarded: no explosion, no drops. Rain protects it, as it protects zombies.
 
+## Done: 02D (hunger and saturation display)
+
+| Items | Verification | Evidence |
+|---|---|---|
+| FOOD-01, saturation display | 2 game tests (`FoodGameTests`: activities ×0.50, combat/regeneration/Hunger ×1.00); negative control; real-client step (saturation sync after eating/exertion/regeneration, a real sprint at 0.049 per block, screenshots at GUI scales 1–3, F1, creative) | `gametest-evidence.md` (02D), `negative-controls.md` (02D), `food-and-hud/` |
+
 ## Next steps
 
-### 02D
+Milestone 02 needs nothing more from the agent. Next:
+1. The user playtests in a new world.
+2. The user settles the decisions in the report (section 6).
+3. The user authorises the next milestone.
 
-1. **FOOD-01.**
-   - Halve sprint, jump, swim and mining exhaustion (locked 0.5, a constant) with `@ModifyArg` on the `causeFoodExhaustion` calls in `ServerPlayer.checkMovementStatistics` (sprint, swim), `ServerPlayer.jumpFromGround` and `Block.playerDestroy`.
-   - Leave combat (attack/hurt) and regeneration exhaustion unchanged.
-2. **Saturation HUD.** Draw a saturation outline over the food bar with the Fabric HUD API (client), on by default.
-3. **Tests.**
-   - Measure exhaustion for scripted sprint/jump/swim/mine against the vanilla constants.
-   - Check combat and regeneration costs are unchanged.
-   - Client screenshots at common GUI scales.
-4. **Final pass.**
-   - Full regression (M01 tests and the client smoke test).
-   - Write `docs/MILESTONE_02_REPORT.md`: the TEST_PLAN matrix with PASS/FAIL/NOT RUN for every row, the config keys and defaults (`tuning-defaults.json`), the decisions-needed list below, and launch and update commands.
-   - Push, then confirm the CI Build is green and its artifact has the new `build-info.json`.
+Do not start Milestone 03 work without that.
 
 ## Decisions flagged for the user (go in the report)
 
