@@ -38,42 +38,46 @@ public class SleepGameTests {
 		TestPlayers.removeAll(level);
 		BlockPos bedA = new BlockPos(1, 1, 1);
 		BlockPos bedB = new BlockPos(4, 1, 1);
-		List<ServerPlayer> players = List.of(
-				sleepInNewBed(helper, bedA),
-				sleepInNewBed(helper, bedB)
-		);
+		List<ServerPlayer> players = new ArrayList<>();
 		tickPlayers(helper, players);
-		long clockAtStart = level.getOverworldClockTime();
+		long[] clockAtStart = new long[1];
 
-		for (int i = 0; i < players.size(); i++) {
-			ServerPlayer player = players.get(i);
-			BlockPos bed = helper.absolutePos(i == 0 ? bedA : bedB).relative(Direction.SOUTH);
-			helper.assertTrue(player.isSleeping(), "player " + i + " should be lying in bed at midnight");
-			helper.assertTrue(player.getRespawnConfig() != null, "bed should set a respawn point");
-			helper.assertValueEqual(player.getRespawnConfig().respawnData().pos(), bed, "respawn position");
-			helper.assertValueEqual(player.getRespawnConfig().respawnData().dimension(), level.dimension(), "respawn dimension");
-		}
+		helper.startSequence()
+				.thenWaitUntil(() -> helper.assertTrue(level.isDarkOutside(), "waiting for the night sky"))
+				.thenExecute(() -> {
+					players.add(sleepInNewBed(helper, bedA));
+					players.add(sleepInNewBed(helper, bedB));
+					clockAtStart[0] = level.getOverworldClockTime();
 
-		helper.runAfterDelay(TICKS_IN_BED, () -> {
-			long elapsed = level.getOverworldClockTime() - clockAtStart;
-			helper.assertValueInBetween(TICKS_IN_BED - 5L, elapsed, TICKS_IN_BED + 5L, "clock ticks elapsed while sleeping");
-			helper.assertTrue(level.isDarkOutside(), "it should still be night");
+					for (int i = 0; i < players.size(); i++) {
+						ServerPlayer player = players.get(i);
+						BlockPos bed = helper.absolutePos(i == 0 ? bedA : bedB).relative(Direction.SOUTH);
+						helper.assertTrue(player.isSleeping(), "player " + i + " should be lying in bed at midnight");
+						helper.assertTrue(player.getRespawnConfig() != null, "bed should set a respawn point");
+						helper.assertValueEqual(player.getRespawnConfig().respawnData().pos(), bed, "respawn position");
+						helper.assertValueEqual(player.getRespawnConfig().respawnData().dimension(), level.dimension(), "respawn dimension");
+					}
+				})
+				.thenExecuteAfter(TICKS_IN_BED, () -> {
+					long elapsed = level.getOverworldClockTime() - clockAtStart[0];
+					helper.assertValueInBetween(TICKS_IN_BED - 5L, elapsed, TICKS_IN_BED + 5L, "clock ticks elapsed while sleeping");
+					helper.assertTrue(level.isDarkOutside(), "it should still be night");
 
-			for (ServerPlayer player : players) {
-				helper.assertTrue(player.isSleeping(), "player should not have been woken by a night skip");
-				// This is exactly the state in which vanilla advances to morning and wakes everyone.
-				helper.assertTrue(player.isSleepingLongEnough(), "player should have slept long enough for vanilla to skip");
-			}
+					for (ServerPlayer player : players) {
+						helper.assertTrue(player.isSleeping(), "player should not have been woken by a night skip");
+						// This is exactly the state in which vanilla advances to morning and wakes everyone.
+						helper.assertTrue(player.isSleepingLongEnough(), "player should have slept long enough for vanilla to skip");
+					}
 
-			SimpleBlockTestLog.info("BED-01..03: {} players slept {} ticks at midnight; clock {} -> {}, still sleeping: {}",
-					players.size(), TICKS_IN_BED, clockAtStart, level.getOverworldClockTime(), players.stream().allMatch(ServerPlayer::isSleeping));
+					SimpleBlockTestLog.info("BED-01..03: {} players slept {} ticks at midnight; clock {} -> {}, still sleeping: {}",
+							players.size(), TICKS_IN_BED, clockAtStart[0], level.getOverworldClockTime(), players.stream().allMatch(ServerPlayer::isSleeping));
 
-			// Getting out of bed still works (this is what the "Leave Bed" button does).
-			players.forEach(player -> player.stopSleepInBed(false, true));
-			helper.assertTrue(players.stream().noneMatch(ServerPlayer::isSleeping), "players should be able to leave bed");
-			players.forEach(TestPlayers::remove);
-			helper.succeed();
-		});
+					// Getting out of bed still works (this is what the "Leave Bed" button does).
+					players.forEach(player -> player.stopSleepInBed(false, true));
+					helper.assertTrue(players.stream().noneMatch(ServerPlayer::isSleeping), "players should be able to leave bed");
+					players.forEach(TestPlayers::remove);
+				})
+				.thenSucceed();
 	}
 
 	/** BED-04: sleeping through a night-time thunderstorm neither skips the night nor clears the storm. */

@@ -30,6 +30,10 @@ public class PhantomGameTests {
 	 */
 	@GameTest(environment = "simple_block-gametest:phantom_night", skyAccess = true, maxTicks = 40)
 	public void insomniaNeverSpawnsPhantoms(GameTestHelper helper) {
+		GameTestTiming.runAtNight(helper, () -> checkInsomniaNeverSpawnsPhantoms(helper));
+	}
+
+	private static void checkInsomniaNeverSpawnsPhantoms(GameTestHelper helper) {
 		ServerLevel level = helper.getLevel();
 		ServerPlayer player = TestPlayers.create(helper, GameType.SURVIVAL, new BlockPos(3, 1, 3));
 		player.getStats().setValue(player, Stats.CUSTOM.get(Stats.TIME_SINCE_REST), 10 * 24000);
@@ -50,7 +54,6 @@ public class PhantomGameTests {
 		SimpleBlockTestLog.info("PHA-01: {} insomnia spawner ticks at midnight on hard, player sleepless for 10 days: {} phantoms", ticks, phantoms);
 		helper.assertValueEqual(phantoms, 0, "phantoms spawned after " + ticks + " insomnia spawner ticks");
 		TestPlayers.remove(player);
-		helper.succeed();
 	}
 
 	/**
@@ -59,6 +62,10 @@ public class PhantomGameTests {
 	 */
 	@GameTest(environment = "simple_block-gametest:monster_night", skyAccess = true, maxTicks = 40)
 	public void otherHostilesStillSpawnAtNight(GameTestHelper helper) {
+		GameTestTiming.runAtNight(helper, () -> checkOtherHostilesStillSpawn(helper));
+	}
+
+	private static void checkOtherHostilesStillSpawn(GameTestHelper helper) {
 		ServerLevel level = helper.getLevel();
 		ServerPlayer player = TestPlayers.create(helper, GameType.SURVIVAL, new BlockPos(3, 1, 3));
 		BlockPos center = player.blockPosition();
@@ -82,7 +89,6 @@ public class PhantomGameTests {
 		helper.assertTrue(monsters.stream().noneMatch(monster -> monster.getType() == EntityTypes.PHANTOM), "no phantoms");
 		monsters.forEach(Entity::discard);
 		TestPlayers.remove(player);
-		helper.succeed();
 	}
 
 	/** Phantoms stay registered: they can still be summoned explicitly (commands/spawn eggs/testing). */
