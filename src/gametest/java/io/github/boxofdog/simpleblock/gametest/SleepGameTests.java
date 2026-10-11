@@ -87,6 +87,7 @@ public class SleepGameTests {
 	/** BED-04: sleeping through a night-time thunderstorm neither skips the night nor clears the storm. */
 	@GameTest(environment = "simple_block-gametest:night_thunder", maxTicks = 500)
 	public void sleepingDoesNotClearNightStorm(GameTestHelper helper) {
+		GameTestTiming.ensureNight(helper);
 		assertStormSurvivesSleep(helper);
 	}
 
@@ -138,8 +139,11 @@ public class SleepGameTests {
 		long[] clockAtStart = new long[1];
 
 		helper.startSequence()
-				// Thunder fades in over ~100 ticks after the weather is set.
-				.thenWaitUntil(() -> helper.assertTrue(level.isThundering(), "waiting for the thunderstorm to build"))
+				// Thunder fades in over ~100 ticks after the weather is set, and the sky darkness that lets
+				// players sleep is only recalculated on the level's next tick (see GameTestTiming.runWhen).
+				.thenIdle(1)
+				.thenWaitUntil(() -> helper.assertTrue(level.isThundering() && level.isDarkOutside(),
+						"waiting for the thunderstorm to build and darken the sky (sky darkness " + level.getSkyDarken() + ")"))
 				.thenExecute(() -> {
 					players.add(sleepInNewBed(helper, new BlockPos(1, 1, 1)));
 					helper.assertTrue(players.getFirst().isSleeping(), "vanilla lets players sleep during a thunderstorm");
