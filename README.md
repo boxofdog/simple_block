@@ -25,6 +25,10 @@ Milestone 02 (world, night, inventory) is in progress; see [`docs/MILESTONE_02.m
 | MINE-01 | Natural deepslate and all deepslate ores can't be mined at all without an iron, diamond or netherite pickaxe. Crafted deepslate keeps vanilla rules. | `feature/DeepslateGate`, `mixin/mining/*`, `#simple_block:requires_iron_pickaxe` |
 | ORE-01 | Iron: sparse even background in stone, richer in deepslate, richer again under deep ocean; banded iron in mountains, alluvial deposits at desert/badlands/river landforms, pockets beside natural lava. | `worldgen/*`, `data/simple_block/worldgen`, `data/simple_block/tags/worldgen/biome` |
 | ORE-02 | Diamonds at about 35% of vanilla. | `data/minecraft/worldgen/placed_feature/ore_diamond*.json` |
+| INV-01 | 27 usable inventory slots: the hotbar plus two storage rows. The top storage row is covered in every screen and can't hold items; anything put there by a command is moved out or dropped. | `feature/InventorySlots`, `mixin/inventory/SlotMixin`, `InventoryMixin` |
+| INV-02 | A Sort button in the survival inventory merges stacks and orders the storage rows by item registry id, bottom row first. The hotbar is untouched. | `feature/InventorySort`, `network/SortInventoryPayload`, client `InventoryScreenAddons` |
+| INV-03 | Shift-clicks fill empty hotbar slots from the left. | `mixin/inventory/AbstractContainerMenuMixin` |
+| INV-04 | One shared carrying limit of 64 ingot-equivalents for iron, gold and copper (inventory, offhand, cursor, 2x2 grid, bundles; worn armor exempt). Excess stays where it was. Shown as "Heavy x / 64" in the inventory. | `feature/HeavyLoad`, `feature/HeavyTransfers`, `mixin/inventory/*`, `simple_block/heavy_weights.json` |
 
 Provisional numbers (ore amounts, deposit shapes, the diamond share) are in one table, `tuning/Tuning.java`. To change one in a game, copy its line from `config/simple_block/tuning-defaults.json` into `config/simple_block/tuning.json` and restart; worldgen values affect newly generated chunks.
 

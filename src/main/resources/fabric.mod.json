@@ -3,7 +3,7 @@
 	"id": "simple_block",
 	"version": "${version}",
 	"name": "Simple Block",
-	"description": "Minecraft overhaul focused on hostile nights, territory, mining and physical transport. Milestone 01: survival foundation.",
+	"description": "Minecraft overhaul focused on hostile nights, territory, mining and physical transport. Milestone 01: survival foundation. Milestone 02: world, night and inventory.",
 	"authors": [
 		"boxofdog"
 	],
@@ -15,10 +15,17 @@
 	"entrypoints": {
 		"main": [
 			"io.github.boxofdog.simpleblock.SimpleBlock"
+		],
+		"client": [
+			"io.github.boxofdog.simpleblock.client.SimpleBlockClient"
 		]
 	},
 	"mixins": [
-		"simple_block.mixins.json"
+		"simple_block.mixins.json",
+		{
+			"config": "simple_block.client.mixins.json",
+			"environment": "client"
+		}
 	],
 	"depends": {
 		"fabricloader": ">=0.19.5",

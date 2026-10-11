@@ -1,7 +1,14 @@
 package io.github.boxofdog.simpleblock.gametest.client;
 
 import net.minecraft.client.Minecraft;
+import java.util.ArrayList;
+import java.util.List;
+
 import net.minecraft.client.gui.screens.InBedChatScreen;
+import net.minecraft.client.gui.screens.inventory.InventoryScreen;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.world.inventory.Slot;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
@@ -15,6 +22,8 @@ import net.fabricmc.fabric.api.client.gametest.v1.context.ClientGameTestContext;
 import net.fabricmc.fabric.api.client.gametest.v1.context.TestServerContext;
 import net.fabricmc.fabric.api.client.gametest.v1.context.TestSingleplayerContext;
 
+import io.github.boxofdog.simpleblock.feature.HeavyLoad;
+import io.github.boxofdog.simpleblock.feature.InventorySlots;
 import io.github.boxofdog.simpleblock.gametest.SimpleBlockTestLog;
 import io.github.boxofdog.simpleblock.gametest.mixin.HudAccessor;
 
@@ -39,6 +48,7 @@ public class SurvivalSmokeClientTest implements FabricClientGameTest {
 			shulkerBox(context, server, ground);
 			movement(context, server, ground);
 			elytra(context, server, ground);
+			inventory(context, server);
 		}
 	}
 
@@ -143,6 +153,70 @@ public class SurvivalSmokeClientTest implements FabricClientGameTest {
 		assertTrue(!gliding, "player glided with an elytra");
 		server.runCommand("effect give @a minecraft:resistance 10 4");
 		context.waitFor(client -> client.player.getY() < ground + 0.01 && client.player.onGround(), 300);
+	}
+
+	/**
+	 * INV-01, INV-02, INV-04 on screen: the survival inventory shows two storage rows and the hotbar
+	 * (the third row is covered), the heavy-load indicator agrees with the server, the Sort button
+	 * sorts through the real client-to-server packet, and the indicator turns red at 64.
+	 */
+	private static void inventory(ClientGameTestContext context, TestServerContext server) {
+		server.runCommand("clear @a");
+		server.runCommand("item replace entity @a container.0 with minecraft:torch 16");
+		server.runCommand("item replace entity @a container.18 with minecraft:cobblestone 40");
+		server.runCommand("item replace entity @a container.20 with minecraft:dirt 5");
+		server.runCommand("item replace entity @a container.22 with minecraft:iron_ingot 40");
+		server.runCommand("item replace entity @a container.25 with minecraft:diamond_pickaxe");
+		server.runCommand("item replace entity @a container.31 with minecraft:cobblestone 40");
+		server.runCommand("item replace entity @a container.35 with minecraft:apple 3");
+		context.waitTicks(5);
+		context.getInput().pressKey(options -> options.keyInventory);
+		context.waitForScreen(InventoryScreen.class);
+		context.waitTicks(2);
+		int usable = context.computeOnClient(client -> {
+			int count = 0;
+			for (Slot slot : client.player.inventoryMenu.slots) {
+				if (slot.container == client.player.getInventory() && slot.getContainerSlot() < 36 && slot.isActive()) {
+					count++;
+				}
+			}
+			return count;
+		});
+		int clientLoad = context.computeOnClient(client -> HeavyLoad.carried(client.player));
+		int serverLoad = server.computeOnServer(s -> HeavyLoad.carried(playerOf(s.overworld())));
+		context.takeScreenshot("inventory-two-rows-heavy-40");
+
+		context.clickScreenButton("simple_block.inventory.sort");
+		context.waitTicks(5);
+		List<String> sorted = server.computeOnServer(s -> {
+			List<String> layout = new ArrayList<>();
+			for (int slot : InventorySlots.SORT_ORDER) {
+				ItemStack stack = playerOf(s.overworld()).getInventory().getItem(slot);
+				layout.add(stack.isEmpty() ? "-" : BuiltInRegistries.ITEM.getKey(stack.getItem()).getPath() + "x" + stack.getCount());
+			}
+			return layout;
+		});
+		boolean torchKept = server.computeOnServer(s -> playerOf(s.overworld()).getInventory().getItem(0).is(Items.TORCH));
+		context.takeScreenshot("inventory-after-sort");
+
+		server.runCommand("give @a minecraft:iron_ingot 30");
+		context.waitTicks(10);
+		int fullClient = context.computeOnClient(client -> HeavyLoad.carried(client.player));
+		int fullServer = server.computeOnServer(s -> HeavyLoad.carried(playerOf(s.overworld())));
+		context.takeScreenshot("inventory-heavy-full");
+		context.getInput().pressKey(options -> options.keyInventory);
+		context.waitTicks(5);
+
+		SimpleBlockTestLog.info("CLIENT INVENTORY: {} usable inventory slots on screen; heavy load client {} / server {} (units of 1/{} ingot); "
+				+ "after Sort (bottom row first): {}; hotbar torch kept: {}; after /give 30 more iron: client {} / server {}",
+				usable, clientLoad, serverLoad, HeavyLoad.UNITS_PER_INGOT, sorted, torchKept, HeavyLoad.describe(fullClient), HeavyLoad.describe(fullServer));
+		assertTrue(usable == 27, "expected 27 usable inventory slots on screen, saw " + usable);
+		assertTrue(clientLoad == serverLoad && serverLoad == 40 * HeavyLoad.UNITS_PER_INGOT, "indicator should show 40 like the server");
+		assertTrue(sorted.indexOf("-") == 6, "6 stacks after merging, then empty slots: " + sorted);
+		assertTrue(torchKept, "Sort must not touch the hotbar");
+		assertTrue(fullServer == HeavyLoad.CAPACITY && fullClient == fullServer, "load should stop at 64 and the indicator agree");
+		server.runCommand("kill @e[type=minecraft:item]");
+		server.runCommand("clear @a");
 	}
 
 	private static ServerPlayer playerOf(ServerLevel level) {

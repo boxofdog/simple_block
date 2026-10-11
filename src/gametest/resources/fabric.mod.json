@@ -17,7 +17,9 @@
 			"io.github.boxofdog.simpleblock.gametest.RegressionGameTests",
 			"io.github.boxofdog.simpleblock.gametest.GeologyGameTests",
 			"io.github.boxofdog.simpleblock.gametest.MiningGameTests",
-			"io.github.boxofdog.simpleblock.gametest.WorldgenGameTests"
+			"io.github.boxofdog.simpleblock.gametest.WorldgenGameTests",
+			"io.github.boxofdog.simpleblock.gametest.InventoryGameTests",
+			"io.github.boxofdog.simpleblock.gametest.HeavyLoadGameTests"
 		],
 		"fabric-client-gametest": [
 			"io.github.boxofdog.simpleblock.gametest.client.SurvivalSmokeClientTest"

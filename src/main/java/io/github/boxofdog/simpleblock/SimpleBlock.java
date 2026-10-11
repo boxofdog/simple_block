@@ -5,6 +5,9 @@ import net.fabricmc.api.ModInitializer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import io.github.boxofdog.simpleblock.feature.HeavyLoad;
+import io.github.boxofdog.simpleblock.feature.InventorySlots;
+import io.github.boxofdog.simpleblock.feature.InventorySort;
 import io.github.boxofdog.simpleblock.feature.NoElytraFlight;
 import io.github.boxofdog.simpleblock.feature.RemovedRocks;
 import io.github.boxofdog.simpleblock.tuning.Tuning;
@@ -33,6 +36,12 @@ import io.github.boxofdog.simpleblock.worldgen.IronWorldgen;
  *       and {@code #simple_block:requires_iron_pickaxe}</li>
  *   <li>ORE-01/ORE-02 iron and diamonds — {@link IronWorldgen}, {@code worldgen/} and
  *       {@code data/simple_block/worldgen}, diamond placed-feature overrides</li>
+ *   <li>INV-01 27 usable slots — {@link InventorySlots}, {@code mixin/inventory/SlotMixin} and
+ *       {@code InventoryMixin}</li>
+ *   <li>INV-02 sort — {@link InventorySort}, {@code network/SortInventoryPayload}, client button</li>
+ *   <li>INV-03 hotbar fills from the left — {@code mixin/inventory/AbstractContainerMenuMixin}</li>
+ *   <li>INV-04 64-ingot heavy load — {@link HeavyLoad}, {@code feature/HeavyTransfers},
+ *       {@code mixin/inventory/*}, {@code simple_block/heavy_weights.json}, client indicator</li>
  * </ul>
  */
 public class SimpleBlock implements ModInitializer {
@@ -45,5 +54,8 @@ public class SimpleBlock implements ModInitializer {
 		NoElytraFlight.register();
 		RemovedRocks.register();
 		IronWorldgen.register();
+		HeavyLoad.load();
+		InventorySlots.register();
+		InventorySort.register();
 	}
 }
