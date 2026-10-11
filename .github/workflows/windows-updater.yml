@@ -39,3 +39,4 @@ jobs:
           echo.| tools\windows\Update-SimpleBlock.bat -GameDir "%RUNNER_TEMP%\no-such-instance" -SettingsPath "%RUNNER_TEMP%\none.ini" -WorkDir "%RUNNER_TEMP%\sb-work" -NonInteractive
           if %ERRORLEVEL% NEQ 4 (echo Expected exit code 4 from the launcher, got %ERRORLEVEL% & exit /b 1)
           echo The launcher returned exit code 4 for a missing game directory, as expected.
+          exit /b 0
