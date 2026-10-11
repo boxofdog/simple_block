@@ -55,7 +55,7 @@ Each feature has its own `mixin/<feature>` package, and is listed in `SimpleBloc
   - One shared 64-ingot allowance for iron, gold, copper, diamond and netherite; worn armor is exempt.
     - A diamond weighs like an ingot.
     - Netherite weighs like diamond: an ingot 1, netherite gear what its diamond version weighs.
-  - The inventory shows a load bar without text, filled in one colour per material (iron, copper, gold, diamond, netherite), with a red frame when full.
+  - The inventory shows a load bar without text, filled in one colour per material (iron, copper, gold, diamond, netherite), with a red frame when full. Hovering it shows the total out of 64 and each material's exact weight.
 - **LIGHT-01:** torches (wall and copper too) emit 12. Lanterns stay 15.
 - **MOB-01:**
   - At Overworld night, hostile ground mobs with a wander goal steer their wander decisions towards lit ground (block light > 0) within 20 blocks.
@@ -123,7 +123,7 @@ Methods:
 | INV-05 | PASS | GT `shiftClickFillsHotbarFromTheLeft` | |
 | HVY-01..06 | PASS | GT `fullLoadRefusesAnyMoreMetal`, `diamondsAndNetheriteCountAndMaterialsAddUp`, `exactIntegerAccounting`, `weightTableMatchesTheDesign`, `noRecipeCreatesCarryingCapacity`, `craftingAtTheCapIsWeightNeutral`, `offhandCursorCountWornArmorDoesNot` | |
 | HVY-07 | PASS | GT `transfersLeaveTheRemainderInTheSource`, `bundlesCreativeAndModeChanges` | Save/reload and log out/in: NOT RUN (the load is recomputed from the inventory each time; nothing is stored) |
-| HVY-08 | PASS | Client: the bar's per-material amounts equal the server's (iron, gold, copper, a diamond pickaxe, netherite), and the frame is red at 64 (`inventory-load-bar-mixed.png`, `inventory-heavy-full.png`) | The bar has no text by design |
+| HVY-08 | PASS | Client: the bar's per-material amounts equal the server's (iron, gold, copper, a diamond pickaxe, netherite), and the frame is red at 64; hovering with the real mouse shows the tooltip with the same numbers (6.44 gold with 4 nuggets), and it follows the inventory while hovering (`inventory-load-bar-mixed.png`, `inventory-load-bar-tooltip.png`, `inventory-heavy-full.png`) | |
 | HVY-09 | PASS | GT `noSpeedPenaltyAtTheCap` | |
 | FOOD-01 | PASS | GT `activityExhaustionIsHalved`: sprint, jump, sprint-jump, swim, under water, mining all ×0.50 of vanilla; Client: a real 11-block sprint cost 0.049 per block (vanilla 0.1) | |
 | FOOD-02 | PASS | GT `combatRegenerationAndHungerEffectUnchanged`: attack, hit taken, both regeneration paths, Hunger effect all ×1.00 | |

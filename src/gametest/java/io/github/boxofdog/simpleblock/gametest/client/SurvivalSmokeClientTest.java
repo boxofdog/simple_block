@@ -7,6 +7,7 @@ import java.util.List;
 import com.mojang.blaze3d.platform.InputConstants;
 
 import net.minecraft.client.gui.screens.InBedChatScreen;
+import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.gui.screens.inventory.InventoryScreen;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.world.inventory.Slot;
@@ -29,6 +30,7 @@ import net.fabricmc.fabric.api.client.gametest.v1.context.ClientGameTestContext;
 import net.fabricmc.fabric.api.client.gametest.v1.context.TestServerContext;
 import net.fabricmc.fabric.api.client.gametest.v1.context.TestSingleplayerContext;
 
+import io.github.boxofdog.simpleblock.client.InventoryScreenAddons;
 import io.github.boxofdog.simpleblock.feature.CreeperEvaporation;
 import io.github.boxofdog.simpleblock.feature.HeavyLoad;
 import io.github.boxofdog.simpleblock.feature.InventorySlots;
@@ -201,6 +203,7 @@ public class SurvivalSmokeClientTest implements FabricClientGameTest {
 		long[] clientMaterials = context.computeOnClient(client -> HeavyLoad.carriedByMaterial(client.player));
 		long[] serverMaterials = server.computeOnServer(s -> HeavyLoad.carriedByMaterial(playerOf(s.overworld())));
 		context.takeScreenshot("inventory-load-bar-mixed");
+		List<String> tooltip = loadBarTooltip(context, server);
 
 		context.clickScreenButton("simple_block.inventory.sort");
 		context.waitTicks(5);
@@ -224,14 +227,17 @@ public class SurvivalSmokeClientTest implements FabricClientGameTest {
 		context.waitTicks(5);
 
 		SimpleBlockTestLog.info("CLIENT INVENTORY: {} usable inventory slots on screen; heavy load client {} / server {} (units of 1/{} ingot), by "
-				+ "material (iron/gold/copper/diamond/netherite) client {} / server {}; after Sort (bottom row first): {}; hotbar torch kept: {}; "
-				+ "after /give 30 more iron: client {} / server {}", usable, clientLoad, serverLoad, HeavyLoad.UNITS_PER_INGOT,
-				java.util.Arrays.toString(clientMaterials), java.util.Arrays.toString(serverMaterials), sorted, torchKept,
-				HeavyLoad.describe(fullClient), HeavyLoad.describe(fullServer));
+				+ "material (iron/gold/copper/diamond/netherite) client {} / server {}; load bar tooltip with 4 gold nuggets added, then after they "
+				+ "were taken away again (still hovering): {}; after Sort (bottom row first): {}; hotbar torch kept: {}; after /give 30 more iron: "
+				+ "client {} / server {}", usable, clientLoad, serverLoad, HeavyLoad.UNITS_PER_INGOT, java.util.Arrays.toString(clientMaterials),
+				java.util.Arrays.toString(serverMaterials), tooltip, sorted, torchKept, HeavyLoad.describe(fullClient), HeavyLoad.describe(fullServer));
 		assertTrue(usable == 27, "expected 27 usable inventory slots on screen, saw " + usable);
 		// 30 iron + 6 gold + 4 copper + a diamond pickaxe (3) + 2 netherite ingots = 45 ingots.
 		assertTrue(clientLoad == serverLoad && serverLoad == 45 * HeavyLoad.UNITS_PER_INGOT, "client load should be 45 like the server");
 		assertTrue(java.util.Arrays.equals(clientMaterials, serverMaterials), "the bar's materials should match the server's");
+		assertTrue(tooltip.equals(List.of("Heavy load: 45.45 / 64", "\u25A0 Iron: 30", "\u25A0 Copper: 4", "\u25A0 Gold: 6.44", "\u25A0 Diamond: 3",
+				"\u25A0 Netherite: 2", "|", "Heavy load: 45 / 64", "\u25A0 Iron: 30", "\u25A0 Copper: 4", "\u25A0 Gold: 6", "\u25A0 Diamond: 3",
+				"\u25A0 Netherite: 2")), "load bar tooltip: " + tooltip);
 		assertTrue(sorted.indexOf("-") == 9, "9 stacks after merging, then empty slots: " + sorted);
 		assertTrue(torchKept, "Sort must not touch the hotbar");
 		assertTrue(fullServer == HeavyLoad.CAPACITY && fullClient == fullServer, "load should stop at 64 and the indicator agree");
@@ -405,6 +411,36 @@ public class SurvivalSmokeClientTest implements FabricClientGameTest {
 		double perBlock = sprintExhaustion / sprinted;
 		assertTrue(perBlock > 0.035 && perBlock < 0.0525, "sprinting should cost about 0.05 exhaustion per block, was " + perBlock);
 		server.runCommand("clear @a");
+	}
+
+	/**
+	 * Hovers the load bar with the real mouse and returns the tooltip lines it shows: first with 4
+	 * gold nuggets added (fractions), then, still hovering, after they are taken away again (the
+	 * tooltip follows the inventory). The two lists are separated by "|". Takes a screenshot.
+	 */
+	private static List<String> loadBarTooltip(ClientGameTestContext context, TestServerContext server) {
+		server.runCommand("item replace entity @a container.27 with minecraft:gold_nugget 4");
+		context.waitTicks(5);
+		int[] bar = context.computeOnClient(client -> InventoryScreenAddons.barBounds((AbstractContainerScreen<?>) client.gui.screen()));
+		double scale = context.computeOnClient(client -> (double) client.getWindow().getGuiScale());
+		context.getInput().setCursorPos((bar[0] + bar[2]) / 2.0 * scale, (bar[1] + bar[3]) / 2.0 * scale);
+		context.waitTicks(3);
+		List<String> lines = new ArrayList<>(shownTooltip(context));
+		context.takeScreenshot("inventory-load-bar-tooltip");
+		server.runCommand("item replace entity @a container.27 with minecraft:air");
+		context.waitTicks(5);
+		lines.add("|");
+		lines.addAll(shownTooltip(context));
+		context.getInput().setCursorPos(0, 0);
+		context.waitTicks(2);
+		return lines;
+	}
+
+	private static List<String> shownTooltip(ClientGameTestContext context) {
+		return context.computeOnClient(client -> {
+			List<Component> shown = InventoryScreenAddons.shownTooltip();
+			return shown == null ? List.of("(no tooltip)") : shown.stream().map(Component::getString).toList();
+		});
 	}
 
 	/** Server and client saturation of the player: [0] server, [1] client. */

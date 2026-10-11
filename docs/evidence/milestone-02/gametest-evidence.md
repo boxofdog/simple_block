@@ -69,6 +69,9 @@ Screenshots in `inventory-and-weight/`:
 - `0004_inventory-load-bar-mixed.png`: 30 iron, 4 copper, 6 gold, a diamond pickaxe and 2 netherite ingots.
 - `0006_inventory-heavy-full.png`: full, with the red frame.
 - `food-and-hud/inventory-gui-scale-3.png`: an empty bar at GUI scale 3.
+- `inventory-load-bar-tooltip.png`: the tooltip when hovering the bar with the real mouse.
+
+Tooltip check in the client test: with 4 gold nuggets added, the tooltip read `[Heavy load: 45.45 / 64, ■ Iron: 30, ■ Copper: 4, ■ Gold: 6.44, ■ Diamond: 3, ■ Netherite: 2]`. After the nuggets were taken away while the mouse stayed on the bar, it read `[Heavy load: 45 / 64, …, ■ Gold: 6, …]`. The total is rounded up, so it never shows room that is not there; each material is rounded to 0.01.
 
 ## 02C (light and hostile mobs)
 
