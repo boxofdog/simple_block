@@ -55,15 +55,16 @@ public class SleepGameTests {
 		}
 
 		helper.runAfterDelay(TICKS_IN_BED, () -> {
-			for (ServerPlayer player : players) {
-				// This is exactly the state in which vanilla advances to morning and wakes everyone.
-				helper.assertTrue(player.isSleepingLongEnough(), "player should have slept long enough for vanilla to skip");
-				helper.assertTrue(player.isSleeping(), "player should not have been woken by a night skip");
-			}
-
 			long elapsed = level.getOverworldClockTime() - clockAtStart;
 			helper.assertValueInBetween(TICKS_IN_BED - 5L, elapsed, TICKS_IN_BED + 5L, "clock ticks elapsed while sleeping");
 			helper.assertTrue(level.isDarkOutside(), "it should still be night");
+
+			for (ServerPlayer player : players) {
+				helper.assertTrue(player.isSleeping(), "player should not have been woken by a night skip");
+				// This is exactly the state in which vanilla advances to morning and wakes everyone.
+				helper.assertTrue(player.isSleepingLongEnough(), "player should have slept long enough for vanilla to skip");
+			}
+
 			SimpleBlockTestLog.info("BED-01..03: {} players slept {} ticks at midnight; clock {} -> {}, still sleeping: {}",
 					players.size(), TICKS_IN_BED, clockAtStart, level.getOverworldClockTime(), players.stream().allMatch(ServerPlayer::isSleeping));
 
@@ -138,12 +139,12 @@ public class SleepGameTests {
 				})
 				.thenExecuteAfter(TICKS_IN_BED, () -> {
 					ServerPlayer player = players.getFirst();
-					helper.assertTrue(player.isSleepingLongEnough(), "player should have slept long enough for vanilla to skip");
-					helper.assertTrue(player.isSleeping(), "player should not have been woken by a skip");
-					helper.assertTrue(level.isThundering(), "thunder should continue");
-					helper.assertTrue(level.isRaining(), "rain should continue");
 					long elapsed = level.getOverworldClockTime() - clockAtStart[0];
 					helper.assertValueInBetween(TICKS_IN_BED - 5L, elapsed, TICKS_IN_BED + 5L, "clock ticks elapsed while sleeping");
+					helper.assertTrue(level.isRaining(), "rain should continue");
+					helper.assertTrue(level.isThundering(), "thunder should continue");
+					helper.assertTrue(player.isSleeping(), "player should not have been woken by a skip");
+					helper.assertTrue(player.isSleepingLongEnough(), "player should have slept long enough for vanilla to skip");
 					SimpleBlockTestLog.info("BED-04: slept {} ticks in a thunderstorm; clock {} -> {}, thundering: {}, still sleeping: {}",
 							TICKS_IN_BED, clockAtStart[0], level.getOverworldClockTime(), level.isThundering(), player.isSleeping());
 					player.stopSleepInBed(false, true);

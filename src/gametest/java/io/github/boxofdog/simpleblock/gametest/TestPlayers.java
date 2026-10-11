@@ -11,6 +11,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.gametest.framework.GameTestHelper;
 import net.minecraft.network.Connection;
 import net.minecraft.network.protocol.PacketFlow;
+import net.minecraft.network.protocol.game.ServerboundPlayerLoadedPacket;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.network.CommonListenerCookie;
@@ -33,6 +34,8 @@ public final class TestPlayers {
 		Connection connection = new Connection(PacketFlow.SERVERBOUND);
 		new EmbeddedChannel(connection);
 		level.getServer().getPlayerList().placeNewPlayer(connection, player, cookie);
+		// A real client sends this once its world is loaded; until then the server ignores most of its packets.
+		player.connection.handleAcceptPlayerLoad(new ServerboundPlayerLoadedPacket());
 		player.setGameMode(gameType);
 		Vec3 pos = helper.absoluteVec(Vec3.atBottomCenterOf(relativePos));
 		player.teleportTo(level, pos.x, pos.y, pos.z, Set.of(), 0.0F, 0.0F, true);
