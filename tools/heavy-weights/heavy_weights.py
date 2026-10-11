@@ -1,4 +1,5 @@
-# Computes iron/gold/copper content per item from vanilla recipe JSON. See README.md in this folder.
+# Computes the iron/gold/copper/diamond/netherite content per item from vanilla recipe JSON.
+# See README.md in this folder.
 # usage: heavy_weights.py <data/minecraft/recipe dir> <output.json>
 import json, os, sys, collections
 from fractions import Fraction as F
@@ -41,11 +42,23 @@ for f in sorted(os.listdir(D)):
     elif t=='crafting_transmute': slots=[alts(j['input']),alts(j['material'])]
     else: continue
     recipes.append((f[:-5],t,rid,n,slots))
+MATERIALS=('iron','gold','copper','diamond','netherite')
+def vec(material, amount): return {material: F(amount)}
+def total(v): return sum(v.values(), F(0))
+def add(a, b):
+    r=dict(a)
+    for m,x in b.items(): r[m]=r.get(m,F(0))+x
+    return r
+def scale(v, k): return {m:x*k for m,x in v.items()}
 BASE={}
 for m in ('iron','gold','copper'):
-    BASE[f'minecraft:{m}_ingot']=F(1); BASE[f'minecraft:raw_{m}']=F(1); BASE[f'minecraft:{m}_nugget']=F(1,9)
-    BASE[f'minecraft:{m}_ore']=F(1); BASE[f'minecraft:deepslate_{m}_ore']=F(1)
-BASE['minecraft:nether_gold_ore']=F(1)
+    BASE[f'minecraft:{m}_ingot']=vec(m,1); BASE[f'minecraft:raw_{m}']=vec(m,1); BASE[f'minecraft:{m}_nugget']=vec(m,F(1,9))
+    BASE[f'minecraft:{m}_ore']=vec(m,1); BASE[f'minecraft:deepslate_{m}_ore']=vec(m,1)
+BASE['minecraft:nether_gold_ore']=vec('gold',1)
+# Diamond: one diamond weighs like one ingot; its ores like the metal ores (one per block).
+BASE['minecraft:diamond']=vec('diamond',1); BASE['minecraft:diamond_ore']=vec('diamond',1); BASE['minecraft:deepslate_diamond_ore']=vec('diamond',1)
+# Netherite weighs like diamond: an ingot 1 (not the 4 gold it is made from).
+BASE['minecraft:netherite_ingot']=vec('netherite',1)
 produced={r[2] for r in recipes}
 families="chiseled_copper copper copper_bars copper_bulb copper_chain copper_chest copper_door copper_golem_statue copper_grate copper_lantern copper_trapdoor cut_copper cut_copper_slab cut_copper_stairs lightning_rod".split()
 for f in families:
@@ -67,6 +80,12 @@ for item,nug in [('chainmail_helmet','iron'),('chainmail_chestplate','iron'),('c
                  ('iron_horse_armor','iron'),('iron_nautilus_armor','iron'),('golden_horse_armor','gold'),('golden_nautilus_armor','gold'),
                  ('copper_horse_armor','copper'),('copper_nautilus_armor','copper')]:
     recipes.append(('loot:'+item,'manual','minecraft:'+item,1,[['minecraft:'+nug+'_nugget']]))
+# Loot-only diamond gear cannot be smelted; it weighs one diamond.
+for item in ('diamond_horse_armor','diamond_nautilus_armor'):
+    recipes.append(('loot:'+item,'manual','minecraft:'+item,1,[['minecraft:diamond']]))
+def netherite_upgrade(t, slots):
+    """Smithing a diamond item into netherite: the result weighs what the diamond item did, as netherite."""
+    return t=='smithing_transform' and len(slots)==3 and slots[2]==['minecraft:netherite_ingot']
 # 1. Items that can contain metal: a base metal item, or made by a recipe with a slot whose
 #    every alternative can contain metal.
 metal=set(BASE)
@@ -77,37 +96,49 @@ while grew:
         if rid in metal: continue
         if any(s and all(x in metal for x in s) for s in slots):
             metal.add(rid); grew=True
-# 2. Cheapest metal content among recipes, everything else 0. Unknown (None) until resolved.
+# 2. Cheapest content among recipes (by total weight), everything else 0. Unknown (None) until resolved.
 w={x:None for x in metal}
 w.update(BASE)
 def val_of(x):
-    return w[x] if x in w else F(0)
+    return w[x] if x in w else {}
+def cheapest(slot):
+    known=[v for v in (val_of(x) for x in slot) if v is not None]
+    return min(known, key=total) if known else None
 changed=True; it=0
 while changed:
     changed=False; it+=1
     for name,t,rid,n,slots in recipes:
         if rid in BASE or rid not in metal: continue
-        cost=F(0); unknown=False
-        for s in slots:
-            if not s: continue
-            known=[v for v in (val_of(x) for x in s) if v is not None]
-            if not known: unknown=True; break
-            cost+=min(known)
-        if unknown: continue
-        v=cost/n
-        if w[rid] is None or v<w[rid]:
+        if netherite_upgrade(t, slots):
+            base=cheapest(slots[1])
+            if base is None: continue
+            cost=vec('netherite', total(base))
+        else:
+            cost={}; unknown=False
+            for s_ in slots:
+                if not s_: continue
+                c=cheapest(s_)
+                if c is None: unknown=True; break
+                cost=add(cost,c)
+            if unknown: continue
+        v={m:x/n for m,x in cost.items() if x>0}
+        if w[rid] is None or total(v)<total(w[rid]):
             w[rid]=v; changed=True
-print("iterations",it,"metal-capable",len(metal),"unresolved",[k for k,v in w.items() if v is None])
-w=collections.defaultdict(lambda:F(0), {k:(v if v is not None else F(0)) for k,v in w.items()})
-heavy={k:v for k,v in w.items() if v>0}
+print("iterations",it,"heavy-capable",len(metal),"unresolved",[k for k,v in w.items() if v is None])
+w=collections.defaultdict(dict, {k:(v if v is not None else {}) for k,v in w.items()})
+heavy={k:v for k,v in w.items() if total(v)>0}
 print("heavy",len(heavy))
-# check: every recipe sum_out <= min sum_in
+# check: no recipe's result weighs more than its cheapest inputs
 bad=[]
 for name,t,rid,n,slots in recipes:
-    cin=sum((min(w[x] for x in s) for s in slots if s), F(0)); cout=w[rid]*n
+    cin=sum((min(total(w[x]) for x in s_) for s_ in slots if s_), F(0)); cout=total(w[rid])*n
     if cout>cin: bad.append((name,float(cin),float(cout)))
 print("recipes creating weight:",bad[:20])
-for k,v in sorted(heavy.items(), key=lambda kv:(kv[0])):
-    assert (v*216).denominator==1, (k,v)
+mixed={k:v for k,v in heavy.items() if len(v)>1}
+print("items of more than one material:",{k:{m:str(x) for m,x in v.items()} for k,v in mixed.items()})
+for k,v in heavy.items():
+    for m,x in v.items():
+        assert (x*216).denominator==1, (k,m,x)
 print("all weights are whole 1/216 units")
-json.dump({k:str(v) for k,v in sorted(heavy.items())}, open(sys.argv[2],'w'), indent=1)
+out={m:{k:str(v[m]) for k,v in sorted(heavy.items()) if v.get(m)} for m in MATERIALS}
+json.dump(out, open(sys.argv[2],'w'), indent=1)

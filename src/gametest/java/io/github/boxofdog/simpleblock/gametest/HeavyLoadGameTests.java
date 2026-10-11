@@ -43,8 +43,8 @@ import net.fabricmc.fabric.api.gametest.v1.GameTest;
 import io.github.boxofdog.simpleblock.feature.HeavyLoad;
 
 /**
- * INV-04: one shared allowance of 64 ingot-equivalents for iron, gold and copper. The numbered
- * cases follow "Important QA cases" in docs/M02_INVENTORY_HEAVY.md.
+ * INV-04: one shared allowance of 64 ingot-equivalents for iron, gold, copper, diamond and
+ * netherite. The numbered cases follow "Important QA cases" in docs/M02_INVENTORY_HEAVY.md.
  */
 public class HeavyLoadGameTests {
 	private static final int INGOT = HeavyLoad.UNITS_PER_INGOT;
@@ -80,7 +80,11 @@ public class HeavyLoadGameTests {
 			{Items.IRON_BLOCK, 9.0}, {Items.GOLD_BLOCK, 9.0}, {item("copper_block"), 9.0}, {item("oxidized_cut_copper"), 9 / 4.0}, {Items.RAW_IRON_BLOCK, 9.0},
 			{Items.IRON_PICKAXE, 3.0}, {Items.BUCKET, 3.0}, {Items.WATER_BUCKET, 3.0}, {Items.RAIL, 3 / 8.0}, {Items.IRON_DOOR, 2.0},
 			{Items.HOPPER, 5.0}, {Items.MINECART, 5.0}, {Items.ANVIL, 31.0}, {Items.IRON_CHESTPLATE, 8.0}, {Items.STONE, 0.0},
-			{Items.DIAMOND, 0.0}, {Items.OAK_LOG, 0.0}};
+			{Items.OAK_LOG, 0.0},
+			// Diamond weighs like an ingot; netherite like diamond (gear: what its diamond version weighs).
+			{Items.DIAMOND, 1.0}, {Items.DIAMOND_ORE, 1.0}, {Items.DEEPSLATE_DIAMOND_ORE, 1.0}, {Items.DIAMOND_BLOCK, 9.0},
+			{Items.DIAMOND_PICKAXE, 3.0}, {Items.DIAMOND_CHESTPLATE, 8.0}, {Items.NETHERITE_INGOT, 1.0}, {Items.NETHERITE_BLOCK, 9.0},
+			{Items.NETHERITE_PICKAXE, 3.0}, {Items.NETHERITE_CHESTPLATE, 8.0}, {Items.NETHERITE_SCRAP, 0.0}, {Items.ANCIENT_DEBRIS, 0.0}};
 		List<String> problems = new ArrayList<>();
 		for (Object[] row : expected) {
 			int units = HeavyLoad.unitWeight(new ItemStack((Item) row[0]));
@@ -89,9 +93,21 @@ public class HeavyLoadGameTests {
 				problems.add(row[0] + " weighs " + units + "/" + INGOT + ", expected " + ingots);
 			}
 		}
+		// Each item's weight is attributed to its material.
+		Object[][] materials = {{Items.IRON_PICKAXE, HeavyLoad.Material.IRON}, {Items.CLOCK, HeavyLoad.Material.GOLD},
+			{item("lightning_rod"), HeavyLoad.Material.COPPER}, {Items.DIAMOND_PICKAXE, HeavyLoad.Material.DIAMOND},
+			{Items.NETHERITE_CHESTPLATE, HeavyLoad.Material.NETHERITE}, {Items.NETHERITE_INGOT, HeavyLoad.Material.NETHERITE}};
+		for (Object[] row : materials) {
+			int[] composition = HeavyLoad.composition((Item) row[0]);
+			int material = ((HeavyLoad.Material) row[1]).ordinal();
+			int whole = HeavyLoad.unitWeight(new ItemStack((Item) row[0]));
+			if (whole == 0 || composition[material] != whole) {
+				problems.add(row[0] + " should weigh " + whole + " units of " + row[1] + ", has " + java.util.Arrays.toString(composition));
+			}
+		}
 		Map<Item, Integer> table = HeavyLoad.table();
-		SimpleBlockTestLog.info("HVY-04 weight table: {} items weigh something; {} design values checked; problems {}", table.size(),
-			expected.length, problems);
+		SimpleBlockTestLog.info("HVY-04 weight table: {} items weigh something; {} design values and {} materials checked; problems {}", table.size(),
+			expected.length, materials.length, problems);
 		helper.assertTrue(table.size() > 250, "weight table should be loaded (" + table.size() + ")");
 		helper.assertTrue(problems.isEmpty(), String.join("; ", problems));
 		helper.succeed();
@@ -112,6 +128,52 @@ public class HeavyLoadGameTests {
 		// Non-metal items are unaffected (HVY-09).
 		helper.assertValueEqual(offer(helper, player, new ItemStack(Items.COBBLESTONE, 64)), 64, "cobblestone picked up when full");
 		SimpleBlockTestLog.info("HVY-01/02: at 64 iron or 32 iron + 32 gold, iron/copper/raw gold pickups refused; 64 cobblestone still picked up");
+		clearDrops(helper, player);
+		TestPlayers.remove(player);
+		helper.succeed();
+	}
+
+	/**
+	 * Diamonds and netherite count too, and the per-material breakdown the load bar shows adds up to
+	 * the total: iron, copper, gold, a diamond pickaxe and a netherite chestplate, one in a bundle.
+	 */
+	@GameTest
+	public void diamondsAndNetheriteCountAndMaterialsAddUp(GameTestHelper helper) {
+		ServerPlayer player = survivor(helper);
+		Inventory inventory = player.getInventory();
+		inventory.setItem(18, new ItemStack(Items.IRON_INGOT, 10));
+		inventory.setItem(19, new ItemStack(Items.COPPER_INGOT, 5));
+		inventory.setItem(20, new ItemStack(Items.GOLD_NUGGET, 4));
+		inventory.setItem(21, new ItemStack(Items.DIAMOND_PICKAXE));
+		ItemStack bundle = new ItemStack(Items.BUNDLE);
+		bundle.set(DataComponents.BUNDLE_CONTENTS, new BundleContents(List.of(
+			net.minecraft.world.item.ItemStackTemplate.fromNonEmptyStack(new ItemStack(Items.NETHERITE_CHESTPLATE)))));
+		inventory.setItem(22, bundle);
+		long[] byMaterial = HeavyLoad.carriedByMaterial(player);
+		long[] expected = new long[HeavyLoad.Material.values().length];
+		expected[HeavyLoad.Material.IRON.ordinal()] = 10L * INGOT;
+		expected[HeavyLoad.Material.COPPER.ordinal()] = 5L * INGOT;
+		expected[HeavyLoad.Material.GOLD.ordinal()] = 4L * INGOT / 9;
+		expected[HeavyLoad.Material.DIAMOND.ordinal()] = 3L * INGOT;
+		expected[HeavyLoad.Material.NETHERITE.ordinal()] = 8L * INGOT;
+		long sum = java.util.Arrays.stream(byMaterial).sum();
+		helper.assertTrue(java.util.Arrays.equals(byMaterial, expected), "by material " + java.util.Arrays.toString(byMaterial)
+			+ ", expected " + java.util.Arrays.toString(expected));
+		helper.assertValueEqual(sum, (long) HeavyLoad.carried(player), "materials add up to the carried total");
+
+		// At the cap, diamonds and netherite are refused like metal.
+		inventory.clearContent();
+		inventory.setItem(18, new ItemStack(Items.IRON_INGOT, 64));
+		int diamonds = offer(helper, player, new ItemStack(Items.DIAMOND, 3));
+		int netherite = offer(helper, player, new ItemStack(Items.NETHERITE_INGOT));
+		inventory.setItem(18, new ItemStack(Items.IRON_INGOT, 61));
+		int pickaxe = offer(helper, player, new ItemStack(Items.DIAMOND_PICKAXE));
+		SimpleBlockTestLog.info("HVY-10 materials: 10 iron + 5 copper + 4 gold nuggets + diamond pickaxe + netherite chestplate in a bundle = {} (units per "
+			+ "iron/gold/copper/diamond/netherite, 1/{} ingot), total {}; at 64 iron picked up {} of 3 diamonds and {} netherite ingots; at 61 iron a "
+			+ "diamond pickaxe (3) fits: {}", java.util.Arrays.toString(byMaterial), INGOT, sum, diamonds, netherite, pickaxe);
+		helper.assertValueEqual(diamonds, 0, "diamonds picked up at the cap");
+		helper.assertValueEqual(netherite, 0, "netherite ingots picked up at the cap");
+		helper.assertValueEqual(pickaxe, 1, "diamond pickaxe picked up with exactly 3 ingots of room");
 		clearDrops(helper, player);
 		TestPlayers.remove(player);
 		helper.succeed();

@@ -52,7 +52,10 @@ Each feature has its own `mixin/<feature>` package, and is listed in `SimpleBloc
   - 27 usable slots; the top storage row is covered.
   - A Sort button sorts the storage rows, bottom row first.
   - Shift-clicks fill the hotbar from the left.
-  - One shared 64-ingot allowance for iron, gold and copper; worn armor is exempt. "Heavy x / 64" shows in the inventory.
+  - One shared 64-ingot allowance for iron, gold, copper, diamond and netherite; worn armor is exempt.
+    - A diamond weighs like an ingot.
+    - Netherite weighs like diamond: an ingot 1, netherite gear what its diamond version weighs.
+  - The inventory shows a load bar without text, filled in one colour per material (iron, copper, gold, diamond, netherite), with a red frame when full.
 - **LIGHT-01:** torches (wall and copper too) emit 12. Lanterns stay 15.
 - **MOB-01:**
   - At Overworld night, hostile ground mobs with a wander goal steer their wander decisions towards lit ground (block light > 0) within 20 blocks.
@@ -113,14 +116,14 @@ Methods:
 | CREEP-01 | PASS | GT `creeperDissolvesInSunlight`: 9-tick effect (0.45 s), no drops, floor intact; Client screenshots `creeper-smoking-in-sunlight.png`, `creeper-gone.png` | |
 | CREEP-02 | PASS | GT `creepersInShadeOrTorchlightStay` (roofed pen, torch-lit closed room), `creepersAtNightStay` | |
 | CREEP-03 | PASS | Client: creeper gone on server and client, no drops, player unharmed; screenshots | |
-| INV-01 | PASS | GT `menusOfferExactly27Slots`, `disabledRowRefusesClicks`; Client: 27 slots on screen (`inventory-two-rows-heavy-40.png`, `food-and-hud/inventory-gui-scale-3.png`) | |
+| INV-01 | PASS | GT `menusOfferExactly27Slots`, `disabledRowRefusesClicks`; Client: 27 slots on screen (`inventory-load-bar-mixed.png`, `food-and-hud/inventory-gui-scale-3.png`) | |
 | INV-02 | PASS | GT chest, furnace, player inventory, crafting table, pickups, command-placed items | Anvil and villager trading screens: NOT RUN (same slot code, not exercised) |
 | INV-03 | PASS | GT `sortMergesAndOrdersBottomRowFirst`; Client: Sort through the real packet | |
 | INV-04 | PASS | GT sort keeps named and damaged items apart, no loss or duplication | |
 | INV-05 | PASS | GT `shiftClickFillsHotbarFromTheLeft` | |
-| HVY-01..06 | PASS | GT `fullLoadRefusesAnyMoreMetal`, `exactIntegerAccounting`, `weightTableMatchesTheDesign`, `noRecipeCreatesCarryingCapacity`, `craftingAtTheCapIsWeightNeutral`, `offhandCursorCountWornArmorDoesNot` | |
+| HVY-01..06 | PASS | GT `fullLoadRefusesAnyMoreMetal`, `diamondsAndNetheriteCountAndMaterialsAddUp`, `exactIntegerAccounting`, `weightTableMatchesTheDesign`, `noRecipeCreatesCarryingCapacity`, `craftingAtTheCapIsWeightNeutral`, `offhandCursorCountWornArmorDoesNot` | |
 | HVY-07 | PASS | GT `transfersLeaveTheRemainderInTheSource`, `bundlesCreativeAndModeChanges` | Save/reload and log out/in: NOT RUN (the load is recomputed from the inventory each time; nothing is stored) |
-| HVY-08 | PASS | Client: indicator equals the server value, red at 64 (`inventory-heavy-full.png`) | |
+| HVY-08 | PASS | Client: the bar's per-material amounts equal the server's (iron, gold, copper, a diamond pickaxe, netherite), and the frame is red at 64 (`inventory-load-bar-mixed.png`, `inventory-heavy-full.png`) | The bar has no text by design |
 | HVY-09 | PASS | GT `noSpeedPenaltyAtTheCap` | |
 | FOOD-01 | PASS | GT `activityExhaustionIsHalved`: sprint, jump, sprint-jump, swim, under water, mining all ×0.50 of vanilla; Client: a real 11-block sprint cost 0.049 per block (vanilla 0.1) | |
 | FOOD-02 | PASS | GT `combatRegenerationAndHungerEffectUnchanged`: attack, hit taken, both regeneration paths, Hunger effect all ×1.00 | |
@@ -168,9 +171,14 @@ These values are locked by the design, so they are constants in their features r
 4. **Copper torch:** gets 12, like the torch.
 5. **Deepslate without an iron pickaxe** can't be broken at all, rather than breaking with no drops. `infested_deepslate` is not gated.
 6. **Mason level-3 trades** shrink to the dripstone trade only.
-7. **`heavy_weights.json` notes:**
+7. **Diamonds and netherite** (your decision after 02D):
+   - A diamond weighs like an ingot: diamond ore 1, a block 9, gear by the diamonds it uses.
+   - Jukeboxes (1) and enchanting tables (2) count their diamonds.
+   - A netherite ingot weighs 1 and a block 9; netherite gear weighs what its diamond version does.
+   - Netherite scrap and ancient debris weigh nothing.
+   - Still open: loot-only diamond horse armor and nautilus armor can't be crafted or smelted, and weigh one diamond.
+   - Remaining `heavy_weights.json` notes:
    - Loot-only gear weighs 1/9.
-   - Netherite counts as its 4 gold.
    - Golden food counts its gold, maps count their compass, and statues count a copper block.
    - Silk-touched ore weighs 1, but Fortune can turn that into more.
 8. **Ocean-floor stone iron** is 0.45–0.5× vanilla, because vanilla concentrates iron around y 16. The ordinary-stone target of 0.70× is met.

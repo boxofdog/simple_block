@@ -47,6 +47,29 @@ CLIENT INVENTORY: 27 usable inventory slots on screen; heavy load client 8640 / 
 
 Screenshots: `inventory-and-weight/`.
 
+### INV-04 follow-up: diamond and netherite weight, per-material load bar
+
+Diamonds and netherite now count, and the "Heavy x / 64" text became a bar filled per material. `HeavyLoadGameTests` (10 tests) pass:
+
+```
+HVY-04 weight table: 290 items weigh something; 42 design values and 6 materials checked; problems []
+HVY-10 materials: 10 iron + 5 copper + 4 gold nuggets + diamond pickaxe + netherite chestplate in a bundle = [2160, 96, 1080, 648, 1728] (units per iron/gold/copper/diamond/netherite, 1/216 ingot), total 5712; at 64 iron picked up 0 of 3 diamonds and 0 netherite ingots; at 61 iron a diamond pickaxe (3) fits: 1
+HVY-05 recipe audit: 1620 recipes checked, 0 make more metal than their cheapest inputs []
+```
+
+The HVY-05 audit includes the netherite smithing upgrades: a diamond item (its diamonds) plus a netherite ingot (1) gives netherite gear weighing what the diamond item did.
+
+Real-client test, inventory step:
+
+```
+CLIENT INVENTORY: 27 usable inventory slots on screen; heavy load client 9720 / server 9720 (units of 1/216 ingot), by material (iron/gold/copper/diamond/netherite) client [6480, 1296, 864, 648, 432] / server [6480, 1296, 864, 648, 432]; after Sort (bottom row first): [dirtx5, cobblestonex64, cobblestonex16, applex3, iron_ingotx30, copper_ingotx4, gold_ingotx6, netherite_ingotx2, diamond_pickaxex1, -, ...]; hotbar torch kept: true; after /give 30 more iron: client 64 / 64 / server 64 / 64
+```
+
+Screenshots in `inventory-and-weight/`:
+- `0004_inventory-load-bar-mixed.png`: 30 iron, 4 copper, 6 gold, a diamond pickaxe and 2 netherite ingots.
+- `0006_inventory-heavy-full.png`: full, with the red frame.
+- `food-and-hud/inventory-gui-scale-3.png`: an empty bar at GUI scale 3.
+
 ## 02C (light and hostile mobs)
 
 `./gradlew build` after 02C: **61 required server game tests passed** (the 48 above plus 13 in `MobGameTests`). Evidence lines:

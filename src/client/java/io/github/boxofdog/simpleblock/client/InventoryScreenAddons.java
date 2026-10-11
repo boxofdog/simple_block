@@ -1,10 +1,11 @@
 package io.github.boxofdog.simpleblock.client;
 
+import java.util.Arrays;
+
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.client.screen.v1.ScreenEvents;
 import net.fabricmc.fabric.api.client.screen.v1.Screens;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.Tooltip;
@@ -22,14 +23,30 @@ import io.github.boxofdog.simpleblock.network.SortInventoryPayload;
 
 /**
  * Client display for INV-01, INV-02 and INV-04. Every container screen that shows the player's
- * inventory gets the unusable top storage row covered over; that strip shows the heavy-load
- * indicator ("Heavy 37.4 / 64", red at the cap) and, in the survival inventory, the Sort button.
- * Display only: the server decides what is allowed.
+ * inventory gets the unusable top storage row covered over; that strip shows the heavy-load bar
+ * and, in the survival inventory, the Sort button. Display only: the server decides what is
+ * allowed.
+ *
+ * <p>The load bar has no text. Its length is the 64-ingot allowance, and it fills with one colour
+ * per material (iron, copper, gold, diamond, netherite, in that order), so it shows both how full
+ * the player is and what the weight is made of. Any material that is carried gets at least one
+ * pixel, so even a nugget shows. The frame turns red at the cap.
  */
 public final class InventoryScreenAddons {
 	private static final int PANEL = 0xFFC6C6C6;
-	private static final int TEXT = 0xFF404040;
-	private static final int TEXT_FULL = 0xFFAA0000;
+	/** Bar geometry, relative to the covered row: inner fill area 112 x 6 pixels (1.75 pixels per ingot). */
+	private static final int BAR_X = 3;
+	private static final int BAR_Y = 5;
+	private static final int BAR_WIDTH = 112;
+	private static final int BAR_HEIGHT = 6;
+	private static final int FRAME = 0xFF373737;
+	private static final int FRAME_FULL = 0xFFAA0000;
+	/** Dark, like the experience bar's background, so light iron and dark netherite both stand out. */
+	private static final int TRACK = 0xFF1E1E1E;
+	/** Fill colour per {@link HeavyLoad.Material}, drawn in this order. */
+	private static final HeavyLoad.Material[] ORDER = {HeavyLoad.Material.IRON, HeavyLoad.Material.COPPER, HeavyLoad.Material.GOLD,
+		HeavyLoad.Material.DIAMOND, HeavyLoad.Material.NETHERITE};
+	private static final int[] COLOURS = {0xFFD8D8D8, 0xFFD9774F, 0xFFF5CB3A, 0xFF4AEDD9, 0xFF7A6872};
 	private static final int BUTTON_WIDTH = 34;
 	private static final int BUTTON_HEIGHT = 14;
 
@@ -89,9 +106,44 @@ public final class InventoryScreenAddons {
 		int x = panel.simpleBlock$getLeftPos();
 		int y = panel.simpleBlock$getTopPos();
 		graphics.fill(x + row[0], y + row[1], x + row[2], y + row[3], PANEL);
-		int load = HeavyLoad.carried(player);
-		Font font = Screens.getFont(screen);
-		graphics.text(font, Component.translatable("simple_block.inventory.heavy", HeavyLoad.describe(load)),
-			x + row[0] + 2, y + row[1] + 5, load >= HeavyLoad.CAPACITY ? TEXT_FULL : TEXT, false);
+		long[] units = HeavyLoad.carriedByMaterial(player);
+		long load = Arrays.stream(units).sum();
+		int left = x + row[0] + BAR_X + 1;
+		int top = y + row[1] + BAR_Y + 1;
+		graphics.outline(left - 1, top - 1, BAR_WIDTH + 2, BAR_HEIGHT + 2, load >= HeavyLoad.CAPACITY ? FRAME_FULL : FRAME);
+		graphics.fill(left, top, left + BAR_WIDTH, top + BAR_HEIGHT, TRACK);
+		int[] widths = segmentWidths(units);
+		for (int i = 0; i < ORDER.length; i++) {
+			int width = widths[ORDER[i].ordinal()];
+			if (width > 0) {
+				graphics.fill(left, top, left + width, top + BAR_HEIGHT, COLOURS[i]);
+				left += width;
+			}
+		}
+	}
+
+	/**
+	 * Pixel width of each material's segment (indexed by ordinal): its share of the 64-ingot
+	 * allowance, at least one pixel if any is carried, and never more than the bar in total (a
+	 * creative overload kept in survival just fills the bar).
+	 */
+	static int[] segmentWidths(long[] units) {
+		double scale = (double) BAR_WIDTH / Math.max(HeavyLoad.CAPACITY, Arrays.stream(units).sum());
+		int[] widths = new int[units.length];
+		int total = 0;
+		for (int i = 0; i < units.length; i++) {
+			widths[i] = units[i] > 0 ? (int) Math.max(1, Math.round(units[i] * scale)) : 0;
+			total += widths[i];
+		}
+		// Rounding and the one-pixel minimum can overshoot by a few pixels: take them off the widest.
+		while (total > BAR_WIDTH) {
+			int widest = 0;
+			for (int i = 1; i < widths.length; i++) {
+				widest = widths[i] > widths[widest] ? i : widest;
+			}
+			widths[widest]--;
+			total--;
+		}
+		return widths;
 	}
 }

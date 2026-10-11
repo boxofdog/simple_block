@@ -4,7 +4,10 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.IdentityHashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.function.Supplier;
 
@@ -24,11 +27,13 @@ import net.minecraft.world.item.component.BundleContents;
 import io.github.boxofdog.simpleblock.SimpleBlock;
 
 /**
- * INV-04: one shared carrying allowance of 64 ingot-equivalents for iron, gold and copper.
+ * INV-04: one shared carrying allowance of 64 ingot-equivalents for iron, gold, copper, diamond
+ * and netherite. A diamond weighs like an ingot; netherite weighs like diamond (an ingot 1,
+ * netherite gear what its diamond version weighs).
  *
- * <p>Weights come from {@code simple_block/heavy_weights.json} (ingot-equivalents per single item,
- * fractions allowed), generated from the game's recipes by {@code tools/heavy-weights} and
- * reviewed. All accounting is in whole units of 1/216 ingot: rails (3/8) and hanging signs
+ * <p>Weights come from {@code simple_block/heavy_weights.json} (ingot-equivalents per single item
+ * and {@link Material}, fractions allowed), generated from the game's recipes by
+ * {@code tools/heavy-weights} and reviewed. All accounting is in whole units of 1/216 ingot: rails (3/8) and hanging signs
  * (11/27) need eighths and twenty-sevenths, so 216 is the smallest unit that keeps every weight an
  * exact integer. The capacity is 64 ingots = 13,824 units (the same 576 ninths the design names).
  *
@@ -48,7 +53,25 @@ public final class HeavyLoad {
 	public static final int CAPACITY_INGOTS = 64;
 	public static final int CAPACITY = CAPACITY_INGOTS * UNITS_PER_INGOT;
 
+	/** What carried weight is made of; the client's load bar shows one colour per material. */
+	public enum Material {
+		IRON("iron"), GOLD("gold"), COPPER("copper"), DIAMOND("diamond"), NETHERITE("netherite");
+
+		private final String key;
+
+		Material(String key) {
+			this.key = key;
+		}
+
+		public String key() {
+			return this.key;
+		}
+	}
+
+	private static final Material[] MATERIALS = Material.values();
 	private static final Map<Item, Integer> WEIGHTS = new IdentityHashMap<>();
+	/** Per item, units of each material (indexed by {@link Material#ordinal()}); they add up to {@link #WEIGHTS}. */
+	private static final Map<Item, int[]> COMPOSITION = new IdentityHashMap<>();
 	private static final ThreadLocal<Integer> EXEMPT = ThreadLocal.withInitial(() -> 0);
 	private static boolean loaded;
 
@@ -71,13 +94,26 @@ public final class HeavyLoad {
 				throw new IllegalStateException("heavy_weights.json capacity " + capacity + " != locked " + CAPACITY_INGOTS);
 			}
 			JsonObject weights = json.getAsJsonObject("weights");
-			for (String id : weights.keySet()) {
-				Item item = BuiltInRegistries.ITEM.getOptional(Identifier.parse(id)).orElse(null);
-				if (item == null) {
-					SimpleBlock.LOGGER.warn("heavy_weights.json: unknown item {}", id);
+			for (String key : weights.keySet()) {
+				if (Arrays.stream(MATERIALS).noneMatch(material -> material.key().equals(key))) {
+					throw new IllegalStateException("heavy_weights.json: unknown material " + key);
+				}
+			}
+			for (Material material : MATERIALS) {
+				JsonObject items = weights.getAsJsonObject(material.key());
+				if (items == null) {
 					continue;
 				}
-				WEIGHTS.put(item, parseUnits(id, weights.get(id).getAsString()));
+				for (String id : items.keySet()) {
+					Item item = BuiltInRegistries.ITEM.getOptional(Identifier.parse(id)).orElse(null);
+					if (item == null) {
+						SimpleBlock.LOGGER.warn("heavy_weights.json: unknown item {}", id);
+						continue;
+					}
+					int units = parseUnits(id, items.get(id).getAsString());
+					COMPOSITION.computeIfAbsent(item, i -> new int[MATERIALS.length])[material.ordinal()] += units;
+					WEIGHTS.merge(item, units, Integer::sum);
+				}
 			}
 		} catch (IOException e) {
 			throw new IllegalStateException("Could not read " + path, e);
@@ -122,6 +158,37 @@ public final class HeavyLoad {
 		return stack.isEmpty() ? 0 : unitWeight(stack) * stack.getCount();
 	}
 
+	/** Adds the weight of {@code stack} (bundle contents included) to {@code units}, per {@link Material}. */
+	private static void addComposition(ItemStack stack, long[] units) {
+		if (stack.isEmpty()) {
+			return;
+		}
+		load();
+		int[] composition = COMPOSITION.get(stack.getItem());
+		if (composition != null) {
+			for (int i = 0; i < composition.length; i++) {
+				units[i] += (long) composition[i] * stack.getCount();
+			}
+		}
+		BundleContents contents = stack.get(DataComponents.BUNDLE_CONTENTS);
+		if (contents != null) {
+			long[] inside = new long[MATERIALS.length];
+			for (ItemStack item : (Iterable<ItemStack>) contents.itemCopies()::iterator) {
+				addComposition(item, inside);
+			}
+			for (int i = 0; i < inside.length; i++) {
+				units[i] += inside[i] * stack.getCount();
+			}
+		}
+	}
+
+	/** Units of each material in one item of this kind, indexed by {@link Material#ordinal()} (all zero if it weighs nothing). */
+	public static int[] composition(Item item) {
+		load();
+		int[] composition = COMPOSITION.get(item);
+		return composition == null ? new int[MATERIALS.length] : composition.clone();
+	}
+
 	public static boolean isHeavy(ItemStack stack) {
 		return unitWeight(stack) > 0;
 	}
@@ -133,21 +200,39 @@ public final class HeavyLoad {
 
 	/** Everything the player carries, in 1/216 ingot. Worn armor is exempt. */
 	public static int carried(Player player) {
-		Inventory inventory = player.getInventory();
 		long total = 0;
-		for (ItemStack stack : inventory.getNonEquipmentItems()) {
+		for (ItemStack stack : carriedStacks(player)) {
 			total += weight(stack);
 		}
-		total += weight(player.getOffhandItem());
-		total += weight(player.containerMenu.getCarried());
+		return (int) Math.min(Integer.MAX_VALUE, total);
+	}
+
+	/**
+	 * What {@link #carried} is made of: units per {@link Material}, indexed by its ordinal. The
+	 * entries add up to {@link #carried}.
+	 */
+	public static long[] carriedByMaterial(Player player) {
+		long[] units = new long[MATERIALS.length];
+		for (ItemStack stack : carriedStacks(player)) {
+			addComposition(stack, units);
+		}
+		return units;
+	}
+
+	/** The stacks that count as carried: inventory, offhand, cursor(s) and the 2x2 crafting grid. */
+	private static List<ItemStack> carriedStacks(Player player) {
+		Inventory inventory = player.getInventory();
+		List<ItemStack> stacks = new ArrayList<>(inventory.getNonEquipmentItems());
+		stacks.add(player.getOffhandItem());
+		stacks.add(player.containerMenu.getCarried());
 		if (player.containerMenu != player.inventoryMenu) {
-			total += weight(player.inventoryMenu.getCarried());
+			stacks.add(player.inventoryMenu.getCarried());
 		}
 		CraftingContainer grid = player.inventoryMenu.getCraftSlots();
 		for (int i = 0; i < grid.getContainerSize(); i++) {
-			total += weight(grid.getItem(i));
+			stacks.add(grid.getItem(i));
 		}
-		return (int) Math.min(Integer.MAX_VALUE, total);
+		return stacks;
 	}
 
 	/** Room left under the cap; negative when over it. */

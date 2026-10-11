@@ -52,6 +52,13 @@ These answer the "discover from repo" items above. The repository was empty, so 
 | Shulker feedback | Action-bar message "Shulker boxes don't work in this world" (translation key `message.simple_block.shulker_box_disabled`, English fallback only) | No language file was added. |
 | Recipe removal | Data overrides using Fabric's `fabric:false` load condition | Removes the 17 vanilla recipes and their recipe-book advancements without code. |
 
+## Milestone 02 decisions by the user (2026-10-11)
+
+| Topic | Decision |
+|---|---|
+| Heavy load materials | Diamond and netherite count towards the 64-ingot allowance, alongside iron, gold and copper. One diamond weighs like an ingot (ore 1, block 9, gear by diamonds used). Netherite weighs like diamond: an ingot 1, a block 9, netherite gear what its diamond version weighs, not the 4 gold an ingot is made from. |
+| Heavy load display | A bar without text in the inventory, filled per material in that material's colour (netherite has its own colour), so the player sees what the weight is made of. |
+
 ### Consequences to decide on later (not changed in Milestone 01)
 
 - **Phantom membranes** lose their main source. The only other one is a tamed cat's occasional "morning gift" after the owner sleeps; whether that still triggers without night skipping is untested. That makes **Potions of Slow Falling** effectively unavailable. The advancements **Monsters Hunted** and **Two Birds, One Arrow** can't be completed.

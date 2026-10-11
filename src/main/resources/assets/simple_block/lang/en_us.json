@@ -1,5 +1,4 @@
 {
-	"simple_block.inventory.heavy": "Heavy %s",
 	"simple_block.inventory.sort": "Sort",
 	"simple_block.inventory.sort.tooltip": "Sort the two storage rows by item: bottom row first, left to right. The hotbar is left alone."
 }
