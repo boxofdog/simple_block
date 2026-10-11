@@ -1,6 +1,6 @@
 # Instructions for Claude Code — Minecraft Overhaul
 
-Read `docs/VISION.md`, `docs/DESIGN_REGISTER.md` and `docs/DECISIONS.md`, then the current milestone's documents: `docs/MILESTONE_02.md` with `docs/M02_*.md` (Milestone 01, `docs/MILESTONE_01.md` and `docs/TEST_CHECKLIST_01.md`, is complete and must keep working).
+Read `docs/VISION.md`, `docs/DESIGN_REGISTER.md` and `docs/DECISIONS.md`, then the current milestone's documents: `docs/MILESTONE_02.md` with `docs/M02_*.md` (Milestone 01, `docs/MILESTONE_01.md` and `docs/TEST_CHECKLIST_01.md`, is complete and must keep working). If `docs/MILESTONE_02_CHECKPOINT.md` exists, read it first: it records what is done and the next steps.
 
 ## Priority and scope
 

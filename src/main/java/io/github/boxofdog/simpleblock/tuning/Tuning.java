@@ -121,6 +121,21 @@ public final class Tuning {
 		define("ore.iron.geothermal.selected_chance", 0.5);
 		define("ore.iron.geothermal.radius", 3);
 		define("ore.iron.geothermal.density", 0.45);
+
+		// MOB-01 entrancement (the 20-block detection radius is locked, see feature/Entrancement).
+		// "enabled" exists for negative-control tests; it is not a gameplay option.
+		define("mob.entrancement.enabled", true);
+		// Random positions checked for spawn-preventing block light at each wander decision.
+		define("mob.entrancement.samples", 24);
+		// Lit spots a mob remembers between decisions (spreads mobs over a lit area).
+		define("mob.entrancement.memory", 8);
+		// Chance per wander decision to ignore the light and wander aimlessly.
+		define("mob.entrancement.lose_interest_chance", 0.15);
+		// How far one wander step may go towards a lit spot, in blocks.
+		define("mob.entrancement.step", 10);
+
+		// MOB-03: how long a creeper smokes in direct sunlight before it is gone (ticks; 0.3-0.6 s target).
+		define("mob.creeper.evaporation_ticks", 10);
 	}
 
 	private Tuning() {

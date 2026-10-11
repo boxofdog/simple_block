@@ -1,0 +1,39 @@
+# Milestone 02 negative controls
+
+Per CLAUDE.md, each new restriction's tests were run once against a copy of the tree with that change removed, to show the tests detect vanilla behaviour.
+
+## 02A (geology, deepslate gate, iron/diamond wiring)
+
+Removed: `geology.*` and `mining.*` mixins, `RemovedRocks.register()`, the biome modifications in `IronWorldgen`, the recipe/advancement overrides for the removed rocks, the `needs_iron_tool` and mason trade tag overrides, and the diamond placed-feature overrides. Result: **8 failures**, all expected:
+
+```
+phantom_game_tests_insomnia_never_spawns_phantoms failed at 8851881, 4, 9014965! waiting for the night sky (overworld clock 25742, sky darkness 0) on tick 42
+geology_game_tests_no_recipe_makes_removed_rocks failed at 8851881, 4, 9014999! recipe minecraft:diorite still exists on tick 0
+geology_game_tests_chest_loot_never_gives_removed_rocks failed at 8851896, 4, 9014999! loot gave removed rocks: [chests/trial_chambers/corridor -> 8 minecraft:tuff, chests/trial_chambers/corridor -> 18 minecraft:tuff, chests/trial
+geology_game_tests_no_villager_trade_involves_removed_rocks failed at 8851911, 4, 9014999! Expected mason level 3 trades to be [minecraft:mason/3/emerald_dripstone_block]: was [minecraft:mason/3/andesite_emerald, minecraft:mason/3
+mining_game_tests_deepslate_and_deepslate_ores_need_iron_pickaxe failed at 8851836, 4, 9015016! deepslate with air: progress 6.666667E-4, drops false; deepslate with wooden_pickaxe: progress 0.0044444446, drops true; deepslate wit
+worldgen_game_tests_overworld_biomes_use_simple_block_iron failed at 8851896, 4, 9015016! minecraft:badlands still has minecraft:ore_granite_upper; minecraft:badlands still has minecraft:ore_granite_lower; minecraft:badlands still
+worldgen_game_tests_diamond_placements_are_thinned failed at 8851911, 4, 9015016! ore_diamond has no keep-chance filter: [CountPlacement[count=7], net.minecraft.world.level.levelgen.placement.InSquarePlacement@1e2d3377, HeightRang
+mining_game_tests_server_rejects_breaking_deepslate_with_stone_pickaxe failed at 8851851, 4, 9015016! Expected block Deepslate: got Air at 8851854, 7, 9015019 (relative: 2, 1, 1) on tick 120
+```
+
+The `phantom_game_tests_insomnia_never_spawns_phantoms` line is the night-timing flake that led to `GameTestTiming.ensureNight` (fixed afterwards; the test is not part of this control). The preservation tests (crafted deepslate, stone-ore tiers, creative breaking, substitution table) passed without the change, as they should.
+
+## 02B (inventory and heavy load)
+
+Removed: all `inventory.*` mixins and `InventorySlots.register()`. Result: **10 failures**, every restriction test:
+
+```
+inventory_game_tests_menus_offer_exactly27slots failed at 1320646, 4, 9682621! Expected chest usable inventory slots to be 27: was 36 on tick 0
+inventory_game_tests_pickups_never_use_the_disabled_row failed at 1320661, 4, 9682621! disabled slot 9 received 1 minecraft:wooden_sword on tick 0
+inventory_game_tests_items_in_the_disabled_row_are_moved_out failed at 1320676, 4, 9682621! Expected emeralds dropped at the player's feet to be 7: was 0 on tick 2
+inventory_game_tests_disabled_row_refuses_clicks failed at 1320691, 4, 9682621! disabled slot accepted the cursor stack on tick 0
+inventory_game_tests_shift_click_fills_hotbar_from_the_left failed at 1320706, 4, 9682621! first transfer should land in hotbar slot 1 on tick 0
+heavy_load_game_tests_full_load_refuses_any_more_metal failed at 1320631, 4, 9682638! Expected iron ingots picked up at 64 to be 0: was 1 on tick 0
+heavy_load_game_tests_exact_integer_accounting failed at 1320646, 4, 9682638! Expected iron block picked up at 63 to be 0: was 1 on tick 0
+heavy_load_game_tests_offhand_cursor_count_worn_armor_does_not failed at 1320691, 4, 9682638! Expected nugget picked up with a full offhand load to be 0: was 1 on tick 0
+heavy_load_game_tests_transfers_leave_the_remainder_in_the_source failed at 1320706, 4, 9682638! Expected chest keeps what did not fit to be 40: was 0 on tick 0
+heavy_load_game_tests_bundles_creative_and_mode_changes failed at 1320601, 4, 9682655! Expected no new heavy intake while over the cap to be 0: was 1 on tick 0
+```
+
+Passing without the change, as expected: the weight-table and recipe audits (they check data), crafting at the cap (a "no false refusal" check), sorting (calls the sort directly) and movement speed.
