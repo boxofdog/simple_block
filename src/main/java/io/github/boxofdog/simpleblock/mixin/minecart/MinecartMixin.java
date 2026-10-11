@@ -12,6 +12,7 @@ import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.vehicle.minecart.AbstractMinecart;
 import net.minecraft.world.entity.vehicle.minecart.Minecart;
+import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
@@ -20,6 +21,7 @@ import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
 import net.minecraft.world.phys.Vec3;
 
+import org.jspecify.annotations.Nullable;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
@@ -27,11 +29,12 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import io.github.boxofdog.simpleblock.feature.MinecartCargo;
+import io.github.boxofdog.simpleblock.feature.MinecartCushions;
 
 /**
- * FRT-01..08: the vanilla minecart carries cargo instead of a rider (rules in {@link MinecartCargo}).
- * The cargo is two extra synced values on {@link Minecart} (nothing extends it), saved under
- * {@code simple_block:cargo}. The overrides below are added to {@code Minecart}, which does not
+ * FRT-01..08: the vanilla minecart carries cargo instead of a rider (rules in {@link MinecartCargo}),
+ * or, with a cushion fitted, a rider ({@link MinecartCushions}). The cargo and cushion are three
+ * extra synced values on {@link Minecart} (nothing extends it), saved under {@code simple_block:*}. The overrides below are added to {@code Minecart}, which does not
  * override these methods itself; {@code super} is {@link AbstractMinecart}, as in vanilla.
  */
 @Mixin(Minecart.class)
@@ -40,6 +43,9 @@ abstract class MinecartMixin extends AbstractMinecart implements MinecartCargo.C
 	private static final EntityDataAccessor<ItemStack> SIMPLE_BLOCK_CARGO = SynchedEntityData.defineId(Minecart.class, EntityDataSerializers.ITEM_STACK);
 	@Unique
 	private static final EntityDataAccessor<Integer> SIMPLE_BLOCK_COUNT = SynchedEntityData.defineId(Minecart.class, EntityDataSerializers.INT);
+	/** Fitted cushion colour id, or -1 for none. */
+	@Unique
+	private static final EntityDataAccessor<Integer> SIMPLE_BLOCK_CUSHION = SynchedEntityData.defineId(Minecart.class, EntityDataSerializers.INT);
 
 	private MinecartMixin(EntityType<?> type, Level level) {
 		super(type, level);
@@ -63,27 +69,52 @@ abstract class MinecartMixin extends AbstractMinecart implements MinecartCargo.C
 	}
 
 	@Override
+	public @Nullable DyeColor simpleBlock$cushion() {
+		int id = this.entityData.get(SIMPLE_BLOCK_CUSHION);
+		return id < 0 ? null : DyeColor.byId(id);
+	}
+
+	@Override
+	public void simpleBlock$setCushion(@Nullable DyeColor color) {
+		this.entityData.set(SIMPLE_BLOCK_CUSHION, color == null ? -1 : color.getId());
+	}
+
+	@Override
 	protected void defineSynchedData(SynchedEntityData.Builder entityData) {
 		super.defineSynchedData(entityData);
 		entityData.define(SIMPLE_BLOCK_CARGO, ItemStack.EMPTY);
 		entityData.define(SIMPLE_BLOCK_COUNT, 0);
+		entityData.define(SIMPLE_BLOCK_CUSHION, -1);
 	}
 
-	/** Using a minecart loads or unloads it instead of getting in. */
+	/**
+	 * Using a minecart loads or unloads it instead of getting in, unless it has a cushion (or one is
+	 * being fitted); getting into a cushioned cart is left to vanilla.
+	 */
 	@Inject(method = "interact", at = @At("HEAD"), cancellable = true)
 	private void simpleBlock$cargoInsteadOfRiding(Player player, InteractionHand hand, Vec3 location, CallbackInfoReturnable<InteractionResult> cir) {
-		cir.setReturnValue(MinecartCargo.interact((Minecart) (Object) this, player, hand));
+		Minecart self = (Minecart) (Object) this;
+		if (MinecartCushions.handles(self, player, hand)) {
+			InteractionResult result = MinecartCushions.interact(self, player, hand);
+			if (result != null) {
+				cir.setReturnValue(result);
+			}
+			return;
+		}
+		cir.setReturnValue(MinecartCargo.interact(self, player, hand));
 	}
 
-	/** Not rideable: a moving cart no longer scoops up mobs (and players) it bumps into. */
+	/** Rideable only with a cushion: otherwise a moving cart no longer scoops up mobs it bumps into. */
 	@Inject(method = "isRideable", at = @At("HEAD"), cancellable = true)
-	private void simpleBlock$notRideable(CallbackInfoReturnable<Boolean> cir) {
-		cir.setReturnValue(false);
+	private void simpleBlock$rideableOnlyWithCushion(CallbackInfoReturnable<Boolean> cir) {
+		if (this.simpleBlock$cushion() == null) {
+			cir.setReturnValue(false);
+		}
 	}
 
 	@Override
 	protected boolean canAddPassenger(Entity passenger) {
-		return false;
+		return this.simpleBlock$cushion() != null && super.canAddPassenger(passenger);
 	}
 
 	@Override
@@ -91,6 +122,7 @@ abstract class MinecartMixin extends AbstractMinecart implements MinecartCargo.C
 		// Killed or destroyed (not unloaded, not changing dimension): the cargo spills.
 		if (reason.shouldDestroy() && this.level() instanceof ServerLevel level) {
 			MinecartCargo.dropCargo((Minecart) (Object) this, level);
+			MinecartCushions.dropCushion((Minecart) (Object) this, level);
 		}
 		super.remove(reason);
 	}
@@ -100,6 +132,7 @@ abstract class MinecartMixin extends AbstractMinecart implements MinecartCargo.C
 		// A creative player's hit discards the cart without destroying it; spill the cargo first.
 		if (!this.isRemoved() && !this.isInvulnerableToBase(source) && source.getEntity() instanceof Player player && player.getAbilities().instabuild) {
 			MinecartCargo.dropCargo((Minecart) (Object) this, level);
+			MinecartCushions.dropCushion((Minecart) (Object) this, level);
 		}
 		return super.hurtServer(level, source, damage);
 	}
@@ -108,11 +141,13 @@ abstract class MinecartMixin extends AbstractMinecart implements MinecartCargo.C
 	protected void addAdditionalSaveData(ValueOutput output) {
 		super.addAdditionalSaveData(output);
 		MinecartCargo.save(this, output);
+		MinecartCushions.save(this, output);
 	}
 
 	@Override
 	protected void readAdditionalSaveData(ValueInput input) {
 		super.readAdditionalSaveData(input);
 		MinecartCargo.read(this, input);
+		MinecartCushions.read(this, input);
 	}
 }

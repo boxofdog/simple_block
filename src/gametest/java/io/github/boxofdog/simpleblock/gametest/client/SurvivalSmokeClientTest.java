@@ -37,6 +37,7 @@ import io.github.boxofdog.simpleblock.feature.CreeperEvaporation;
 import io.github.boxofdog.simpleblock.feature.HeavyLoad;
 import io.github.boxofdog.simpleblock.feature.InventorySlots;
 import io.github.boxofdog.simpleblock.feature.MinecartCargo;
+import io.github.boxofdog.simpleblock.feature.MinecartCushions;
 import io.github.boxofdog.simpleblock.gametest.SimpleBlockTestLog;
 import io.github.boxofdog.simpleblock.gametest.mixin.HudAccessor;
 
@@ -74,6 +75,7 @@ public class SurvivalSmokeClientTest implements FabricClientGameTest {
 		try (TestSingleplayerContext world = save.open()) {
 			world.getConnection().waitForChunksRender();
 			minecartAfterReload(context, world.getServer(), ground);
+			cushion(context, world.getServer(), ground);
 			storageBypasses(context, world.getServer(), ground);
 		}
 	}
@@ -191,6 +193,75 @@ public class SurvivalSmokeClientTest implements FabricClientGameTest {
 		assertTrue(left.isEmpty(), "the cart should be broken: " + left);
 		assertTrue(spilled[0] + picked == 128, "expected 128 raw iron out of the cart, saw " + spilled[0] + " + " + picked);
 		assertTrue(spilled[1] + pickedCarts == 1, "expected one minecart item, saw " + spilled[1] + " + " + pickedCarts);
+		server.runCommand("kill @e[type=minecraft:item]");
+		server.runCommand("clear @a");
+	}
+
+	/** The fitted cushion of the minecart at the start of the rails, on the server and (synced) on the client. */
+	private static String[] cushions(ClientGameTestContext context, TestServerContext server, int ground) {
+		AABB rails = new AABB(-2, ground - 1, 0, 3, ground + 3, 10);
+		String onServer = server.computeOnServer(s -> s.overworld().getEntitiesOfClass(Minecart.class, rails).stream()
+			.map(cart -> String.valueOf(MinecartCushions.fitted(cart))).toList().toString());
+		String onClient = context.computeOnClient(client -> client.level.getEntitiesOfClass(Minecart.class, rails).stream()
+			.map(cart -> String.valueOf(MinecartCushions.fitted(cart))).toList().toString());
+		return new String[] {onServer, onClient};
+	}
+
+	/** Cushions in the real client: fit one with a click, see it in the cart, get in, get out, sneak-click it back out. */
+	private static void cushion(ClientGameTestContext context, TestServerContext server, int ground) {
+		server.runCommand("kill @e[type=minecraft:item]");
+		server.runCommand("clear @a");
+		server.runCommand("tp @a 0.5 " + ground + " 0.5 0 30");
+		server.runCommand("give @a minecraft:minecart");
+		context.waitTicks(5);
+		context.getInput().lookAt(new BlockPos(0, ground, 2));
+		context.getInput().pressKey(options -> options.keyUse);
+		context.waitTicks(5);
+		server.runCommand("item replace entity @a weapon.mainhand with minecraft:red_cushion");
+		context.waitTicks(3);
+		context.getInput().lookAt(new BlockPos(0, ground, 2));
+		context.getInput().pressKey(options -> options.keyUse);
+		context.waitTicks(5);
+		String[] fitted = cushions(context, server, ground);
+		String fittedMessage = overlayMessage(context);
+		int cushionsLeft = context.computeOnClient(client -> client.player.getInventory().countItem(Items.CUSHION.pick(net.minecraft.world.item.DyeColor.RED)));
+		context.waitTicks(3);
+		context.takeScreenshot("minecart-cushion-fitted");
+		assertTrue(fitted[0].equals("[red]") && fitted[1].equals("[red]"), "cushion after fitting: server " + fitted[0] + ", client " + fitted[1]);
+		assertTrue(cushionsLeft == 0, "the cushion should have been used: " + cushionsLeft + " left");
+
+		context.getInput().lookAt(new BlockPos(0, ground, 2));
+		context.getInput().pressKey(options -> options.keyUse);
+		context.waitTicks(10);
+		boolean riding = context.computeOnClient(client -> client.player.getVehicle() instanceof Minecart);
+		boolean ridingOnServer = server.computeOnServer(s -> playerOf(s.overworld()).getVehicle() instanceof Minecart);
+		context.takeScreenshot("minecart-cushion-riding");
+		assertTrue(riding && ridingOnServer, "the player should be sitting in the cushioned cart (client " + riding + ", server " + ridingOnServer + ")");
+
+		// Sneak to get out; then, back at the start, sneak-click to take the cushion back.
+		context.getInput().holdKeyFor(options -> options.keyShift, 5);
+		context.waitTicks(5);
+		boolean stillRiding = context.computeOnClient(client -> client.player.getVehicle() != null);
+		server.runCommand("tp @a 0.5 " + ground + " 0.5 0 30");
+		context.waitTicks(5);
+		context.getInput().holdKey(options -> options.keyShift);
+		context.waitTicks(3);
+		context.getInput().lookAt(new BlockPos(0, ground, 2));
+		context.waitTicks(1);
+		context.getInput().pressKey(options -> options.keyUse);
+		context.waitTicks(5);
+		context.getInput().releaseKey(options -> options.keyShift);
+		context.waitTicks(3);
+		String[] removed = cushions(context, server, ground);
+		int cushionsBack = context.computeOnClient(client -> client.player.getInventory().countItem(Items.CUSHION.pick(net.minecraft.world.item.DyeColor.RED)));
+		String removedMessage = overlayMessage(context);
+		SimpleBlockTestLog.info("CLIENT CUSHION: fitted server {} / client {}, message '{}'; riding client {} / server {}; after sneaking riding: {}; "
+			+ "sneak-click: cushion server {} / client {}, red cushions back {}, message '{}'", fitted[0], fitted[1], fittedMessage, riding, ridingOnServer,
+			stillRiding, removed[0], removed[1], cushionsBack, removedMessage);
+		assertTrue(!stillRiding, "sneaking should get the player out");
+		assertTrue(removed[0].equals("[null]") && removed[1].equals("[null]") && cushionsBack == 1,
+			"cushion after sneak-click: server " + removed[0] + ", client " + removed[1] + ", back in inventory " + cushionsBack);
+		server.runCommand("kill @e[type=minecraft:minecart]");
 		server.runCommand("kill @e[type=minecraft:item]");
 		server.runCommand("clear @a");
 	}
@@ -388,7 +459,7 @@ public class SurvivalSmokeClientTest implements FabricClientGameTest {
 
 		SimpleBlockTestLog.info("CLIENT INVENTORY: {} usable inventory slots on screen; heavy load client {} / server {} (units of 1/{} ingot), by "
 				+ "material (iron/gold/copper/diamond/netherite) client {} / server {}; load bar tooltip with 4 gold nuggets added, then after they "
-				+ "were taken away again (still hovering): {}; after Sort (bottom row first): {}; hotbar torch kept: {}; after /give 30 more iron: "
+				+ "were taken away again (still hovering): {}; after Sort (top row first): {}; hotbar torch kept: {}; after /give 30 more iron: "
 				+ "client {} / server {}", usable, clientLoad, serverLoad, HeavyLoad.UNITS_PER_INGOT, java.util.Arrays.toString(clientMaterials),
 				java.util.Arrays.toString(serverMaterials), tooltip, sorted, torchKept, HeavyLoad.describe(fullClient), HeavyLoad.describe(fullServer));
 		assertTrue(usable == 27, "expected 27 usable inventory slots on screen, saw " + usable);

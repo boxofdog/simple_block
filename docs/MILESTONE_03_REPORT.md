@@ -6,6 +6,7 @@ Scope: `docs/MILESTONE_03.md` and `docs/M03_TEST_PLAN.md`, **as clarified by the
 - **Negative control:** with the M03 hooks removed, every restriction test fails and the pack-animal regression test still passes.
 - **Real client:** the client test (`runClientGameTest`) passes, including a new minecart step driven by real key presses and a save, quit and reopen of the world.
 - **Dedicated server:** starts with the M03 code and stops cleanly.
+- **Follow-up (section 11):** after the first delivery, cushions for minecarts, a straw-bed test, a top-row-first sort and a slimmer Sort button were added at your request. The build now has 85 game tests (section 11).
 - **Not established by any test:** how hauling *feels* over a real mining session. See section 8.
 
 Evidence is in `docs/evidence/milestone-03/`:
@@ -56,7 +57,7 @@ It's recorded in `docs/DECISIONS.md`. The other spec rules carry over to the min
 | Chest minecarts (FRT-11) | `feature/ChestMinecarts`, `mixin/chestcart/{AbstractMinecartMixin, MinecartChestMixin, HopperBlockEntityMixin, VehicleEntityMixin}`; `data/minecraft/recipe/chest_minecart.json`, `advancement/recipes/transportation/chest_minecart.json` (disabled) |
 | Tests | `MinecartCargoGameTests`, `StorageBypassGameTests`, new client steps in `SurvivalSmokeClientTest` |
 | Docs | this report, `docs/DECISIONS.md` (M03 sections), README (M03 table and status), `CLAUDE.md` (points at the M03 documents), `SimpleBlock` Javadoc, `en_us.json` (messages) |
-| Test fix | `MobGameTests.lightBehindWallsStillAttracts`: the walled light test from the earlier light-attraction work failed once here at 33% vs 17% (ratio 1.9 under its 2.5 threshold) while clearly attracting. It now compares with its own control run (lit share at least 10 points over the dark box and over the control). Test-only. |
+| Test fix | `MobGameTests.lightBehindWallsStillAttracts`, the walled light test from the earlier light-attraction work, failed twice here on runs that clearly attracted (once its 2.5 ratio, once a margin over its control phase: the control's own lit-box share varies 9-25% between runs). It now asserts what doesn't depend on random-walk noise: wander decisions are steered towards the light behind the walls (never on vanilla), the lit-box share beats the dark box's by 10 points, and no zombie gets in. Test-only. |
 
 There are no new blocks, items, entities, textures or models. The vanilla minecart, chest minecart, ender chest and their entity types all stay registered.
 
@@ -73,7 +74,7 @@ There are no new blocks, items, entities, textures or models. The vanilla mineca
   Stacks must be plain: a renamed or otherwise customised stack is refused. Ingots, nuggets, metal blocks, raw-metal blocks, tools, containers, buckets, bundles and dirt or gravel are all refused.
 - **Unloading:** sneak and use. One stack (up to 64) goes into the inventory, but only as much as fits and as much as the 64-ingot heavy cap allows. The rest stays in the cart, with "No room in your inventory" or "Too heavy: you can't carry any more Raw Iron". Stone and cobblestone weigh nothing, so only space limits them.
 - **Seeing the cargo:** looking at a cart shows "Raw Iron 180 / 256" (or "Empty 0 / 256") above it, and every use shows the same in the action bar.
-- **No riders:** using a minecart never seats you, and a rolling cart doesn't pick up mobs. Furnace, hopper, TNT, command-block and spawner minecarts are unchanged.
+- **No riders without a cushion:** using a minecart never seats you, and a rolling cart doesn't pick up mobs. Fitting a cushion changes that (section 11). Furnace, hopper, TNT, command-block and spawner minecarts are unchanged.
 - **Breaking:** breaking, blowing up, burning or `/kill`-ing a loaded cart drops its cargo as ordinary stacks of up to 64. Breaking it also leaves a plain minecart item, which never carries cargo. Cargo can be lost only where any dropped item would be: in lava, or in the void.
 - **Ender chests:** can't be crafted, placed or opened, and mining one gives 8 obsidian even with silk touch. The only natural one is built into an End city floor; it stays shut and gives obsidian.
 - **Chest minecarts:** can't be crafted or placed, by hand or dispenser. Mineshafts still generate them with their loot. They don't open, and hoppers, droppers and hopper minecarts can't reach them. Breaking one spills the loot and drops a minecart and a chest.
@@ -130,7 +131,7 @@ Methods:
 
 1. **Unload gesture:** is sneak + use acceptable? The alternatives are an empty-hand unload that skips the selected slot, or a small screen.
 2. **Cargo list:** should gravel, dirt, sand, other ore blocks (coal, diamond, emerald, lapis, redstone ore), Nether quartz or ancient debris count? They're left out for now.
-3. **Mobs:** carts no longer carry villagers or other mobs. That's fine until cushions, but villager moving gets harder.
+3. **Mobs:** settled by cushions (section 11): a cushioned cart picks up mobs again, so villagers can be moved in one.
 4. **Loaded carts and speed:** a full cart rolls exactly like an empty one. Vanilla's container carts slow down as they fill; M03 doesn't.
 5. **Capacity of 256:** set it after a real haul.
 
@@ -141,6 +142,7 @@ Methods:
   - two real clients on a dedicated server;
   - detector and activator rails, and comparator output from a loaded cart (the cart isn't a container, so there's no comparator signal);
   - chunk unload and reload without quitting the world.
+- `MobGameTests.pursuitOverridesThenAttractionResumes` (MOB-05, from M02) failed once in a full build here: one of the chasing zombies dropped its target within the 60-tick check. It then passed 6 times out of 6 on its own and in the next full build. Not investigated; nothing here touches pursuit.
 - The cargo label is a name tag. Inside the 64-block name-tag range it is drawn only while the crosshair is on the cart. M04 owns the real cargo visuals.
 
 ## 9. Build, run and update
@@ -159,3 +161,15 @@ Methods:
 ## 10. Next
 
 M03 stops here. M04 (cargo visuals) is **not started**. Please playtest a haul in a new world and answer the questions in section 7 first.
+
+## 11. Follow-up changes (owner requests after the first delivery)
+
+| Request | What changed | Evidence |
+|---|---|---|
+| Cushions for minecarts | Vanilla 26.3's cushion is a seat entity fixed to the block below, so it can't ride along. Instead a fitted cushion is part of the minecart's state: use a cushion on an **empty** cart to fit it (one is used up). A cushioned cart behaves like a vanilla minecart for riding (players get in; a rolling cart picks up mobs), but takes no cargo. **Sneak + use** takes the cushion back out, not while someone sits in it. A destroyed cart drops its cushion. The client draws vanilla's cushion model and texture inside the cart. No new item: a picked-up minecart is plain. `feature/MinecartCushions`, `MinecartMixin`, client `CargoMinecartRenderer` and `mixin/AbstractMinecartRendererMixin`. | GT `MinecartCushionGameTests` (4 tests). Client: fitted with a real click (red on server and client), got in, sneaked out, sneak-clicked it back out; screenshots `minecart-cushion-fitted.png`, `minecart-cushion-riding.png` |
+| Straw beds must not skip the night | They already couldn't: SF-01 blocks the night skip itself, whatever the bed. Now tested. | GT `sleepingInAStrawBedDoesNotSkipNight`: 140 ticks asleep at midnight, the clock moved 140. Negative control without SF-01: the clock jumped 5,550 ticks to morning |
+| Sort top to bottom | Sort fills the top storage row first, then the bottom row (the M02 spec said bottom first). | GT `sortMergesAndOrdersTopRowFirst` (renamed; top row filled, bottom row empty); client sort step; `inventory-after-sort.png` |
+| Smaller Sort button | The button is now 15 x 8 pixels: the load bar's height, on its level, dark with a frame that lights under the mouse, and a small sorted-bars icon. The tooltip still says what it does. | `inventory-gui-scale-3.png`; the client test clicks it |
+
+Tests after these changes: **85 required server game tests** pass in `./gradlew build` (80 plus 4 cushion tests and the straw-bed test). The real-client test passes, cushion step included.
+

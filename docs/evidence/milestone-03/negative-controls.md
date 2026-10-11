@@ -27,3 +27,13 @@ simple_block-gametest:storage_bypass_game_tests_chest_minecarts_cannot_be_placed
 simple_block-gametest:storage_bypass_game_tests_existing_chest_minecarts_are_sealed_loot failed at 11482643, 4, 1769449! the chest minecart opened: net.minecraft.world.inventory.ChestMenu@5a1e0c86 on tick 0
 6 required tests failed :(
 ```
+
+## Follow-up: straw beds
+
+Removed: the SF-01 `sleep.ServerLevelMixin` only. The straw-bed test fails: vanilla skips the night from a straw bed too.
+
+```
+simple_block-gametest:sleep_game_tests_sleeping_in_astraw_bed_does_not_skip_night failed at -14900454, 4, 10158086! Expected clock ticks elapsed while sleeping in a straw bed to be in between 135 and 145: was 5550 on tick 141
+```
+
+The cushion tests test a new feature (riding with a cushion), not a restriction; the no-riding-without-a-cushion restriction is covered by the minecart control above.

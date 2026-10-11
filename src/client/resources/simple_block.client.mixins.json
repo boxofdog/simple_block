@@ -3,7 +3,8 @@
 	"package": "io.github.boxofdog.simpleblock.client.mixin",
 	"compatibilityLevel": "JAVA_25",
 	"client": [
-		"AbstractContainerScreenAccessor"
+		"AbstractContainerScreenAccessor",
+		"AbstractMinecartRendererMixin"
 	],
 	"injectors": {
 		"defaultRequire": 1

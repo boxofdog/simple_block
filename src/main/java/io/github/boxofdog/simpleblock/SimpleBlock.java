@@ -60,9 +60,12 @@ import io.github.boxofdog.simpleblock.worldgen.IronWorldgen;
  *
  * <p>Milestone 03, minecart cargo and storage-bypass closure:
  * <ul>
- *   <li>FRT-01..09 the minecart carries 256 of one mined resource and nobody rides it —
+ *   <li>FRT-01..09 the minecart carries 256 of one mined resource and nobody rides it without a cushion —
  *       {@link MinecartCargo}, {@code mixin/minecart}, {@code #simple_block:minecart_cargo}, client
  *       {@code CargoMinecartRenderer}</li>
+ *   <li>CUSH-01 a cushion fitted into a minecart makes it a passenger cart —
+ *       {@code feature/MinecartCushions}, {@code mixin/minecart}, client {@code CargoMinecartRenderer}
+ *       and {@code mixin/AbstractMinecartRendererMixin}</li>
  *   <li>FRT-10 ender chests disabled — {@link EnderChests}, {@code mixin/enderchest}, recipe,
  *       advancement and block loot overrides</li>
  *   <li>FRT-11 chest minecarts disabled — {@link ChestMinecarts}, {@code mixin/chestcart}, recipe

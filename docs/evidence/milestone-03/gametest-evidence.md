@@ -43,3 +43,24 @@ Changed to compare with its own control run (see the report, section 3). Final b
 ```
 MOB-01 walled: two closed boxes, one lit inside, 32 zombies; share of zombie-samples round the lit box / round the dark box: control 12% / 5%, attraction on 30% / 5% (6720 samples); any zombie inside a box at the end: false
 ```
+
+## Follow-up: cushions, straw bed, sort (owner requests after the first delivery)
+
+Server game tests from `./gradlew build` ("All 85 required tests passed"):
+
+```
+INV-02 sorted storage (top row first): [18:dirtx5, 19:cobblestonex64, 20:cobblestonex5(named), 21:cobblestonex16, 22:applex3, 23:diamond_pickaxex1(damaged), 24:diamond_pickaxex1, 25:-, 26:-, 27:-, 28:-, 29:-, 30:-, 31:-, 32:-, 33:-, 34:-, 35:-]
+CUSH-01: no seat without a cushion; red cushion fitted (1 of 2 used), player got in with a cushion and with raw iron in hand (nothing loaded); refused while another player sat in it; taken out and given back; cart then took 10 raw iron
+CUSH-01: saved "blue" -> loaded blue; broken: [1 minecraft:blue_cushion, 1 minecraft:minecart]
+CUSH-01: a rolling cushioned cart picked up the zombie in its path
+BED-01 (straw bed): slept 140 ticks at midnight; clock 18001 -> 18141, still sleeping: true
+MOB-01 walled: two closed boxes, one lit inside, 32 zombies; share of zombie-samples round the lit box / round the dark box: control 14% / 16%, attraction on 30% / 7% (6720 samples); 144 wander decisions steered towards light; any zombie inside a box at the end: false
+```
+
+Real client:
+
+```
+CLIENT CUSHION: fitted server [red] / client [red], message 'Cushion fitted: this cart carries a rider now, not cargo'; riding client true / server true; after sneaking riding: false; sneak-click: cushion server [null] / client [null], red cushions back 1, message 'Cushion taken out: this cart carries cargo again'
+```
+
+Screenshots: `screenshots/minecart-cushion-fitted.png`, `minecart-cushion-riding.png`, `inventory-after-sort.png` and `inventory-gui-scale-3.png` (the slim Sort button at the right end of the load bar's row).

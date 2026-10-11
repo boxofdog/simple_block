@@ -10,17 +10,21 @@ import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.vehicle.minecart.Minecart;
+import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
 
+import org.jspecify.annotations.Nullable;
+
 import io.github.boxofdog.simpleblock.SimpleBlock;
 
 /**
  * FRT-01..08: the ordinary minecart is a cargo cart. It carries up to {@link #CAPACITY} items of one
- * kind of mined resource, and nobody sits in it (players or mobs) until cushions exist.
+ * kind of mined resource, and nobody sits in it (players or mobs) unless a cushion is fitted
+ * ({@link MinecartCushions}), which makes it a passenger cart instead.
  *
  * <ul>
  *   <li>What can be loaded: plain (component-free) stacks of the item tag
@@ -54,6 +58,11 @@ public final class MinecartCargo {
 
 		/** Sets the cargo; a count of 0 (or air) empties the cart. */
 		void simpleBlock$setCargo(Item item, int count);
+
+		/** The colour of the fitted cushion ({@link MinecartCushions}), or null for a cargo cart. */
+		@Nullable DyeColor simpleBlock$cushion();
+
+		void simpleBlock$setCushion(@Nullable DyeColor color);
 	}
 
 	private MinecartCargo() {

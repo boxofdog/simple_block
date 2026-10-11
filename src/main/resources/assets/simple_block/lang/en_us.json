@@ -7,7 +7,7 @@
 	"simple_block.inventory.load.diamond": "Diamond",
 	"simple_block.inventory.load.netherite": "Netherite",
 	"simple_block.inventory.sort": "Sort",
-	"simple_block.inventory.sort.tooltip": "Sort the two storage rows by item: bottom row first, left to right. The hotbar is left alone.",
+	"simple_block.inventory.sort.tooltip": "Sort the two storage rows by item: top row first, left to right. The hotbar is left alone.",
 	"simple_block.minecart.status": "%s %s / %s",
 	"simple_block.minecart.empty": "Empty",
 	"simple_block.minecart.full": "Full: %s",
@@ -15,6 +15,10 @@
 	"simple_block.minecart.not_cargo": "%s isn't cargo: ores, raw metals, coal, gems and stone only",
 	"simple_block.minecart.too_heavy": "Too heavy: you can't carry any more %s",
 	"simple_block.minecart.no_room": "No room in your inventory",
+	"simple_block.minecart.cushion.cargo": "Unload the cart before fitting a cushion",
+	"simple_block.minecart.cushion.fitted": "Cushion fitted: this cart carries a rider now, not cargo",
+	"simple_block.minecart.cushion.occupied": "Someone is sitting on the cushion",
+	"simple_block.minecart.cushion.removed": "Cushion taken out: this cart carries cargo again",
 	"message.simple_block.ender_chest_disabled": "Ender chests don't work in this world",
 	"message.simple_block.chest_minecart_disabled": "Chest minecarts don't work in this world: load a minecart instead"
 }

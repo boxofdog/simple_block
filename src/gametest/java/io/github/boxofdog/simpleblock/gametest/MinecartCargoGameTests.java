@@ -51,7 +51,7 @@ import io.github.boxofdog.simpleblock.feature.MinecartCargo;
  * use-entity packet. Test ids refer to {@code docs/M03_TEST_PLAN.md}.
  */
 public class MinecartCargoGameTests {
-	private static Minecart cartOnRail(GameTestHelper helper, BlockPos rail) {
+	static Minecart cartOnRail(GameTestHelper helper, BlockPos rail) {
 		helper.setBlock(rail.below(), Blocks.STONE);
 		helper.setBlock(rail, Blocks.RAIL);
 		Minecart cart = helper.spawn(EntityTypes.MINECART, Vec3.atBottomCenterOf(rail).add(0, 0.0625, 0));
@@ -59,16 +59,16 @@ public class MinecartCargoGameTests {
 		return cart;
 	}
 
-	private static MinecartCargo.Cart cargo(Minecart cart) {
+	static MinecartCargo.Cart cargo(Minecart cart) {
 		return MinecartCargo.cart(cart);
 	}
 
-	private static void use(ServerPlayer player, Minecart cart, InteractionHand hand) {
+	static void use(ServerPlayer player, Minecart cart, InteractionHand hand) {
 		player.interactOn(cart, hand, cart.position());
 	}
 
 	/** Loads {@code count} of {@code item} from the player's main hand, returning what is left in hand. */
-	private static int load(ServerPlayer player, Minecart cart, Item item, int count) {
+	static int load(ServerPlayer player, Minecart cart, Item item, int count) {
 		player.setShiftKeyDown(false);
 		player.setItemInHand(InteractionHand.MAIN_HAND, new ItemStack(item, count));
 		use(player, cart, InteractionHand.MAIN_HAND);
@@ -87,7 +87,7 @@ public class MinecartCargoGameTests {
 	}
 
 	/** How many of {@code item} the player carries (inventory, off hand). */
-	private static int carried(ServerPlayer player, Item item) {
+	static int carried(ServerPlayer player, Item item) {
 		int total = 0;
 		for (ItemStack stack : player.getInventory().getNonEquipmentItems()) {
 			total += stack.is(item) ? stack.getCount() : 0;
@@ -95,11 +95,11 @@ public class MinecartCargoGameTests {
 		return total + (player.getOffhandItem().is(item) ? player.getOffhandItem().getCount() : 0);
 	}
 
-	private static List<ItemEntity> itemsAround(ServerLevel level, Vec3 pos) {
+	static List<ItemEntity> itemsAround(ServerLevel level, Vec3 pos) {
 		return level.getEntitiesOfClass(ItemEntity.class, new AABB(pos, pos).inflate(3.0));
 	}
 
-	private static int total(List<ItemEntity> items, Item item) {
+	static int total(List<ItemEntity> items, Item item) {
 		return items.stream().filter(entity -> entity.getItem().is(item)).mapToInt(entity -> entity.getItem().getCount()).sum();
 	}
 
