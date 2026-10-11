@@ -6,17 +6,33 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.github.boxofdog.simpleblock.feature.NoElytraFlight;
+import io.github.boxofdog.simpleblock.feature.RemovedRocks;
+import io.github.boxofdog.simpleblock.tuning.Tuning;
+import io.github.boxofdog.simpleblock.worldgen.IronWorldgen;
 
 /**
- * Milestone 01 ("Survival Foundation") entrypoint.
+ * Simple Block entrypoint.
  *
- * <p>Each restriction is self-contained so it can be changed or reverted on its own:
+ * <p>Each feature is self-contained so it can be changed or reverted on its own. Provisional
+ * balance numbers live in {@link Tuning} ({@code config/simple_block/tuning.json}).
+ *
+ * <p>Milestone 01, survival foundation:
  * <ul>
  *   <li>SF-01 sleeping — {@code mixin/sleep}</li>
  *   <li>SF-02 phantoms — {@code mixin/phantom}</li>
  *   <li>SF-03 elytra — {@link NoElytraFlight} and {@code mixin/elytra}</li>
  *   <li>SF-04 shulker boxes — {@code feature/ShulkerBoxes}, {@code mixin/shulker} and the
  *       {@code data/minecraft/recipe} + {@code data/minecraft/advancement/recipes} overrides</li>
+ * </ul>
+ *
+ * <p>Milestone 02, world, night and inventory:
+ * <ul>
+ *   <li>GEO-01 granite/diorite/andesite/tuff removed — {@link RemovedRocks}, {@code mixin/geology},
+ *       recipe/advancement overrides and the mason trade tag</li>
+ *   <li>MINE-01 deepslate needs an iron pickaxe — {@code feature/DeepslateGate}, {@code mixin/mining}
+ *       and {@code #simple_block:requires_iron_pickaxe}</li>
+ *   <li>ORE-01/ORE-02 iron and diamonds — {@link IronWorldgen}, {@code worldgen/} and
+ *       {@code data/simple_block/worldgen}, diamond placed-feature overrides</li>
  * </ul>
  */
 public class SimpleBlock implements ModInitializer {
@@ -25,6 +41,9 @@ public class SimpleBlock implements ModInitializer {
 
 	@Override
 	public void onInitialize() {
+		Tuning.load();
 		NoElytraFlight.register();
+		RemovedRocks.register();
+		IronWorldgen.register();
 	}
 }

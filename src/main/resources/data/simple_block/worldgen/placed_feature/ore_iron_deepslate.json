@@ -1,0 +1,9 @@
+{
+	"feature": "simple_block:ore_iron_deepslate",
+	"placement": [
+		{
+			"type": "simple_block:tuned_volume",
+			"key": "ore.iron.deepslate"
+		}
+	]
+}

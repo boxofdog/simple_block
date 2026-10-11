@@ -33,6 +33,23 @@ fabricApi {
 	}
 }
 
+loom {
+	runs {
+		// Worldgen measurement (docs/MILESTONE_02_REPORT.md): a dedicated server with the game-test
+		// source set, whose OreSampler samples the normal world named in build/run/oreSampler and stops.
+		//   ./gradlew runOreSampler -PoreSamplerLabel=mod
+		oreSampler {
+			server()
+			name = "Ore Sampler"
+			source sourceSets.gametest
+			runDir "build/run/oreSampler"
+			ideConfigGenerated false
+			property "simpleblock.oreSampler", file("build/ore-sampler").absolutePath
+			property "simpleblock.oreSampler.label", project.findProperty("oreSamplerLabel") ?: "unlabelled"
+		}
+	}
+}
+
 dependencies {
 	minecraft "com.mojang:minecraft:${project.minecraft_version}"
 	implementation "net.fabricmc:fabric-loader:${project.loader_version}"

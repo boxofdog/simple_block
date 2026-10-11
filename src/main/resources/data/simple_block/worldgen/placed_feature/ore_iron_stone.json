@@ -1,0 +1,9 @@
+{
+	"feature": "simple_block:ore_iron_stone",
+	"placement": [
+		{
+			"type": "simple_block:tuned_volume",
+			"key": "ore.iron.stone"
+		}
+	]
+}

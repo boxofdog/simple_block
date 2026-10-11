@@ -42,8 +42,12 @@ public class SleepGameTests {
 		tickPlayers(helper, players);
 		long[] clockAtStart = new long[1];
 
+		GameTestTiming.ensureNight(helper);
+		// Sky darkness is recalculated on the level's next tick; on the first it is the previous batch's.
 		helper.startSequence()
-				.thenWaitUntil(() -> helper.assertTrue(level.isDarkOutside(), "waiting for the night sky"))
+				.thenIdle(1)
+				.thenWaitUntil(() -> helper.assertTrue(level.isDarkOutside(), "waiting for the night sky (overworld clock "
+						+ level.getOverworldClockTime() + ", sky darkness " + level.getSkyDarken() + ", raining " + level.isRaining() + ")"))
 				.thenExecute(() -> {
 					players.add(sleepInNewBed(helper, bedA));
 					players.add(sleepInNewBed(helper, bedB));

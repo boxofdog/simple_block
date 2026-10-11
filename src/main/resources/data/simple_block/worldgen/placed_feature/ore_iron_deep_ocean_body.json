@@ -1,0 +1,24 @@
+{
+	"feature": "simple_block:ore_iron_deep_ocean_body",
+	"placement": [
+		{
+			"type": "simple_block:tuned_chance",
+			"key": "ore.iron.deep_ocean_body.chance_per_chunk"
+		},
+		{
+			"type": "minecraft:in_square"
+		},
+		{
+			"type": "simple_block:surface_biome",
+			"biomes": "simple_block:deep_ocean_iron"
+		},
+		{
+			"type": "simple_block:tuned_height",
+			"key": "ore.iron.deep_ocean_body"
+		},
+		{
+			"type": "simple_block:tuned_cluster",
+			"key": "ore.iron.deep_ocean_body"
+		}
+	]
+}

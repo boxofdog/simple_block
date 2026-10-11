@@ -1,0 +1,20 @@
+{
+	"type": "simple_block:tuned_ore",
+	"key": "ore.iron.deep_ocean",
+	"targets": [
+		{
+			"state": "minecraft:iron_ore",
+			"target": {
+				"predicate_type": "minecraft:tag_match",
+				"tag": "minecraft:stone_ore_replaceables"
+			}
+		},
+		{
+			"state": "minecraft:deepslate_iron_ore",
+			"target": {
+				"predicate_type": "minecraft:tag_match",
+				"tag": "minecraft:deepslate_ore_replaceables"
+			}
+		}
+	]
+}

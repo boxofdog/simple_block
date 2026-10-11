@@ -1,0 +1,21 @@
+# Milestone 02 baseline (before any M02 code), 2026-10-11T07:42:36Z
+git HEAD: a3f53d3 (Add files via upload); tree: 1 uncommitted changes
+minecraft_version=26.3
+loader_version=0.19.5
+loom_version=1.18.4
+fabric_api_version=0.162.0+26.3
+mod_version=0.1.0
+gradle wrapper: gradle-9.7.1-bin.zip
+java: openjdk version "25.0.4.1" 2026-08-18 LTS
+mixins: ['elytra.EndCityPieceMixin', 'phantom.PhantomSpawnerMixin', 'shulker.BlockItemMixin', 'shulker.ShulkerBoxBlockEntityMixin', 'shulker.ShulkerBoxBlockMixin', 'sleep.ServerLevelMixin']
+server gametest classes: 6, client gametests: ['io.github.boxofdog.simpleblock.gametest.client.SurvivalSmokeClientTest']
+workflows: build.yml windows-updater.yml 
+
+## ./gradlew clean build
+[07:43:17] [Server thread/INFO] (Minecraft) All 22 required tests passed :)
+BUILD SUCCESSFUL in 42s
+(simple_block-evidence) CLIENT BED: message 'No amount of rest can pass this night', clock 18008 -> 18169 after 160 ticks in bed, still in bed: true, respawn BlockPos{x=0, y=-60, z=3}
+(simple_block-evidence) CLIENT SHULKER: placed: false, still holding: 1, message 'Shulker boxes don't work in this world'
+(simple_block-evidence) CLIENT MOVEMENT: walked 4.06 blocks in 20 ticks, jump height 1.25, health after 10-block fall 13.0
+(simple_block-evidence) CLIENT ELYTRA: wearing elytra, pressed jump 3 times mid-air, gliding at any point: false
+BUILD SUCCESSFUL in 57s

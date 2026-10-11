@@ -5,13 +5,19 @@
 	"name": "Simple Block game tests",
 	"environment": "*",
 	"entrypoints": {
+		"main": [
+			"io.github.boxofdog.simpleblock.gametest.sampler.OreSampler"
+		],
 		"fabric-gametest": [
 			"io.github.boxofdog.simpleblock.gametest.SleepGameTests",
 			"io.github.boxofdog.simpleblock.gametest.PhantomGameTests",
 			"io.github.boxofdog.simpleblock.gametest.ElytraGameTests",
 			"io.github.boxofdog.simpleblock.gametest.ShulkerBoxGameTests",
 			"io.github.boxofdog.simpleblock.gametest.DataAuditGameTests",
-			"io.github.boxofdog.simpleblock.gametest.RegressionGameTests"
+			"io.github.boxofdog.simpleblock.gametest.RegressionGameTests",
+			"io.github.boxofdog.simpleblock.gametest.GeologyGameTests",
+			"io.github.boxofdog.simpleblock.gametest.MiningGameTests",
+			"io.github.boxofdog.simpleblock.gametest.WorldgenGameTests"
 		],
 		"fabric-client-gametest": [
 			"io.github.boxofdog.simpleblock.gametest.client.SurvivalSmokeClientTest"

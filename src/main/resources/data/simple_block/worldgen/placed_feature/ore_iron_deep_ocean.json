@@ -1,0 +1,13 @@
+{
+	"feature": "simple_block:ore_iron_deep_ocean",
+	"placement": [
+		{
+			"type": "simple_block:tuned_volume",
+			"key": "ore.iron.deep_ocean"
+		},
+		{
+			"type": "simple_block:surface_biome",
+			"biomes": "simple_block:deep_ocean_iron"
+		}
+	]
+}

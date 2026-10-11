@@ -1,0 +1,16 @@
+{
+	"feature": "simple_block:iron_placer",
+	"placement": [
+		{
+			"type": "simple_block:tuned_count",
+			"key": "ore.iron.placer.attempts_per_chunk"
+		},
+		{
+			"type": "minecraft:in_square"
+		},
+		{
+			"type": "simple_block:surface_biome",
+			"biomes": "simple_block:placer_iron_deposits"
+		}
+	]
+}

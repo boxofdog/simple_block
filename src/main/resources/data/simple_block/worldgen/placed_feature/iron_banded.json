@@ -1,0 +1,16 @@
+{
+	"feature": "simple_block:iron_banded",
+	"placement": [
+		{
+			"type": "simple_block:tuned_chance",
+			"key": "ore.iron.banded.chance_per_chunk"
+		},
+		{
+			"type": "minecraft:in_square"
+		},
+		{
+			"type": "simple_block:surface_biome",
+			"biomes": "simple_block:banded_iron_deposits"
+		}
+	]
+}

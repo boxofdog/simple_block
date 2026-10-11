@@ -4,6 +4,10 @@
 	"compatibilityLevel": "JAVA_25",
 	"mixins": [
 		"elytra.EndCityPieceMixin",
+		"geology.OreVeinRuleMixin",
+		"geology.WorldGenRegionMixin",
+		"mining.BlockBehaviourMixin",
+		"mining.ServerPlayerGameModeMixin",
 		"phantom.PhantomSpawnerMixin",
 		"shulker.BlockItemMixin",
 		"shulker.ShulkerBoxBlockEntityMixin",
