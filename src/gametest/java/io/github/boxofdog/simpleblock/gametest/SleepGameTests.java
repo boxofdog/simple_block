@@ -84,6 +84,44 @@ public class SleepGameTests {
 				.thenSucceed();
 	}
 
+	/**
+	 * BED-01 for the straw bed (26.3's second bed: no spawn point, breaks when you get up): sleeping in
+	 * one at midnight does not skip the night either. Its own environment (an identical copy of
+	 * {@code night}) keeps it out of the two-player test's batch: both start by removing every player.
+	 */
+	@GameTest(environment = "simple_block-gametest:night_straw_bed", maxTicks = 300)
+	public void sleepingInAStrawBedDoesNotSkipNight(GameTestHelper helper) {
+		ServerLevel level = helper.getLevel();
+		TestPlayers.removeAll(level);
+		List<ServerPlayer> players = new ArrayList<>();
+		tickPlayers(helper, players);
+		long[] clockAtStart = new long[1];
+
+		GameTestTiming.ensureNight(helper);
+		helper.startSequence()
+				.thenIdle(1)
+				.thenWaitUntil(() -> helper.assertTrue(level.isDarkOutside(), "waiting for the night sky (overworld clock "
+						+ level.getOverworldClockTime() + ", sky darkness " + level.getSkyDarken() + ")"))
+				.thenExecute(() -> {
+					players.add(sleepInNewBed(helper, new BlockPos(1, 1, 1), Blocks.STRAW_BED));
+					helper.assertTrue(players.getFirst().isSleeping(), "the player should be lying in the straw bed at midnight");
+					clockAtStart[0] = level.getOverworldClockTime();
+				})
+				.thenExecuteAfter(TICKS_IN_BED, () -> {
+					ServerPlayer player = players.getFirst();
+					long elapsed = level.getOverworldClockTime() - clockAtStart[0];
+					helper.assertValueInBetween(TICKS_IN_BED - 5L, elapsed, TICKS_IN_BED + 5L, "clock ticks elapsed while sleeping in a straw bed");
+					helper.assertTrue(level.isDarkOutside(), "it should still be night");
+					helper.assertTrue(player.isSleeping(), "player should not have been woken by a skip");
+					helper.assertTrue(player.isSleepingLongEnough(), "player should have slept long enough for vanilla to skip");
+					SimpleBlockTestLog.info("BED-01 (straw bed): slept {} ticks at midnight; clock {} -> {}, still sleeping: {}",
+							TICKS_IN_BED, clockAtStart[0], level.getOverworldClockTime(), player.isSleeping());
+					player.stopSleepInBed(false, true);
+					TestPlayers.remove(player);
+				})
+				.thenSucceed();
+	}
+
 	/** BED-04: sleeping through a night-time thunderstorm neither skips the night nor clears the storm. */
 	@GameTest(environment = "simple_block-gametest:night_thunder", maxTicks = 500)
 	public void sleepingDoesNotClearNightStorm(GameTestHelper helper) {
@@ -188,14 +226,22 @@ public class SleepGameTests {
 
 	/** Places a bed (foot at {@code foot}, head to the south), stands a survival player next to it and right-clicks it. */
 	static ServerPlayer sleepInNewBed(GameTestHelper helper, BlockPos foot) {
-		placeBed(helper, foot);
+		return sleepInNewBed(helper, foot, RED_BED);
+	}
+
+	static ServerPlayer sleepInNewBed(GameTestHelper helper, BlockPos foot, Block bed) {
+		placeBed(helper, foot, bed);
 		ServerPlayer player = TestPlayers.create(helper, GameType.SURVIVAL, foot.east());
 		useBed(helper, player, foot);
 		return player;
 	}
 
 	static void placeBed(GameTestHelper helper, BlockPos foot) {
-		BlockState base = RED_BED.defaultBlockState().setValue(HorizontalDirectionalBlock.FACING, Direction.SOUTH);
+		placeBed(helper, foot, RED_BED);
+	}
+
+	static void placeBed(GameTestHelper helper, BlockPos foot, Block bed) {
+		BlockState base = bed.defaultBlockState().setValue(HorizontalDirectionalBlock.FACING, Direction.SOUTH);
 		helper.setBlock(foot, base.setValue(AbstractBedBlock.PART, BedPart.FOOT));
 		helper.setBlock(foot.south(), base.setValue(AbstractBedBlock.PART, BedPart.HEAD));
 	}
