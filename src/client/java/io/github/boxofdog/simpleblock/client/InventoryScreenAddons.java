@@ -52,8 +52,11 @@ public final class InventoryScreenAddons {
 	private static final HeavyLoad.Material[] ORDER = {HeavyLoad.Material.IRON, HeavyLoad.Material.COPPER, HeavyLoad.Material.GOLD,
 		HeavyLoad.Material.DIAMOND, HeavyLoad.Material.NETHERITE};
 	private static final int[] COLOURS = {0xFFD8D8D8, 0xFFD9774F, 0xFFF5CB3A, 0xFF4AEDD9, 0xFF7A6872};
-	private static final int BUTTON_WIDTH = 34;
-	private static final int BUTTON_HEIGHT = 14;
+	/** The Sort button has the bar's profile: same height and level, framed the same way, right-aligned in the row. */
+	private static final int BUTTON_WIDTH = 15;
+	private static final int BUTTON_HEIGHT = BAR_HEIGHT + 2;
+	private static final int ICON = 0xFFD8D8D8;
+	private static final int HIGHLIGHT = 0xFFFFFFFF;
 
 	private InventoryScreenAddons() {
 	}
@@ -83,11 +86,8 @@ public final class InventoryScreenAddons {
 			// afterExtract; set it here so it is shown in this frame.
 			ScreenEvents.afterBackground(screen).register(InventoryScreenAddons::loadTooltip);
 			if (screen instanceof InventoryScreen inventoryScreen) {
-				Button sort = Button.builder(Component.translatable("simple_block.inventory.sort"),
-						button -> ClientPlayNetworking.send(new SortInventoryPayload()))
-					.size(BUTTON_WIDTH, BUTTON_HEIGHT)
-					.tooltip(Tooltip.create(Component.translatable("simple_block.inventory.sort.tooltip")))
-					.build();
+				SortButton sort = new SortButton();
+				sort.setTooltip(Tooltip.create(Component.translatable("simple_block.inventory.sort.tooltip")));
 				placeSortButton(inventoryScreen, sort);
 				Screens.getWidgets(screen).add(sort);
 				// The recipe book moves the panel; follow it.
@@ -96,11 +96,39 @@ public final class InventoryScreenAddons {
 		});
 	}
 
-	private static void placeSortButton(InventoryScreen screen, Button button) {
+	private static void placeSortButton(InventoryScreen screen, SortButton button) {
 		int[] row = disabledRow(screen);
 		AbstractContainerScreenAccessor panel = (AbstractContainerScreenAccessor) screen;
-		button.setX(panel.simpleBlock$getLeftPos() + row[2] - BUTTON_WIDTH - 1);
-		button.setY(panel.simpleBlock$getTopPos() + row[1] + 2);
+		button.setX(panel.simpleBlock$getLeftPos() + row[2] - BAR_X - BUTTON_WIDTH);
+		button.setY(panel.simpleBlock$getTopPos() + row[1] + BAR_Y);
+	}
+
+	/**
+	 * INV-02: a Sort button with the load bar's profile (8 pixels high, on the bar's level, dark
+	 * with a frame that lights up under the mouse) and a small sorted-bars icon instead of text;
+	 * the tooltip says what it does.
+	 */
+	private static final class SortButton extends Button {
+		SortButton() {
+			super(0, 0, BUTTON_WIDTH, BUTTON_HEIGHT, Component.translatable("simple_block.inventory.sort"),
+				button -> ClientPlayNetworking.send(new SortInventoryPayload()), DEFAULT_NARRATION);
+		}
+
+		@Override
+		protected void extractContents(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTick) {
+			int x = this.getX();
+			int y = this.getY();
+			boolean lit = this.isHoveredOrFocused();
+			graphics.fill(x + 1, y + 1, x + BUTTON_WIDTH - 1, y + BUTTON_HEIGHT - 1, TRACK);
+			graphics.outline(x, y, BUTTON_WIDTH, BUTTON_HEIGHT, lit ? HIGHLIGHT : FRAME);
+			// Three bars of rising height (2, 4, 6 pixels), bottom-aligned: "sorted".
+			int colour = lit ? HIGHLIGHT : ICON;
+			int bottom = y + BUTTON_HEIGHT - 1;
+			int left = x + (BUTTON_WIDTH - 8) / 2;
+			for (int i = 0; i < 3; i++) {
+				graphics.fill(left + i * 3, bottom - 2 * (i + 1), left + i * 3 + 2, bottom, colour);
+			}
+		}
 	}
 
 	private static void paintRow(Screen screen, GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTick) {

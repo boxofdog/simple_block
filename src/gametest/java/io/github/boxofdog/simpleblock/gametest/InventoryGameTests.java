@@ -212,12 +212,12 @@ public class InventoryGameTests {
 	}
 
 	/**
-	 * INV-02: Sort merges compatible stacks, orders by item registry id, fills the bottom storage row
-	 * left to right and then the upper row, keeps different durability/names apart, loses nothing and
+	 * INV-02: Sort merges compatible stacks, orders by item registry id, fills the upper storage row
+	 * left to right and then the bottom row, keeps different durability/names apart, loses nothing and
 	 * leaves the hotbar and offhand alone.
 	 */
 	@GameTest
-	public void sortMergesAndOrdersBottomRowFirst(GameTestHelper helper) {
+	public void sortMergesAndOrdersTopRowFirst(GameTestHelper helper) {
 		ServerPlayer player = TestPlayers.create(helper, GameType.SURVIVAL, new BlockPos(1, 1, 1));
 		Inventory inventory = player.getInventory();
 		ItemStack wornPickaxe = new ItemStack(Items.DIAMOND_PICKAXE);
@@ -244,7 +244,7 @@ public class InventoryGameTests {
 			layout.add(slot + ":" + (stack.isEmpty() ? "-" : BuiltInRegistries.ITEM.getKey(stack.getItem()).getPath() + "x" + stack.getCount()
 				+ (stack.isDamaged() ? "(damaged)" : "") + (stack.has(DataComponents.CUSTOM_NAME) ? "(named)" : "")));
 		}
-		SimpleBlockTestLog.info("INV-02 sorted storage (bottom row first): {}", layout);
+		SimpleBlockTestLog.info("INV-02 sorted storage (top row first): {}", layout);
 		helper.assertValueEqual(countAll(inventory), before, "item counts after sorting");
 		helper.assertTrue(inventory.getItem(0).is(Items.TORCH) && inventory.getItem(0).getCount() == 16, "hotbar slot 1 untouched");
 		helper.assertTrue(inventory.getItem(4).is(Items.COBBLESTONE) && inventory.getItem(4).getCount() == 7, "hotbar cobblestone not merged");
@@ -269,8 +269,8 @@ public class InventoryGameTests {
 				break;
 			}
 		}
-		helper.assertValueEqual(firstEmpty, 7, "stacks packed from bottom-left; first empty position");
-		helper.assertTrue(!inventory.getItem(27).isEmpty() && inventory.getItem(18).isEmpty(), "bottom row filled before the upper row");
+		helper.assertValueEqual(firstEmpty, 7, "stacks packed from top-left; first empty position");
+		helper.assertTrue(!inventory.getItem(18).isEmpty() && inventory.getItem(27).isEmpty(), "upper row filled before the bottom row");
 		long pickaxes = sorted.stream().filter(stack -> stack.is(Items.DIAMOND_PICKAXE)).count();
 		helper.assertValueEqual((int) pickaxes, 2, "pickaxes with different durability stay separate");
 		long namedStacks = sorted.stream().filter(stack -> stack.has(DataComponents.CUSTOM_NAME)).count();

@@ -29,8 +29,8 @@ import io.github.boxofdog.simpleblock.SimpleBlock;
 public final class InventorySlots {
 	public static final int FIRST_DISABLED = 9;
 	public static final int LAST_DISABLED = 17;
-	/** INV-02 sort order: the bottom storage row left to right, then the upper storage row. */
-	public static final int[] SORT_ORDER = {27, 28, 29, 30, 31, 32, 33, 34, 35, 18, 19, 20, 21, 22, 23, 24, 25, 26};
+	/** INV-02 sort order: the upper storage row left to right, then the bottom storage row. */
+	public static final int[] SORT_ORDER = {18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35};
 
 	private InventorySlots() {
 	}

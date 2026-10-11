@@ -23,8 +23,8 @@ import io.github.boxofdog.simpleblock.network.SortInventoryPayload;
  * stacks are ordered by the item's numeric id in the running game's item registry
  * ({@code BuiltInRegistries.ITEM.getId}, i.e. registration order, independent of language),
  * with the namespaced id as tie-break; stacks of the same item keep their previous relative order.
- * They are laid out left to right along the bottom storage row, then the upper row; empty slots
- * end up at the upper right.
+ * They are laid out left to right along the upper storage row, then the bottom row; empty slots
+ * end up at the bottom right.
  *
  * <p>The server does the sort in one step on its own thread when the client's Sort button sends
  * {@link SortInventoryPayload}; repeated clicks just sort an already sorted inventory again.
