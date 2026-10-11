@@ -1,0 +1,46 @@
+Milestone 01 test output (extracted log lines). Minecraft 26.3, Fabric Loader 0.19.5, Fabric API 0.162.0+26.3, Temurin JDK 25.0.4.1.
+Recorded 2026-10-11 in a Linux cloud container. Every run creates a new disposable world.
+
+== 1. Server game tests WITH the mod: ./gradlew clean build (runs :runGameTest) ==
+(Minecraft) Running test environment 'simple_block-gametest:phantom_night' batch 0 (1 tests)...
+(simple_block-evidence) PHA-01: 96000 insomnia spawner ticks at midnight on hard, player sleepless for 10 days: 0 phantoms
+(Minecraft) Running test environment 'simple_block-gametest:end_bed' batch 0 (1 tests)...
+(Minecraft) Running test environment 'simple_block-gametest:monster_night' batch 0 (1 tests)...
+(simple_block-evidence) PHA-02: natural spawner produced 476 monsters: [entity.minecraft.creeper, entity.minecraft.enderman, entity.minecraft.husk, entity.minecraft.parched, entity.minecraft.skeleton, entity.minecraft.spider, entity.minecraft.witch, entity.minecraft.zombie] (skyDarken=11)
+(Minecraft) Running test environment 'minecraft:default' batch 0 (14 tests)...
+(simple_block-evidence) SHU-01/02: 17 recipe ids and advancements absent, 272 dye combinations rejected, 2025 recipes scanned, none yield a shulker box
+(simple_block-evidence) ELY-01/SHU-02 audit: 1447 loot tables and 471 villager trades scanned, problems: []
+(Minecraft) Running test environment 'simple_block-gametest:day_thunder' batch 0 (1 tests)...
+(simple_block-evidence) BED-04: slept 140 ticks in a thunderstorm; clock 6984 -> 7124, thundering: true, still sleeping: true
+(Minecraft) Running test environment 'simple_block-gametest:night' batch 0 (1 tests)...
+(simple_block-evidence) BED-01..03: 2 players slept 140 ticks at midnight; clock 18002 -> 18142, still sleeping: true
+(Minecraft) Running test environment 'simple_block-gametest:nether_bed' batch 0 (1 tests)...
+(Minecraft) Running test environment 'simple_block-gametest:night_thunder' batch 0 (1 tests)...
+(simple_block-evidence) BED-04: slept 140 ticks in a thunderstorm; clock 18359 -> 18499, thundering: true, still sleeping: true
+(Minecraft) Running test environment 'simple_block-gametest:end_ship' batch 0 (1 tests)...
+(simple_block-evidence) ELY-01: End ship placed (557 purpur blocks), item frames: 0, frames with elytra: 0, shulker sentries: 3
+(Minecraft) All 22 required tests passed :)
+
+== 2. Negative control: same tests, mod restrictions removed (empty mixin list, no elytra listener, no data overrides) ==
+Expected: every restriction test fails on vanilla behaviour; vanilla-preservation tests still pass.
+(Minecraft) simple_block-gametest:elytra_game_tests_end_ship_has_no_elytra: an End ship item frame holds an elytra on tick 0
+(Minecraft) simple_block-gametest:elytra_game_tests_injected_elytra_cannot_start_gliding: survival player started gliding on tick 0
+(Minecraft) simple_block-gametest:elytra_game_tests_forced_gliding_is_stopped_by_server_tick: server tick should end gliding on tick 0
+(Minecraft) simple_block-gametest:shulker_box_game_tests_no_recipe_makes_shulker_boxes: recipe minecraft:shulker_box still exists on tick 0
+(Minecraft) simple_block-gametest:shulker_box_game_tests_shulker_boxes_cannot_be_placed: Expected block Air: got Shulker Box at -1029638, 8, -1176792 (relative: 1, 2, 1) on tick 0
+(Minecraft) simple_block-gametest:shulker_box_game_tests_existing_boxes_cannot_be_opened: Block{minecraft:shulker_box} opened a container menu on tick 0
+(Minecraft) simple_block-gametest:shulker_box_game_tests_dispenser_cannot_place_boxes: Expected block Air: got Red Shulker Box at -1029732, 7, -1176774 (relative: 3, 1, 2) on tick 10
+(Minecraft) simple_block-gametest:shulker_box_game_tests_hoppers_cannot_fill_or_drain_boxes: Expected diamonds left in the box above the hopper to be 5: was 0 on tick 80
+(Minecraft) simple_block-gametest:sleep_game_tests_sleeping_does_not_clear_day_storm: Expected clock ticks elapsed while sleeping to be in between 135 and 145: was 17899 on tick 140
+(Minecraft) simple_block-gametest:sleep_game_tests_sleeping_does_not_clear_night_storm: Expected clock ticks elapsed while sleeping to be in between 135 and 145: was 6004 on tick 173
+(Minecraft) simple_block-gametest:phantom_game_tests_insomnia_never_spawns_phantoms: Expected phantoms spawned after 96000 insomnia spawner ticks to be 0: was 63 on tick 0
+(Minecraft) simple_block-gametest:sleep_game_tests_all_players_sleeping_do_not_skip_night: Expected clock ticks elapsed while sleeping to be in between 135 and 145: was 6034 on tick 140
+(Minecraft) 12 required tests failed :(
+
+== 3. Real game client, end-to-end smoke test: xvfb-run ./gradlew runClientGameTest ==
+(Minecraft) Using graphics backend Vulkan, using drivers: 1.4.318 llvmpipe Mesa 25.2.8-0ubuntu0.24.04.4 (LLVM 20.1.2)
+(simple_block-evidence) CLIENT BED: message 'No amount of rest can pass this night', clock 18008 -> 18170 after 160 ticks in bed, still in bed: true, respawn BlockPos{x=0, y=-60, z=3}
+(simple_block-evidence) CLIENT SHULKER: placed: false, still holding: 1, message 'Shulker boxes don't work in this world'
+(simple_block-evidence) CLIENT MOVEMENT: walked 4.06 blocks in 20 ticks, jump height 1.25, health after 10-block fall 13.0
+(simple_block-evidence) CLIENT ELYTRA: wearing elytra, pressed jump 3 times mid-air, gliding at any point: false
+BUILD SUCCESSFUL in 39s

@@ -14,10 +14,16 @@
 			"io.github.boxofdog.simpleblock.gametest.RegressionGameTests"
 		],
 		"fabric-client-gametest": [
-			"io.github.boxofdog.simpleblock.gametest.client.ProbeClientTest"
+			"io.github.boxofdog.simpleblock.gametest.client.SurvivalSmokeClientTest"
 		]
 	},
 	"depends": {
 		"simple_block": "*"
-	}
+	},
+	"mixins": [
+		{
+			"config": "simple_block-gametest.mixins.json",
+			"environment": "client"
+		}
+	]
 }

@@ -35,3 +35,26 @@ This record prevents older brainstorming ideas and assistant proposals from acci
 ## Rejected as automatic requirements
 
 Suggestions made during earlier discussion (hand-winch operation time, continuous loop rope design, particular cargo capacities, and specific locomotive stats) are not binding until explicitly decided.
+
+## Milestone 01 implementation decisions (2026-10-11)
+
+These answer the "discover from repo" items above. The repository was empty, so nothing could be discovered and a toolchain had to be chosen.
+
+| Topic | Decision | Why / how to change |
+|---|---|---|
+| Game version | Minecraft Java **26.3**, the latest release at the time | Current release; the official Fabric template targets it. 26.x requires Java 25 and ships unobfuscated, so there is no mappings layer. |
+| Loader | **Fabric** (Loader 0.19.5, API 0.162.0+26.3, Loom 1.18.4, Gradle 9.7.1) | Lightweight; the API covers elytra events, resource conditions and game tests. Switching loaders later means rewriting the mixins and the test harness. |
+| Mod ID / name | `simple_block` / "Simple Block": **provisional**, taken from the repository name | Rename in `fabric.mod.json`, `gradle.properties` and the Java package before any public release. |
+| Bed behaviour (SF-01) | Players can still lie down; the night and storms never pass. They see vanilla's "No amount of rest can pass this night" and leave with the Leave Bed button (or are woken at morning). This is the same as vanilla with `players_sleeping_percentage` above 100, enforced in code. | Keeps vanilla stats, the "Sweet Dreams" advancement and the bed screen. **Alternative:** never let players lie down at all (clicking only sets spawn). That's a small change if you prefer it. |
+| Night-skip scope | Disabled in every dimension, not only the Overworld | Nether/End beds explode before sleep is checked, so they are unaffected. Custom dimensions also can't skip nights. |
+| Gliding (SF-03) | All gliding is blocked, not only the vanilla elytra item | Also covers items given the `minecraft:glider` component by commands. Creative players can't glide either (creative flight is unaffected). |
+| End ship elytra | The item frame is not generated at all | An empty frame would only advertise a missing item. |
+| Shulker feedback | Action-bar message "Shulker boxes don't work in this world" (translation key `message.simple_block.shulker_box_disabled`, English fallback only) | No language file was added. |
+| Recipe removal | Data overrides using Fabric's `fabric:false` load condition | Removes the 17 vanilla recipes and their recipe-book advancements without code. |
+
+### Consequences to decide on later (not changed in Milestone 01)
+
+- **Phantom membranes** lose their main source. The only other one is a tamed cat's occasional "morning gift" after the owner sleeps; whether that still triggers without night skipping is untested. That makes **Potions of Slow Falling** effectively unavailable. The advancements **Monsters Hunted** and **Two Birds, One Arrow** can't be completed.
+- **Shulker shells** still drop but have no use, since the box was their only recipe.
+- **Sky's the Limit** (obtain an elytra) can't be completed in survival.
+- The `players_sleeping_percentage` and `spawn_phantoms` game rules no longer do anything.
