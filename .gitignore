@@ -38,3 +38,6 @@ hs_err_*.log
 replay_*.log
 *.hprof
 *.jfr
+
+# personal settings for the Windows updater
+tools/windows/Update-SimpleBlock.settings.ini

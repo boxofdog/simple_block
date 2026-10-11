@@ -1,0 +1,82 @@
+# Builds the mod and runs the server game tests on every push to main (and on pull requests).
+# Each run uploads the "simple-block-mod" artifact that tools/windows/Update-SimpleBlock.ps1 installs:
+#   simple_block-<version>.jar  the production mod jar (no sources or dev jars)
+#   build-info.json             commit, version and SHA-256 the updater checks before installing
+# If you rename this file, the artifact or the build-info fields, update the Windows updater and its tests.
+name: Build
+
+on:
+  push:
+    branches: [main]
+    paths-ignore: ['**.md', 'docs/**']
+  pull_request:
+    paths-ignore: ['**.md', 'docs/**']
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v6
+
+      - name: Validate Gradle wrapper
+        uses: gradle/actions/wrapper-validation@v6
+
+      - name: Set up JDK 25
+        uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: '25'
+
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@v6
+
+      - name: Compute build version
+        id: version
+        run: |
+          base="$(sed -n 's/^mod_version=//p' gradle.properties)"
+          echo "version=${base}+build.${GITHUB_RUN_NUMBER}.${GITHUB_SHA::7}" >> "$GITHUB_OUTPUT"
+
+      # Minecraft 26.x is unobfuscated, so the jar task output is already the production jar (no remapping step).
+      - name: Build and run server game tests
+        env:
+          MOD_VERSION: ${{ steps.version.outputs.version }}
+        run: ./gradlew build -Pmod_version="$MOD_VERSION"
+
+      - name: Package artifact
+        env:
+          MOD_VERSION: ${{ steps.version.outputs.version }}
+        run: |
+          jar_name="simple_block-${MOD_VERSION}.jar"
+          jar="build/libs/${jar_name}"
+          # Refuse to publish anything that is not the Simple Block jar for this exact version.
+          unzip -p "$jar" fabric.mod.json | jq -e --arg v "$MOD_VERSION" '.id == "simple_block" and .version == $v'
+          mkdir -p dist
+          cp "$jar" dist/
+          jq -n \
+            --arg modId simple_block \
+            --arg version "$MOD_VERSION" \
+            --arg jar "$jar_name" \
+            --arg sha256 "$(sha256sum "$jar" | cut -d' ' -f1)" \
+            --arg commit "$GITHUB_SHA" \
+            --arg branch "$GITHUB_REF_NAME" \
+            --argjson runId "$GITHUB_RUN_ID" \
+            --argjson runNumber "$GITHUB_RUN_NUMBER" \
+            --arg builtAt "$(date -u +%Y-%m-%dT%H:%M:%SZ)" \
+            --arg minecraft "$(sed -n 's/^minecraft_version=//p' gradle.properties)" \
+            --arg fabricLoader "$(sed -n 's/^loader_version=//p' gradle.properties)" \
+            '$ARGS.named' > dist/build-info.json
+          cat dist/build-info.json
+
+      - name: Upload mod jar
+        uses: actions/upload-artifact@v7
+        with:
+          name: simple-block-mod
+          path: dist/
+          if-no-files-found: error
+          retention-days: 90

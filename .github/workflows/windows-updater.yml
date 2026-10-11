@@ -1,0 +1,41 @@
+# Tests the Windows updater (tools/windows) on a real Windows machine, in Windows PowerShell 5.1
+# (what Update-SimpleBlock.bat uses) and PowerShell 7. Runs only when the updater changes.
+name: Windows updater
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'tools/windows/**'
+      - '.github/workflows/windows-updater.yml'
+  pull_request:
+    paths:
+      - 'tools/windows/**'
+      - '.github/workflows/windows-updater.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: windows-latest
+    timeout-minutes: 15
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v6
+
+      - name: Scenario tests (Windows PowerShell 5.1)
+        shell: powershell
+        run: .\tools\windows\tests\Test-Updater.ps1
+
+      - name: Scenario tests (PowerShell 7)
+        shell: pwsh
+        run: .\tools\windows\tests\Test-Updater.ps1
+
+      - name: Double-click launcher passes arguments and the exit code through
+        shell: cmd
+        run: |
+          echo.| tools\windows\Update-SimpleBlock.bat -GameDir "%RUNNER_TEMP%\no-such-instance" -SettingsPath "%RUNNER_TEMP%\none.ini" -WorkDir "%RUNNER_TEMP%\sb-work" -NonInteractive
+          if %ERRORLEVEL% NEQ 4 (echo Expected exit code 4 from the launcher, got %ERRORLEVEL% & exit /b 1)
+          echo The launcher returned exit code 4 for a missing game directory, as expected.
