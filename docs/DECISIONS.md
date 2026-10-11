@@ -60,6 +60,25 @@ These answer the "discover from repo" items above. The repository was empty, so 
 | Light attraction (MOB-01) | Mobs head for the nearest lit area, then wander about it preferring lit ground, with no pull towards light sources or the brightest block. Active at Overworld night and, at any time of day, wherever the mob gets no sky light (caves at any depth, no fixed y). Not in the Nether or End, which have no sky light anywhere. |
 | Heavy load display | A bar without text in the inventory, filled per material in that material's colour (netherite has its own colour), so the player sees what the weight is made of. Hovering it shows the numbers: total out of 64 and each material's exact weight. |
 
+## Milestone 03 decisions by the user (2026-10-11)
+
+| Topic | Decision |
+|---|---|
+| Freight cart = the minecart | **Supersedes the separate "freight cart" of `docs/MILESTONE_03.md`** (FRT-01, FRT-11 "keep ordinary minecarts and introduce the new freight cart separately", T23). M03 overhauls the vanilla minecart itself: nobody sits in one without a cushion (a later milestone), and its job is to be filled with raw material: 256 of one kind. There is no new cart item, entity or recipe; the vanilla minecart recipe is unchanged. |
+| Capacity | 256 items of one kind per cart (starting playtest value). |
+| Storage bypasses | Ender chests and vanilla chest minecarts are removed from ordinary play; donkeys, mules and llamas keep their chests. |
+
+## Milestone 03 implementation choices (provisional, 2026-10-11)
+
+| Topic | Choice | Why / how to change |
+|---|---|---|
+| Riders | No player or mob gets into a plain minecart: using it loads/unloads instead, and a rolling cart no longer scoops up mobs. Furnace, hopper, TNT, command-block and spawner minecarts are unchanged. | "Sitting without a cushion" covers mobs too (villager transport by minecart is gone until cushions). |
+| Gesture | Use with cargo in hand loads it; use with an empty hand shows the cargo; **sneak + use unloads one stack**, whatever is in hand. | The spec's default (an empty hand unloads) puts the unloaded stack into that same empty hand, so the next click loads it straight back. |
+| Cargo list | `#simple_block:minecart_cargo`: raw iron/copper/gold, iron/copper/gold ores and their deepslate forms, coal, diamond, emerald, lapis lazuli, redstone, stone, cobblestone, deepslate, cobbled deepslate. Only component-free stacks. | One data tag; add or remove items there. Not included: gravel, dirt, sand, other ore blocks, Nether materials, blocks of metal, nuggets, ingots. |
+| Readout | A label over the cart while the player looks at it ("Raw Iron 180 / 256", or "Empty 0 / 256"), plus an action-bar message on every use. | M04 replaces the look; the label is a renderer override with no state of its own. |
+| Ender chest drops | Mining one always gives 8 obsidian, silk touch or not | The only natural ender chest is built into one End city floor template; this keeps it from becoming an item. |
+| Mineshaft chest minecarts | Kept as sealed loot: they don't open and hoppers can't reach them; breaking one spills the loot and drops a minecart and a chest. | Keeps mineshaft loot without changing world generation. |
+
 ### Consequences to decide on later (not changed in Milestone 01)
 
 - **Phantom membranes** lose their main source. The only other one is a tamed cat's occasional "morning gift" after the owner sleeps; whether that still triggers without night skipping is untested. That makes **Potions of Slow Falling** effectively unavailable. The advancements **Monsters Hunted** and **Two Birds, One Arrow** can't be completed.

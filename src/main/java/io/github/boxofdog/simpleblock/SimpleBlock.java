@@ -5,9 +5,12 @@ import net.fabricmc.api.ModInitializer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import io.github.boxofdog.simpleblock.feature.ChestMinecarts;
+import io.github.boxofdog.simpleblock.feature.EnderChests;
 import io.github.boxofdog.simpleblock.feature.HeavyLoad;
 import io.github.boxofdog.simpleblock.feature.InventorySlots;
 import io.github.boxofdog.simpleblock.feature.InventorySort;
+import io.github.boxofdog.simpleblock.feature.MinecartCargo;
 import io.github.boxofdog.simpleblock.feature.NoElytraFlight;
 import io.github.boxofdog.simpleblock.feature.RemovedRocks;
 import io.github.boxofdog.simpleblock.feature.SaturationSync;
@@ -54,6 +57,17 @@ import io.github.boxofdog.simpleblock.worldgen.IronWorldgen;
  *       saturation display — {@link SaturationSync}, {@code network/SaturationPayload}, client
  *       {@code SaturationHud}</li>
  * </ul>
+ *
+ * <p>Milestone 03, minecart cargo and storage-bypass closure:
+ * <ul>
+ *   <li>FRT-01..09 the minecart carries 256 of one mined resource and nobody rides it —
+ *       {@link MinecartCargo}, {@code mixin/minecart}, {@code #simple_block:minecart_cargo}, client
+ *       {@code CargoMinecartRenderer}</li>
+ *   <li>FRT-10 ender chests disabled — {@link EnderChests}, {@code mixin/enderchest}, recipe,
+ *       advancement and block loot overrides</li>
+ *   <li>FRT-11 chest minecarts disabled — {@link ChestMinecarts}, {@code mixin/chestcart}, recipe
+ *       and advancement overrides</li>
+ * </ul>
  */
 public class SimpleBlock implements ModInitializer {
 	public static final String MOD_ID = "simple_block";
@@ -69,5 +83,7 @@ public class SimpleBlock implements ModInitializer {
 		InventorySlots.register();
 		InventorySort.register();
 		SaturationSync.register();
+		EnderChests.register();
+		ChestMinecarts.register();
 	}
 }

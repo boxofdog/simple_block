@@ -1,11 +1,11 @@
 # Instructions for Claude Code — Minecraft Overhaul
 
-Read `docs/VISION.md`, `docs/DESIGN_REGISTER.md` and `docs/DECISIONS.md`, then the current milestone's documents: `docs/MILESTONE_02.md` with `docs/M02_*.md` (Milestone 01, `docs/MILESTONE_01.md` and `docs/TEST_CHECKLIST_01.md`, is complete and must keep working). If `docs/MILESTONE_02_CHECKPOINT.md` exists, read it first: it records what is done and the next steps.
+Read `docs/VISION.md`, `docs/DESIGN_REGISTER.md` and `docs/DECISIONS.md`, then the current milestone's documents: `docs/MILESTONE_03.md` with `docs/M03_TEST_PLAN.md`, and `docs/ROADMAP.md` for context only (Milestones 01 and 02 are complete and must keep working; their reports are `docs/MILESTONE_01_REPORT.md` and `docs/MILESTONE_02_REPORT.md`). The owner's Milestone 03 clarification in `docs/DECISIONS.md` (the vanilla minecart is the cargo cart; no separate freight cart) overrides the spec where they differ. If a `docs/MILESTONE_0N_CHECKPOINT.md` exists for the current milestone, read it first: it records what is done and the next steps.
 
 ## Priority and scope
 
 1. The user's current direct instructions take priority.
-2. The current milestone's documents define the **only authorized implementation scope**. Now that is Milestone 02: `docs/MILESTONE_02.md` (scope and order) with `docs/M02_WORLDGEN_MINING.md`, `docs/M02_MOBS_LIGHTING.md`, `docs/M02_INVENTORY_HEAVY.md`, `docs/M02_HUNGER_HUD.md`, `docs/M02_TEST_PLAN.md` and `docs/M02_DECISIONS_AND_TUNING.md`. Milestone 01's restrictions stay in force.
+2. The current milestone's documents define the **only authorized implementation scope**. Now that is Milestone 03: `docs/MILESTONE_03.md` with `docs/M03_TEST_PLAN.md`, as clarified in `docs/DECISIONS.md`. Milestone 01's and 02's rules stay in force.
 3. `docs/DESIGN_REGISTER.md` provides future context and decision status, **not permission to implement future systems**.
 4. `docs/VISION.md` is a design guide, not a technical specification.
 5. If documents conflict, flag the conflict and prefer the narrowest interpretation that satisfies the current milestone in a fresh world.

@@ -8,5 +8,6 @@ public class SimpleBlockClient implements ClientModInitializer {
 	public void onInitializeClient() {
 		InventoryScreenAddons.register();
 		SaturationHud.register();
+		CargoMinecartRenderer.register();
 	}
 }

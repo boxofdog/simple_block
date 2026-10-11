@@ -2,7 +2,7 @@
 
 A stripped-down Minecraft Java Edition overhaul built around hostile nights, territory, mining and physical transport infrastructure. See [`docs/VISION.md`](docs/VISION.md) for the design and [`CLAUDE.md`](CLAUDE.md) for the working rules.
 
-**Status:** Milestone 01 (Survival Foundation) is implemented and tested. See [`docs/MILESTONE_01_REPORT.md`](docs/MILESTONE_01_REPORT.md) and [`docs/TEST_CHECKLIST_01.md`](docs/TEST_CHECKLIST_01.md).
+**Status:** Milestones 01 (Survival Foundation) and 02 (World, Night, Inventory) are done: see [`docs/MILESTONE_01_REPORT.md`](docs/MILESTONE_01_REPORT.md) and [`docs/MILESTONE_02_REPORT.md`](docs/MILESTONE_02_REPORT.md). Milestone 03 (minecart cargo and storage-bypass closure) is reported in [`docs/MILESTONE_03_REPORT.md`](docs/MILESTONE_03_REPORT.md).
 
 **Fresh worlds only.** The mod is not meant to be added to existing saves.
 
@@ -17,7 +17,7 @@ A stripped-down Minecraft Java Edition overhaul built around hostile nights, ter
 
 ## What Milestone 02 changes
 
-Milestone 02 (world, night, inventory) is in progress; see [`docs/MILESTONE_02.md`](docs/MILESTONE_02.md).
+Milestone 02 (world, night, inventory); see [`docs/MILESTONE_02.md`](docs/MILESTONE_02.md).
 
 | ID | Change | Where |
 |---|---|---|
@@ -34,6 +34,17 @@ Milestone 02 (world, night, inventory) is in progress; see [`docs/MILESTONE_02.m
 | MOB-02 | Zombies, husks and zombie villagers break wooden doors only while chasing a player, on every difficulty except Peaceful, at the vanilla Hard pace (12 s). Iron and copper doors get attacked but never damaged. No door breaking without a chase. | `feature/ZombieDoors`, `mixin/mobs/ZombieMixin` |
 | MOB-03 | Creepers in direct sunlight smoke for half a second and are gone: no explosion, no drops. Shade, caves, rain and night keep them. | `feature/CreeperEvaporation`, `mixin/mobs/CreeperMixin` |
 | FOOD-01 | Sprinting, jumping, swimming and breaking blocks cost half the vanilla hunger exhaustion; fighting, taking damage, healing and the Hunger effect are unchanged. Saturation is shown on the food bar: the food icons it covers are drawn in gold and underlined. | `feature/Exhaustion`, `mixin/food/*`, `feature/SaturationSync`, client `SaturationHud` |
+
+## What Milestone 03 changes
+
+See [`docs/MILESTONE_03.md`](docs/MILESTONE_03.md) and, for how it differs from that spec, [`docs/DECISIONS.md`](docs/DECISIONS.md).
+
+| ID | Change | Where |
+|---|---|---|
+| FRT-01..09 | The plain minecart is a cargo cart. Nobody gets in (players or mobs). It holds up to 256 of one kind of mined resource: raw iron/copper/gold, those ores, coal, diamond, emerald, lapis, redstone, stone, cobblestone, deepslate, cobbled deepslate. Use while holding cargo to load it; sneak + use to take out a stack, as much as fits in your inventory and under the heavy-load cap; looking at a cart shows its cargo. Breaking or blowing up a cart spills the cargo as ordinary stacks and leaves a plain minecart. Furnace, hopper and TNT minecarts are unchanged. | `feature/MinecartCargo`, `mixin/minecart/MinecartMixin`, `#simple_block:minecart_cargo`, client `CargoMinecartRenderer` |
+| FRT-10 | Ender chests can't be crafted, placed or opened, and mining one gives 8 obsidian even with silk touch. Not in the creative tabs. | `feature/EnderChests`, `mixin/enderchest/*`, recipe/advancement/loot overrides |
+| FRT-11 | Chest minecarts can't be crafted or placed (by hand or dispenser). The ones mineshafts generate are sealed loot: they don't open, hoppers can't reach them, and breaking one spills the loot plus a minecart and a chest. Not in the creative tabs. | `feature/ChestMinecarts`, `mixin/chestcart/*`, recipe/advancement overrides |
+| FRT-12 | Donkeys, mules and llamas still carry chests. | (unchanged) |
 
 Provisional numbers (ore amounts, deposit shapes, the diamond share) are in one table, `tuning/Tuning.java`. To change one in a game, copy its line from `config/simple_block/tuning-defaults.json` into `config/simple_block/tuning.json` and restart; worldgen values affect newly generated chunks.
 

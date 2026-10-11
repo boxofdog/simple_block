@@ -1,0 +1,14 @@
+# Milestone 03 baseline (before any M03 code), 2026-10-11T18:46Z
+git HEAD: d6da037 (Add files via upload: docs/MILESTONE_03.md, docs/M03_TEST_PLAN.md, docs/ROADMAP.md, plus an identical copy under docs/docs/); tree clean
+minecraft_version=26.3
+loader_version=0.19.5
+loom_version=1.18.4
+fabric_api_version=0.162.0+26.3
+mod_version=0.1.0
+gradle wrapper: gradle-9.7.1-bin.zip
+java: openjdk 25.0.4.1
+mixins: 23 (M01 sleep/phantom/elytra/shulker, M02 geology/mining/inventory/light/mobs/food)
+minecart code before M03: none (vanilla minecart, chest minecart and ender chest untouched)
+workflows: build.yml windows-updater.yml
+
+./gradlew build: "All 65 required tests passed :)", BUILD SUCCESSFUL in 57s

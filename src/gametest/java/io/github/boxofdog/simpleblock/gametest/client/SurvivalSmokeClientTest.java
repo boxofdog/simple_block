@@ -19,6 +19,7 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.monster.Creeper;
+import net.minecraft.world.entity.vehicle.minecart.Minecart;
 import net.minecraft.world.food.FoodData;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.LightLayer;
@@ -29,11 +30,13 @@ import net.fabricmc.fabric.api.client.gametest.v1.FabricClientGameTest;
 import net.fabricmc.fabric.api.client.gametest.v1.context.ClientGameTestContext;
 import net.fabricmc.fabric.api.client.gametest.v1.context.TestServerContext;
 import net.fabricmc.fabric.api.client.gametest.v1.context.TestSingleplayerContext;
+import net.fabricmc.fabric.api.client.gametest.v1.world.TestWorldSave;
 
 import io.github.boxofdog.simpleblock.client.InventoryScreenAddons;
 import io.github.boxofdog.simpleblock.feature.CreeperEvaporation;
 import io.github.boxofdog.simpleblock.feature.HeavyLoad;
 import io.github.boxofdog.simpleblock.feature.InventorySlots;
+import io.github.boxofdog.simpleblock.feature.MinecartCargo;
 import io.github.boxofdog.simpleblock.gametest.SimpleBlockTestLog;
 import io.github.boxofdog.simpleblock.gametest.mixin.HudAccessor;
 
@@ -46,10 +49,13 @@ import io.github.boxofdog.simpleblock.gametest.mixin.HudAccessor;
 public class SurvivalSmokeClientTest implements FabricClientGameTest {
 	@Override
 	public void runTest(ClientGameTestContext context) {
+		TestWorldSave save;
+		int ground;
 		try (TestSingleplayerContext world = context.worldBuilder().create()) {
+			save = world.getWorldSave();
 			TestServerContext server = world.getServer();
 			server.runCommand("gamerule minecraft:advance_time true");
-			int ground = server.computeOnServer(s -> s.overworld().getHeight(Heightmap.Types.MOTION_BLOCKING, 0, 0));
+			ground = server.computeOnServer(s -> s.overworld().getHeight(Heightmap.Types.MOTION_BLOCKING, 0, 0));
 			server.runCommand("tp @a 0.5 " + ground + " 0.5 0 30");
 			world.getConnection().waitForChunksRender();
 			context.takeScreenshot("smoke-fresh-survival-world");
@@ -62,7 +68,161 @@ public class SurvivalSmokeClientTest implements FabricClientGameTest {
 			light(context, server, ground);
 			creeper(context, server, ground);
 			food(context, server, ground);
+			minecart(context, server, ground);
 		}
+		// Save and quit, then open the same world again: the loaded minecart must still hold its cargo.
+		try (TestSingleplayerContext world = save.open()) {
+			world.getConnection().waitForChunksRender();
+			minecartAfterReload(context, world.getServer(), ground);
+			storageBypasses(context, world.getServer(), ground);
+		}
+	}
+
+	/** Every minecart near the rails, on the server or (synced) on the client: {count, cargo item id}. */
+	private static List<String> cartsOnServer(TestServerContext server, int ground) {
+		return server.computeOnServer(s -> s.overworld().getEntitiesOfClass(Minecart.class, new AABB(-2, ground - 1, 0, 3, ground + 3, 10)).stream()
+			.map(cart -> MinecartCargo.cart(cart).simpleBlock$count() + " " + BuiltInRegistries.ITEM.getKey(MinecartCargo.cart(cart).simpleBlock$cargo()))
+			.toList());
+	}
+
+	private static List<String> cartsOnClient(ClientGameTestContext context, int ground) {
+		return context.computeOnClient(client -> client.level.getEntitiesOfClass(Minecart.class, new AABB(-2, ground - 1, 0, 3, ground + 3, 10)).stream()
+			.map(cart -> MinecartCargo.cart(cart).simpleBlock$count() + " " + BuiltInRegistries.ITEM.getKey(MinecartCargo.cart(cart).simpleBlock$cargo()))
+			.toList());
+	}
+
+	/**
+	 * FRT-01..08 in the real client: place a minecart on rails with the use key, load three stacks of
+	 * raw iron, see the cargo label, fail to get in, sneak-use to unload a stack. The cart is left
+	 * loaded for {@link #minecartAfterReload}.
+	 */
+	private static void minecart(ClientGameTestContext context, TestServerContext server, int ground) {
+		server.runCommand("clear @a");
+		server.runCommand("effect clear @a");
+		server.runCommand("gamemode survival @a");
+		server.runCommand("time set noon");
+		server.runCommand("kill @e[type=!minecraft:player]");
+		server.runCommand("fill 0 " + ground + " 2 0 " + ground + " 8 minecraft:rail");
+		server.runCommand("tp @a 0.5 " + ground + " 0.5 0 30");
+		server.runCommand("give @a minecraft:minecart");
+		context.waitTicks(10);
+		context.getInput().lookAt(new BlockPos(0, ground, 2));
+		context.getInput().pressKey(options -> options.keyUse);
+		context.waitTicks(10);
+		List<String> placed = cartsOnServer(server, ground);
+		assertTrue(placed.size() == 1, "expected one minecart on the rails after using the item, found " + placed);
+
+		for (int stack = 0; stack < 3; stack++) {
+			server.runCommand("item replace entity @a weapon.mainhand with minecraft:raw_iron 64");
+			context.waitTicks(3);
+			context.getInput().lookAt(new BlockPos(0, ground, 2));
+			context.getInput().pressKey(options -> options.keyUse);
+			context.waitTicks(5);
+		}
+		String loadedMessage = overlayMessage(context);
+		List<String> serverCarts = cartsOnServer(server, ground);
+		List<String> clientCarts = cartsOnClient(context, ground);
+		int held = context.computeOnClient(client -> client.player.getInventory().countItem(Items.RAW_IRON));
+		context.takeScreenshot("minecart-loaded-192-raw-iron");
+		SimpleBlockTestLog.info("CLIENT MINECART: after three right-clicks with 64 raw iron: server {}, client {}, raw iron in hand {}, message '{}'",
+			serverCarts, clientCarts, held, loadedMessage);
+		assertTrue(serverCarts.equals(List.of("192 minecraft:raw_iron")), "server cargo after loading: " + serverCarts);
+		assertTrue(clientCarts.equals(serverCarts), "client cargo " + clientCarts + " differs from server " + serverCarts);
+		assertTrue(held == 0, "raw iron left in hand: " + held);
+		assertTrue(loadedMessage.contains("192 / 256"), "expected the cargo in the message, saw: " + loadedMessage);
+
+		// Empty hand: no seat, just the cargo.
+		context.getInput().pressKey(options -> options.keyUse);
+		context.waitTicks(5);
+		boolean riding = context.computeOnClient(client -> client.player.getVehicle() != null);
+		boolean ridingOnServer = server.computeOnServer(s -> playerOf(s.overworld()).getVehicle() != null);
+		assertTrue(!riding && !ridingOnServer, "using a minecart with an empty hand should not seat the player");
+
+		// Sneak + use: one stack comes back.
+		context.getInput().holdKey(options -> options.keyShift);
+		context.waitTicks(3);
+		// Crouching lowers the eyes; aim at the cart again so the crosshair is on it and not the rail.
+		context.getInput().lookAt(new BlockPos(0, ground, 2));
+		context.waitTicks(1);
+		context.getInput().pressKey(options -> options.keyUse);
+		context.waitTicks(5);
+		context.getInput().releaseKey(options -> options.keyShift);
+		context.waitTicks(3);
+		int unloaded = context.computeOnClient(client -> client.player.getInventory().countItem(Items.RAW_IRON));
+		List<String> afterUnload = cartsOnServer(server, ground);
+		String unloadMessage = overlayMessage(context);
+		context.takeScreenshot("minecart-unloaded-one-stack");
+		SimpleBlockTestLog.info("CLIENT MINECART: riding after use: {}; sneak-use unloaded {} raw iron, cart now {}, message '{}'", riding, unloaded,
+			afterUnload, unloadMessage);
+		assertTrue(unloaded == 64, "expected 64 raw iron unloaded, got " + unloaded);
+		assertTrue(afterUnload.equals(List.of("128 minecraft:raw_iron")), "cart after unloading: " + afterUnload);
+		server.runCommand("clear @a");
+	}
+
+	/** FRT-05 after a real save and reload; then FRT-07: break the cart by hand and see the cargo spill. */
+	private static void minecartAfterReload(ClientGameTestContext context, TestServerContext server, int ground) {
+		context.waitTicks(10);
+		List<String> serverCarts = cartsOnServer(server, ground);
+		List<String> clientCarts = cartsOnClient(context, ground);
+		context.getInput().lookAt(new BlockPos(0, ground, 2));
+		context.waitTicks(3);
+		context.takeScreenshot("minecart-after-reload-label");
+		SimpleBlockTestLog.info("CLIENT MINECART: after save, quit and reopen: server {}, client {}", serverCarts, clientCarts);
+		assertTrue(serverCarts.equals(List.of("128 minecraft:raw_iron")), "server cargo after reopening: " + serverCarts);
+		assertTrue(clientCarts.equals(serverCarts), "client cargo after reopening " + clientCarts + " differs from server " + serverCarts);
+
+		for (int hit = 0; hit < 8 && !cartsOnServer(server, ground).isEmpty(); hit++) {
+			context.getInput().pressKey(options -> options.keyAttack);
+			context.waitTicks(4);
+		}
+		context.waitTicks(5);
+		List<String> left = cartsOnServer(server, ground);
+		int[] spilled = server.computeOnServer(s -> {
+			List<ItemEntity> items = s.overworld().getEntitiesOfClass(ItemEntity.class, new AABB(-3, ground - 1, -2, 4, ground + 3, 6));
+			int iron = items.stream().filter(e -> e.getItem().is(Items.RAW_IRON)).mapToInt(e -> e.getItem().getCount()).sum();
+			int carts = items.stream().filter(e -> e.getItem().is(Items.MINECART)).mapToInt(e -> e.getItem().getCount()).sum();
+			return new int[] {iron, carts};
+		});
+		int picked = context.computeOnClient(client -> client.player.getInventory().countItem(Items.RAW_IRON));
+		int pickedCarts = context.computeOnClient(client -> client.player.getInventory().countItem(Items.MINECART));
+		context.takeScreenshot("minecart-broken-cargo-spilled");
+		SimpleBlockTestLog.info("CLIENT MINECART: broken by hand: carts left {}, raw iron on the ground {} + picked up {}, minecart items {} + picked up {}",
+			left, spilled[0], picked, spilled[1], pickedCarts);
+		assertTrue(left.isEmpty(), "the cart should be broken: " + left);
+		assertTrue(spilled[0] + picked == 128, "expected 128 raw iron out of the cart, saw " + spilled[0] + " + " + picked);
+		assertTrue(spilled[1] + pickedCarts == 1, "expected one minecart item, saw " + spilled[1] + " + " + pickedCarts);
+		server.runCommand("kill @e[type=minecraft:item]");
+		server.runCommand("clear @a");
+	}
+
+	/** FRT-10, FRT-11 in the real client: an ender chest and a chest minecart are refused with a message. */
+	private static void storageBypasses(ClientGameTestContext context, TestServerContext server, int ground) {
+		server.runCommand("give @a minecraft:ender_chest");
+		context.waitTicks(5);
+		BlockPos floor = new BlockPos(1, ground - 1, 2);
+		context.getInput().lookAt(floor);
+		context.getInput().pressKey(options -> options.keyUse);
+		context.waitTicks(5);
+		String enderMessage = overlayMessage(context);
+		boolean enderPlaced = server.computeOnServer(s -> s.overworld().getBlockState(floor.above()).is(net.minecraft.world.level.block.Blocks.ENDER_CHEST));
+		context.takeScreenshot("ender-chest-refused");
+		server.runCommand("clear @a");
+		server.runCommand("give @a minecraft:chest_minecart");
+		context.waitTicks(5);
+		context.getInput().lookAt(new BlockPos(0, ground, 3));
+		context.getInput().pressKey(options -> options.keyUse);
+		context.waitTicks(5);
+		String cartMessage = overlayMessage(context);
+		boolean chestCart = server.computeOnServer(s -> !s.overworld().getEntitiesOfClass(net.minecraft.world.entity.vehicle.minecart.MinecartChest.class,
+			new AABB(-2, ground - 1, 0, 3, ground + 3, 10)).isEmpty());
+		int stillHeld = context.computeOnClient(client -> client.player.getInventory().countItem(Items.CHEST_MINECART));
+		context.takeScreenshot("chest-minecart-refused");
+		SimpleBlockTestLog.info("CLIENT STORAGE: ender chest placed: {}, message '{}'; chest minecart placed: {}, still held: {}, message '{}'",
+			enderPlaced, enderMessage, chestCart, stillHeld, cartMessage);
+		assertTrue(!enderPlaced && enderMessage.toLowerCase().contains("ender chest"), "ender chest: placed " + enderPlaced + ", message " + enderMessage);
+		assertTrue(!chestCart && stillHeld == 1 && cartMessage.toLowerCase().contains("chest minecart"),
+			"chest minecart: placed " + chestCart + ", held " + stillHeld + ", message " + cartMessage);
+		server.runCommand("clear @a");
 	}
 
 	/** SF-01: lie down at midnight, get vanilla's "can't pass this night" message, time keeps running, Leave Bed works. */

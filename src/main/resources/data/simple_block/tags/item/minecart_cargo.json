@@ -1,0 +1,22 @@
+{
+	"values": [
+		"minecraft:raw_iron",
+		"minecraft:raw_copper",
+		"minecraft:raw_gold",
+		"minecraft:iron_ore",
+		"minecraft:deepslate_iron_ore",
+		"minecraft:copper_ore",
+		"minecraft:deepslate_copper_ore",
+		"minecraft:gold_ore",
+		"minecraft:deepslate_gold_ore",
+		"minecraft:coal",
+		"minecraft:diamond",
+		"minecraft:emerald",
+		"minecraft:lapis_lazuli",
+		"minecraft:redstone",
+		"minecraft:stone",
+		"minecraft:cobblestone",
+		"minecraft:deepslate",
+		"minecraft:cobbled_deepslate"
+	]
+}

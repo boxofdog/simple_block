@@ -21,7 +21,9 @@
 			"io.github.boxofdog.simpleblock.gametest.InventoryGameTests",
 			"io.github.boxofdog.simpleblock.gametest.HeavyLoadGameTests",
 			"io.github.boxofdog.simpleblock.gametest.MobGameTests",
-			"io.github.boxofdog.simpleblock.gametest.FoodGameTests"
+			"io.github.boxofdog.simpleblock.gametest.FoodGameTests",
+			"io.github.boxofdog.simpleblock.gametest.MinecartCargoGameTests",
+			"io.github.boxofdog.simpleblock.gametest.StorageBypassGameTests"
 		],
 		"fabric-client-gametest": [
 			"io.github.boxofdog.simpleblock.gametest.client.SurvivalSmokeClientTest"
