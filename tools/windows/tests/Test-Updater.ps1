@@ -403,6 +403,17 @@ Test-Case 'Minecraft running from this game directory: refuses and changes nothi
     Assert-Installed $box $good
 }
 
+# Reads a file another process is still writing (Windows locks redirected output against plain reads).
+function Read-SharedText([string]$Path) {
+    if (-not (Test-Path -LiteralPath $Path)) { return '' }
+    $stream = New-Object System.IO.FileStream($Path, [System.IO.FileMode]::Open, [System.IO.FileAccess]::Read, [System.IO.FileShare]::ReadWrite)
+    try {
+        return (New-Object System.IO.StreamReader($stream)).ReadToEnd()
+    } finally {
+        $stream.Dispose()
+    }
+}
+
 # A JDK 17+ for the real-Java test (GitHub's Windows runners have several).
 function Find-TestJava {
     foreach ($name in @('JAVA_HOME_25_X64', 'JAVA_HOME_21_X64', 'JAVA_HOME_17_X64')) {
@@ -453,7 +464,7 @@ if ($null -ne $testJava) {
         $java = Start-Process -FilePath $testJava -ArgumentList $arguments -PassThru -WindowStyle Hidden -RedirectStandardOutput $log
         try {
             $deadline = (Get-Date).AddSeconds(60)
-            while (-not ((Test-Path -LiteralPath $log) -and ([System.IO.File]::ReadAllText($log) -match 'holding'))) {
+            while ((Read-SharedText $log) -notmatch 'holding') {
                 if ((Get-Date) -gt $deadline -or $java.HasExited) { throw 'the Java stand-in did not start' }
                 Start-Sleep -Milliseconds 250
             }
