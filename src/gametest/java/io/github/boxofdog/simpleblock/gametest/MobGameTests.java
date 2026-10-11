@@ -68,6 +68,9 @@ public class MobGameTests {
 		final List<Mob> mobs = new ArrayList<>();
 		final List<ServerPlayer> players = new ArrayList<>();
 		private final List<BooleanSupplier> lightChecks = new ArrayList<>();
+		private BooleanSupplier openSky;
+		/** Positions of the light sources placed with {@link #torch}. */
+		final List<BlockPos> lights = new ArrayList<>();
 		private final List<String> tuned = new ArrayList<>();
 
 		/**
@@ -97,7 +100,8 @@ public class MobGameTests {
 				}
 			}
 			BlockPos open = this.at(radius - 2, 1, radius - 2);
-			this.lightChecks.add(() -> this.level.getBrightness(LightLayer.SKY, open) == 15);
+			this.openSky = () -> this.level.getBrightness(LightLayer.SKY, open) == 15;
+			this.lightChecks.add(this.openSky);
 			for (int cx = (this.center.getX() - radius) >> 4; cx <= (this.center.getX() + radius) >> 4; cx++) {
 				for (int cz = (this.center.getZ() - radius) >> 4; cz <= (this.center.getZ() + radius) >> 4; cz++) {
 					ChunkPos chunk = new ChunkPos(cx, cz);
@@ -124,8 +128,25 @@ public class MobGameTests {
 		void torch(int dx, int dz) {
 			this.set(dx, 1, dz, Blocks.TORCH);
 			BlockPos pos = this.at(dx, 1, dz);
+			this.lights.add(pos);
 			// At least a torch's own light (12; vanilla 14): torches nearby give less, so it is this torch's.
 			this.lightChecks.add(() -> this.level.getBrightness(LightLayer.BLOCK, pos) >= LightLevels.TORCH);
+		}
+
+		/** Closes the arena like a cave: the ring wall raised to the roof and a stone roof over it all, so no sky light gets in. */
+		void enclose() {
+			for (int dx = -this.radius; dx <= this.radius; dx++) {
+				for (int dz = -this.radius; dz <= this.radius; dz++) {
+					if (Math.abs(dx) == this.radius || Math.abs(dz) == this.radius) {
+						this.set(dx, 4, dz, Blocks.STONE_BRICKS);
+					}
+					this.set(dx, 5, dz, Blocks.STONE);
+				}
+			}
+			this.lightChecks.remove(this.openSky);
+			BlockPos corner = this.at(this.radius - 2, 1, this.radius - 2);
+			BlockPos middle = this.at(0, 1, 0);
+			this.lightChecks.add(() -> this.level.getBrightness(LightLayer.SKY, corner) == 0 && this.level.getBrightness(LightLayer.SKY, middle) == 0);
 		}
 
 		/** Torches on the floor every 4 blocks over the given rectangle. */
@@ -291,6 +312,30 @@ public class MobGameTests {
 		}
 	}
 
+	/**
+	 * Counts, while the attraction is on, every live mob on lit ground ([1]) and those of them
+	 * within 1.5 blocks (horizontally) of one of the arena's light sources ([0]).
+	 */
+	private static void sampleNearLights(Arena arena, double[] counts) {
+		if (!Tuning.getBoolean(ENTRANCEMENT)) {
+			return;
+		}
+		for (Mob mob : arena.mobs) {
+			if (!mob.isAlive() || !Entrancement.isLit(arena.level, mob.blockPosition())) {
+				continue;
+			}
+			counts[1]++;
+			for (BlockPos light : arena.lights) {
+				double dx = mob.getX() - (light.getX() + 0.5);
+				double dz = mob.getZ() - (light.getZ() + 0.5);
+				if (dx * dx + dz * dz < 1.5 * 1.5) {
+					counts[0]++;
+					break;
+				}
+			}
+		}
+	}
+
 	/** Counts one sample of every live mob: [0] in zone A, [1] in zone B, [2] mob-samples taken. */
 	private static void sample(Arena arena, double[] counts, int[] zoneA, int[] zoneB) {
 		for (Mob mob : arena.mobs) {
@@ -394,12 +439,12 @@ public class MobGameTests {
 	 * {@code test} with presence samples taken every 10 ticks once a phase has run {@link #SETTLE}
 	 * ticks, and checks the clock stays at night.
 	 */
-	private static GameTestSequence offThenOn(Arena arena, int[] startZ, int phase, double[] control, double[] test, Sampler sampler) {
+	private static GameTestSequence offThenOn(Arena arena, boolean night, int[] startZ, int phase, double[] control, double[] test, Sampler sampler) {
 		GameTestHelper helper = arena.helper;
 		long[] phaseStart = {0};
 		return arena.whenLit()
 			.thenExecute(() -> {
-				ensureClock(helper, true);
+				ensureClock(helper, night);
 				arena.tune(ENTRANCEMENT, false);
 				for (int z : startZ) {
 					arena.spawn(EntityTypes.ZOMBIE, 0, z);
@@ -407,7 +452,7 @@ public class MobGameTests {
 				phaseStart[0] = helper.getTick();
 			})
 			.thenExecuteFor(phase, () -> {
-				helper.assertTrue(Entrancement.isNight(arena.level), "the clock left the night");
+				helper.assertTrue(Entrancement.isNight(arena.level) == night, "the clock changed between day and night");
 				if (helper.getTick() - phaseStart[0] >= SETTLE && helper.getTick() % 10 == 0) {
 					sampler.sample(arena, control);
 				}
@@ -420,7 +465,7 @@ public class MobGameTests {
 				phaseStart[0] = helper.getTick();
 			})
 			.thenExecuteFor(phase, () -> {
-				helper.assertTrue(Entrancement.isNight(arena.level), "the clock left the night");
+				helper.assertTrue(Entrancement.isNight(arena.level) == night, "the clock changed between day and night");
 				if (helper.getTick() - phaseStart[0] >= SETTLE && helper.getTick() % 10 == 0) {
 					sampler.sample(arena, test);
 				}
@@ -441,11 +486,16 @@ public class MobGameTests {
 		arena.player(GameType.CREATIVE, 0, -20);
 		double[] control = new double[3];
 		double[] test = new double[3];
+		// [0] zombie-samples on lit ground within 1.5 blocks of a torch, [1] zombie-samples on lit ground (both phases; reset between).
+		double[] nearLights = new double[2];
 		int[] startZ = new int[24];
 		for (int i = 0; i < startZ.length; i++) {
 			startZ[i] = -12 + i;
 		}
-		offThenOn(arena, startZ, 1200, control, test, MobGameTests::sampleLight)
+		offThenOn(arena, true, startZ, 1200, control, test, (a, counts) -> {
+			sampleLight(a, counts);
+			sampleNearLights(a, nearLights);
+		})
 			.thenExecute(() -> {
 				Set<Long> blocks = new HashSet<>();
 				int onLit = 0;
@@ -458,8 +508,11 @@ public class MobGameTests {
 				double litShare = test[0] / test[2];
 				double controlLitShare = control[0] / control[2];
 				SimpleBlockTestLog.info("MOB-01 open ground, 24 zombies, night: share of zombie-samples on lit ground / on the dark mirror area: "
-					+ "control (attraction off) {} / {}, attraction on {} / {} ({} samples each); at the end {} zombies on lit ground on {} different blocks",
-					pct(control[0], control[2]), pct(control[1], control[2]), pct(test[0], test[2]), pct(test[1], test[2]), (int) test[2], onLit, blocks.size());
+					+ "control (attraction off) {} / {}, attraction on {} / {} ({} samples each); at the end {} zombies on lit ground on {} different blocks; "
+					+ "of the samples on lit ground with the attraction on, {} were within 1.5 blocks of a torch (those blocks are about 10% of the lit ground)",
+					pct(control[0], control[2]), pct(control[1], control[2]), pct(test[0], test[2]), pct(test[1], test[2]), (int) test[2], onLit, blocks.size(),
+					pct(nearLights[0], nearLights[1]));
+				helper.assertTrue(nearLights[0] < 0.25 * nearLights[1], "zombies should loiter over the lit area, not crowd the torches");
 				double gap = litShare - test[1] / test[2];
 				helper.assertTrue(litShare > 0.35, "lit-ground presence with attraction: " + pct(test[0], test[2]));
 				helper.assertTrue(test[0] > 2.5 * test[1] && gap > 0.3, "lit ground should be far busier than the dark area");
@@ -492,7 +545,7 @@ public class MobGameTests {
 		for (int i = 0; i < startZ.length; i++) {
 			startZ[i] = -16 + i;
 		}
-		offThenOn(arena, startZ, 2400, control, test, (a, counts) -> sample(a, counts, AROUND_LIT_BOX, AROUND_DARK_BOX))
+		offThenOn(arena, true, startZ, 2400, control, test, (a, counts) -> sample(a, counts, AROUND_LIT_BOX, AROUND_DARK_BOX))
 			.thenExecute(() -> {
 				for (Mob mob : arena.mobs) {
 					inside[0] |= arena.inBox(mob, litBox) || arena.inBox(mob, darkBox);
@@ -516,6 +569,7 @@ public class MobGameTests {
 		arena.player(GameType.CREATIVE, 0, -20);
 		double[] day = new double[3];
 		long[] start = {0};
+		long[] counters = new long[2];
 		arena.whenLit()
 			.thenExecute(() -> {
 				ensureClock(helper, false);
@@ -523,6 +577,8 @@ public class MobGameTests {
 					arena.spawn(EntityTypes.HUSK, 0, -15 + 2 * i);
 				}
 				start[0] = helper.getTick();
+				counters[0] = Entrancement.decisions;
+				counters[1] = Entrancement.steered;
 			})
 			.thenExecuteFor(PHASE, () -> {
 				helper.assertTrue(!Entrancement.isNight(arena.level), "the clock left the day");
@@ -531,9 +587,51 @@ public class MobGameTests {
 				}
 			})
 			.thenExecute(() -> {
-				SimpleBlockTestLog.info("MOB-04 daytime, 16 husks: share of husk-samples on lit ground / on the dark mirror area {} / {} ({} samples)",
-					pct(day[0], day[2]), pct(day[1], day[2]), (int) day[2]);
-				helper.assertTrue(day[0] <= day[1] + 0.2 * day[2], "no pull towards the lit ground in daytime");
+				boolean active = Entrancement.isActiveAt(arena.level, arena.at(0, 1, 0));
+				long decisions = Entrancement.decisions - counters[0];
+				long steered = Entrancement.steered - counters[1];
+				SimpleBlockTestLog.info("MOB-04 daytime on the surface, 16 husks: {} wander decisions, {} of them steered towards light; share of "
+					+ "husk-samples on lit ground / on the dark mirror area {} / {} ({} samples, vanilla wandering); attraction active under the open "
+					+ "sky at noon: {}", decisions, steered, pct(day[0], day[2]), pct(day[1], day[2]), (int) day[2], active);
+				helper.assertTrue(!active, "the attraction should be off under the open sky in daytime");
+				helper.assertTrue(decisions > 16, "the husks should have made wander decisions: " + decisions);
+				helper.assertValueEqual(steered, 0L, "wander decisions steered towards light in daylight");
+			})
+			.thenSucceed();
+	}
+
+	/**
+	 * Underground in daytime: the open-ground experiment at noon, in an arena roofed over like a
+	 * cave so that no sky light reaches the floor. The attraction works there, by day, because the
+	 * mobs get no sky light; the clock stays at noon throughout.
+	 */
+	@GameTest(environment = "simple_block-gametest:mob_cave_day", skyAccess = true, maxTicks = 9000)
+	public void attractionWorksUndergroundInDaytime(GameTestHelper helper) {
+		Arena arena = new Arena(helper, 13, 34);
+		arena.enclose();
+		long steeredBefore = Entrancement.steered;
+		arena.torches(-24, -12, -6, 6);
+		arena.player(GameType.CREATIVE, 0, -20);
+		double[] control = new double[3];
+		double[] test = new double[3];
+		int[] startZ = new int[24];
+		for (int i = 0; i < startZ.length; i++) {
+			startZ[i] = -12 + i;
+		}
+		offThenOn(arena, false, startZ, 1200, control, test, MobGameTests::sampleLight)
+			.thenExecute(() -> {
+				boolean active = Entrancement.isActiveAt(arena.level, arena.at(0, 1, 0));
+				double litShare = test[0] / test[2];
+				double gap = litShare - test[1] / test[2];
+				SimpleBlockTestLog.info("MOB-01 underground at noon (roofed arena, sky light 0), 24 zombies: share of zombie-samples on lit ground / on "
+					+ "the dark mirror area: control (attraction off) {} / {}, attraction on {} / {} ({} samples each); overworld clock {}, attraction "
+					+ "active under the roof: {}", pct(control[0], control[2]), pct(control[1], control[2]), pct(test[0], test[2]), pct(test[1], test[2]),
+					(int) test[2], arena.level.getOverworldClockTime(), active);
+				helper.assertTrue(active, "the attraction should be on where there is no sky light, by day");
+				helper.assertTrue(Entrancement.steered > steeredBefore, "wander decisions should have been steered towards the light");
+				helper.assertTrue(litShare > 0.35, "lit-ground presence with attraction: " + pct(test[0], test[2]));
+				helper.assertTrue(test[0] > 2.5 * test[1] && gap > 0.3, "lit ground should be far busier than the dark area");
+				helper.assertTrue(gap > control[0] / control[2] - control[1] / control[2] + 0.25, "attraction should raise lit-ground presence over the control");
 			})
 			.thenSucceed();
 	}

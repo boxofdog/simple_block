@@ -58,9 +58,12 @@ Each feature has its own `mixin/<feature>` package, and is listed in `SimpleBloc
   - The inventory shows a load bar without text, filled in one colour per material (iron, copper, gold, diamond, netherite), with a red frame when full. Hovering it shows the total out of 64 and each material's exact weight.
 - **LIGHT-01:** torches (wall and copper too) emit 12. Lanterns stay 15.
 - **MOB-01:**
-  - At Overworld night, hostile ground mobs with a wander goal steer their wander decisions towards lit ground (block light > 0) within 20 blocks.
-  - They spread over it, mill about and sometimes lose interest.
-  - Light behind walls makes them loiter outside.
+  - Hostile ground mobs with a wander goal steer their wander decisions towards lit ground (block light > 0) within a 20-block sphere.
+  - When: in the Overworld at night, and at any time of day wherever the mob gets no sky light, which covers caves at any depth (no fixed y). Surface mobs in daylight are not affected. The Nether and End are excluded: they have no sky light anywhere, so the attraction would otherwise be permanent there.
+  - Off lit ground, they head for the nearest lit area they know of, spreading along its edge.
+  - On lit ground, they wander aimlessly, preferring lit destinations, so they loiter. There is no bias towards bright blocks or light sources.
+  - Light behind walls makes them loiter along the reachable outside.
+  - They sometimes lose interest.
   - Chasing a player comes first.
 - **MOB-02:**
   - Zombies, husks and zombie villagers break wooden doors only while chasing a player, at vanilla's Hard pace (240 ticks), on every difficulty except Peaceful.
@@ -103,11 +106,11 @@ Methods:
 | ORE-03 | PASS | Sampler: mountain bands, placer, lava-adjacent deposit counts with example coordinates per seed; slice/map images | Ocean-floor *stone* iron is 0.45–0.5× vanilla (decision 8) |
 | ORE-04 | PASS | Sampler: diamonds 0.354× vanilla pooled (0.328–0.382 per seed, ±0.006 at 95%); exposure unchanged (1.5%) | |
 | LIGHT-01 | PASS | GT `torchAndLanternLight`: emission and block light 12/11/15, spawn check 0/50 in torchlight vs 50/50 in a dark box; Client: client light data torch 12, lantern 15 | |
-| MOB-01 | PASS | GT `zombiesDriftToLitGroundAtNight`: 24 zombies, 1200-tick phases. Over 9 runs, lit/dark presence was 64–89% / 0–19% with the attraction vs 24–39% / 19–40% without (control) | Statistical test; see stability notes in the evidence |
-| MOB-02 | PASS | GT `lightBehindWallsStillAttracts`: 32 zombies. Round lit box 40–58% vs dark box 4–8%; nobody inside | Light shut in a box is found more slowly than light on open ground |
-| MOB-03 | PASS | GT open-ground test: at the end the zombies on lit ground stand on almost as many different blocks as there are zombies (e.g. 23 on 23, 18 on 17) | |
-| MOB-04 | PASS | GT `noAttractionInDaytime`: husks at noon spend 21–36% of the time on lit ground vs 20–39% on the dark mirror (no pull) | Nether/End are excluded by code (Overworld clock only), not by a test |
-| MOB-05 | PASS | GT `pursuitOverridesThenAttractionResumes`: zombies leave the light to chase a survival player, drop them when creative, then spend 83–100% of the time back on lit ground | Passes on vanilla too (74%), because it checks that combat still wins |
+| MOB-01 | PASS | GT `zombiesDriftToLitGroundAtNight`: 24 zombies, 1200-tick phases. After the refinement (nearest lit area, no brightness bias), lit/dark presence over 4 runs was 56–75% / 5–15% with the attraction vs 19–30% / 25–35% without (control) | Statistical test; see stability notes in the evidence |
+| MOB-02 | PASS | GT `lightBehindWallsStillAttracts`: 32 zombies. After the refinement, round the lit box 36–44% vs round the dark box 5–10% (4 runs); nobody inside | Light shut in a box is found more slowly than light on open ground |
+| MOB-03 | PASS | GT open-ground test: only 5–16% of the time on lit ground is spent within 1.5 blocks of a torch, about the share of the lit area those blocks cover (≈10%), so the mobs don't converge on light sources; at the end they stand on as many different blocks as there are zombies (e.g. 17 on 17) | |
+| MOB-04 | PASS | GT `noAttractionInDaytime`: on the surface at noon the attraction is inactive and steered 0 of 59–70 wander decisions. GT `attractionWorksUndergroundInDaytime`: in a roofed arena at noon (sky light 0) it is active, with lit/dark presence 59–74% / 8–17% vs control 24–38% / 21–44% | Nether/End are excluded by code, not by a test |
+| MOB-05 | PASS | GT `pursuitOverridesThenAttractionResumes`: zombies leave the light to chase a survival player, drop them when creative, then spend 66–100% of the time back on lit ground | Passes on vanilla too (74%), because it checks that combat still wins |
 | MOB-06 | PASS | GT `torchAndLanternLight` spawn checks; attraction never touches spawning | |
 | MOB-07 | PASS | GT `attractionIsCheap`: 40 zombies, 400-tick windows off then on, 0.9–2.3 ms per tick; with it on never slower than off (7 runs); 39–119 µs per attraction decision | Game-test server, not a loaded multiplayer server |
 | ZOMB-01 | PASS | GT `pursuingZombieBreaksOakDoor`, `…CrimsonDoor` on Normal: door shut in the zombie's face, broken in 239 ticks (vanilla Hard 240) | Two wood types tested; all `#minecraft:wooden_doors` share the code path |
@@ -150,7 +153,7 @@ Players override keys in `config/simple_block/tuning.json` (overrides only). `co
 | `ore.iron.banded.{chance_per_chunk,min_surface_y,min_depth,max_depth,half_length,half_width,layers,layer_spacing,max_dip,density}` | 0.12, 90, 4, 36, 16, 8, 3, 3, 0.25, 0.6 |
 | `ore.iron.placer.{attempts_per_chunk,water_search_radius,depression_radius,depression_depth,radius,max_depth,density}` | 2.0, 5, 8, 3, 4, 4, 0.45 |
 | `ore.iron.geothermal.{attempts_per_chunk,min_y,max_y,search_radius,selected_chance,radius,density}` | 3.0, -58, 40, 6, 0.5, 3, 0.45 |
-| `mob.entrancement.{enabled,samples,memory,lose_interest_chance,step}` | true, 24, 8, 0.15, 10 |
+| `mob.entrancement.{enabled,samples,memory,lose_interest_chance,step}` | true, 48, 8, 0.15, 10 |
 | `mob.creeper.evaporation_ticks` | 10 |
 
 `mob.entrancement.enabled` exists for the negative-control tests and is not meant as a gameplay switch.
@@ -166,7 +169,7 @@ These values are locked by the design, so they are constants in their features r
 ## 6. Decisions that need you
 
 1. **Heavy accounting unit:** 1/216 ingot (rails 3/8, hanging signs 11/27) instead of ninths. The capacity is the same 64.
-2. **What counts as light for MOB-01:** any spawn-preventing block light attracts, including lava and glow lichen.
+2. **What counts as light for MOB-01:** any block light above 0 attracts, including lava and glow lichen. The attraction is also off in the Nether and End (no sky light there at all, so "no sky light" would make it permanent).
 3. **Crafted rock in structures** keeps one palette per structure: tuff → deepslate family, granite/diorite/andesite → stone family. Raw rock follows depth.
 4. **Copper torch:** gets 12, like the torch.
 5. **Deepslate without an iron pickaxe** can't be broken at all, rather than breaking with no drops. `infested_deepslate` is not gated.

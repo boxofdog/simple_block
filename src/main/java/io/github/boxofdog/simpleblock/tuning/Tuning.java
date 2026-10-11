@@ -125,8 +125,8 @@ public final class Tuning {
 		// MOB-01 entrancement (the 20-block detection radius is locked, see feature/Entrancement).
 		// "enabled" exists for negative-control tests; it is not a gameplay option.
 		define("mob.entrancement.enabled", true);
-		// Random positions checked for spawn-preventing block light at each wander decision.
-		define("mob.entrancement.samples", 24);
+		// Random positions in the 20-block sphere checked for block light at each wander decision.
+		define("mob.entrancement.samples", 48);
 		// Lit spots a mob remembers between decisions (spreads mobs over a lit area).
 		define("mob.entrancement.memory", 8);
 		// Chance per wander decision to ignore the light and wander aimlessly.

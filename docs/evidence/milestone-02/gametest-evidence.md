@@ -123,6 +123,35 @@ Screenshots in `mobs-and-light/`:
 
 The creeper has no AI so it stands still in front of the camera; evaporation does not depend on the AI.
 
+### MOB-01 refinement (after the Milestone 02 report)
+
+What changed in the audit:
+- **Detection:** a 20-block sphere instead of a ±6-block slab, with 48 samples per wander decision instead of 24.
+- **No brightness bias:** remembered lit spots are a random sample; previously the memory drifted towards brighter blocks.
+- **Off lit ground:** mobs head for the nearest lit area (any remembered spot within 4 blocks of the nearest).
+- **On lit ground:** mobs wander like vanilla but prefer lit destinations.
+- **When:** active at Overworld night, or wherever the mob gets no sky light.
+
+Three consecutive runs of `MobGameTests` (14 tests) all passed:
+
+```
+MOB-01 open ground, 24 zombies, night: control (attraction off) 24% / 29%, attraction on 75% / 7%; ... of the samples on lit ground with the attraction on, 15% were within 1.5 blocks of a torch (those blocks are about 10% of the lit ground)
+MOB-01 underground at noon (roofed arena, sky light 0), 24 zombies: control (attraction off) 25% / 44%, attraction on 74% / 10%; overworld clock 6000, attraction active under the roof: true
+MOB-01 walled: two closed boxes, one lit inside, 32 zombies; control 13% / 17%, attraction on 36% / 10%; any zombie inside a box at the end: false
+MOB-04 daytime on the surface, 16 husks: 59 wander decisions, 0 of them steered towards light; attraction active under the open sky at noon: false
+MOB-05: ... afterwards 100% of samples (ticks 300-1200 after) on lit ground
+```
+
+Ranges over the 4 runs on the final code:
+
+| Measure | Range |
+|---|---|
+| Open ground, lit / dark presence | 56–75% / 5–15% |
+| Time near a torch | 5–16% |
+| Underground at noon, lit / dark | 59–74% / 8–17% |
+| Walled, round lit box / round dark box | 36–44% / 5–10% |
+| Steered decisions at surface noon | 0 every run |
+
 ## 02D (hunger and saturation display)
 
 `./gradlew build` after 02D: **63 required server game tests passed** (adds 2 in `FoodGameTests`). Evidence lines (exhaustion added; vanilla 26.3 value; ratio):
