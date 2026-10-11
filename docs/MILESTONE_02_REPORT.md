@@ -86,7 +86,7 @@ Methods:
 | BASE-02 | PASS | Baseline `clean build`: 22/22, client smoke passed | |
 | BASE-03 | PASS | M01 tests (sleep, storm, phantoms, elytra, shulker, audits, regression) all pass in the 63-test build; client bed/shulker/movement/elytra steps pass | |
 | BASE-04 | PASS | Client: fresh survival world, 16 screenshots across `inventory-and-weight/`, `mobs-and-light/`, `food-and-hud/` | Software renderer, not a desktop GPU |
-| BASE-05 | PASS | CI Build runs #4, #5, #6 and #8 published `simple-block-mod` with `build-info.json`; mod id, artifact name and workflow file unchanged | #7 failed on a test-timing flake, fixed in #8 (below) |
+| BASE-05 | PASS | CI Build runs #4, #5, #6, #8 and #9 published `simple-block-mod` with `build-info.json`; mod id, artifact name and workflow file unchanged | #7 failed on a test-timing flake, fixed in #8 (below) |
 | BASE-06 | PASS | Every rule is tested on the game-test server, a dedicated-style server with no client classes. Dedicated: `runServer` with the final code starts (49 tuning defaults loaded, "Done (3.3 s)") and stops cleanly | Remote client joining a dedicated server: NOT RUN |
 | GEO-01 | PASS | Sampler: removed rock 0 per seed in the mod vs about 1.2 M per seed in the control (8 seeds) | |
 | GEO-02 | PASS | Sampler: y 0–8 deepslate share follows vanilla's own 1/8 steps, removed-rock share 0 at every y; `ordinary-terrain-slice.png`; GT `worldgenSubstitutesKeepShapeAndFollowDepth` | |
@@ -129,7 +129,7 @@ Methods:
 | FINAL-01 | PASS | `./gradlew clean build`: 63/63; negative controls for 02A–02D in `negative-controls.md` | |
 | FINAL-02 | PASS | M01 tests all pass; no redstone, minecart, cable, skip, locomotive, freight or block-art work | |
 | FINAL-03 | PASS | This report | |
-| FINAL-04 | PASS | See BASE-05; the updater (`tools/windows`) is unchanged and installs any of these artifacts | The 02D commit's own run is checked after the push (section 8) |
+| FINAL-04 | PASS | See BASE-05. CI Build run #9 (commit `45fa838`, all of 02D and this report) passed and published `simple-block-mod`; the updater (`tools/windows`) is unchanged and installs it | |
 
 Client worldgen was not checked visually in a normal world; the client test world is superflat. Worldgen was measured with the sampler on normal worlds on a dedicated server instead.
 

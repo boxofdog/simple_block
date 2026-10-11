@@ -2,7 +2,7 @@
 
 Written at the end of a session that ran out of context. **Read this first when resuming Milestone 02**, then continue with "Next steps". Do not redo finished phases and do not widen the scope beyond `docs/MILESTONE_02.md`.
 
-State: **Milestone 02 is complete.** `main` builds and passes all **63 server game tests** (`./gradlew clean build`), and the real-client test passes. The final report is `docs/MILESTONE_02_REPORT.md` (test matrix, configuration, decisions). CI Build runs #4 (02A), #5 (02B), #6 (checkpoint) and #8 (02C) published updater-installable artifacts; run #7 failed on a test-timing flake fixed in #8.
+State: **Milestone 02 is complete.** `main` builds and passes all **63 server game tests** (`./gradlew clean build`), and the real-client test passes. The final report is `docs/MILESTONE_02_REPORT.md` (test matrix, configuration, decisions). CI Build runs #4 (02A), #5 (02B), #6 (checkpoint), #8 (02C) and #9 (02D and the report) published updater-installable artifacts; run #7 failed on a test-timing flake fixed in #8.
 
 ## Done and verified
 
