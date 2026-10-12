@@ -85,6 +85,15 @@ These answer the "discover from repo" items above. The repository was empty, so 
 | Ender chest drops | Mining one always gives 8 obsidian, silk touch or not | The only natural ender chest is built into one End city floor template; this keeps it from becoming an item. |
 | Mineshaft chest minecarts | Kept as sealed loot: they don't open and hoppers can't reach them; breaking one spills the loot and drops a minecart and a chest. | Keeps mineshaft loot without changing world generation. |
 
+## Cobblestone Engine design decisions (owner-approved direction; future milestone)
+
+- **Furnace installation:** Applying a normal furnace to an existing vanilla minecart converts it into a **Cobblestone Engine**. This is not a separate `minecart + furnace` crafting-table recipe and should not be presented as a vanilla furnace minecart.
+- **Appearance:** The Cobblestone Engine receives its own new model; retain an editable Blockbench source model and UV layout for owner-painted textures.
+- **Movement:** The engine uses coal and can move **bidirectionally**, either pulling or pushing a coupled train. Passenger carts, loaded freight carts and mixed consists are all valid; there is no categorical ban on hauling freight.
+- **Disassembly:** Breaking a Cobblestone Engine returns **one ordinary minecart and one ordinary furnace**, not a combined engine item.
+- **Traction niche:** The engine is suited to level track and gentler gradients; steep grade and heavy total train load severely limit traction. Stationary cable winches are intended for difficult incline sections, not general rail travel. Numerical physics and winch integration remain to be designed.
+- **Scope:** These are future design decisions, **not an instruction to add a Cobblestone Engine in M04**. M04's shipped cable-infrastructure behavior stays unchanged until a separately authorized milestone.
+
 ## Milestone 04 decisions by the user (2026-10-12)
 
 The owner's M04 brief is recorded verbatim in `docs/MILESTONE_04.md`. In short: a copper connecting rod on the vanilla minecart that grips an overhead cable and passes its supports; copper cable anchors only under wooden blocks, guiding the cable on rollers; cable as a finite, craftable item combined into coils; a cable drum (recipe given) that becomes a winch with a coil; the loose end picked up and dragged like a lead and routed anchor to anchor, consumed by length; routes extendable, disconnectable, dismantlable, with runs, turns and climbs. Editable `.bbmodel` models and UV layouts, no finished textures. No engines, counterweights, inclined-lift automation, skips or locomotives.
