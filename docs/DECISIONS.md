@@ -251,6 +251,12 @@ Recipe layouts and components are settled. The number of output items per craft 
 
 
 
+### 5.7 Provisional post-M06 milestone order (owner planning; NOT authorization)
+
+- **M07 (likely): standalone large industrial smelter.** Build the smelter and its own raw-input, fuel, casting and output interfaces using the smelting direction recorded in [ROADMAP.md](ROADMAP.md); associated blast-furnace retirement and slower ordinary-furnace raw-ore smelting belong with the smelter scope. Do **not** implicitly include vertical mining skips, new freight-track systems, coal winch upgrades, steelmaking or settlements. The owner has not approved a finished M07 brief.
+- **M08 (proposed): armor and complete modular workwear implementation.** Implement the full set of specified armor pieces, recipes, replacements and behaviors, including two-slot Overalls and backpack inventory safety; copper Headlamp; Spiked Boots and **Spelunker's Speed**, Mining Boots and **Mule**; full-outfit **Trail Blazer** and **Old Pro**; skeleton aiming, colored ghosted infrastructure, offhand pickaxe mining and neck-height 20-block rear detection. The scope is **all agreed armor functionality**, not just rendering/crafting. Open tuning, lighting, controls and compatibility still require a finalized brief.
+- These are **provisional milestone numbers and boundaries** only. M05 must still finish; M06 remains a separate draft. Naming M07/M08 here is not implementation permission and does not imply mining skips will have been implemented by M07.
+
 ## 6. Open decisions requiring a future milestone brief
 
 Only record settled answers in sections 1–5 after the owner decides them.
