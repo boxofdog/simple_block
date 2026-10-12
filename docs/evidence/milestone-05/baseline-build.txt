@@ -1,0 +1,6 @@
+# Milestone 05 baseline (before any M05 code), 2026-10-12
+git HEAD: ee622cd (docs: scope M05 cable loop haulage and Cobblestone Engine); tree clean
+minecraft_version=26.3, loader_version=0.19.5, loom_version=1.18.4, fabric_api_version=0.162.0+26.3, gradle 9.7.1, openjdk 25.0.4.1
+
+./gradlew build: "All 95 required tests passed :)", BUILD SUCCESSFUL in 1m 26s
+BUG-001 before-screenshots (screenshots/bug001/before-*.png) were taken with the same client test before the model fix.

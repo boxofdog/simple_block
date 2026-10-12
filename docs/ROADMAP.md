@@ -10,7 +10,7 @@
 | M02 | Geology, mining tiers, ore deposits, heavy inventory, hostile light attraction, hunger and QoL | **Shipped** |
 | M03 | Existing minecarts become 256-item single-commodity freight carts; cushions enable riding; storage bypasses removed | **Shipped** |
 | M04 | Cable coils, drum, underside copper anchors, routed overhead cable and minecart gripping rod | **Implemented / awaiting owner acceptance** |
-| M05 | Reversible cable loops, default hand crank, Cobblestone Engine and drum-side rendering fix | **Implementation in progress locally (owner report); no verified handoff yet** |
+| M05 | Reversible cable loops, default hand crank, Cobblestone Engine and drum-side rendering fix | **Implemented and pushed (`e662ec2`, `16b1098`); awaiting ChatGPT verification and owner acceptance** |
 | M06 | Loading track, freight cart front gate, rail cleanup, no hand-pushing freight carts, **coal-powered winch upgrade** | **Expanded draft — right-click latching 3-position lever and auto-neutral at stops settled; not authorized** |
 | M07 | **Upright mining skips and winch hoisting/transfer** | **Planned scope; not implementation-authorized** |
 | M08 | **Large industrial smelter, standalone** | **Planned scope; not implementation-authorized** |
@@ -18,7 +18,7 @@
 
 M04 has 95 passing server game tests, a passing real-client test and CI Build #16 according to its [report](MILESTONE_04_REPORT.md). Cable/grip **does not yet move carts**. Do not mark owner acceptance or full mining-loop playtesting complete without confirmation.
 
-## M05 — active implementation (handoff not yet verified)
+## M05 — implemented; handoff recorded below, verification and acceptance pending
 
 [**MILESTONE_05.md**](MILESTONE_05.md) defines four connected work packages: **(A)** close M04 cable routes into reversible circulating loops with a discreet side-return strand and terminal pulley; **(B)** always-visible hand crank and usable manual drive; **(C)** a bidirectional, coal-powered **Cobblestone Engine** made by applying a furnace to a vanilla cart, including minimal functional train coupling; **(D)** fix the observed drum rendering defect (BUG-001). Preserve all M04 interaction and visual foundations; implement in separable, tested stages.
 
@@ -144,7 +144,7 @@ Record reproducible defects here as they are noticed. This list is **not** permi
 
 | ID | Area | Observed problem | Evidence / suggested check | Status |
 |---|---|---|---|---|
-| BUG-001 | M04 cable drum — side geometry | **Ghosting / flickering stripe-like texture artifacts** on the side of the drum/frame, particularly around the angled side panels. | Close-up screenshot shared by the owner in chat. Inspect the in-game model and source Blockbench geometry at several angles for overlapping or nearly coplanar faces (**possible z-fighting; unconfirmed**) and for UV/rendering overlap. Verify visually in the actual client before closing. | **OPEN — targeted for M05; cause unconfirmed** |
+| BUG-001 | M04 cable drum — side geometry | **Ghosting / flickering stripe-like texture artifacts** on the side of the drum/frame, particularly around the angled side panels. | **Cause:** the octagonal flanges are four overlapping cubes whose end faces lay in the same plane with different texture regions (z-fighting). **Fix (M05, `e662ec2`):** band ends set back 0.1-0.2 px in `tools/models/generate_models.py`; models regenerated. **Verified visually** in the real client from four angles: [before](evidence/milestone-05/screenshots/bug001/) stripes at every angle, after clean (`before-*.png` / `after-*.png`). | **RESOLVED in M05 (visually verified on the test client's software renderer; owner check on a desktop GPU still welcome)** |
 
 Keep bugs open until the fix is observed in game. Do not conflate completion of tests with confirmation that a visual defect is gone.
 
@@ -152,15 +152,15 @@ Keep bugs open until the fix is observed in game. Do not conflate completion of 
 
 This is the **shared handoff between Claude Code, ChatGPT and the project owner**. At the end of **each authorized milestone**, Claude updates this section **in the repository**, not only in its chat. A checked box means that named party performed that check; it is not a substitute for the checks below. Claude can add brief notes and links. After independent review and owner acceptance, keep one compact receipt in the history table and reset this checklist for the next authorized milestone. Do not start another milestone automatically.
 
-**Milestone being handed off:** **M05 — reversible cable haulage, Cobblestone Engine, hand crank and BUG-001** ([brief](MILESTONE_05.md)); implementation not yet started/verified.
+**Milestone being handed off:** **M05 — reversible cable haulage, Cobblestone Engine, hand crank and BUG-001** ([brief](MILESTONE_05.md)); implemented, tests and report recorded, CI green.
 
-- [ ] **Claude — code committed and pushed to `main`.** Implementation commit SHA(s): `—` (link to commits; use **code commit**, not a subsequent roadmap-only commit).
-- [ ] **Claude — tests and closeout report recorded.** Report: `—` · Tests run/results: `—` · Not tested/known issues: `—`.
-- [ ] **Claude — CI verified for the implementation SHA.** Workflow run URL: `—` · Result: `—` · `simple-block-mod` artifact: `—`. If unavailable, leave unchecked and explain.
+- [x] **Claude — code committed and pushed to `main`.** Implementation commit SHA(s): [`e662ec2`](https://github.com/boxofdog/simple_block/commit/e662ec2) (work packages A-D), [`16b1098`](https://github.com/boxofdog/simple_block/commit/16b10988d80643741f9e729531cb52c7eff00067) (crank controls per the owner's left-feed/right-pull clarification). Both confirmed on `main`.
+- [x] **Claude — tests and closeout report recorded.** Report: [MILESTONE_05_REPORT.md](MILESTONE_05_REPORT.md) · Tests run/results: `./gradlew build` **114/114** server game tests (95 earlier + 11 loop + 8 train); real client: `SurvivalSmokeClientTest`, `CableClientTest`, `HaulageClientTest` all pass (both mechanical systems by key press, real chunk unload, save and reopen); 11 negative controls each fail their test; dedicated server reaches "Done" · Not tested/known issues: no human playtest; remote client on a dedicated server, desktop GPU and partial-chunk unload through a loop not run; the dedicated server's piped `stop` printed an unexplained command error (report summary).
+- [x] **Claude — CI verified for the implementation SHA.** Workflow run URL: [Build #17](https://github.com/boxofdog/simple_block/actions/runs/38306694723) on `16b1098` · Result: **success** (build and server game tests) · `simple-block-mod` artifact: published (id 11772702932, 290,696 bytes). `e662ec2` was pushed together with `16b1098` and has no separate run.
 - [ ] **ChatGPT — independently verified on GitHub.** Confirm commit is reachable from `main`, inspect changed files/report and corresponding CI result. Verification notes/date: `—`. **Claude must not check this box.**
 - [ ] **Owner — accepted/playtested.** Acceptance note/date: `—`. **Only the owner can authorize acceptance; Claude and ChatGPT must not infer it from tests.**
 
-**Claude's handoff notes:** _What changed, what remains open, and any deviations from the brief._
+**Claude's handoff notes:** Loops: a copper anchor on the last anchor of a **straight** route closes it (turning routes are refused, a deviation to confirm); cable is conserved and refunded. Crank on every drum: **hold left-click to feed, right-click to pull** (owner's clarification); left-click on the crank never breaks the drum; an open route's crank is locked. Drums can hang under wooden beams. Cobblestone Engine = vanilla furnace-minecart entity, made by a furnace on an **empty** minecart, drops a minecart and a furnace; furnace-minecart recipe disabled. Coupling by iron chain, shears uncouple; engine driven from a cushioned seat (forward/back) or toggled from the ground (owner decisions). Mass and grade slow both haulage and engines; a loaded train stalls and holds on a sustained climb. All numbers are provisional tuning (report section 7). Open items: report sections 2 and 8.
 
 **Verified milestone receipts** (one row per accepted milestone; older details remain in milestone reports):
 
