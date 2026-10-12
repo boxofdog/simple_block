@@ -17,6 +17,8 @@ Ideas here are **not approved implementation tasks**. The short [roadmap](ROADMA
 | I-009 | **Recipe guide / guidebook** for learning about tools, materials, and machines as the player discovers them | BTA inspiration; owner-approved future feature | DESIGN | Decide discovery presentation, recipe navigation, and whether any unlock restrictions exist (none assumed) |
 | I-010 | **Post-M10 full-set bonuses for existing iron, diamond and netherite armor:** **Cast Iron Crusader** (zombie/arrow knockback immunity; target mob's remaining HP after hitting), **Iridescent Infantry** (full-strength but shorter-range arrow reflection; zombie teeth break, hurting and weakening them), **Netherfire Knight** (piglins never fight back and give better barters; hostile attackers ignite) | Owner-settled post-M10 direction; NOT M10 scope | DESIGNED — not implementation-authorized | Future dedicated brief: set checks, numerical effects, UI, arrow physics, zombie weakening, piglin behavior, tests; no new armor items |
 
+| I-012 | **Witch's Tome and exploration-gated enchanting:** witch huts on mountain peaks and in deep deepslate caverns contain an enchanting table; breaking it drops one diamond and a Witch's Tome, which is required to craft a new enchanting table. | Owner-proposed post-M10 direction | DESIGN — not implemented or authorized | Determine hut rarity/placement, table drops and crafting recipe, whether each new table requires a tome, and safeguards against bypass/farming |
+
 ### I-010 — Post-M10 vanilla combat armor roles (owner-settled, NOT authorized)
 
 **Existing complete sets only (helmet + chestplate + leggings + boots; no new tiers):**
