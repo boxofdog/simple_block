@@ -167,6 +167,27 @@ The authoritative brief is [MILESTONE_04.md](MILESTONE_04.md); the as-built reco
 
 **Flat or carefully graded routes reward engineering with easy locomotive transport. Difficult slopes invite fixed cable haulage. Nearly vertical shafts reward purpose-built skips.** The tradeoff must emerge from mass, gravity, gradient and machinery, **not** arbitrary freight/passenger restrictions.
 
+### 5.4 Future spelunking ropes (owner-approved design; not implemented)
+
+- **Ordinary Rope recipe:** three strings vertically in the center crafting column. Recipe output count is not yet specified.
+
+  ```text
+  [empty] [string] [empty]
+  [empty] [string] [empty]
+  [empty] [string] [empty]
+  ```
+
+- **Spelunker's Rope recipe:** craft with one existing **copper cable anchor** placed above one ordinary Rope in the center column; do not invent a second specialized anchor item.
+
+  ```text
+  [empty] [empty]         [empty]
+  [empty] [copper anchor] [empty]
+  [empty] [rope]          [empty]
+  ```
+
+- **Placement and growth:** attach the Spelunker's Rope to the **underside or side of a block**. Rope falls/hangs vertically in open air. **Hold right-click with Rope in hand** to add downward length in **12-block increments**. When the line reaches the ground, additional rope visibly **coils into a bundle on the bottom block**, not through solid terrain. This is a climbable exploration rope, not the moving hauling cable used by M04/M05 winches.
+- **Deferred details:** precise recipe yields and material consumption per 12 blocks, where the player aims during extension, climbing speed/control, coiled excess behavior, retrieval, and what happens if the mounting block disappears. Do not implement with M05.
+
 ## 6. Open decisions requiring a future milestone brief
 
 Only record settled answers in sections 1–5 after the owner decides them.
