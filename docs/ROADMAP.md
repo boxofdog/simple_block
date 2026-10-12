@@ -16,6 +16,7 @@
 | M08 | **Large industrial smelter, standalone** | **Planned scope; not implementation-authorized** |
 | M09 | **Hostile-mob behavior and settlement defense** | **Owner-settled direction; design brief pending; NOT implementation-authorized** |
 | M10 | **Full modular armor/workwear implementation** | **Planned scope; not implementation-authorized** |
+| After M10 (unnumbered) | **Witch's Tome, mountain/deep-cavern witch huts and exploration-gated enchanting** | **Owner-proposed future design; NOT implementation-authorized** |
 | After M10 (unnumbered) | **Vanilla iron/diamond/netherite full-set combat armor bonuses** | **Owner-settled future design; NOT implementation-authorized; separate from M10** |
 
 M04 has 95 passing server game tests, a passing real-client test and CI Build #16 according to its [report](MILESTONE_04_REPORT.md). **M04 alone** supplied nonmoving cable infrastructure; **M05 now implements motion**. Do not mark owner acceptance or full mining-loop playtesting complete without confirmation.
@@ -49,6 +50,10 @@ M05 is a larger combined milestone specifically requested by the owner, **not** 
 Build on existing light entrancement and physical defenses without raids, invasion waves, or new mob species. Monsters should opportunistically exploit newly reachable illuminated areas when a wall, gate, or door opens or is breached: use their existing memory of lit destinations, reevaluate paths after access changes, and temporarily favor reachable interior light before resuming normal loitering or player pursuit. Do not require monsters to identify abstract 'bases' or give them omniscient knowledge of entrances. Explore occasional skeletons seeking spiders to ride (without making jockeys routine), including a readable skeleton-assisted overhang maneuver while mounted. Explore a substantial iron gate using existing winch mechanics: two three-block-wide sections form a full gate, and a creeper damaged by a sheltered player may retaliate by targeting the gate under carefully constrained conditions. Balance rarity, defense readability, pathfinding performance, non-griefing frustration, and tests in a later dedicated brief; no precise rules or models authorized yet.
 
 **This is a future design direction, not permission to implement M09. M06 remains the only authorized milestone.**
+
+## Post-M10 — Witch's Tome and discovered enchanting (future concept; not authorized)
+
+Place witch huts on remote mountain peaks and in deep deepslate caverns. Each features an enchanting table; breaking the table returns a diamond plus a **Witch's Tome**. A Witch's Tome is required to craft a replacement enchanting table, making enchanting knowledge something discovered through exploration rather than unlocked from ordinary mined materials alone. Final table recipe, hut generation density, repeat acquisition and loot/drop safeguards remain to be designed. Keep this beyond M10, alongside the separate post-M10 vanilla combat armor concepts. No implementation authorization implied. See [BACKLOG.md](BACKLOG.md) I-012.
 
 ## After M10 — existing combat armor gains full-set identities (owner-settled design; not authorized)
 
