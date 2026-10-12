@@ -26,7 +26,7 @@ M05 is a larger combined milestone specifically requested by the owner, **not** 
 |---|---|---|
 | Later | **Coal-powered winch attachment** | Upgrade the existing hand winch with localized fuel power; no generalized network. |
 | Later | **Refined train coupling and operation** | Expand/adjust only after M05's minimum viable consist can push and pull. |
-| Later | **Incline counterweights and upright mining skips** | Separate vertical lifting, safe reset and freight-transfer milestones; design unloading into a raised receiving hopper as part of the mine-to-smelter flow. |
+| Later | **Incline counterweights and upright mining skips** | Skip shape, recipe, 512 capacity, built-in chute and two-line hoist hookup now specified below. Vertical lifting, safe reset, guided shafts and freight-transfer implementation remain separate; connect to the mine-to-smelter flow. |
 | Later | **Bulk ore transfer and large smelter** | Gravity-charge raw ore from a minecart or vertical skip into a substantial smelter's hopper. Remove the vanilla blast furnace and slow ordinary-furnace raw-ore processing to make bulk smelting worthwhile. Details below; do not start within M05. |
 | Later | **Extreme-grade rails and downhill crashes** | Design three-block rises/drops and consequences separately. |
 | Later | **Full mining/logistics playtest** | Once powered rail haulage and vertical transport make a representative loop possible. |
@@ -47,6 +47,22 @@ Small standalone improvements (such as faster ladders) may be scheduled between 
 - Leave room beneath the overhead assembly for an elevated rail's minecart to stop and **dump bulk freight into an upright mining skip below**, which a shaft hoist can move vertically. Exact transfer mechanics and headframe geometry are still to be designed.
 - A hand-operated overhead winch must have an accessible operating position; a later coal engine attachment should fit the same assembly. Other mounting configurations need not be prohibited merely because overhead is the normal layout.
 - **M05 design direction:** preserve the open-ended construction route and add a reversible closed loop with an offset return strand and terminal pulley. Specific pulley conversion and cable-routing edge cases are detailed in the M05 brief; they must preserve existing anchors and the loose hook.
+
+### Upright mining skip — specified physical form (owner-approved direction; not authorized)
+
+- **Size and clearance:** skip body is **three blocks high, 1×3 in footprint**; four blocks of clearance are needed so its top loading door can unfold toward the loading track. The **upper two blocks** are the ore container and the **bottom block** houses a built-in angled discharge chute. No extra unloading station/chute block is required.
+- **Capacity:** **512 units** of ore. Exact mixed/single-material rules need confirmation.
+- **Crafting recipe** (shaped):
+
+  ```text
+  [empty] [cable]         [empty]
+  [iron]  [iron trapdoor] [iron]
+  [empty] [minecart]      [empty]
+  ```
+
+- **Physical freight transfer:** a specially designated load/unload track is itself the interface. A cart above the skip empties downward through the opening; a cart aligned beside it receives ore from the skip's permanent chute. Do not require a separately built station or receiver to transfer freight.
+- **Cable attachment:** right-click the skip with the existing cable's loose hook to attach it; the connection displays **two upward cable runs** flanking the ore-loading side, continuing to an existing overhead guide wheel supplied from a higher winch. Details of one-line-to-two suspension, paying out/consuming cable, and guide construction are open; do not invent unaccounted-for free cable.
+- **Not M05 work.** Need a later design/implementation brief for real lifting, braking, stations/rail trigger details and world-collision/guide behavior. Confirm whether the stated **1×3 footprint** runs along or across the adjacent track and precisely how the fourth clearance block is used before building models or collision boxes.
 
 ### Future bulk ore smelting and freight transfer (owner-approved direction; not authorized)
 
