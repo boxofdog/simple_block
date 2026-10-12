@@ -1,0 +1,13 @@
+{
+	"values": [
+		"#minecraft:logs",
+		"#minecraft:planks",
+		"#minecraft:wooden_slabs",
+		"#minecraft:wooden_stairs",
+		"#minecraft:wooden_fences",
+		"#minecraft:bamboo_blocks",
+		"minecraft:bamboo_mosaic",
+		"minecraft:bamboo_mosaic_slab",
+		"minecraft:bamboo_mosaic_stairs"
+	]
+}

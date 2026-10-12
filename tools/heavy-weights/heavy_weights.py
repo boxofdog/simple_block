@@ -1,9 +1,10 @@
 # Computes the iron/gold/copper/diamond/netherite content per item from vanilla recipe JSON.
 # See README.md in this folder.
-# usage: heavy_weights.py <data/minecraft/recipe dir> <output.json>
+# usage: heavy_weights.py <data/minecraft/recipe dir> <output.json> [<more recipe dirs, e.g. the mod's>...]
 import json, os, sys, collections
 from fractions import Fraction as F
 D=sys.argv[1]; TAGS=os.path.join(os.path.dirname(D),'tags','item')
+RECIPE_DIRS=[D]+sys.argv[3:]
 def tag_items(tag, seen=None):
     seen=seen or set()
     p=os.path.join(TAGS, tag.split(':')[1]+'.json')
@@ -24,8 +25,7 @@ def alts(ing):
     if ing.startswith('#'): return tag_items(ing[1:])
     return [ing]
 recipes=[]
-for f in sorted(os.listdir(D)):
-    p=os.path.join(D,f)
+for f,p in sorted((f,os.path.join(d,f)) for d in RECIPE_DIRS for f in os.listdir(d)):
     if os.path.isdir(p): continue
     j=json.load(open(p)); t=j['type'].split(':')[1]
     res=j.get('result'); 

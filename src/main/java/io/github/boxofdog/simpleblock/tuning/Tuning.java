@@ -136,6 +136,15 @@ public final class Tuning {
 
 		// MOB-03: how long a creeper smokes in direct sunlight before it is gone (ticks; 0.3-0.6 s target).
 		define("mob.creeper.evaporation_ticks", 10);
+
+		// M04 cable (provisional; see docs/DECISIONS.md). Cable a drum holds, in blocks (wound plus laid
+		// out; whole coils of 32).
+		define("cable.drum_capacity", 128);
+		// Longest straight span between two supports (drum or anchor), in blocks.
+		define("cable.max_span", 12);
+		// Height of the cable above a minecart (its position on the rail) that a connecting rod grips.
+		define("cable.rod_reach_min", 1.5);
+		define("cable.rod_reach_max", 3.0);
 	}
 
 	private Tuning() {

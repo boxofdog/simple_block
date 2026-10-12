@@ -5,6 +5,7 @@ import net.fabricmc.api.ModInitializer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import io.github.boxofdog.simpleblock.cable.CableContent;
 import io.github.boxofdog.simpleblock.feature.ChestMinecarts;
 import io.github.boxofdog.simpleblock.feature.EnderChests;
 import io.github.boxofdog.simpleblock.feature.HeavyLoad;
@@ -71,6 +72,15 @@ import io.github.boxofdog.simpleblock.worldgen.IronWorldgen;
  *   <li>FRT-11 chest minecarts disabled — {@link ChestMinecarts}, {@code mixin/chestcart}, recipe
  *       and advancement overrides</li>
  * </ul>
+ *
+ * <p>Milestone 04, cable infrastructure ({@code cable/}; registrations in {@link CableContent}):
+ * <ul>
+ *   <li>cable and cable coils, the cable drum (winch), copper cable anchors and routes —
+ *       {@code cable/CableRoutes}, {@code cable/CableHook}, {@code #simple_block:cable_anchor_supports},
+ *       client {@code CableDrumRenderer} and {@code CableHookRenderer}</li>
+ *   <li>the copper connecting rod on a minecart, gripping the cable — {@code cable/ConnectingRods},
+ *       {@code mixin/minecart}, client {@code CargoMinecartRenderer}</li>
+ * </ul>
  */
 public class SimpleBlock implements ModInitializer {
 	public static final String MOD_ID = "simple_block";
@@ -79,6 +89,7 @@ public class SimpleBlock implements ModInitializer {
 	@Override
 	public void onInitialize() {
 		Tuning.load();
+		CableContent.register();
 		NoElytraFlight.register();
 		RemovedRocks.register();
 		IronWorldgen.register();

@@ -1,0 +1,106 @@
+package io.github.boxofdog.simpleblock.cable;
+
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.util.RandomSource;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.context.BlockPlaceContext;
+import net.minecraft.world.level.BlockGetter;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.LevelReader;
+import net.minecraft.world.level.ScheduledTickAccess;
+import net.minecraft.world.level.block.BaseEntityBlock;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.state.BlockBehaviour;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.StateDefinition;
+import net.minecraft.world.level.block.state.properties.BlockStateProperties;
+import net.minecraft.world.level.block.state.properties.EnumProperty;
+import net.minecraft.world.level.pathfinder.PathComputationType;
+import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.phys.shapes.CollisionContext;
+import net.minecraft.world.phys.shapes.Shapes;
+import net.minecraft.world.phys.shapes.VoxelShape;
+
+import org.jspecify.annotations.Nullable;
+
+/**
+ * Copper cable anchor: hangs from the underside of a wooden block and carries a cable on a roller.
+ * The support must be in {@code #simple_block:cable_anchor_supports} (logs, planks, wooden slabs,
+ * stairs and fences, bamboo blocks) and offer the centre of its bottom face, like a hanging lantern
+ * needs: so a full block, a fence post, a bottom slab or upright stairs work, a top slab or upside-down
+ * stairs (which leave a gap) do not. Remove the support and the anchor drops.
+ *
+ * <p>No collision: carts, riders and the connecting rod pass under and beside it. {@link #FACING}
+ * (from the player who placed it) is the way the cable runs over the roller, and only its axis
+ * matters: the model is the same for north and south, and for east and west. The hanger arm is on one
+ * side only, west of a north-south cable and north of an east-west one, so a gripping rod's stem can
+ * pass the roller on the other side.
+ */
+public class CableAnchorBlock extends BaseEntityBlock {
+	public static final EnumProperty<Direction> FACING = BlockStateProperties.HORIZONTAL_FACING;
+	/** Mounting plate, arm and roller, whichever way the roller faces. */
+	private static final VoxelShape SHAPE = Shapes.or(Block.box(4.0, 15.0, 4.0, 12.0, 16.0, 12.0), Block.box(3.5, 7.75, 4.0, 12.5, 15.0, 12.0));
+
+	public CableAnchorBlock(BlockBehaviour.Properties properties) {
+		super(properties);
+		this.registerDefaultState(this.stateDefinition.any().setValue(FACING, Direction.NORTH));
+	}
+
+	/** Whether the block at {@code above} can carry an anchor hung under it. */
+	public static boolean canHangFrom(LevelReader level, BlockPos above) {
+		return level.getBlockState(above).is(CableContent.ANCHOR_SUPPORTS) && Block.canSupportCenter(level, above, Direction.DOWN);
+	}
+
+	@Override
+	protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
+		builder.add(FACING);
+	}
+
+	@Override
+	public @Nullable BlockState getStateForPlacement(BlockPlaceContext context) {
+		BlockState state = this.defaultBlockState().setValue(FACING, context.getHorizontalDirection());
+		return state.canSurvive(context.getLevel(), context.getClickedPos()) ? state : null;
+	}
+
+	@Override
+	protected boolean canSurvive(BlockState state, LevelReader level, BlockPos pos) {
+		return canHangFrom(level, pos.above());
+	}
+
+	@Override
+	protected BlockState updateShape(BlockState state, LevelReader level, ScheduledTickAccess ticks, BlockPos pos, Direction directionToNeighbour,
+		BlockPos neighbourPos, BlockState neighbourState, RandomSource random) {
+		return directionToNeighbour == Direction.UP && !state.canSurvive(level, pos)
+			? Blocks.AIR.defaultBlockState()
+			: super.updateShape(state, level, ticks, pos, directionToNeighbour, neighbourPos, neighbourState, random);
+	}
+
+	@Override
+	protected VoxelShape getShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {
+		return SHAPE;
+	}
+
+	@Override
+	protected VoxelShape getCollisionShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {
+		return Shapes.empty();
+	}
+
+	@Override
+	protected boolean isPathfindable(BlockState state, PathComputationType type) {
+		return true;
+	}
+
+	@Override
+	protected InteractionResult useWithoutItem(BlockState state, Level level, BlockPos pos, Player player, BlockHitResult hitResult) {
+		return CableRoutes.useAnchor(level, pos, player);
+	}
+
+	@Override
+	public BlockEntity newBlockEntity(BlockPos pos, BlockState state) {
+		return new CableAnchorBlockEntity(pos, state);
+	}
+}

@@ -6,8 +6,12 @@ client's load bar shows them in separate colours). It was generated with `heavy_
 then reviewed by hand (the `notes` in the JSON).
 
 ```
-python3 heavy_weights.py <extracted vanilla data>/data/minecraft/recipe computed.json
+python3 heavy_weights.py <extracted vanilla data>/data/minecraft/recipe computed.json \
+    ../../src/main/resources/data/simple_block/recipe
 ```
+
+The optional extra directories add recipes for the mod's own items (Milestone 04: cable, coil,
+drum, anchor, connecting rod); their ingredients' tags still come from the vanilla data.
 
 The script gives each item the content of its cheapest recipe (base items fixed: ingots, raw metal
 and ores 1, nuggets 1/9, a diamond and diamond ore 1, a netherite ingot 1; netherite smithing

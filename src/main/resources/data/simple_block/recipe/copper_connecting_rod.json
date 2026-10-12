@@ -1,0 +1,16 @@
+{
+	"type": "minecraft:crafting_shaped",
+	"category": "misc",
+	"key": {
+		"N": "minecraft:copper_nugget",
+		"I": "minecraft:copper_ingot"
+	},
+	"pattern": [
+		"N",
+		"I",
+		"I"
+	],
+	"result": {
+		"id": "simple_block:copper_connecting_rod"
+	}
+}

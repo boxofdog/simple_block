@@ -1,0 +1,11 @@
+{
+	"type": "minecraft:crafting_shapeless",
+	"category": "misc",
+	"ingredients": [
+		"simple_block:cable_coil"
+	],
+	"result": {
+		"count": 8,
+		"id": "simple_block:cable"
+	}
+}
