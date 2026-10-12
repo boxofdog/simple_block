@@ -2,6 +2,8 @@
 
 **Status: OWNER AUTHORIZED FOR IMPLEMENTATION on 2026-10-12.** Claude Code may begin **M06 now**, using this document as its executable scope and the implementation discretion explicitly delegated below. **EXCEPTION TO THE NORMAL GATE:** M05 is committed and GitHub/CI verified, but the owner is away from their test machine and will formally playtest/accept M05 later. **DO NOT mark M05 owner accepted, rewrite its receipt, or treat approval to begin M06 as approval of M05.** Preserve the M05 baseline and its existing tests. Owner has deliberately accepted concurrent M06 development while M05 acceptance is pending; any real M05 issue found in later playtest should be logged separately rather than silently broadening M06.
 
+**Tracked coding handoff:** [GitHub issue #2](https://github.com/boxofdog/simple_block/issues/2) records the owner's authorization, assigned technical risk and milestone completion checklist. It is not evidence code execution has started.
+
 **Claude's first task:** inspect the current code and tests; verify the baseline; identify the existing M05 cable-loop chunk-ticking dependency and devise a **safe long-route strategy** before refactoring the cable system. The owner explicitly delegated the unloaded-chunk problem to Claude, **not** to another owner design discussion. See §7. Do not claim to have solved it until verified. Complete the authorized M06 work in reviewable, tested increments, then stop; M07 remains unauthorized.
 
 ## Purpose
