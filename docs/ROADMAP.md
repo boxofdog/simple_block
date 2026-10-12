@@ -12,6 +12,8 @@
 | M04 | Cable coils, drum, underside copper anchors, routed overhead cable and minecart gripping rod | **Implemented / awaiting owner acceptance** |
 | M05 | Reversible cable loops, default hand crank, Cobblestone Engine and drum-side rendering fix | **Implementation in progress locally (owner report); no verified handoff yet** |
 | M06 | Loading track, freight cart front gate, rail cleanup and no hand-pushing for non-passenger carts | **Design scaffold only — not implementation-authorized** |
+| M07 | **Large industrial smelter, standalone** | **Provisional next milestone — not scoped or authorized** |
+| M08 | **Full modular armor/workwear implementation** | **Provisional planned milestone — not authorized** |
 
 M04 has 95 passing server game tests, a passing real-client test and CI Build #16 according to its [report](MILESTONE_04_REPORT.md). Cable/grip **does not yet move carts**. Do not mark owner acceptance or full mining-loop playtesting complete without confirmation.
 
@@ -25,6 +27,12 @@ M05 is a larger combined milestone specifically requested by the owner, **not** 
 
 [**MILESTONE_06.md**](MILESTONE_06.md) is an **initial design scaffold**, not a final executable brief. Owner direction: a **loading track** locks the original non-cushioned freight cart and **determines which end is its front**; for a **skip below** and clear frontage, the front **unfolds into a downward ramp** to load the skip; for a **skip beside** it, the front **stays closed** while the cart receives cargo from the skip's chute. **Shapeless recipe:** one vanilla rail + one existing copper anchor, in any crafting-grid positions (yield open). Also **retire redstone-dependent rails specifically**, retaining ordinary rails, and make **non-passenger carts immune to manual pushing** without blocking legitimate traction or gravity. The loading track itself is the eventual transfer station; no separate compulsory machine. Exact rail facing/placement, locking and release, cargo transfer timing, output yield and detailed redstone-rail retirement remain to be designed. **Do not begin M06 until M05 is finished and the owner approves a final M06 brief.**
 
+## M07 and M08 — provisional milestone sequence (not authorized)
+
+- **M07 — Smelter by itself (provisional):** a dedicated milestone for the owner-specified large metal smelter and its direct processing interfaces only: hopper-fed charging, blocks of coal/charcoal/dried kelp as industrial fuel (new charcoal block needed), raw iron/copper/gold processed into metal blocks, animated pour and a 64-metal-block single-type mold/output inventory with safe stopping. Also address the related blast-furnace retirement and slowed raw-ore smelting in a regular furnace as already planned. Final footprint, recipes, throughput, fuel, input limits and integration tests still need a full brief. **Do not silently include implementing mining skips, coal winch upgrades, expanded rail geometry, steelmaking or villages in M07.** If M06's freight transfer is not yet implemented, give the smelter a viable direct/hopper input without inventing the missing skip system.
+- **M08 — Modular armor and equipment (provisional):** the complete planned workwear/armor redesign **and all its functions**, not just items/recipes: remove gold/chainmail armor from normal gameplay and creative search; copper Headlamp; one-piece, two-slot backpack Overalls; Spiked Boots **Spelunker's Speed**, Mining Boots **Mule**; complete-set **Trail Blazer** (climbing, colored through-wall infrastructure outlines, skeleton aim penalty) and **Old Pro** (Mule, offhand pickaxe mining, line-of-sight rear warning within 20 blocks). Include exact existing shaped recipes, inventory/slot safety, model/assets, multiplayer, save/load and meaningful functional tests. Resolve headlamp lighting, precise armor values, offhand controls and tuning before implementation; **not M05/M06 scope**.
+- **Order is a design intention, not authorization.** Owner said M07 will *likely* be the smelter alone, and M08 *can* cover the armor overhaul. Formal milestone briefs, approvals, implementation and playtesting are still separate decisions.
+
 ## After M05 (suggested; not automatically authorized)
 
 | Order | Independent future deliverable | Notes |
@@ -32,11 +40,11 @@ M05 is a larger combined milestone specifically requested by the owner, **not** 
 | Later | **Coal-powered winch attachment** | **Next high-priority design question:** upgrade the same manual drum with localized fuel power; determine attachment, fueling, actuation, stopping and player interaction. No generalized network. |
 | Later | **Refined train coupling and operation** | Expand/adjust only after M05's minimum viable consist can push and pull. |
 | Later | **Incline counterweights and upright mining skips** | Skip upright dimensions, recipe, 512 capacity, built-in chute and single-line hoist with triangular bridle now specified below. Vertical lifting, safe reset and freight-transfer implementation remain separate; connect to the mine-to-smelter flow. |
-| Later | **Bulk ore transfer and large smelter** | Gravity-charge raw ore from a minecart or vertical skip into a substantial smelter's hopper. Remove the vanilla blast furnace and slow ordinary-furnace raw-ore processing to make bulk smelting worthwhile. Details below; do not start within M05. |
+| M07 candidate | **Large smelter itself** | Tentatively assign the standalone industrial smelter to M07, with its direct hopper/charging and mold output plus related vanilla furnace/blast-furnace changes. Bulk skip/cart transfer infrastructure is distinct and does not become M07 scope automatically. Design details below. |
 | Later | **Extreme-grade rails and downhill crashes** | Design three-block rises/drops and consequences separately. |
 | Later | **Full mining/logistics playtest** | Once powered rail haulage and vertical transport make a representative loop possible. |
 
-Small standalone improvements (such as faster ladders) may be scheduled between mechanical milestones. **No milestone after M05 starts until the owner authorizes it.** Milestone IDs after M05 are assigned when their briefs are approved; historical placeholders are not binding.
+Small standalone improvements (such as faster ladders) may be scheduled between mechanical milestones. **No milestone after M05 starts until the owner authorizes it.** M06 is a draft scaffold; M07/M08 are provisional sequence labels, **not approved milestone briefs or implementation authorizations**. Further milestone IDs and scope remain flexible.
 
 ## Later workstreams
 
@@ -116,7 +124,7 @@ Small standalone improvements (such as faster ladders) may be scheduled between 
 - **Alignment behavior delegated to Claude:** choose the exact nearest-track search range, detection tolerances and any small vertical docking adjustment during the later skip implementation. The owner does **not** require a specific numeric range or snapping algorithm. Keep alignment local and predictable; never make cargo disappear/duplicate or unload into open air just because a rail is nearby.
 - **Not M05 work.** The later skip brief should leave exact stop/docking tolerance to Claude while preserving predictable behavior and safe freight transfer. Horizontal depth, collision envelope and unfolded-door clearance still need definition. Universal left-feed/right-pull input applies to the M05 winch; skip operation/automatic station logic remains later work. No extra guided-shaft mechanic is required.
 
-### Future bulk ore smelting and freight transfer (owner-approved direction; not authorized)
+### Future bulk ore smelting and freight transfer (M07 smelter candidate; not authorized)
 
 - **Batch-based raw-material handling, not Create-style ore conveyors.** The practical mine-to-smelter loop should move bulk ore in minecarts or upright mining skips, then discharge it **by gravity into a raised receiving hopper** on a substantial, constructed smelter. No requirement to transport every individual ore item through exposed processing belts.
 - **Two processing scales:** retain the ordinary furnace for early/small-scale iron and other familiar uses, but **slow its raw-ore smelting** so it does not compete with bulk processing. **Remove/disable the vanilla blast furnace** in a future authorized metallurgy milestone to avoid a redundant intermediate metal-processing shortcut.
