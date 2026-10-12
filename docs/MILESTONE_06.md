@@ -1,10 +1,10 @@
-# Simple Block — Milestone 06: Freight Handling, Coal-Powered Winch and Creative Cleanup (DRAFT)
+# Simple Block — Milestone 06: Freight Handling, Coal-Powered Winch, Recipe Simplification and Creative Cleanup (DRAFT)
 
 **Status: Design scaffold — NOT authorized for implementation.** Owner direction remains incomplete. **M05 is committed and independently verified on GitHub/CI, but owner acceptance is still pending.** Refine this document together; do not ask Claude to execute it as-is or infer that M06 is authorized.
 
 ## Purpose
 
-Build the first physical **freight-transfer railway interface**, add a **coal-powered upgrade to the existing manual winch**, and **clean retired items out of normal Creative inventory/search**, preparing the mine → skip → railway → smelter loop. Preserve the ordinary vanilla minecart as Simple Block's freight cart. The special loading track *is* the future transfer station: no compulsory secondary loading/unloading station block or item-conveyor system. The powered winch must improve the SAME M05 cable system, **not introduce a parallel machine network**. Actual upright mining skips and their transfer/hoisting gameplay are planned for **M07**; the large smelter is **M08** and the full armor overhaul **M09**, all requiring later authorization.
+Build the first physical **freight-transfer railway interface**, add a **coal-powered upgrade to the existing manual winch**, **simplify existing cable and cable-coil recipes**, and **clean retired items out of normal Creative inventory/search**, preparing the mine → skip → railway → smelter loop. Preserve the ordinary vanilla minecart as Simple Block's freight cart. The special loading track *is* the future transfer station: no compulsory secondary loading/unloading station block or item-conveyor system. The powered winch must improve the SAME M05 cable system, **not introduce a parallel machine network**. Actual upright mining skips and their transfer/hoisting gameplay are planned for **M07**; the large smelter is **M08** and the full armor overhaul **M09**, all requiring later authorization.
 
 ## 1. Loading track (owner-specified direction)
 
@@ -52,12 +52,38 @@ Build the first physical **freight-transfer railway interface**, add a **coal-po
 - **Boundary to future milestones:** **do not preemptively remove gold/chainmail armor (M09)** or the **blast furnace (M08)**, or hide other items whose removal has only been proposed rather than implemented. M06's own redstone-rail retirement is included because it is scoped for M06; ordinary rails must remain findable.
 - **Acceptance when authorized:** test the full affected Creative tab list **and Creative search** in a real client; verify the documented disabled items are absent, that their registry IDs still exist, and that ordinary rails, furnaces and other retained Minecraft items remain visible and usable. Test retained feature behaviors and the removal of normal crafting/loot/acquisition where already specified. Record the exact audited item names, anything already hidden, changes made, and remaining exceptions.
 
-## 6. M06 boundaries and work still to scope
+## 6. Cable and cable-coil crafting simplification (M06 owner-specified)
+
+**Replace the existing M04 crafting ingredient layouts** for the already-registered cable and cable coil items. Both are **shaped recipes**, so ingredient alignment matters. The **center crafting column** must contain exactly the three listed items, with all six other cells empty. This is a recipe revision, not a new kind of cable or coil.
+
+**Cable** — three ordinary **iron nuggets** vertically in the center column; **remove string** as an ingredient:
+
+```text
+[empty] [iron nugget] [empty]
+[empty] [iron nugget] [empty]
+[empty] [iron nugget] [empty]
+```
+
+**Cable Coil** — three existing **cable items** vertically in the center column; replace the current eight-cable ring:
+
+```text
+[empty] [cable] [empty]
+[empty] [cable] [empty]
+[empty] [cable] [empty]
+```
+
+**Known existing implementation (M04–M05, unchanged until M06 authorization):** three iron nuggets **plus string** shapelessly craft **two cable items**; each cable item represents **four blocks** of cable; eight cable items in a ring produce one **32-block coil**, and unpacking a coil gives back eight cable items.
+
+**Yield and length conservation require resolution before coding:** the owner has specified the **ingredients and their positions**, NOT any new output counts or cable-length conversion. In particular, replacing the eight-cable coil craft with a three-cable coil craft while keeping the current 8-cable uncoiling recipe would **duplicate cable**, which is unacceptable. Finalize cable output count; coil output count; whether one coil's physical length becomes **12 blocks** (three existing 4-block cable items) or another explicitly chosen length; the reverse coil→cable recipe and its output; and any related drum capacity, copper/iron heavy weights, UI text or existing M04/M05 conservation tests. Do not silently change these values or change the physical cable item identity.
+
+**M06 acceptance when authorized:** positive and negative shaped-grid craft tests; confirm no string is required; iron nuggets/cables **only in the stated center-column slots**; remove old ring/shapeless crafting paths; test crafting/unpacking round trips for no loss/duplication; confirm winch load, route/disconnect/dismantle, drum removal and save/load conserve installed cable length with the finalized values.
+
+## 7. M06 boundaries and work still to scope
 
 **Excluded from M06 unless separately approved:** the actual M07 skip entity/doors/automatic docking/vertical-motion gameplay; M08 bulk smelter; M09 armor/workwear overhaul; full freight-transfer automation beyond the agreed track/cart interface; extreme-grade custom rails; general redstone redesign; complete station signalling; and redesign of the M05 Cobblestone Engine/coupling. **Coal-powered winch attachment is now IN M06's intended scope**, but its mechanism must be settled before Claude can implement it.
 
 **Potential adjacent work, NOT included yet:** visible cargo level filling in steps like a cauldron/composter with new owner-paintable texture (already specified in ROADMAP/DECISIONS), UX text cleanup, gravel/sand cargo eligibility. These remain separate unless the owner explicitly includes them.
 
-**Expected implementation discipline after the brief is finalized:** preserve editable Blockbench sources and painted owner assets; perform baseline checks against finished M05; test rail locking/opening/release, cart push prohibition vs legitimate train movement, powered AND manual winch movement, safe stopping/reversing, fuel and cable conservation, **all affected Creative tabs and Creative search for retired items**, multiplayer/save-load behavior, structure/recipe consequences of rail removal, and a real-client demonstration. Document implementation SHA, CI and owner acceptance through the established roadmap handoff. Stop after M06.
+**Expected implementation discipline after the brief is finalized:** preserve editable Blockbench sources and painted owner assets; perform baseline checks against finished M05; **test the two new shaped cable recipes and round-trip cable conservation including former-recipe negative controls**; test rail locking/opening/release, cart push prohibition vs legitimate train movement, powered AND manual winch movement, safe stopping/reversing, fuel and cable conservation, **all affected Creative tabs and Creative search for retired items**, multiplayer/save-load behavior, structure/recipe consequences of rail removal, and a real-client demonstration. Document implementation SHA, CI and owner acceptance through the established roadmap handoff. Stop after M06.
 
 **Next design question (priority):** After the settled **NEUTRAL → PULL** first click, what is the rest of the lever's repeating right-click sequence, particularly on reversal? Latching controls, click-to-cycle, auto-neutral at physical endpoints, direct coal insertion/inspection and preservation of remaining fuel burn time are settled. Fuel capacity, performance tuning, cart release and loading-track facing are still open.
