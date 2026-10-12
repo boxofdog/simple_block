@@ -47,7 +47,29 @@ Small standalone improvements (such as faster ladders) may be scheduled between 
 - **#4 Train stopping/braking/stations and #5 M05 locomotive/coupling/cable balancing:** **defer further design until M05 finishes and is playtested**; assess actual in-game behavior first.
 - **#6 Gravel/sand freight eligibility:** **already owner-approved but not implemented**; user wants it scheduled only after M05 playtesting, with cargo-tag and test updates then. No additional scope discussion required.
 - **#7 Minecart cargo visuals/dev text:** **design decided, implementation later**. Ordinary vanilla freight carts retain their models but show a **visible material surface rising in discrete fill steps** proportional to the 0–256 load, analogous to a cauldron or composter. Provide new owner-paintable texture/art assets with editable sources; remove the intrusive always-floating cargo-count label in favor of the fill visual while retaining deliberate exact-quantity inspection. Exact step count, mesh/render method and how to depict different commodities can be chosen during implementation; no extra cart type or UI machinery. Other noisy development text remains logged in [UX_TEXT_LOG.md](UX_TEXT_LOG.md).
-- **#8 Faster ladders and climbable ropes:** still future scope; no new design decisions here.
+- **#8 Spelunker's ropes and faster ladders:** **rope recipes and hanging/extension behavior now design-scoped; not implemented**. Faster ladder speed remains open; rope climbing, retrieval and placement edge cases can be settled in its implementation brief.
+
+### Future spelunker's rope (owner-approved direction; not authorized)
+
+- **Rope shaped recipe:** three string items vertically in the center crafting column. Result quantity remains unspecified; do not assume a multiple-item yield.
+
+  ```text
+  [empty] [string] [empty]
+  [empty] [string] [empty]
+  [empty] [string] [empty]
+  ```
+
+- **Spelunker's Rope shaped recipe:** one existing **copper cable anchor** above one rope in the center column (reuses the current anchor item, not a new kind of anchor).
+
+  ```text
+  [empty] [empty]         [empty]
+  [empty] [copper anchor] [empty]
+  [empty] [rope]          [empty]
+  ```
+
+- Place the Spelunker's Rope on the **bottom or side face of a block**. Its anchor fixes at that block; the climbing rope **hangs vertically downward through open air** without needing intermediate attachments, support posts or guides.
+- **Hold right-click with Rope in hand** to extend the anchored line downward in **12-block increments**, using the supplied rope resource for each increment. Once it reaches solid ground, any extra length **coils visibly into a bundle on the lowest block** rather than extending through the terrain. Details of quantity spent, coil retrieval and support removal are for the future rope milestone; avoid silently providing unlimited free rope.
+- This is a **temporary spelunking/access tool**, not a moving mechanical winch cable. Preserve M04/M05 copper cable, anchors and hauling logic; climbing and retrieval controls and the speed of ordinary ladders remain separately tunable.
 
 ### Future winch mounting and shaft layout (owner-approved direction)
 
