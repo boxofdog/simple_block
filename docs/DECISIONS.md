@@ -188,6 +188,14 @@ The authoritative brief is [MILESTONE_04.md](MILESTONE_04.md); the as-built reco
 - **Placement and growth:** attach the Spelunker's Rope to the **underside or side of a block**. Rope falls/hangs vertically in open air. **Hold right-click with Rope in hand** to add downward length in **12-block increments**. When the line reaches the ground, additional rope visibly **coils into a bundle on the bottom block**, not through solid terrain. This is a climbable exploration rope, not the moving hauling cable used by M04/M05 winches.
 - **Deferred details:** precise recipe yields and material consumption per 12 blocks, where the player aims during extension, climbing speed/control, coiled excess behavior, retrieval, and what happens if the mounting block disappears. Do not implement with M05.
 
+### 5.5 M06 freight railway interface (owner direction; draft only)
+
+- **Initial M06 scaffold:** [MILESTONE_06.md](MILESTONE_06.md), **not yet authorized for implementation**. M05 remains the active implementation. The goal is the physical interface for eventual cart ↔ skip ↔ smelter transfers, not completion of the entire logistics loop in M06.
+- **Loading track:** a special rail section **locks an ordinary uncushioned freight cart in place**. The **front of that cart visibly opens when docked/locked**; it closes again after release. **No new freight-cart variant**. Precise gate mechanics, orientation of a symmetrical vanilla cart, loading-track crafting and what triggers release/transfer remain open.
+- **Redstone rail removal:** remove **redstone-dependent rail variants specifically** while preserving **ordinary vanilla rails**. Powered, detector and activator rails are the provisional affected set, subject to explicit confirmation and dependency/structure/recipe testing before implementation. This is not approval to remove useful standalone non-rail redstone mechanisms or invent a replacement power grid.
+- **No player pushing for non-passenger carts:** players cannot shove **uncushioned ordinary freight minecarts** into motion through direct physical contact; cushioned passenger carts remain manually pushable. This must **not** block legitimate engine, coupling, cable, gravity or other ordinary movement. Confirm any special rules for the Cobblestone Engine before implementation.
+- **Future presentation work:** stepped physical cargo-fill levels and replacement of floating debug labels are already agreed separately; not implicitly part of this initial M06 scaffold.
+
 ## 6. Open decisions requiring a future milestone brief
 
 Only record settled answers in sections 1–5 after the owner decides them.
@@ -198,6 +206,7 @@ Only record settled answers in sections 1–5 after the owner decides them.
 | Cobblestone Engine | Mass and traction model, practical grade limits, how coal is spent, interaction/controls and what happens when trains stall or reverse. |
 | Coupling | How carts attach/detach, how tension propagates through a mixed train, and behavior on curves/grade transitions. |
 | Rails | Geometry and construction of extended extreme slopes; whether steep routes require special rail pieces; speed and crash damage. |
+| M06 loading track and redstone rail retirement | Rail recipe/model and lock/release; which end of the symmetric cart opens; interaction with connected trains and cargo-transfer recipients; exact scope and worldgen/loot/recipe consequences of disabling powered, detector and activator rails; whether Cobblestone Engines can be shoved by players. Owner has specified the general behavior but not authorized M06 implementation. |
 | Incline winches | Grade-versus-speed relationship, winch load limits, controlled lowering and automated return/reset. |
 | Mining skips | **Settled:** one block wide × three blocks tall, four-block clearance for top door; recipe, 512 capacity, exposed lower chute and automatic discharge to aligned minecarts; triangular bridle and single-line, sway-free winch hoisting; left-feed/lower and right-pull/raise; loaded stop at unloading rail and empty-descending top-door check upon release/bottom-out. **Claude may select the local alignment range/tolerance and docking details.** Still open: horizontal depth, cable/bridle accounting, cargo-type and partial-transfer rules, collision and safety. No extra guide/station machinery. |
 | M04 balance | Final recipes, route spans and cable capacity after actual owner playtesting. |
