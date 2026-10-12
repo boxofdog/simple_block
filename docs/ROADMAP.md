@@ -35,9 +35,25 @@ Small standalone improvements (such as faster ladders) may be scheduled between 
 
 Full design context lives in [BACKLOG.md](BACKLOG.md), confirmed implementation choices in [DECISIONS.md](DECISIONS.md), and the running visible-text cleanup list in [UX_TEXT_LOG.md](UX_TEXT_LOG.md).
 
-## Claude Code commit verification
+## Milestone commit handoff
 
-- [ ] **Verify documentation cleanup on `main`** (commit `fe9a73a5fe069c10f68819320aa558051ed16c1e`): confirm the duplicate `docs/docs/` files are gone, `ROADMAP.md`, `BACKLOG.md`, and `UX_TEXT_LOG.md` are present and linked correctly, and existing milestone specifications/reports remain intact. Check this box only after inspecting the repository and record the verified commit SHA here: `________`. This is a verification task, **not** permission to start the next milestone.
+This is the **shared handoff between Claude Code, ChatGPT and the project owner**. At the end of **each authorized milestone**, Claude updates this section **in the repository**, not only in its chat. A checked box means that named party performed that check; it is not a substitute for the checks below. Claude can add brief notes and links. After independent review and owner acceptance, keep one compact receipt in the history table and reset this checklist for the next authorized milestone. Do not start another milestone automatically.
+
+**Milestone being handed off:** _Next authorized implementation milestone — to be filled in by Claude._
+
+- [ ] **Claude — code committed and pushed to `main`.** Implementation commit SHA(s): `—` (link to commits; use **code commit**, not a subsequent roadmap-only commit).
+- [ ] **Claude — tests and closeout report recorded.** Report: `—` · Tests run/results: `—` · Not tested/known issues: `—`.
+- [ ] **Claude — CI verified for the implementation SHA.** Workflow run URL: `—` · Result: `—` · `simple-block-mod` artifact: `—`. If unavailable, leave unchecked and explain.
+- [ ] **ChatGPT — independently verified on GitHub.** Confirm commit is reachable from `main`, inspect changed files/report and corresponding CI result. Verification notes/date: `—`. **Claude must not check this box.**
+- [ ] **Owner — accepted/playtested.** Acceptance note/date: `—`. **Only the owner can authorize acceptance; Claude and ChatGPT must not infer it from tests.**
+
+**Claude's handoff notes:** _What changed, what remains open, and any deviations from the brief._
+
+**Verified milestone receipts** (one row per accepted milestone; older details remain in milestone reports):
+
+| Milestone | Implementation commit(s) | CI / artifact | Verified by ChatGPT | Owner accepted |
+|---|---|---|---|---|
+| M04 — cable infrastructure | `215a24a` (per [report](MILESTONE_04_REPORT.md); not independently checked here) | Build #16, 95 tests (per report) | Pending | Pending |
 
 ## Working rules
 
