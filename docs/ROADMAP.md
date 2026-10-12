@@ -31,6 +31,15 @@ Small standalone improvements (such as faster ladders) may be scheduled between 
 - **Villages:** terrain suitability, larger buildings, population and destinations, pubs, centralized stores, workshop services, real golem protection.
 - **Character and equipment:** armor/loadout redesign, climbable ropes and faster ladders.
 - **Geology/metallurgy:** alluvial iron sand/gravel, steel, useful long-lived anvil/smithing.
+
+### Future winch mounting and shaft layout (owner-approved direction)
+
+- **Overhead cable drums should be the default installation orientation** for mine haulage: mount the drum into the wooden support/headframe so its cable runs at roughly the same level as underside-mounted copper rollers. This keeps the railway below unobstructed and avoids a floor-to-ceiling cable transition.
+- Preserve the current M04 drum, hooks, anchors, routing gestures, connecting rod and models. **Do not roll back or replace the implemented cable infrastructure**; overhead mounting and powered motion are future additive work.
+- Leave room beneath the overhead assembly for an elevated rail's minecart to stop and **dump bulk freight into an upright mining skip below**, which a shaft hoist can move vertically. Exact transfer mechanics and headframe geometry are still to be designed.
+- A hand-operated overhead winch must have an accessible operating position; a later coal engine attachment should fit the same assembly. Other mounting configurations need not be prohibited merely because overhead is the normal layout.
+- **Unresolved:** the present route ends in a loose cable hook. Decide a mechanically sensible winding/reversal/return arrangement without dismantling anchors or changing the established look and placement interaction before authorizing the hauling milestone.
+
 - **Rules and usability:** selective redstone-system redesign, guidebook, cargo visuals and player-facing text polish.
 
 Full design context lives in [BACKLOG.md](BACKLOG.md), confirmed implementation choices in [DECISIONS.md](DECISIONS.md), and the running visible-text cleanup list in [UX_TEXT_LOG.md](UX_TEXT_LOG.md).
