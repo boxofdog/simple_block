@@ -117,16 +117,16 @@ The authoritative brief is [MILESTONE_04.md](MILESTONE_04.md); the as-built reco
 
 ### Open M04 follow-ups — not implemented
 
-- **Cable motion topology:** a drum that winds in a *free-ended overhead route* would retract it off the anchors. Decide how the cable can drive minecarts without dismantling its installed supports. Neither two-drum payout nor endless-loop/circulating cable is approved yet.
+- **Cable motion topology (M05 direction now approved):** keep the M04 open-ended route for placement and add a closed circulating loop for powered travel, with the original strand retained for the rod and a discreet side-offset return strand. A terminal anchor becomes a return wheel, ideally by adding another copper anchor. Exact closing gesture, return clearances and drive mechanics are still to be validated in M05.
 - **Grip versus rollers:** a moving cable needs a believable grip/guide geometry that passes anchor rollers. Present M04 engagement and no-collision behavior is not proof of future powered haulage.
 - **Curves and multiple tracks:** tight curves can pull the grip out of alignment; two-track layouts, diagonal passages and bidirectional geometry need rules.
 - **Tension, braking and stopping:** present cable renders taut without simulation; future powered motion must decide sag/tension, braking, release and route ends.
 - **Drum alignment and support variants:** decide barrel/outlet facing, and whether to add support types beyond underside-mounted wood.
 - **Balance:** cable and coil costs, 12-block spans, 128-block drum capacity and grip reach are implemented starting values, not validated long-term balance.
 
-## 5. Future transport and mechanical design (agreed direction; NOT authorized to implement)
+## 5. M05 and future transport / mechanical design
 
-These decisions were reached **after** M04's cable-infrastructure brief. They are organized here rather than inserted before M04 because they concern a later milestone whose number and exact scope are not settled.
+**M05 is owner-authorized for implementation but not yet built.** Its specification is [MILESTONE_05.md](MILESTONE_05.md): circulating cable loop, reversible manual drum crank, coal-powered bidirectional Cobblestone Engine with minimally functional coupling, and the drum-side render fix. The longer-term decisions below (coal winch motors, skips, extreme rails, counterweights) **are not automatically authorized** by M05.
 
 ### 5.1 Cobblestone Engine — coal-powered railway locomotive
 
@@ -157,7 +157,7 @@ Only record settled answers in sections 1–5 after the owner decides them.
 
 | System | Unsettled details |
 |---|---|
-| Cable motion | Open route vs moving/reversible/returning cable, winding/payout, grip passing anchors, cable reset, braking and hand operation. |
+| Cable motion | **M05 loop direction settled** (outgoing grip strand and side-offset return); precise terminal upgrade gesture, clearance/turn support, tension, braking, safe release, and crank behavior remain engineering decisions to validate. |
 | Cobblestone Engine | Mass and traction model, practical grade limits, how coal is spent, interaction/controls and what happens when trains stall or reverse. |
 | Coupling | How carts attach/detach, how tension propagates through a mixed train, and behavior on curves/grade transitions. |
 | Rails | Geometry and construction of extended extreme slopes; whether steep routes require special rail pieces; speed and crash damage. |

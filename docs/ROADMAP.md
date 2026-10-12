@@ -10,27 +10,34 @@
 | M02 | Geology, mining tiers, ore deposits, heavy inventory, hostile light attraction, hunger and QoL | **Shipped** |
 | M03 | Existing minecarts become 256-item single-commodity freight carts; cushions enable riding; storage bypasses removed | **Shipped** |
 | M04 | Cable coils, drum, underside copper anchors, routed overhead cable and minecart gripping rod | **Implemented / awaiting owner acceptance** |
+| M05 | Reversible cable loops, default hand crank, Cobblestone Engine and drum-side rendering fix | **Authorized / specification prepared; not implemented** |
 
 M04 has 95 passing server game tests, a passing real-client test and CI Build #16 according to its [report](MILESTONE_04_REPORT.md). Cable/grip **does not yet move carts**. Do not mark owner acceptance or full mining-loop playtesting complete without confirmation.
 
-## Next steps (suggested, not automatically authorized)
+## M05 — authorized handoff (not yet implemented)
 
-| Order | Small, independent deliverable | Notes |
+[**MILESTONE_05.md**](MILESTONE_05.md) defines four connected work packages: **(A)** close M04 cable routes into reversible circulating loops with a discreet side-return strand and terminal pulley; **(B)** always-visible hand crank and usable manual drive; **(C)** a bidirectional, coal-powered **Cobblestone Engine** made by applying a furnace to a vanilla cart, including minimal functional train coupling; **(D)** fix the observed drum rendering defect (BUG-001). Preserve all M04 interaction and visual foundations; implement in separable, tested stages.
+
+M05 is a larger combined milestone specifically requested by the owner, **not** permission for unrelated systems. M04 owner acceptance still requires an explicit confirmation; do not silently mark it accepted.
+
+## After M05 (suggested; not automatically authorized)
+
+| Order | Independent future deliverable | Notes |
 |---|---|---|
-| Next | **Manual winch hauling** | Make the existing cable drum player-operated and able to pull a connected minecart. Resolve continuous moving cable vs winding line and grip/turn geometry before the handoff. |
-| Then | **Coal-powered winch attachment** | Coal powers mechanical rotation locally; upgrade the existing hand winch, no electricity or generic power network. |
-| Then | **Train coupling** | Reliable join/release of ordinary minecarts; test with curves/stops. |
-| Then | **Coal locomotive** | Reversible push/pull and useful speed/fuel for coupled carts. |
-| Later | **Incline counterweights and upright mining skips** | Separate lift, reset, and freight-transfer milestones. |
-| Later | **Full mining/logistics playtest** | Evaluate only when functional hauling and vertical transport make a representative loop possible. |
+| Later | **Coal-powered winch attachment** | Upgrade the existing hand winch with localized fuel power; no generalized network. |
+| Later | **Refined train coupling and operation** | Expand/adjust only after M05's minimum viable consist can push and pull. |
+| Later | **Incline counterweights and upright mining skips** | Separate vertical lifting, safe reset and freight-transfer milestones. |
+| Later | **Extreme-grade rails and downhill crashes** | Design three-block rises/drops and consequences separately. |
+| Later | **Full mining/logistics playtest** | Once powered rail haulage and vertical transport make a representative loop possible. |
 
-Small standalone improvements (such as faster ladders) may be scheduled between mechanical milestones. **No next milestone starts until the owner authorizes it.** Milestone IDs after M04 are assigned when their briefs are approved; historical placeholder numbering is not binding.
+Small standalone improvements (such as faster ladders) may be scheduled between mechanical milestones. **No milestone after M05 starts until the owner authorizes it.** Milestone IDs after M05 are assigned when their briefs are approved; historical placeholders are not binding.
 
 ## Later workstreams
 
 - **Villages:** terrain suitability, larger buildings, population and destinations, pubs, centralized stores, workshop services, real golem protection.
 - **Character and equipment:** armor/loadout redesign, climbable ropes and faster ladders.
 - **Geology/metallurgy:** alluvial iron sand/gravel, steel, useful long-lived anvil/smithing.
+- **Rules and usability:** selective redstone-system redesign, guidebook, cargo visuals and player-facing text polish.
 
 ### Future winch mounting and shaft layout (owner-approved direction)
 
@@ -38,9 +45,7 @@ Small standalone improvements (such as faster ladders) may be scheduled between 
 - Preserve the current M04 drum, hooks, anchors, routing gestures, connecting rod and models. **Do not roll back or replace the implemented cable infrastructure**; overhead mounting and powered motion are future additive work.
 - Leave room beneath the overhead assembly for an elevated rail's minecart to stop and **dump bulk freight into an upright mining skip below**, which a shaft hoist can move vertically. Exact transfer mechanics and headframe geometry are still to be designed.
 - A hand-operated overhead winch must have an accessible operating position; a later coal engine attachment should fit the same assembly. Other mounting configurations need not be prohibited merely because overhead is the normal layout.
-- **Unresolved:** the present route ends in a loose cable hook. Decide a mechanically sensible winding/reversal/return arrangement without dismantling anchors or changing the established look and placement interaction before authorizing the hauling milestone.
-
-- **Rules and usability:** selective redstone-system redesign, guidebook, cargo visuals and player-facing text polish.
+- **M05 design direction:** preserve the open-ended construction route and add a reversible closed loop with an offset return strand and terminal pulley. Specific pulley conversion and cable-routing edge cases are detailed in the M05 brief; they must preserve existing anchors and the loose hook.
 
 Full design context lives in [BACKLOG.md](BACKLOG.md), confirmed implementation choices in [DECISIONS.md](DECISIONS.md), and the running visible-text cleanup list in [UX_TEXT_LOG.md](UX_TEXT_LOG.md).
 
@@ -50,7 +55,7 @@ Record reproducible defects here as they are noticed. This list is **not** permi
 
 | ID | Area | Observed problem | Evidence / suggested check | Status |
 |---|---|---|---|---|
-| BUG-001 | M04 cable drum — side geometry | **Ghosting / flickering stripe-like texture artifacts** on the side of the drum/frame, particularly around the angled side panels. | Close-up screenshot shared by the owner in chat. Inspect the in-game model and source Blockbench geometry at several angles for overlapping or nearly coplanar faces (**possible z-fighting; unconfirmed**) and for UV/rendering overlap. Verify visually in the actual client before closing. | **OPEN — cosmetic; cause unconfirmed** |
+| BUG-001 | M04 cable drum — side geometry | **Ghosting / flickering stripe-like texture artifacts** on the side of the drum/frame, particularly around the angled side panels. | Close-up screenshot shared by the owner in chat. Inspect the in-game model and source Blockbench geometry at several angles for overlapping or nearly coplanar faces (**possible z-fighting; unconfirmed**) and for UV/rendering overlap. Verify visually in the actual client before closing. | **OPEN — targeted for M05; cause unconfirmed** |
 
 Keep bugs open until the fix is observed in game. Do not conflate completion of tests with confirmation that a visual defect is gone.
 
@@ -58,7 +63,7 @@ Keep bugs open until the fix is observed in game. Do not conflate completion of 
 
 This is the **shared handoff between Claude Code, ChatGPT and the project owner**. At the end of **each authorized milestone**, Claude updates this section **in the repository**, not only in its chat. A checked box means that named party performed that check; it is not a substitute for the checks below. Claude can add brief notes and links. After independent review and owner acceptance, keep one compact receipt in the history table and reset this checklist for the next authorized milestone. Do not start another milestone automatically.
 
-**Milestone being handed off:** _Next authorized implementation milestone — to be filled in by Claude._
+**Milestone being handed off:** **M05 — reversible cable haulage, Cobblestone Engine, hand crank and BUG-001** ([brief](MILESTONE_05.md)); implementation not yet started/verified.
 
 - [ ] **Claude — code committed and pushed to `main`.** Implementation commit SHA(s): `—` (link to commits; use **code commit**, not a subsequent roadmap-only commit).
 - [ ] **Claude — tests and closeout report recorded.** Report: `—` · Tests run/results: `—` · Not tested/known issues: `—`.

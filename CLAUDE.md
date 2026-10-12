@@ -1,6 +1,6 @@
 # Instructions for Claude Code — Minecraft Overhaul
 
-Read `docs/VISION.md`, `docs/DESIGN_REGISTER.md`, `docs/DECISIONS.md`, and `docs/ROADMAP.md` before working. Then read the **latest milestone explicitly authorized by the owner**, its specification/report, and any checkpoint. M01-M03 are shipped; M04 has an implementation and report in `docs/MILESTONE_04.md` and `docs/MILESTONE_04_REPORT.md`, awaiting owner acceptance. The roadmap is planning context and contains the **shared milestone commit handoff**, not authorization to implement the next milestone. Editable models are in `art/blockbench/`. Preserve the owner's M03 clarification: the vanilla minecart itself is the cargo cart.
+Read `docs/VISION.md`, `docs/DESIGN_REGISTER.md`, `docs/DECISIONS.md`, and `docs/ROADMAP.md` before working. **The owner has explicitly scoped M05** in `docs/MILESTONE_05.md`: reversible cable-loop haulage, a drum crank by default, a Cobblestone Engine, and BUG-001. Implement it in separable, tested work packages; do not add skips, counterweights, coal-powered winch attachments or extreme rails. M01-M03 are shipped; M04 has an implementation and report in `docs/MILESTONE_04.md` and `docs/MILESTONE_04_REPORT.md`, with owner acceptance not yet formally marked. Preserve M04's current parts, routing gestures and appearance, and the owner's M03 clarification: the vanilla minecart is the cargo cart. The roadmap is planning context and contains the shared milestone commit handoff. Editable models are in `art/blockbench/`.
 
 ## Priority and scope
 
