@@ -2,7 +2,7 @@
 
 A stripped-down Minecraft Java Edition overhaul built around hostile nights, territory, mining and physical transport infrastructure. See [`docs/VISION.md`](docs/VISION.md) for the design and [`CLAUDE.md`](CLAUDE.md) for the working rules.
 
-**Status:** Milestones 01 (Survival Foundation) and 02 (World, Night, Inventory) are done: see [`docs/MILESTONE_01_REPORT.md`](docs/MILESTONE_01_REPORT.md) and [`docs/MILESTONE_02_REPORT.md`](docs/MILESTONE_02_REPORT.md). Milestone 03 (minecart cargo and storage-bypass closure) is reported in [`docs/MILESTONE_03_REPORT.md`](docs/MILESTONE_03_REPORT.md).
+**Status:** Milestones 01 (Survival Foundation) and 02 (World, Night, Inventory) are done: see [`docs/MILESTONE_01_REPORT.md`](docs/MILESTONE_01_REPORT.md) and [`docs/MILESTONE_02_REPORT.md`](docs/MILESTONE_02_REPORT.md). Milestone 03 (minecart cargo and storage-bypass closure) is reported in [`docs/MILESTONE_03_REPORT.md`](docs/MILESTONE_03_REPORT.md). Milestone 04 (cable infrastructure) is reported in [`docs/MILESTONE_04_REPORT.md`](docs/MILESTONE_04_REPORT.md).
 
 **Fresh worlds only.** The mod is not meant to be added to existing saves.
 
@@ -50,6 +50,19 @@ See [`docs/MILESTONE_03.md`](docs/MILESTONE_03.md) and, for how it differs from 
 Provisional numbers (ore amounts, deposit shapes, the diamond share) are in one table, `tuning/Tuning.java`. To change one in a game, copy its line from `config/simple_block/tuning-defaults.json` into `config/simple_block/tuning.json` and restart; worldgen values affect newly generated chunks.
 
 Each feature is self-contained. To revert one, remove its mixin entries from `src/main/resources/simple_block.mixins.json` and its files listed above (plus its `register()` call in `SimpleBlock`).
+
+## What Milestone 04 adds
+
+See [`docs/MILESTONE_04.md`](docs/MILESTONE_04.md) and, for the choices made where the brief left room, [`docs/DECISIONS.md`](docs/DECISIONS.md). Nothing moves yet: the cable doesn't run and the rod doesn't pull carts (later milestones).
+
+| Component | What it does | Where |
+|---|---|---|
+| Cable and cable coils | Cable (4 blocks of it per item; 3 iron nuggets + string make 2) combines into coils of 8 (32 blocks) and back. | `cable/CableContent`, `data/simple_block/recipe` |
+| Cable drum | Placed like a block (recipe: empty top row; stick, iron, stick; plank, iron, plank). Use a coil on it to wind the cable on (up to 128 blocks): the barrel shows cable and the loose end with its hook hangs at its foot. | `cable/CableDrumBlock`, `CableDrumBlockEntity`, client `cable/CableDrumRenderer` |
+| Copper cable anchor | Hangs only under wooden blocks (logs, planks, wooden slabs, stairs and fences, bamboo) that offer their underside, and drops when that block goes. Carries one cable on a roller; no collision. | `cable/CableAnchorBlock`, `#simple_block:cable_anchor_supports` |
+| Laying cable | Use the hook to pick up the end; it follows your hand like a lead. Use anchors in turn to run the cable through them: each straight span (at most 12 blocks, clear of solid blocks) uses its length off the drum. Use the drum or the last anchor to put the end down. Wind on more coils and carry on to extend. Sneak + use an anchor to disconnect from there on, sneak + use the drum to wind everything back and then take the cable off as coils; breaking an anchor or the drum does the same. | `cable/CableRoutes`, `cable/CableHook`, client `cable/CableHookRenderer` |
+| Copper connecting rod | Use it on a minecart to fit it (sneak + use takes it off once the cart is empty). Under a laid cable, 1.5 to 3 blocks above the rail, it reaches up and grips it, rolls past the anchors, and lets go where the cable ends. | `cable/ConnectingRods`, `mixin/minecart/MinecartMixin`, client `CargoMinecartRenderer` |
+| Models | Editable Blockbench sources with UV-template textures for you to paint: `art/blockbench/` (see its README). | `art/blockbench/*.bbmodel`, `assets/simple_block/{models,textures,blockstates,items}` |
 
 ## Toolchain
 

@@ -1,11 +1,11 @@
 # Instructions for Claude Code — Minecraft Overhaul
 
-Read `docs/VISION.md`, `docs/DESIGN_REGISTER.md` and `docs/DECISIONS.md`, then the current milestone's documents: `docs/MILESTONE_03.md` with `docs/M03_TEST_PLAN.md`, and `docs/ROADMAP.md` for context only (Milestones 01 and 02 are complete and must keep working; their reports are `docs/MILESTONE_01_REPORT.md` and `docs/MILESTONE_02_REPORT.md`). The owner's Milestone 03 clarification in `docs/DECISIONS.md` (the vanilla minecart is the cargo cart; no separate freight cart) overrides the spec where they differ. If a `docs/MILESTONE_0N_CHECKPOINT.md` exists for the current milestone, read it first: it records what is done and the next steps.
+Read `docs/VISION.md`, `docs/DESIGN_REGISTER.md` and `docs/DECISIONS.md`, then the current milestone's documents: `docs/MILESTONE_04.md` (the owner's brief, verbatim; its test matrix is in `docs/MILESTONE_04_REPORT.md`), and `docs/ROADMAP.md` for context only (Milestones 01-03 are complete and must keep working; their reports are `docs/MILESTONE_01_REPORT.md`, `docs/MILESTONE_02_REPORT.md` and `docs/MILESTONE_03_REPORT.md`). The owner's Milestone 03 clarification in `docs/DECISIONS.md` (the vanilla minecart is the cargo cart; no separate freight cart) still stands. M04's provisional choices and open questions are in `docs/DECISIONS.md`; editable models are in `art/blockbench/` (see its README). If a `docs/MILESTONE_0N_CHECKPOINT.md` exists for the current milestone, read it first: it records what is done and the next steps.
 
 ## Priority and scope
 
 1. The user's current direct instructions take priority.
-2. The current milestone's documents define the **only authorized implementation scope**. Now that is Milestone 03: `docs/MILESTONE_03.md` with `docs/M03_TEST_PLAN.md`, as clarified in `docs/DECISIONS.md`. Milestone 01's and 02's rules stay in force.
+2. The current milestone's documents define the **only authorized implementation scope**. Now that is Milestone 04: `docs/MILESTONE_04.md`. Milestones 01-03's rules stay in force.
 3. `docs/DESIGN_REGISTER.md` provides future context and decision status, **not permission to implement future systems**.
 4. `docs/VISION.md` is a design guide, not a technical specification.
 5. If documents conflict, flag the conflict and prefer the narrowest interpretation that satisfies the current milestone in a fresh world.
@@ -33,7 +33,7 @@ Before changing code:
 
 ## Verification
 
-- Keep the milestone's test matrix (`docs/TEST_CHECKLIST_01.md`, and for Milestone 02 the matrix in `docs/MILESTONE_02_REPORT.md`) filled in with PASS, FAIL, or NOT RUN and evidence.
+- Keep the milestone's test matrix (`docs/TEST_CHECKLIST_01.md`, and for Milestones 02-04 the matrix in that milestone's report) filled in with PASS, FAIL, or NOT RUN and evidence.
 - A successful compile alone is not proof of in-game behavior.
 - Report which checks were actually run (build, dev client, integrated server, dedicated server, manual checks), and which were not.
 - If running Minecraft is unavailable, provide exact local testing instructions and honestly report incomplete validation.

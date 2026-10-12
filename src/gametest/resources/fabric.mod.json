@@ -24,10 +24,12 @@
 			"io.github.boxofdog.simpleblock.gametest.FoodGameTests",
 			"io.github.boxofdog.simpleblock.gametest.MinecartCargoGameTests",
 			"io.github.boxofdog.simpleblock.gametest.MinecartCushionGameTests",
-			"io.github.boxofdog.simpleblock.gametest.StorageBypassGameTests"
+			"io.github.boxofdog.simpleblock.gametest.StorageBypassGameTests",
+			"io.github.boxofdog.simpleblock.gametest.CableGameTests"
 		],
 		"fabric-client-gametest": [
-			"io.github.boxofdog.simpleblock.gametest.client.SurvivalSmokeClientTest"
+			"io.github.boxofdog.simpleblock.gametest.client.SurvivalSmokeClientTest",
+			"io.github.boxofdog.simpleblock.gametest.client.CableClientTest"
 		]
 	},
 	"depends": {

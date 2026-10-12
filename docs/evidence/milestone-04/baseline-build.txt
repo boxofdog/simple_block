@@ -1,0 +1,12 @@
+# Milestone 04 baseline (before any M04 code), 2026-10-12T02:00Z
+git HEAD: a36d9eb (Cushions make a minecart a passenger cart); tree clean
+minecraft_version=26.3
+loader_version=0.19.5
+loom_version=1.18.4
+fabric_api_version=0.162.0+26.3
+mod_version=0.1.0
+gradle wrapper: gradle-9.7.1-bin.zip
+java: openjdk 25.0.4.1
+cable code before M04: none (no blocks, items, entities, block entities or assets of the mod's own)
+
+./gradlew build: "All 85 required tests passed :)", BUILD SUCCESSFUL in 1m 9s
