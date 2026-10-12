@@ -1,6 +1,6 @@
 # Milestone 03 report: Minecart cargo and storage-bypass closure
 
-Scope: `docs/MILESTONE_03.md` and `docs/M03_TEST_PLAN.md`, **as clarified by the owner during the session** (section 2). Implemented and tested; not playtested by a person yet.
+Scope: the original M03 handoff and test plan, **as clarified by the owner during the session** (section 2). Implemented and tested; not playtested by a person yet. This is the retained closeout record; the superseded original handoff and test plan are preserved in Git history, not the active docs tree.
 
 - **Tests:** 80 required server game tests pass in `./gradlew build`. That is 65 from Milestones 01 and 02 (including vanilla's built-in one) plus 15 new ones in `MinecartCargoGameTests` and `StorageBypassGameTests`. Three extra repeats of the cargo tests passed.
 - **Negative control:** with the M03 hooks removed, every restriction test fails and the pack-animal regression test still passes.
@@ -81,7 +81,7 @@ There are no new blocks, items, entities, textures or models. The vanilla mineca
 - **Pack animals:** donkeys, mules and llamas still take a chest, open, hold items and can be ridden.
 - **Hoppers and the cargo cart:** a hopper under a loaded cart takes nothing. Automatic loading and unloading is out of scope.
 
-## 5. Test matrix (`docs/M03_TEST_PLAN.md`)
+## 5. Test matrix (original M03 test plan; archived in Git history)
 
 Methods:
 - **GT:** server game test in `./gradlew build`.
