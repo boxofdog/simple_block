@@ -9,7 +9,7 @@ Ideas here are **not approved implementation tasks**. The short [roadmap](ROADMA
 | I-001 | Developed smithy: forge tool components at an anvil, assemble at crafting table; avoid making first iron tools depend on a 31-ingot anvil | Brainstorm | DESIGN | Separate future design conversation |
 | I-002 | Anvils should be effectively permanent under ordinary use, with a cost appropriate to usefulness | Brainstorm | DESIGN | Decide when metalworking is scoped |
 | I-003 | Broader inventory/world-content cleanup beyond the four confirmed rock variants | Brainstorm | PARKED | Specify exact block list before approving |
-| I-004 | **Modular workwear redesign:** retire gold/chainmail; copper Headlamp, one-piece Overalls occupying chest AND legs (+9 slots, low protection). **Spiked Boots alone: Spelunker's Speed**, replaced in full outfit by **Trail Blazer** (climbing + yellow/blue outlines + skeleton aim reduction). **Mining Boots alone: Mule** (overweight carrying with slowdown), replaced in full outfit by **Old Pro** (retains carrying and adds offhand pickaxe mining plus bottom-edge warning ONLY for hostile monsters behind within 20 blocks and with direct eye-line to Steve's second-block-high neck). Prior +5% mining-speed idea superseded. | Owner-approved future direction; detailed tuning pending | PARTIALLY SCOPED — not implemented | Define headlamp lighting, recipes/stats, safe two-slot equip/backpack, offhand mining, rear-angle/neck ray detail, Trail Blazer and balance |
+| I-004 | **Modular workwear redesign:** retire gold/chainmail; copper Headlamp, one-piece Overalls occupying chest AND legs (+9 slots, low protection). **Spiked Boots alone: Spelunker's Speed**, replaced in full outfit by **Trail Blazer** (climbing + yellow/blue outlines + skeleton aim reduction). **Mining Boots alone: Mule** (overweight carrying with slowdown), replaced in full outfit by **Old Pro** (retains carrying and adds offhand pickaxe mining plus bottom-edge warning ONLY for hostile monsters behind within 20 blocks and with direct eye-line to Steve's second-block-high neck). Prior +5% mining-speed idea superseded. | Owner-approved future direction; detailed tuning pending | PARTIALLY SCOPED — not implemented | Shaped recipes settled; determine headlamp lighting, output counts/stats, safe two-slot equip/backpack, offhand mining, rear-angle/neck ray detail, Trail Blazer and balance |
 | I-005 | **Rope + Spelunker's Rope:** three vertical strings craft rope; rope under an existing copper cable anchor crafts a mountable Spelunker's Rope. Attach beneath or beside a block, hang vertically in open air, hold right-click with rope to extend by 12-block lengths, and coil extra length on ground. Climbable temporary cave access, not a moving haulage cable. | Owner-approved future feature | SCOPED — not implemented | Detail climb speed, exact consumption/yield, retrieval, clipping/support failure and coil behavior only when preparing its later milestone |
 | I-006 | **Faster ladders**; ordinary vertical movement should not be so tedious | Owner-approved future improvement | DESIGN | Choose climb speed and verify interactions with ropes, shafts, and skips |
 | I-007 | **Alluvial iron sand and iron gravel**, naturally occurring at appropriate riverbanks; require new original textures. This is a proposed additional deposit *form* beyond M02's existing alluvial enrichment, not an amendment to M02. | BTA-inspired prospecting discussion; owner-approved future direction | DESIGN | Design finite deposits and extraction/processing; reconcile surface iron availability with iron demand and huge mountain veins |
@@ -22,7 +22,47 @@ Ideas here are **not approved implementation tasks**. The short [roadmap](ROADMA
 - **Chest + legs:** **ONE Overalls item** simultaneously occupies/reserves both chest AND leggings slots; it blocks combining backpack capacity with either conventional chest or leg armor. It restores the missing nine slots (**27 → 36 total**) and offers at most the combined protection of leather chestplate and leggings. Dual-slot equipping is settled as a design rule, with implementation details pending.
 - **Feet (choose one):** **Spiked Boots** grant **Spelunker's Speed** for faster rope/ladder climbing; **Mining Boots** grant **Mule**, allowing heavy loads past 64 units with progressive movement slowdown. Each works without other workwear; neither grants backpack inventory slots. Their displayed boots-only bonus is replaced by Trail Blazer or Old Pro respectively when the complete matching outfit is worn, preserving the base function without duplicate modifiers.
 
-Both boots work with the same overalls, so users can change specialization with **one equipment swap** rather than replacing an entire outfit. **Spiked Boots alone display Spelunker's Speed; full Headlamp + Overalls + Spiked Boots replaces that displayed effect with one named bonus, Trail Blazer**, keeping faster climbing (no double multiplier), adding reduced skeleton firing accuracy and subtle through-wall outlines of nearby torches, ladders and ropes (**yellow** player-placed, **blue** world-generated). **Mining Boots alone display Mule** (heavy-item overload with progressive speed penalties); **full Headlamp + Overalls + Mining Boots replaces the displayed Mule effect with Old Pro**, retaining overweight carrying while enabling pickaxe block mining from the offhand as the main hand remains free for combat/chopping, and producing a **red bottom-screen-edge glow ONLY for a hostile monster behind the player within 20 blocks with a direct unobstructed eye-line to Steve's second-block-high upper body/neck**. Do not warn for monsters hidden behind solid walls. No free offhand combat, double mining rate or omnidirectional enemy radar. The previous tentative **+5% mining speed is superseded**. Full-set effects disappear as soon as any required piece is removed. Gold and chainmail disappear from normal creative/survival play with safe treatment of old registry IDs. Exact rear-angle/upper-body ray target height, offhand mining controls, skeleton penalty, visualization range/fade, provenance tracking/fallback, recipes and safe overalls-backpack unequip are left to a dedicated future armor brief; M05/M06 remain untouched.
+Both boots work with the same overalls, so users can change specialization with **one equipment swap** rather than replacing an entire outfit. **Spiked Boots alone display Spelunker's Speed; full Headlamp + Overalls + Spiked Boots replaces that displayed effect with one named bonus, Trail Blazer**, keeping faster climbing (no double multiplier), adding reduced skeleton firing accuracy and subtle through-wall outlines of nearby torches, ladders and ropes (**yellow** player-placed, **blue** world-generated). **Mining Boots alone display Mule** (heavy-item overload with progressive speed penalties); **full Headlamp + Overalls + Mining Boots replaces the displayed Mule effect with Old Pro**, retaining overweight carrying while enabling pickaxe block mining from the offhand as the main hand remains free for combat/chopping, and producing a **red bottom-screen-edge glow ONLY for a hostile monster behind the player within 20 blocks with a direct unobstructed eye-line to Steve's second-block-high upper body/neck**. Do not warn for monsters hidden behind solid walls. No free offhand combat, double mining rate or omnidirectional enemy radar. The previous tentative **+5% mining speed is superseded**. Full-set effects disappear as soon as any required piece is removed. Gold and chainmail disappear from normal creative/survival play with safe treatment of old registry IDs. Exact rear-angle/upper-body ray target height, offhand mining controls, skeleton penalty, visualization range/fade, provenance tracking/fallback, recipe output counts and safe overalls-backpack unequip are left to a dedicated future armor brief; M05/M06 remain untouched.
+
+#### Workwear shaped crafting recipes — settled
+
+#### Exact shaped workwear recipes (owner decision; not implemented)
+
+All four recipes are **shaped 3×3 crafting layouts**. The specified positions and empty slots matter; do not convert these to shapeless crafting recipes. "Chest" means the **ordinary vanilla chest block/item**; "leather pants" means **vanilla leather leggings**. Reuse vanilla copper ingot, torch, string, leather armor, pointed dripstone and iron ingot; no additional intermediate ingredients.
+
+**Headlamp** — 5 copper ingots and 1 torch:
+
+```text
+[copper ingot] [copper ingot] [copper ingot]
+[copper ingot] [torch]        [copper ingot]
+[empty]        [empty]        [empty]
+```
+
+**Overalls** — 2 string, 1 vanilla chest, 1 leather chestplate, 1 leather leggings:
+
+```text
+[string] [chest]              [string]
+[empty]  [leather chestplate] [empty]
+[empty]  [leather leggings]   [empty]
+```
+
+**Spiked Boots** — 1 leather boots, 1 pointed dripstone underneath:
+
+```text
+[empty] [empty]            [empty]
+[empty] [leather boots]    [empty]
+[empty] [pointed dripstone][empty]
+```
+
+**Mining Boots** — 1 leather boots, 1 iron ingot underneath:
+
+```text
+[empty] [empty]         [empty]
+[empty] [leather boots] [empty]
+[empty] [iron ingot]    [empty]
+```
+
+Recipe layouts and components are settled. The number of output items per craft is not explicitly set here; default crafting behavior may be proposed in the future milestone brief. Headlamp's torch ingredient does not itself decide illumination mechanics or fuel consumption, which remain open. Overalls still occupy BOTH chest and leggings slots simultaneously.
 
 ### I-005 — Spelunker's Rope recipe and placement direction
 
