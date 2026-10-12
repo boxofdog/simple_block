@@ -10,11 +10,22 @@ Ideas here are **not approved implementation tasks**. The short [roadmap](ROADMA
 | I-002 | Anvils should be effectively permanent under ordinary use, with a cost appropriate to usefulness | Brainstorm | DESIGN | Decide when metalworking is scoped |
 | I-003 | Broader inventory/world-content cleanup beyond the four confirmed rock variants | Brainstorm | PARKED | Specify exact block list before approving |
 | I-004 | **Redesign armor from first principles:** make conventional armor progression effectively inaccessible; create genuinely distinct preparation/loadouts for spelunking, raiding/combat, and mining. Do not assume vanilla or BTA armor rebalance. | BTA comparison; owner-approved future direction | DESIGN | Define protective roles, crafting/acquisition, weight and equipment interactions in a separate design pass |
-| I-005 | **Climbable ropes** for early exploration, cave access, and temporary descent; complement, rather than replace, developed shafts | BTA inspiration; owner-approved future feature | DESIGN | Specify placement, retrieval, traversal, and crafting |
+| I-005 | **Rope + Spelunker's Rope:** three vertical strings craft rope; rope under an existing copper cable anchor crafts a mountable Spelunker's Rope. Attach beneath or beside a block, hang vertically in open air, hold right-click with rope to extend by 12-block lengths, and coil extra length on ground. Climbable temporary cave access, not a moving haulage cable. | Owner-approved future feature | SCOPED — not implemented | Detail climb speed, exact consumption/yield, retrieval, clipping/support failure and coil behavior only when preparing its later milestone |
 | I-006 | **Faster ladders**; ordinary vertical movement should not be so tedious | Owner-approved future improvement | DESIGN | Choose climb speed and verify interactions with ropes, shafts, and skips |
 | I-007 | **Alluvial iron sand and iron gravel**, naturally occurring at appropriate riverbanks; require new original textures. This is a proposed additional deposit *form* beyond M02's existing alluvial enrichment, not an amendment to M02. | BTA-inspired prospecting discussion; owner-approved future direction | DESIGN | Design finite deposits and extraction/processing; reconcile surface iron availability with iron demand and huge mountain veins |
 | I-008 | **Steel** as a crafted/manufactured material with a distinctive purpose, using a production system of our own design rather than BTA's | BTA inspiration; owner-approved future direction | DESIGN | Decide properties, production chain, and smithy/anvil integration |
 | I-009 | **Recipe guide / guidebook** for learning about tools, materials, and machines as the player discovers them | BTA inspiration; owner-approved future feature | DESIGN | Decide discovery presentation, recipe navigation, and whether any unlock restrictions exist (none assumed) |
+
+### I-005 — Spelunker's Rope recipe and placement direction
+
+```text
+Rope:                      Spelunker's Rope:
+[empty][string][empty]     [empty][empty][empty]
+[empty][string][empty]     [empty][copper anchor][empty]
+[empty][string][empty]     [empty][rope][empty]
+```
+
+The anchor is the existing copper cable anchor item used as a crafting ingredient; the finished Spelunker's Rope may attach to a block's underside or side. Its hanging rope drops vertically with no intermediate blocks. Holding use with additional rope extends the line in 12-block increments; on reaching ground, excess rope coils visibly on the ground block. Avoid conflating this with the moving overhead haulage cable. Exact recipe output count, extension costs, climb/retrieval controls and block-obstruction behavior have not been chosen; they may be resolved in a separate implementation brief. No authority to implement during M05.
 
 ## Future design backlog — inhabited villages
 
