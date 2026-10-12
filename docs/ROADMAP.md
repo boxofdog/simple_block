@@ -26,7 +26,7 @@ M05 is a larger combined milestone specifically requested by the owner, **not** 
 |---|---|---|
 | Later | **Coal-powered winch attachment** | Upgrade the existing hand winch with localized fuel power; no generalized network. |
 | Later | **Refined train coupling and operation** | Expand/adjust only after M05's minimum viable consist can push and pull. |
-| Later | **Incline counterweights and upright mining skips** | Skip shape, recipe, 512 capacity, built-in chute and two-line hoist hookup now specified below. Vertical lifting, safe reset, guided shafts and freight-transfer implementation remain separate; connect to the mine-to-smelter flow. |
+| Later | **Incline counterweights and upright mining skips** | Skip upright dimensions, recipe, 512 capacity, built-in chute and single-line hoist with triangular bridle now specified below. Vertical lifting, safe reset, guided shafts and freight-transfer implementation remain separate; connect to the mine-to-smelter flow. |
 | Later | **Bulk ore transfer and large smelter** | Gravity-charge raw ore from a minecart or vertical skip into a substantial smelter's hopper. Remove the vanilla blast furnace and slow ordinary-furnace raw-ore processing to make bulk smelting worthwhile. Details below; do not start within M05. |
 | Later | **Extreme-grade rails and downhill crashes** | Design three-block rises/drops and consequences separately. |
 | Later | **Full mining/logistics playtest** | Once powered rail haulage and vertical transport make a representative loop possible. |
@@ -50,19 +50,19 @@ Small standalone improvements (such as faster ladders) may be scheduled between 
 
 ### Upright mining skip — specified physical form (owner-approved direction; not authorized)
 
-- **Size and clearance:** skip body is **three blocks high, 1×3 in footprint**; four blocks of clearance are needed so its top loading door can unfold toward the loading track. The **upper two blocks** are the ore container and the **bottom block** houses a built-in angled discharge chute. No extra unloading station/chute block is required.
+- **Size and clearance:** skip body is **one block wide and three blocks tall** (NOT a 1×3 horizontal footprint); it needs **four blocks of vertical clearance** so its top loading door can unfold toward the loading track. Its horizontal depth and precise collision shape have not been finalized. The **upper two blocks** are the ore container and the **bottom block** houses a built-in angled discharge chute. No extra unloading station/chute block is required.
 - **Capacity:** **512 units** of ore. Exact mixed/single-material rules need confirmation.
 - **Crafting recipe** (shaped):
 
   ```text
   [empty] [cable]         [empty]
-  [iron]  [iron trapdoor] [iron]
-  [empty] [minecart]      [empty]
+  [empty] [iron trapdoor] [empty]
+  [iron]  [minecart]      [iron]
   ```
 
 - **Physical freight transfer:** a specially designated load/unload track is itself the interface. A cart above the skip empties downward through the opening; a cart aligned beside it receives ore from the skip's permanent chute. Do not require a separately built station or receiver to transfer freight.
-- **Cable attachment:** right-click the skip with the existing cable's loose hook to attach it; the connection displays **two upward cable runs** flanking the ore-loading side, continuing to an existing overhead guide wheel supplied from a higher winch. Details of one-line-to-two suspension, paying out/consuming cable, and guide construction are open; do not invent unaccounted-for free cable.
-- **Not M05 work.** Need a later design/implementation brief for real lifting, braking, stations/rail trigger details and world-collision/guide behavior. Confirm whether the stated **1×3 footprint** runs along or across the adjacent track and precisely how the fourth clearance block is used before building models or collision boxes.
+- **Cable attachment:** right-click the skip with the existing cable's loose hook to attach it; the connection creates a **triangular two-leg suspension bridle**, anchored to either side of the skip's ore intake and converging to **one attachment point above the skip**. From that apex, **one main hoisting cable** rises to the existing overhead guide wheel and onward to a higher winch. The visible bridle appears as part of the hook-attachment gesture; its material accounting and clearance still need design. Do not assume two independent cables running to the wheel or invent unaccounted-for free cable.
+- **Not M05 work.** Need a later design/implementation brief for real lifting, braking, stations/rail trigger details and world-collision/guide behavior. The footprint was clarified to **one block wide, three blocks tall**; settle its horizontal depth, collision envelope and unfolded-door clearance before building models or collision boxes.
 
 ### Future bulk ore smelting and freight transfer (owner-approved direction; not authorized)
 
