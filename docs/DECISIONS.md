@@ -1,146 +1,185 @@
-# Decision Log and Supersessions
+# Simple Block — Decisions
 
-This record prevents older brainstorming ideas and assistant proposals from accidentally becoming requirements.
+**Purpose:** The current decision record, ordered by development stage. Read this alongside [ROADMAP.md](ROADMAP.md) (progress and priorities) and the relevant milestone specification/report (full implementation and tests).
 
-## Changes that supersede earlier ideas
+**Authority:** An item here documents a decision; it does **not** authorize implementation. Only the owner's explicitly approved milestone brief does that. **Implemented** describes the existing code, not necessarily owner acceptance. **Direction** is an agreed goal whose detailed mechanics remain to be designed. **Provisional** means a working implementation choice, not an immutable design rule. **Open** means no settled answer. Superseded ideas are isolated at the end.
 
-| Earlier concept | Current direction |
+## 0. Project-wide rules
+
+- **Addition by subtraction:** prefer useful extensions to existing Minecraft objects over redundant new items, chores or systems.
+- **Physical logistics:** geography, mine locations, rail networks and permanent infrastructure should matter.
+- **Localized machinery, not a generic power grid:** manual effort, coal and gravity can power purpose-built devices; do not introduce an electrical network or Create-style universal rotation system just because a machine has a crank.
+- **Fresh worlds only:** no save migrations or old-world compatibility requirements.
+- **Scope control:** implement only the current owner-authorized milestone, protect delivered behavior and report unapproved changes instead of making them silently.
+- **Assets:** new models must have editable Blockbench sources and paintable UVs; placeholder UV templates are not the owner's finished textures.
+
+## 1. M01 — Survival foundation (shipped)
+
+### Owner requirements and delivered behavior
+
+| Area | Current behavior |
 |---|---|
-| Iron exclusively in selected biomes | Small amounts broadly available underground; rich deposits biased to selected biomes. |
-| Hostiles attracted to particular torches/lantern blocks | Hostiles attracted to illuminated **areas**. |
-| Delete every item once associated with redstone | Remove circuitry; keep/rework useful mechanics such as hoppers and compasses. |
-| Sideways skip that rotates upright after loading | Skip **always upright**, sitting below an elevated rail-dumping point. |
-| Traction cable at rail level | **Overhead mechanical hauling cable** with cart connecting arm; not electricity. |
-| Timber support required to avoid cave-ins | Timber support useful as mechanical infrastructure; no arbitrary collapse penalty. |
-| Freight through chest minecarts | Open-top cargo carts show their actual load. |
-| Begin with full freight cart prototype | **Begin with small vanilla survival-rule changes**; freight cart is later first major custom addition. |
+| Nights and beds | Beds still allow lying down and setting spawn, but cannot advance time or weather. Applies across dimensions; vanilla Nether/End bed explosions are unaffected. |
+| Phantoms | No normal natural phantom spawning. |
+| Elytra | Gliding is blocked, including items with Minecraft's glider component. End ships do not generate the displayed elytra item frame. Creative flight remains possible. |
+| Shulker boxes | Ordinary acquisition and use are disabled; failed use gives action-bar feedback. |
+| Recipes | Removed vanilla recipes use Fabric data conditions, including their recipe-book advancements. |
 
-## Accepted development decisions
+### Implementation baseline
 
-- Keep a single consolidated register of design intent, with decided vs proposed labels.
-- Start with changes that are isolated and testable.
-- Read and respect the existing repository configuration rather than importing assumptions from brainstorming.
-- Future models must be editable in Blockbench and textures paintable by the user.
-- No significant future transport or worldgen implementation in Milestone 01.
-- **Fresh-world-only scope:** No existing-save compatibility, save migration, or legacy inventory recovery is required.
+- Minecraft Java **26.3**, Fabric Loader **0.19.5**, Fabric API **0.162.0+26.3**, Loom **1.18.4**, Gradle **9.7.1**, JDK **25**; version details describe the original delivered toolchain, not a promise to avoid future upgrades.
+- Mod ID `simple_block` and display name **Simple Block** originated as provisional project identifiers. Rename deliberately before release if desired.
+- The existing bed screen uses the vanilla leave-bed interaction rather than silently forcing players out. See [MILESTONE_01_REPORT.md](MILESTONE_01_REPORT.md) for tests and exact handling.
 
-## Important unresolved issues
+### M01 consequences still awaiting a separate decision
 
-- Actual Minecraft version, mod loader, mapping set, JDK: **discover from repo**.
-- Mod name and ID: retain from repo if set; otherwise use an explicitly marked provisional choice.
-- What a bed should do in specific edge conditions; first milestone chooses simple spawn-setting/no-skip behavior in Overworld.
-- Whether to preserve phantom entities for commands/testing; normal survival must not spawn them.
-- Most numeric balance and asset architecture choices for later milestones.
+- Phantom membranes and related advancements/potions may become unavailable or harder to obtain without naturally spawning phantoms; the cat-gift route has not been verified here.
+- Shulker shells lose their normal survival purpose.
+- The elytra advancement becomes inaccessible through ordinary survival.
+- Some vanilla sleep/phantom game rules no longer affect the behaviors changed by Simple Block.
 
-## Rejected as automatic requirements
+These are **known side effects**, not permission to add replacement recipes or alter advancements.
 
-Suggestions made during earlier discussion (hand-winch operation time, continuous loop rope design, particular cargo capacities, and specific locomotive stats) are not binding until explicitly decided.
+## 2. M02 — Geology, survival pressure and inventory (shipped)
 
-## Milestone 01 implementation decisions (2026-10-11)
+### Owner decisions
 
-These answer the "discover from repo" items above. The repository was empty, so nothing could be discovered and a toolchain had to be chosen.
-
-| Topic | Decision | Why / how to change |
-|---|---|---|
-| Game version | Minecraft Java **26.3**, the latest release at the time | Current release; the official Fabric template targets it. 26.x requires Java 25 and ships unobfuscated, so there is no mappings layer. |
-| Loader | **Fabric** (Loader 0.19.5, API 0.162.0+26.3, Loom 1.18.4, Gradle 9.7.1) | Lightweight; the API covers elytra events, resource conditions and game tests. Switching loaders later means rewriting the mixins and the test harness. |
-| Mod ID / name | `simple_block` / "Simple Block": **provisional**, taken from the repository name | Rename in `fabric.mod.json`, `gradle.properties` and the Java package before any public release. |
-| Bed behaviour (SF-01) | Players can still lie down; the night and storms never pass. They see vanilla's "No amount of rest can pass this night" and leave with the Leave Bed button (or are woken at morning). This is the same as vanilla with `players_sleeping_percentage` above 100, enforced in code. | Keeps vanilla stats, the "Sweet Dreams" advancement and the bed screen. **Alternative:** never let players lie down at all (clicking only sets spawn). That's a small change if you prefer it. |
-| Night-skip scope | Disabled in every dimension, not only the Overworld | Nether/End beds explode before sleep is checked, so they are unaffected. Custom dimensions also can't skip nights. |
-| Gliding (SF-03) | All gliding is blocked, not only the vanilla elytra item | Also covers items given the `minecraft:glider` component by commands. Creative players can't glide either (creative flight is unaffected). |
-| End ship elytra | The item frame is not generated at all | An empty frame would only advertise a missing item. |
-| Shulker feedback | Action-bar message "Shulker boxes don't work in this world" (translation key `message.simple_block.shulker_box_disabled`, English fallback only) | No language file was added. |
-| Recipe removal | Data overrides using Fabric's `fabric:false` load condition | Removes the 17 vanilla recipes and their recipe-book advancements without code. |
-
-## Milestone 02 decisions by the user (2026-10-11)
-
-| Topic | Decision |
+| Area | Current decision |
 |---|---|
-| Heavy load materials | Diamond and netherite count towards the 64-ingot allowance, alongside iron, gold and copper. One diamond weighs like an ingot (ore 1, block 9, gear by diamonds used). Netherite weighs like diamond: an ingot 1, a block 9, netherite gear what its diamond version weighs, not the 4 gold an ingot is made from. |
-| Light attraction (MOB-01) | Mobs head for the nearest lit area, then wander about it preferring lit ground, with no pull towards light sources or the brightest block. Active at Overworld night and, at any time of day, wherever the mob gets no sky light (caves at any depth, no fixed y). Not in the Nether or End, which have no sky light anywhere. |
-| Heavy load display | A bar without text in the inventory, filled per material in that material's colour (netherite has its own colour), so the player sees what the weight is made of. Hovering it shows the numbers: total out of 64 and each material's exact weight. |
+| Geology | Remove naturally occurring granite, diorite, andesite and tuff families where specified; retain stone/deepslate transitions and preserve useful world generation. |
+| Mining | Naturally generated plain deepslate and deepslate ores require iron-tier-or-better pickaxes; crafted/decorative deepslate variants keep their own vanilla requirements. |
+| Ore distribution | Some iron remains widely accessible; large rich deposits reward geography and exploration. Diamonds are substantially rarer. Exact generation settings and measurements are recorded in the M02 report. |
+| Carrying capacity | Player inventory has **27 usable slots**. Heavy iron, copper, gold, diamond and netherite share a **64 ingot-equivalent unit** limit, including the applicable blocks, ores, tools and armor. |
+| Diamond / netherite weight | A diamond counts like one ingot; a diamond block counts as nine. Netherite similarly counts by the diamond-equivalent weight of its gear rather than charging the gold/ingots used in fabrication. |
+| Weight UI | A material-colored, text-free bar communicates weight in the inventory; hover gives total out of 64 and a per-material breakdown. |
+| Mob attraction | Hostiles are drawn toward nearby **lit ground**, not individual torches or the brightest source. The system applies at Overworld night and underground where sky light is absent, including underground daytime; not the Nether/End. Pursuing a player takes precedence. |
+| Lighting and survival | Standard torches emit light level **12**; lanterns **15**. Zombies can threaten wooden doors while pursuing; creepers disappear in direct sunlight. Routine hunger exhaustion is reduced, and saturation is visibly shown. |
+| Inventory interaction | Inventory sorting and hotbar-first shift-click behavior preserve the constrained-carrying design. |
 
-## Milestone 03 decisions by the user (2026-10-11)
+### Later changes to the M02 implementation (delivered during M03)
 
-| Topic | Decision |
+- Inventory sort order is **top row first**, superseding the original bottom-row-first proposal.
+- The Sort control is an icon in an **8-pixel-high** frame aligned with the weight bar.
+- Straw beds, like other beds, cannot skip the night; this gained an explicit regression test.
+
+For exact ore distributions, AI tests, hunger tuning, weight mappings, and performance evidence, use [MILESTONE_02_REPORT.md](MILESTONE_02_REPORT.md), not outdated working-phase handoffs.
+
+## 3. M03 — Vanilla minecart overhaul (shipped)
+
+### Owner decisions
+
+| Area | Current decision |
 |---|---|
-| Freight cart = the minecart | **Supersedes the separate "freight cart" in the original M03 handoff (retained in Git history)** (FRT-01, FRT-11 "keep ordinary minecarts and introduce the new freight cart separately", T23). M03 overhauls the vanilla minecart itself: nobody sits in one without a cushion (a later milestone), and its job is to be filled with raw material: 256 of one kind. There is no new cart item, entity or recipe; the vanilla minecart recipe is unchanged. |
-| Capacity | 256 items of one kind per cart (starting playtest value). |
-| Storage bypasses | Ender chests and vanilla chest minecarts are removed from ordinary play; donkeys, mules and llamas keep their chests. |
-| Cushions (after the first M03 delivery) | Vanilla 26.3 cushions make a minecart a passenger cart. A cushion is a seat entity fixed to the block under it and can't ride along, so it becomes part of the minecart's own state: fitted by using a cushion on an empty cart, drawn inside it, taken out with sneak + use. This brings forward the roadmap's "passenger cushions" item. |
-| Straw beds | Like other beds, sleeping in one never skips the night. (Already true through SF-01's skip block, which is bed-type independent; now covered by a test.) |
-| Sort order | Sort fills the **top** storage row first, then the bottom row (supersedes the M02 spec's bottom-row-first). |
-| Sort button | Same profile and level as the heavy-load bar: an 8-pixel-high framed button at the right end of the covered row. |
+| Freight vehicle | **The existing vanilla minecart is the freight cart.** No separate freight minecart item/entity or recipe. This supersedes the original M03 brief, retained only in Git history. |
+| Capacity | Holds **256 of exactly one eligible bulk item type**, a playtestable starting value. |
+| Passenger use | Install a **vanilla 26.3 cushion** into an empty cart to enable riding and mob pickup; a cart without a cushion cannot take riders. Cushion and bulk cargo are mutually exclusive. |
+| Storage bypasses | Ender chests and ordinary chest minecarts cannot serve as portable storage; donkeys, mules and llamas retain their cargo role. |
+| Other variants | Furnace, hopper, TNT and other specialized cart variants were left unchanged by M03; future Cobblestone Engine work is a separate decision. |
 
-## Milestone 03 implementation choices (provisional, 2026-10-11)
+### Delivered interaction details (implementation choices)
 
-| Topic | Choice | Why / how to change |
-|---|---|---|
-| Riders | No player or mob gets into a minecart without a cushion: using it loads/unloads instead, and a rolling cart doesn't scoop up mobs. With a cushion fitted, riding (players, and mobs picked up by a rolling cart) works as in vanilla. Furnace, hopper, TNT, command-block and spawner minecarts are unchanged. | "Sitting without a cushion" covers mobs too; villager transport works again with a cushion. |
-| Cushioned carts | Fit: use a cushion on an empty cart (one is used up; a cart with cargo refuses it). A cushioned cart carries a rider, not cargo. Remove: sneak + use, not while someone sits in it; the cushion goes to the inventory or the player's feet. A destroyed cart drops its cushion. The cart stores only the colour (a custom name on the cushion item is not kept). | No new item: the minecart item stays plain, so a picked-up cart is always a cargo cart until a cushion is fitted again. |
-| Sort button look | No text: three rising bars as an icon, dark like the load bar, with a frame that lights up under the mouse; the tooltip says what it does. | Text does not fit in 8 pixels at the vanilla font size. |
-| Gesture | Use with cargo in hand loads it; use with an empty hand shows the cargo; **sneak + use unloads one stack**, whatever is in hand. | The spec's default (an empty hand unloads) puts the unloaded stack into that same empty hand, so the next click loads it straight back. |
-| Cargo list | `#simple_block:minecart_cargo`: raw iron/copper/gold, iron/copper/gold ores and their deepslate forms, coal, diamond, emerald, lapis lazuli, redstone, stone, cobblestone, deepslate, cobbled deepslate. Only component-free stacks. | One data tag; add or remove items there. Not included: gravel, dirt, sand, other ore blocks, Nether materials, blocks of metal, nuggets, ingots. |
-| Readout | A label over the cart while the player looks at it ("Raw Iron 180 / 256", or "Empty 0 / 256"), plus an action-bar message on every use. | M04 replaces the look; the label is a renderer override with no state of its own. |
-| Ender chest drops | Mining one always gives 8 obsidian, silk touch or not | The only natural ender chest is built into one End city floor template; this keeps it from becoming an item. |
-| Mineshaft chest minecarts | Kept as sealed loot: they don't open and hoppers can't reach them; breaking one spills the loot and drops a minecart and a chest. | Keeps mineshaft loot without changing world generation. |
+- Right-click with eligible cargo to load; empty-hand use inspects; **sneak + use** unloads one stack without bypassing inventory limits. `#simple_block:minecart_cargo` defines eligible material types.
+- Cushions fit only empty carts, are visible, and return on removal or cart destruction. A cushioned cart carries passengers instead of bulk cargo.
+- A broken cargo cart spills its contents into the world rather than storing them inside the dropped minecart item. Minecart storage survives world save/load.
+- Mineshaft loot chest minecarts remain sealed: they cannot open or feed hoppers, and breaking them spills loot plus a minecart and chest. Ender chests drop obsidian rather than becoming usable containers.
+- M03 introduced an on-look cargo readout and action-bar feedback. **Their presentation is slated for polish**, tracked in [UX_TEXT_LOG.md](UX_TEXT_LOG.md); the useful cargo information must not simply disappear.
+- Full eligible-item list, edge cases and test evidence: [MILESTONE_03_REPORT.md](MILESTONE_03_REPORT.md).
 
-## Cobblestone Engine design decisions (owner-approved direction; future milestone)
+## 4. M04 — Cable infrastructure (implemented; owner acceptance pending)
 
-- **Furnace installation:** Applying a normal furnace to an existing vanilla minecart converts it into a **Cobblestone Engine**. This is not a separate `minecart + furnace` crafting-table recipe and should not be presented as a vanilla furnace minecart.
-- **Appearance:** The Cobblestone Engine receives its own new model; retain an editable Blockbench source model and UV layout for owner-painted textures.
-- **Movement:** The engine uses coal and can move **bidirectionally**, either pulling or pushing a coupled train. Passenger carts, loaded freight carts and mixed consists are all valid; there is no categorical ban on hauling freight.
-- **Disassembly:** Breaking a Cobblestone Engine returns **one ordinary minecart and one ordinary furnace**, not a combined engine item.
-- **Traction niche:** The engine is suited to level track and gentler gradients; steep grade and heavy total train load severely limit traction. Stationary cable winches are intended for difficult incline sections, not general rail travel. Numerical physics and winch integration remain to be designed.
-- **Scope:** These are future design decisions, **not an instruction to add a Cobblestone Engine in M04**. M04's shipped cable-infrastructure behavior stays unchanged until a separately authorized milestone.
+### Owner-approved M04 scope
 
-### Minecart mass, rail grades, winch speed, and skips (owner-approved direction)
+- Fit an existing minecart with a **copper connecting rod** that engages overhead cable; supports and the rod/grip must be shaped to pass each other.
+- **Copper roller anchors** mount only beneath appropriate wooden blocks.
+- Cable is a finite craftable item bundled into **coils**. A coil applied to a placeable drum creates a loaded winch structure and a loose hooked cable end.
+- Pick up the end like a lead and route it from anchor to anchor; consume cable by length. Players can extend, disconnect and dismantle routes, including horizontal spans, turns and elevation changes.
+- Produce editable `.bbmodel` assets and UVs, **not** finished textures.
+- **M04 does not drive the cable, pull minecarts, implement engines or power, automate inclines, or build mining skips.**
 
-- **Minecarts are intrinsically heavy.** An *empty* iron minecart has meaningful mass and should already be difficult to haul up sustained grades; freight adds to that load. A multi-cart empty return train may still need an incline winch. Do not treat only cargo as weight.
-- **Cobblestone Engine performance:** A locomotive can haul substantial loads on well-engineered level lines, but grade sharply reduces what it can push or pull. Short ascents may be possible; sustained steep climbs, even with empty carts, become impractical. Model resistance using **cart base mass + carried cargo + number of carts + gradient** (and the engine's traction), not special freight-only movement bans.
-- **Winch speed versus gradient:** For *rail-bound minecart haulage*, steeper uphill gradients greatly reduce hauling speed; at extreme grades, moving loaded carts by winch should take a very long time. Do not make cable winches an effortless universal substitute for laying a sensible rail route. Exact speed curve, mass tuning and hand-versus-coal drive rates remain open.
-- **Extreme steep rails:** Allow purposefully built rail sections with slopes as extreme as a **three-block vertical rise/drop** (the owner's “three-high rail” idea). Precise rail-piece geometry and support rules need later design, rather than assuming vanilla 1-up/1-across rails suffice. Such routes are *possible*, not necessarily efficient or safe.
-- **Downhill danger:** Uncontrolled carts on those extremely steep descending rails accelerate to dangerous speeds; a sufficiently violent arrival/impact at the bottom **breaks the cart**. Safe descent requires controlling speed/braking. The exact velocity thresholds, collision behavior and cargo-drop treatment require a later specification (do not silently delete cargo).
-- **Why build skips:** Purpose-built **upright vertical mining skips** should be an attractive, substantially more practical way of lifting ore through near-vertical shafts than dragging ordinary minecarts up extreme-grade rails. Treat skip hoisting as its own use of winch machinery; don't blindly apply the minecart-on-rails grade penalty to skips and accidentally erase their advantage.
-- **Scope:** These are future design and balancing commitments, *not* authorization to modify M04 or introduce the rail, crash, engine, or skip mechanics yet.
+The authoritative brief is [MILESTONE_04.md](MILESTONE_04.md); the as-built record and tests are [MILESTONE_04_REPORT.md](MILESTONE_04_REPORT.md).
 
+### As-built implementation choices (provisional until playtested)
 
-## Milestone 04 decisions by the user (2026-10-12)
+| Component | Implemented rule / starting value |
+|---|---|
+| Cable & coils | 1 cable item provides **4 blocks**; 8 cables form a **32-block coil**, reversible to cables. |
+| Recipes | Cable: 3 iron nuggets + string → 2 cables. Coil: 8 cables in a ring. Anchor: 3 copper nuggets in a V → 2 anchors. Rod: copper nugget over 2 copper ingots. Drum: empty top row; stick / iron / stick; plank / iron / plank. |
+| Anchor supports | Tag `#simple_block:cable_anchor_supports`: suitable logs, wood/stems, planks, slabs, stairs, fences, bamboo and mosaics. The underside must physically accept a centered mount; not top slabs, upside-down stairs, doors, trapdoors, etc. |
+| Anchor shape | One cable per anchor; axle follows placement axis. Hanger is on one side, leaving space on the opposite side for the rod. No collision. |
+| Drum capacity | **128 blocks** total, on the drum plus installed route; tuning key `cable.drum_capacity`. |
+| Spans | Straight, unobstructed route segments of at most **12 blocks** (`cable.max_span`), charged in whole blocks rounded up. One unbranched, open route per drum. |
+| Routing | Right-click loose hook to carry it; right-click each anchor to add a span; put the end down at the drum or last anchor. Sneak-use at anchor retracts that anchor and everything beyond; sneak-use at drum retracts route, then removes coils. Broken supports/anchors disconnect routes; a broken drum drops its cable. |
+| Reach / persistence | Carrying the hook is bounded by available cable/maximum span plus interaction reach. Cable/routes persist; temporary held hooks are restored to a loose end after reload. Missing anchors trigger route cleanup. |
+| Connecting rod | One per cart, independent of cushion and cargo. Reaches to a cable roughly **1.5–3 blocks above the rail** and within **0.5 blocks laterally** (tunable); engages automatically, releases at cable end, has no physical collision. Visual head/arm changes show engagement. |
+| Models | Source in `art/blockbench/`; generated UV-template art is not final texture work. Cable spans are rendered procedurally. |
 
-The owner's M04 brief is recorded verbatim in `docs/MILESTONE_04.md`. In short: a copper connecting rod on the vanilla minecart that grips an overhead cable and passes its supports; copper cable anchors only under wooden blocks, guiding the cable on rollers; cable as a finite, craftable item combined into coils; a cable drum (recipe given) that becomes a winch with a coil; the loose end picked up and dragged like a lead and routed anchor to anchor, consumed by length; routes extendable, disconnectable, dismantlable, with runs, turns and climbs. Editable `.bbmodel` models and UV layouts, no finished textures. No engines, counterweights, inclined-lift automation, skips or locomotives.
+### Open M04 follow-ups — not implemented
 
-## Milestone 04 implementation choices (provisional, 2026-10-12)
+- **Cable motion topology:** a drum that winds in a *free-ended overhead route* would retract it off the anchors. Decide how the cable can drive minecarts without dismantling its installed supports. Neither two-drum payout nor endless-loop/circulating cable is approved yet.
+- **Grip versus rollers:** a moving cable needs a believable grip/guide geometry that passes anchor rollers. Present M04 engagement and no-collision behavior is not proof of future powered haulage.
+- **Curves and multiple tracks:** tight curves can pull the grip out of alignment; two-track layouts, diagonal passages and bidirectional geometry need rules.
+- **Tension, braking and stopping:** present cable renders taut without simulation; future powered motion must decide sag/tension, braking, release and route ends.
+- **Drum alignment and support variants:** decide barrel/outlet facing, and whether to add support types beyond underside-mounted wood.
+- **Balance:** cable and coil costs, 12-block spans, 128-block drum capacity and grip reach are implemented starting values, not validated long-term balance.
 
-| Topic | Choice | Why / how to change |
-|---|---|---|
-| Nothing moves yet | The drum winds nothing and the cable never moves; a gripping rod does not pull or brake its cart. M04 is placement, routing and the grip state only. | Moving cable and cart traction need a power source (the roadmap's winch and engine work), which the brief excludes. |
-| Units | 1 cable = 4 blocks of cable; 1 coil = 8 cables = 32 blocks. Coils go back into 8 cables. | Constants in `CableContent`. |
-| Recipes | Cable: 3 iron nuggets + 1 string, shapeless, makes 2. Coil: 8 cables in a ring. Anchor: 3 copper nuggets in a V, makes 2. Rod: a copper nugget over 2 copper ingots. Drum: as the brief (empty top row; stick, iron ingot, stick; plank, iron ingot, plank; any planks). | The brief gave only the drum's. Weights for the heavy-load cap follow from the recipes (cable 1/6 iron, coil 4/3, drum 2; anchor 1/6 copper, rod 19/9). |
-| What counts as wood for anchors | `#simple_block:cable_anchor_supports`: all logs, wood and stems (incl. stripped), planks, wooden slabs, stairs and fences, bamboo blocks, bamboo mosaic (and its slab and stairs). The block must also offer the middle of its underside, like a hanging lantern needs: a bottom slab, upright stairs and fence posts work, a top slab or upside-down stairs don't. | One data tag. Not included: doors, trapdoors, fence gates, signs, shelves (no usable underside or not structural). |
-| Anchor | No collision. It carries one cable. Its roller axle is set by the direction the player faces when placing it (meant: face along the cable); only the axis counts. The hanger arm is on one side: west of a north-south cable, north of an east-west one. | The rod's stem passes on the other side; see "unresolved" below for two-way traffic. |
-| Drum capacity | 128 blocks (4 coils) of cable per drum, wound plus laid out. | Tuning key `cable.drum_capacity`. |
-| Spans | A span is a straight line between two supports (the drum's barrel top, or an anchor's roller), at most 12 blocks (tuning `cable.max_span`), and must not pass through a block with collision. It ignores the wooden blocks the two anchors hang from, so steep spans don't catch the beam's edge. Each span uses its length rounded up to a whole block. Routes are one line per drum: no branches, loops or joins. | Elevation changes are any slope the 12-block limit and clear line allow. |
-| Picking up and dragging the end | Use the hook to pick it up (not when the drum has no cable left, not while holding another end). It follows the hand like a lead. It slips out of the hand if the player gets more than (cable reach + 3) blocks from the last support, where the reach is the smaller of 12 and the cable left on the drum; also on death, leaving the game or changing dimension. | The extra 3 blocks is a player's reach, so the end can be carried to an anchor that is itself just within reach. |
-| Routing gestures | Holding the end, use an anchor to run the cable through it; the end stays in hand for the next one. Using the drum or the last anchor puts the end down. Sneak + use an anchor on a route (both hands empty): the cable comes off it and everything after it and winds back onto the drum. Sneak + use the drum: first winds the whole route back in, then takes the cable off as coils. Using an anchor or drum with an empty hand otherwise reports its state. | Extending is winding on more coils and carrying on from the last anchor. |
-| Breaking things | Breaking an anchor (by hand, explosion, or removing its wooden support) is the same as disconnecting there. Breaking a drum drops all its cable, wound and laid out, as coils, and frees its anchors. | Cable is never lost or created: a drum's cable is always whole coils. |
-| After loading | A drum checks its route once its anchors' chunks are loaded and winds back from the first anchor that is missing or no longer records it (e.g. broken while the drum was unloaded). The loose end is not saved: the drum puts it back when loaded. | |
-| Rod | Fitted by using a rod on a minecart (one per cart; independent of cushion and cargo). Sneak + use takes off the cushion first, then unloads cargo, then takes the rod. Dropped when the cart is destroyed. It works like a tram's trolley pole, sprung upwards: it grips any route cable that runs within 0.5 blocks sideways of the cart's middle and 1.5 to 3 blocks above the rail (tuning `cable.rod_reach_min`, `cable.rod_reach_max`; an anchor hung two blocks above the rail puts the cable 2.75 above it), stays gripped across anchors, and lets go where the cable ends. Gripping is computed by the server every tick and shown on the cart: the rod stretches to the cable and the head closes. | "Auto-engages" needed a rule for where a cable counts as "above". The trolley pole is the nearest real-world mechanism. |
-| Rod past anchors | The head grips from above and the side away from the anchors' hanger arms (east of a north-south track, south of an east-west one); the drawn rod is always on that side. The rod has no collision with anything, so it cannot snag in the game; the models are shaped so it would not snag in reality either (the head's top bar passes between the cable and the anchor's mounting plate). | See "unresolved". |
-| Models | One-off generated geometry (`tools/models/generate_models.py`), now owned by the `.bbmodel` files in `art/blockbench/`. The textures are UV templates (flat colours per face), not artwork. The cable between supports is drawn by code with `textures/entity/cable.png`. | `art/blockbench/README.md`. |
+## 5. Future transport and mechanical design (agreed direction; NOT authorized to implement)
 
-### Milestone 04 design questions left open (for the owner)
+These decisions were reached **after** M04's cable-infrastructure brief. They are organized here rather than inserted before M04 because they concern a later milestone whose number and exact scope are not settled.
 
-- **How the grip holds the cable past a roller.** The head grips from above only (a top roller pressing on the cable and a side guide), because a jaw closed *under* the cable would hit each anchor's roller. A real haulage grip would need either a jaw that opens at every support (cams or guides on the anchors) or supports shaped around the grip. This matters once the cable pulls carts.
-- **Two-way traffic and the arm side.** The hanger arm is always on one fixed side, so the rod's stem must pass on the other. Carts coming the other way on the same track are fine (the rod is drawn on the fixed side whichever way the cart runs), but a second track beside the first under the same cable, or a cable running diagonally, has no rule yet.
-- **Turns.** A cart's rod follows the cable only where the cable runs within 0.5 blocks of the track. At a turn anchor the cable cuts the corner in a straight line while the track curves; on tight curves the grip lets go and takes the cable again after the turn. Real systems use curve pulleys; whether turns need a dedicated "curve anchor" is undecided.
-- **Slack, tension and sag.** Cable is drawn taut and straight. There is no slack to take up, no sag, no tension limit.
-- **Drum facing and which end is "the winch".** The drum pays out to its front, but the first span may leave it in any direction; the drum does not turn to face its cable.
-- **Lengths and costs.** 4 blocks per cable, 32 per coil, 128 per drum, 12 per span, and the recipes are starting values with no playtest behind them.
-- **What anchors accept.** Whether non-wooden supports (iron bars, chains from stone) should ever carry anchors, and whether an anchor should be allowed on a wall bracket.
+### 5.1 Cobblestone Engine — coal-powered railway locomotive
 
-### Consequences to decide on later (not changed in Milestone 01)
+- Apply an **ordinary furnace directly to an existing vanilla minecart** to convert it into a **Cobblestone Engine**. Do **not** use the vanilla crafting-table furnace-minecart recipe as the creation gesture.
+- A new, distinct model with editable Blockbench source. Breaking the engine returns **one ordinary minecart and one regular furnace**, not a combined engine item.
+- Coal-powered, **bidirectional**, able to **push or pull** coupled carts, including passenger carts, freight carts and mixed trains.
+- **Minecarts are heavy before adding cargo.** Empty carts have meaningful baseline mass, so several empty carts returning uphill can still strain an engine. Cargo adds to that burden.
+- Engine suitability depends on **cart base mass, cargo load, number of carts, gradient and available traction**; never disable movement simply because a train contains freight.
+- A relatively level, well-engineered railway can rely on a Cobblestone Engine alone. Grades sharply limit propulsion; sustained steep climbs, including some empty-cart climbs, may be impractical.
+- Specific speed, fuel use, traction equations, downhill braking and coupling rules are **open**.
 
-- **Phantom membranes** lose their main source. The only other one is a tamed cat's occasional "morning gift" after the owner sleeps; whether that still triggers without night skipping is untested. That makes **Potions of Slow Falling** effectively unavailable. The advancements **Monsters Hunted** and **Two Birds, One Arrow** can't be completed.
-- **Shulker shells** still drop but have no use, since the box was their only recipe.
-- **Sky's the Limit** (obtain an elytra) can't be completed in survival.
-- The `players_sleeping_percentage` and `spawn_phantoms` game rules no longer do anything.
+### 5.2 Winches, dangerous gradients, and upright mining skips
+
+- A **stationary winch** is a localized answer to a difficult rail incline, not an alternative general-purpose locomotive. Manual operation first; a coal-powered attachment is a potential later upgrade. Do not introduce a generalized mechanical-energy distribution network.
+- **Rail-bound winch haul speed falls sharply as uphill gradient increases.** Very steep climbs with loaded carts should take an extremely long time, making track geometry a meaningful design tradeoff. The exact speed curve is **open**.
+- Allow purpose-built rail geometry as extreme as a **three-block vertical rise/drop**. This states the design goal, **not** an approved track shape or a claim that existing vanilla rails support it.
+- **Extreme downhill travel is dangerous.** An uncontrolled cart can accelerate and strike the bottom hard enough to **break the cart**. Braking, crash thresholds and preservation/dropping of cargo require explicit design; items must not silently vanish.
+- **Skips remain upright** and lift ore through near-vertical shafts. They should be substantially more practical for steep vertical ore transfer than winching conventional minecarts up extreme-grade rails. A skip is the hoisted carrier; a winch provides lifting power.
+- Counterweights, coal-powered winch attachments, automated handoff/reset, skips and new rail shapes are **separate future designs**, not implicit M04 work.
+
+### 5.3 Intended logistics tradeoff
+
+**Flat or carefully graded routes reward engineering with easy locomotive transport. Difficult slopes invite fixed cable haulage. Nearly vertical shafts reward purpose-built skips.** The tradeoff must emerge from mass, gravity, gradient and machinery, **not** arbitrary freight/passenger restrictions.
+
+## 6. Open decisions requiring a future milestone brief
+
+Only record settled answers in sections 1–5 after the owner decides them.
+
+| System | Unsettled details |
+|---|---|
+| Cable motion | Open route vs moving/reversible/returning cable, winding/payout, grip passing anchors, cable reset, braking and hand operation. |
+| Cobblestone Engine | Mass and traction model, practical grade limits, how coal is spent, interaction/controls and what happens when trains stall or reverse. |
+| Coupling | How carts attach/detach, how tension propagates through a mixed train, and behavior on curves/grade transitions. |
+| Rails | Geometry and construction of extended extreme slopes; whether steep routes require special rail pieces; speed and crash damage. |
+| Incline winches | Grade-versus-speed relationship, winch load limits, controlled lowering and automated return/reset. |
+| Mining skips | Dimensions, loading/unloading from elevated rails, winch coupling, vertical guide and safety behavior. |
+| M04 balance | Final recipes, route spans and cable capacity after actual owner playtesting. |
+
+## 7. Superseded ideas (historical only)
+
+These entries explain changes in direction. **Never treat the old side as an active instruction.** Original deleted handoffs remain recoverable through Git history.
+
+| Earlier concept | Current decision |
+|---|---|
+| Start by building a freight-cart mod | Begin with isolated survival rules (M01), then geology/inventory (M02), then minecart logistics (M03). |
+| Separate new freight-cart entity/item | M03 modifies the **vanilla minecart** itself. |
+| Freight in chest minecarts | Minecart cargo is accessible directly, not hidden in chest storage; chest-minecart storage bypasses are closed. |
+| Cushions deferred to a later milestone | Cushion passenger functionality shipped as an M03 follow-up. |
+| Sort bottom row first | Top row first was accepted and shipped in M03. |
+| Iron only in selected biomes | Small deposits broadly available; rich geographically situated deposits. |
+| Hostiles drawn to specific torch/lantern blocks | Hostiles drawn to lit **areas**, including caves where appropriate. |
+| Delete every item formerly linked to redstone | Remove/rethink circuits while preserving worthwhile stand-alone mechanics; decide specifics later. |
+| Sideways mining skip that tips upright | Skip is **always upright**, with ore dropped in from elevated rails. |
+| Cable at rail height | **Overhead** hauling cable, supported by copper rollers and reached by cart rods. |
+| Timber supports required to prevent cave-ins | Support structures earn their place by holding useful mechanical equipment, not compulsory cave-in simulation. |
+| Unapproved design numbers or suggested power mechanisms | Numbers from brainstorming are not binding; distinguish delivered provisional values from owner-approved future behavior. |
+
+**Document maintenance:** Modify the relevant milestone section in place when a decision changes. Move rejected ideas to section 7. Do not append new sections in arbitrary locations or duplicate a topic with contradictory versions.
