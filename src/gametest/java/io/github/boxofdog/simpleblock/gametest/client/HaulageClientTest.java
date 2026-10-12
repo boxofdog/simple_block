@@ -24,6 +24,7 @@ import net.fabricmc.fabric.api.client.gametest.v1.context.TestServerContext;
 import net.fabricmc.fabric.api.client.gametest.v1.context.TestSingleplayerContext;
 import net.fabricmc.fabric.api.client.gametest.v1.world.TestWorldSave;
 
+import io.github.boxofdog.simpleblock.cable.CableContent;
 import io.github.boxofdog.simpleblock.cable.CableDrumBlockEntity;
 import io.github.boxofdog.simpleblock.cable.ConnectingRods;
 import io.github.boxofdog.simpleblock.feature.MinecartCushions;
@@ -35,8 +36,8 @@ import io.github.boxofdog.simpleblock.train.Couplings;
  * M05 in the real client, in a fresh survival world, every action a simulated key press:
  * <ul>
  *   <li><b>Cable loop:</b> wind a drum, hang anchors, route the cable, close the loop with an anchor,
- *       fit a rod to a minecart; then hold the use key on the drum's crank to haul the cart out, let go
- *       (it holds), and hold it while sneaking to bring it back. A drum is also hung under a plank.</li>
+ *       fit a rod to a minecart; then hold left-click on the drum's crank to feed the cable and haul the
+ *       cart out (the drum is not broken), let go (it holds), and hold right-click to pull it back. A drum is also hung under a plank.</li>
  *   <li><b>Cobblestone Engine:</b> place a minecart and use a furnace on it, fuel it with coal, couple a
  *       cushioned cart to it with a chain, start and stop it from the ground with an empty hand, then
  *       get in the cushioned cart and drive with the forward and back keys.</li>
@@ -179,14 +180,16 @@ public class HaulageClientTest implements FabricClientGameTest {
 		lookAtPoint(context, new Vec3(20.5, g + 9.5 / 16.0, Z + 0.5 + 0.55));
 		double start = server.computeOnServer(s -> cartAt(s.overworld(), g, Z).getX());
 		float travelBefore = context.computeOnClient(client -> ((CableDrumBlockEntity) client.level.getBlockEntity(drumPos)).travel);
-		context.getInput().holdKey(options -> options.keyUse);
+		// Owner's controls: hold left-click on the crank to feed the cable away (the cart goes out).
+		context.getInput().holdKey(options -> options.keyAttack);
 		context.waitTicks(60);
 		float clientSpeed = context.computeOnClient(client -> ((CableDrumBlockEntity) client.level.getBlockEntity(drumPos)).speed());
 		float travelDuring = context.computeOnClient(client -> ((CableDrumBlockEntity) client.level.getBlockEntity(drumPos)).travel);
 		context.takeScreenshot("loop-cranking");
 		context.waitTicks(100);
-		context.getInput().releaseKey(options -> options.keyUse);
+		context.getInput().releaseKey(options -> options.keyAttack);
 		context.waitTicks(10);
+		boolean drumIntact = server.computeOnServer(s -> s.overworld().getBlockState(drumPos).is(CableContent.CABLE_DRUM));
 		double out = server.computeOnServer(s -> cartAt(s.overworld(), g, Z).getX());
 		context.waitTicks(30);
 		double held = server.computeOnServer(s -> cartAt(s.overworld(), g, Z).getX());
@@ -197,23 +200,22 @@ public class HaulageClientTest implements FabricClientGameTest {
 		server.runCommand("tp @a 20.5 " + g + " " + (Z + 2.5) + " 180 30");
 		context.waitTicks(5);
 		lookAtPoint(context, new Vec3(20.5, g + 9.5 / 16.0, Z + 0.5 + 0.55));
-		context.getInput().holdKey(options -> options.keyShift);
-		context.waitTicks(3);
+		// Hold right-click on the crank to pull the cable back towards the drum.
 		context.getInput().holdKey(options -> options.keyUse);
 		context.waitTicks(120);
 		context.getInput().releaseKey(options -> options.keyUse);
-		context.getInput().releaseKey(options -> options.keyShift);
 		context.waitTicks(10);
 		double back = server.computeOnServer(s -> cartAt(s.overworld(), g, Z).getX());
 		boolean stillLooped = server.computeOnServer(s -> drumOf(s.overworld(), drumPos).looped());
 		int routed = server.computeOnServer(s -> drumOf(s.overworld(), drumPos).route().size());
-		SimpleBlockTestLog.info("CLIENT CRANK: held use on the crank 160 ticks: cart x {} -> {} (client spool speed {}, travel {} -> {}); let go: x {}; "
-			+ "sneak-held 120 ticks: back to x {}; still looped {}, route {} anchors", fmt(start), fmt(out), clientSpeed, travelBefore, travelDuring,
-			fmt(held), fmt(back), stillLooped, routed);
-		assertTrue(out - start > 4.0, "holding use on the crank should haul the cart out: x " + start + " -> " + out);
+		SimpleBlockTestLog.info("CLIENT CRANK: left-click held on the crank 160 ticks: cart x {} -> {} (client spool speed {}, travel {} -> {}), drum "
+			+ "still there {}; let go: x {}; right-click held 120 ticks: back to x {}; still looped {}, route {} anchors", fmt(start), fmt(out), clientSpeed,
+			travelBefore, travelDuring, drumIntact, fmt(held), fmt(back), stillLooped, routed);
+		assertTrue(drumIntact, "holding left-click on the crank must not break the drum");
+		assertTrue(out - start > 4.0, "holding left-click on the crank should feed the cable and haul the cart out: x " + start + " -> " + out);
 		assertTrue(clientSpeed > 0.0F && travelDuring > travelBefore, "the client's spool should turn while cranked: speed " + clientSpeed);
 		assertTrue(Math.abs(held - out) < 0.05, "let go, the cart should hold: " + out + " -> " + held);
-		assertTrue(out - back > 4.0, "sneak-holding use on the crank should bring it back: x " + out + " -> " + back);
+		assertTrue(out - back > 4.0, "holding right-click on the crank should bring it back: x " + out + " -> " + back);
 		assertTrue(stillLooped && routed == 3, "cranking should not open or dismantle the loop");
 	}
 
@@ -428,9 +430,9 @@ public class HaulageClientTest implements FabricClientGameTest {
 		server.runCommand("tp @a 20.5 " + g + " " + (Z + 2.5) + " 180 30");
 		context.waitTicks(5);
 		lookAtPoint(context, new Vec3(20.5, g + 9.5 / 16.0, Z + 0.5 + 0.55));
-		context.getInput().holdKey(options -> options.keyUse);
+		context.getInput().holdKey(options -> options.keyAttack);
 		context.waitTicks(60);
-		context.getInput().releaseKey(options -> options.keyUse);
+		context.getInput().releaseKey(options -> options.keyAttack);
 		context.waitTicks(10);
 		double hauled = server.computeOnServer(s -> cartAt(s.overworld(), g, Z).getX());
 		SimpleBlockTestLog.info("CLIENT REOPEN: after save and reopen {}; cranked 60 ticks: rod cart x {} -> {}", after, fmt(before.rodCartX()),

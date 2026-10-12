@@ -111,6 +111,7 @@ public final class CableContent {
 		CreativeModeTabEvents.modifyOutputEvent(CreativeModeTabs.TOOLS_AND_UTILITIES).register(output ->
 			output.insertAfter(Items.MINECART, CABLE, CABLE_COIL, CABLE_DRUM_ITEM, CABLE_ANCHOR_ITEM, CONNECTING_ROD));
 		CableIndex.register();
+		CableDrive.register();
 		SimpleBlock.LOGGER.info("Cable: {} blocks per cable, {} per coil", BLOCKS_PER_CABLE, BLOCKS_PER_COIL);
 	}
 }

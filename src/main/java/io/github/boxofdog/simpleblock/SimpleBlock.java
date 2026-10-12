@@ -86,7 +86,8 @@ import io.github.boxofdog.simpleblock.worldgen.IronWorldgen;
  * <p>Milestone 05, haulage and trains ({@code cable/}, {@code train/}; registrations in {@link TrainContent}):
  * <ul>
  *   <li>closed cable loops, the drum's hand crank and cable haulage — {@code cable/CableLoops},
- *       {@code cable/CableDrive}, client {@code CableDrumRenderer}; the overhead (hanging) drum —
+ *       {@code cable/CableDrive}, {@code network/CrankPayload}, client {@code CableDrumRenderer} and
+ *       {@code mixin/MultiPlayerGameModeMixin} (left-click feeds); the overhead (hanging) drum —
  *       {@code cable/CableDrumBlock}</li>
  *   <li>the Cobblestone Engine (vanilla's furnace minecart) — {@code train/CobblestoneEngine},
  *       {@code mixin/train/MinecartFurnaceMixin}, {@code mixin/train/VehicleEntityMixin}, recipe and

@@ -31,6 +31,7 @@ import net.fabricmc.fabric.api.gametest.v1.GameTest;
 import io.github.boxofdog.simpleblock.cable.CableAnchorBlock;
 import io.github.boxofdog.simpleblock.cable.CableContent;
 import io.github.boxofdog.simpleblock.cable.CableDrumBlock;
+import io.github.boxofdog.simpleblock.cable.CableDrive;
 import io.github.boxofdog.simpleblock.cable.CableDrumBlockEntity;
 import io.github.boxofdog.simpleblock.cable.CableHook;
 import io.github.boxofdog.simpleblock.cable.CableIndex;
@@ -85,7 +86,11 @@ public class CableLoopGameTests {
 		CableGameTests.useBlock(helper, player, lastAnchor, Direction.UP);
 	}
 
-	/** One use on the drum's crank (a held use key repeats this every 4 ticks); sneaking turns it backwards. */
+	/**
+	 * One turn of the drum's crank, as a held button repeats every 4 ticks: forwards (feeding the cable
+	 * away) is a left-click, which the client sends as a {@code CrankPayload}; backwards (pulling it in)
+	 * is a right-click, here made while sneaking to show that sneaking on the crank never dismantles.
+	 */
 	static void crank(GameTestHelper helper, ServerPlayer player, BlockPos drumRelative, boolean backwards) {
 		ServerLevel level = helper.getLevel();
 		BlockPos pos = helper.absolutePos(drumRelative);
@@ -93,7 +98,11 @@ public class CableLoopGameTests {
 		Direction side = CableDrumBlock.crankSide(state);
 		double axleY = state.getValue(CableDrumBlock.HANGING) ? 6.5 / 16.0 : 9.5 / 16.0;
 		Vec3 hit = Vec3.atLowerCornerOf(pos).add(0.5 + side.getStepX() * 0.55, axleY, 0.5 + side.getStepZ() * 0.55);
-		player.setShiftKeyDown(backwards);
+		if (!backwards) {
+			CableDrive.feed(player, pos, hit);
+			return;
+		}
+		player.setShiftKeyDown(true);
 		player.gameMode.useItemOn(player, level, player.getMainHandItem(), InteractionHand.MAIN_HAND, new BlockHitResult(hit, side, pos, false));
 		player.setShiftKeyDown(false);
 	}
@@ -239,7 +248,7 @@ public class CableLoopGameTests {
 			.thenIdle(2)
 			.thenExecute(CableGameTests.step(failed, () -> {
 				player.setItemInHand(InteractionHand.MAIN_HAND, new ItemStack(CableContent.CABLE_COIL));
-				crank(helper, player, DRUM, false);
+				crank(helper, player, DRUM, true);
 				helper.assertValueEqual(drum.stored(), 32, "cable after cranking with a coil in hand");
 				helper.assertValueEqual(player.getMainHandItem().getCount(), 1, "coils in hand after cranking");
 				player.setItemInHand(InteractionHand.MAIN_HAND, ItemStack.EMPTY);
@@ -250,7 +259,7 @@ public class CableLoopGameTests {
 			.thenIdle(1)
 			.thenExecute(CableGameTests.step(failed, () -> {
 				helper.assertValueEqual(drum.speed(), 0.0F, "an open route's drum speed while cranked");
-				log.add("coil in hand: crank only; sneak on the crank: no dismantling; open route: locked");
+				log.add("coil in hand, right-click on the crank: crank only; sneak on the crank: no dismantling; open route: locked");
 				CableGameTests.useBlock(helper, player, DRUM, true);
 				CableGameTests.useBlock(helper, player, DRUM, true);
 				helper.assertFalse(drum.hasCable(), "sneak-use of the drum body should still dismantle");

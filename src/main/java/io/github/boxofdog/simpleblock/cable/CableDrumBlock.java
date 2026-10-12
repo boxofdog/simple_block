@@ -40,8 +40,9 @@ import org.jspecify.annotations.Nullable;
  *
  * <p>M05: a drum stands on the ground as before, or hangs under a wooden beam ({@link #HANGING}: placed
  * against a beam's underside, like an anchor, with the same supports), upside down so that its cable
- * leaves at about the anchors' roller height. Using the drum on its crank side, near the axle, works the
- * crank ({@link CableDrive}); using it anywhere else does what it did in M04.
+ * leaves at about the anchors' roller height. Clicking the drum on its crank side, near the axle, works the
+ * crank ({@link CableDrive}: left-click feeds, right-click pulls); clicking it anywhere else does what it
+ * did in M04.
  */
 public class CableDrumBlock extends BaseEntityBlock {
 	public static final EnumProperty<Direction> FACING = BlockStateProperties.HORIZONTAL_FACING;
@@ -128,7 +129,7 @@ public class CableDrumBlock extends BaseEntityBlock {
 	protected InteractionResult useItemOn(ItemStack itemStack, BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand,
 		BlockHitResult hitResult) {
 		if (hand == InteractionHand.MAIN_HAND && isCrank(state, pos, hitResult.getLocation())) {
-			return CableDrive.crank(level, pos, player);
+			return CableDrive.pull(level, pos, player);
 		}
 		if (itemStack.is(CableContent.CABLE_COIL)) {
 			return CableRoutes.windCoil(level, pos, player, itemStack);
@@ -139,7 +140,7 @@ public class CableDrumBlock extends BaseEntityBlock {
 	@Override
 	protected InteractionResult useWithoutItem(BlockState state, Level level, BlockPos pos, Player player, BlockHitResult hitResult) {
 		if (isCrank(state, pos, hitResult.getLocation())) {
-			return CableDrive.crank(level, pos, player);
+			return CableDrive.pull(level, pos, player);
 		}
 		return CableRoutes.useDrum(level, pos, player);
 	}

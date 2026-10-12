@@ -1,15 +1,20 @@
 package io.github.boxofdog.simpleblock.cable;
 
+import net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry;
+import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.vehicle.minecart.Minecart;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
 
+import io.github.boxofdog.simpleblock.network.CrankPayload;
 import io.github.boxofdog.simpleblock.train.Couplings;
 import io.github.boxofdog.simpleblock.train.TrainPhysics;
 import io.github.boxofdog.simpleblock.tuning.Tuning;
@@ -17,10 +22,14 @@ import io.github.boxofdog.simpleblock.tuning.Tuning;
 /**
  * M05 hand-cranked cable haulage.
  *
- * <p><b>The crank.</b> Every drum has one, on its axle end. Hold the use key on the crank to turn it
- * (vanilla repeats a held use every few ticks; the crank keeps turning {@value #CRANK_HOLD} ticks after
- * each); sneak while doing so (empty hands) to turn it the other way. Uses anywhere else on the drum do
- * what they did in M04, so cranking never loads a coil or dismantles anything. An empty drum, or one
+ * <p><b>The crank</b> (owner's controls). Every drum has one, on its axle end. Aiming at it, hold
+ * left-click to <b>feed</b> the cable away from the drum, or hold right-click (use) to <b>pull</b> it
+ * towards the drum. A held use key repeats every 4 ticks; a held left-click on the crank never starts
+ * breaking the drum: the client sends a {@link CrankPayload} every 4 ticks instead
+ * ({@code client/mixin/MultiPlayerGameModeMixin}), checked here. The crank keeps turning
+ * {@value #CRANK_HOLD} ticks after each, so a held button turns it steadily. Clicks anywhere else on
+ * the drum do what they did in M04 (breaking it included), so cranking never loads a coil or
+ * dismantles anything. An empty drum, or one
  * with all its cable wound on, just spins; a drum with an open route is locked (only a closed loop
  * moves cable).
  *
@@ -47,18 +56,43 @@ public final class CableDrive {
 		return Tuning.getDouble("cable.crank_speed");
 	}
 
-	/** A use on the crank: keeps it turning, backwards if sneaking. Client and server both swing the arm. */
-	static InteractionResult crank(Level level, BlockPos pos, Player player) {
+	/** Right-click on the crank: keeps it pulling the cable towards the drum. Client and server both swing the arm. */
+	static InteractionResult pull(Level level, BlockPos pos, Player player) {
+		crank(level, pos, player, -1);
+		return InteractionResult.SUCCESS;
+	}
+
+	/** Left-click held on the crank, from {@link CrankPayload}: keeps it feeding the cable away, if the click is real. */
+	public static void feed(ServerPlayer player, BlockPos pos, Vec3 hit) {
+		ServerLevel level = player.level();
+		if (!level.isLoaded(pos) || !player.isWithinBlockInteractionRange(pos, 1.0) || hit.distanceToSqr(Vec3.atCenterOf(pos)) > 2.0 * 2.0) {
+			return;
+		}
+		BlockState state = level.getBlockState(pos);
+		if (state.is(CableContent.CABLE_DRUM) && CableDrumBlock.isCrank(state, pos, hit)) {
+			crank(level, pos, player, 1);
+		}
+	}
+
+	static void register() {
+		PayloadTypeRegistry.serverboundPlay().register(CrankPayload.TYPE, CrankPayload.CODEC);
+		ServerPlayNetworking.registerGlobalReceiver(CrankPayload.TYPE, (payload, context) -> {
+			ServerPlayer player = context.player();
+			context.server().execute(() -> feed(player, payload.pos(), payload.hit()));
+		});
+	}
+
+	/** Keeps the crank turning: +1 feeds the working strand away from the drum, -1 pulls it towards it. */
+	private static void crank(Level level, BlockPos pos, Player player, int direction) {
 		if (level instanceof ServerLevel serverLevel && level.getBlockEntity(pos) instanceof CableDrumBlockEntity drum) {
 			boolean starting = drum.crankTicks <= 0;
 			drum.crankTicks = CRANK_HOLD;
-			drum.crankDirection = player.isSecondaryUseActive() ? -1 : 1;
+			drum.crankDirection = direction;
 			if (starting && !drum.looped() && !drum.route().isEmpty()) {
 				serverLevel.playSound(null, pos, SoundEvents.WOODEN_BUTTON_CLICK_ON, SoundSource.BLOCKS, 0.8F, 0.6F);
 				CableRoutes.tell(player, CableRoutes.message("crank_locked", "Close the loop to haul"));
 			}
 		}
-		return InteractionResult.SUCCESS;
 	}
 
 	/** Every tick: turns the drum from the crank, and drives a loop. */
