@@ -1,0 +1,16 @@
+{
+	"variants": {
+		"part=base": {
+			"model": "simple_block:block/connecting_rod_base"
+		},
+		"part=shaft": {
+			"model": "simple_block:block/connecting_rod_shaft"
+		},
+		"part=head_open": {
+			"model": "simple_block:block/connecting_rod_head_open"
+		},
+		"part=head_closed": {
+			"model": "simple_block:block/connecting_rod_head_closed"
+		}
+	}
+}

@@ -1,0 +1,34 @@
+{
+	"variants": {
+		"facing=north,wound=false": {
+			"model": "simple_block:block/cable_drum"
+		},
+		"facing=north,wound=true": {
+			"model": "simple_block:block/cable_drum_wound"
+		},
+		"facing=east,wound=false": {
+			"model": "simple_block:block/cable_drum",
+			"y": 90
+		},
+		"facing=east,wound=true": {
+			"model": "simple_block:block/cable_drum_wound",
+			"y": 90
+		},
+		"facing=south,wound=false": {
+			"model": "simple_block:block/cable_drum",
+			"y": 180
+		},
+		"facing=south,wound=true": {
+			"model": "simple_block:block/cable_drum_wound",
+			"y": 180
+		},
+		"facing=west,wound=false": {
+			"model": "simple_block:block/cable_drum",
+			"y": 270
+		},
+		"facing=west,wound=true": {
+			"model": "simple_block:block/cable_drum_wound",
+			"y": 270
+		}
+	}
+}

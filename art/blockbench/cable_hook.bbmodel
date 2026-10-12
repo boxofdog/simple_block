@@ -1,0 +1,419 @@
+{
+	"meta": {
+		"format_version": "4.10",
+		"model_format": "java_block",
+		"box_uv": false
+	},
+	"name": "cable_hook",
+	"model_identifier": "",
+	"parent": "",
+	"ambientocclusion": true,
+	"front_gui_light": false,
+	"visible_box": [
+		1,
+		1,
+		0
+	],
+	"variable_placeholders": "",
+	"variable_placeholder_buttons": [],
+	"export_path": "../../src/main/resources/assets/simple_block/models/block/cable_hook.json",
+	"unhandled_root_fields": {},
+	"resolution": {
+		"width": 16,
+		"height": 16
+	},
+	"elements": [
+		{
+			"name": "socket",
+			"box_uv": false,
+			"rescale": false,
+			"locked": false,
+			"light_emission": 0,
+			"render_order": "default",
+			"allow_mirror_modeling": true,
+			"from": [
+				7.0,
+				6.0,
+				7.0
+			],
+			"to": [
+				9.0,
+				8.0,
+				9.0
+			],
+			"autouv": 0,
+			"color": 0,
+			"origin": [
+				8,
+				8,
+				8
+			],
+			"rotation": [
+				0,
+				0,
+				0
+			],
+			"faces": {
+				"north": {
+					"uv": [
+						6,
+						2,
+						8.0,
+						4.0
+					],
+					"texture": 0
+				},
+				"east": {
+					"uv": [
+						4,
+						2,
+						6.0,
+						4.0
+					],
+					"texture": 0
+				},
+				"south": {
+					"uv": [
+						10,
+						2,
+						12.0,
+						4.0
+					],
+					"texture": 0
+				},
+				"west": {
+					"uv": [
+						8,
+						2,
+						10.0,
+						4.0
+					],
+					"texture": 0
+				},
+				"up": {
+					"uv": [
+						6,
+						0,
+						8.0,
+						2.0
+					],
+					"texture": 0
+				},
+				"down": {
+					"uv": [
+						8,
+						0,
+						10.0,
+						2.0
+					],
+					"texture": 0
+				}
+			},
+			"type": "cube",
+			"uuid": "79e04afe-f4a1-5a5e-a844-66d1669555b7"
+		},
+		{
+			"name": "shank",
+			"box_uv": false,
+			"rescale": false,
+			"locked": false,
+			"light_emission": 0,
+			"render_order": "default",
+			"allow_mirror_modeling": true,
+			"from": [
+				7.5,
+				2.5,
+				7.5
+			],
+			"to": [
+				8.5,
+				6.0,
+				8.5
+			],
+			"autouv": 0,
+			"color": 1,
+			"origin": [
+				8,
+				8,
+				8
+			],
+			"rotation": [
+				0,
+				0,
+				0
+			],
+			"faces": {
+				"north": {
+					"uv": [
+						1,
+						1,
+						2.0,
+						4.5
+					],
+					"texture": 0
+				},
+				"east": {
+					"uv": [
+						0,
+						1,
+						1.0,
+						4.5
+					],
+					"texture": 0
+				},
+				"south": {
+					"uv": [
+						3,
+						1,
+						4.0,
+						4.5
+					],
+					"texture": 0
+				},
+				"west": {
+					"uv": [
+						2,
+						1,
+						3.0,
+						4.5
+					],
+					"texture": 0
+				},
+				"up": {
+					"uv": [
+						1,
+						0,
+						2.0,
+						1.0
+					],
+					"texture": 0
+				},
+				"down": {
+					"uv": [
+						2,
+						0,
+						3.0,
+						1.0
+					],
+					"texture": 0
+				}
+			},
+			"type": "cube",
+			"uuid": "1176441b-aaf8-5afb-877b-1f4b79f23bb2"
+		},
+		{
+			"name": "bend",
+			"box_uv": false,
+			"rescale": false,
+			"locked": false,
+			"light_emission": 0,
+			"render_order": "default",
+			"allow_mirror_modeling": true,
+			"from": [
+				5.5,
+				1.5,
+				7.5
+			],
+			"to": [
+				8.5,
+				2.5,
+				8.5
+			],
+			"autouv": 0,
+			"color": 2,
+			"origin": [
+				8,
+				8,
+				8
+			],
+			"rotation": [
+				0,
+				0,
+				0
+			],
+			"faces": {
+				"north": {
+					"uv": [
+						1,
+						6,
+						4.0,
+						7.0
+					],
+					"texture": 0
+				},
+				"east": {
+					"uv": [
+						0,
+						6,
+						1.0,
+						7.0
+					],
+					"texture": 0
+				},
+				"south": {
+					"uv": [
+						5,
+						6,
+						8.0,
+						7.0
+					],
+					"texture": 0
+				},
+				"west": {
+					"uv": [
+						4,
+						6,
+						5.0,
+						7.0
+					],
+					"texture": 0
+				},
+				"up": {
+					"uv": [
+						1,
+						5,
+						4.0,
+						6.0
+					],
+					"texture": 0
+				},
+				"down": {
+					"uv": [
+						4,
+						5,
+						7.0,
+						6.0
+					],
+					"texture": 0
+				}
+			},
+			"type": "cube",
+			"uuid": "a2c6f864-02f0-56cb-bb3b-3cc3fa26c33d"
+		},
+		{
+			"name": "tip",
+			"box_uv": false,
+			"rescale": false,
+			"locked": false,
+			"light_emission": 0,
+			"render_order": "default",
+			"allow_mirror_modeling": true,
+			"from": [
+				4.5,
+				1.5,
+				7.5
+			],
+			"to": [
+				5.5,
+				4.0,
+				8.5
+			],
+			"autouv": 0,
+			"color": 3,
+			"origin": [
+				8,
+				8,
+				8
+			],
+			"rotation": [
+				0,
+				0,
+				0
+			],
+			"faces": {
+				"north": {
+					"uv": [
+						13,
+						1,
+						14.0,
+						3.5
+					],
+					"texture": 0
+				},
+				"east": {
+					"uv": [
+						12,
+						1,
+						13.0,
+						3.5
+					],
+					"texture": 0
+				},
+				"south": {
+					"uv": [
+						15,
+						1,
+						16.0,
+						3.5
+					],
+					"texture": 0
+				},
+				"west": {
+					"uv": [
+						14,
+						1,
+						15.0,
+						3.5
+					],
+					"texture": 0
+				},
+				"up": {
+					"uv": [
+						13,
+						0,
+						14.0,
+						1.0
+					],
+					"texture": 0
+				},
+				"down": {
+					"uv": [
+						14,
+						0,
+						15.0,
+						1.0
+					],
+					"texture": 0
+				}
+			},
+			"type": "cube",
+			"uuid": "65fb5881-c07e-5827-9bf2-3980decb024d"
+		}
+	],
+	"outliner": [
+		"79e04afe-f4a1-5a5e-a844-66d1669555b7",
+		"1176441b-aaf8-5afb-877b-1f4b79f23bb2",
+		"a2c6f864-02f0-56cb-bb3b-3cc3fa26c33d",
+		"65fb5881-c07e-5827-9bf2-3980decb024d"
+	],
+	"textures": [
+		{
+			"path": "",
+			"name": "cable_hook.png",
+			"folder": "block",
+			"namespace": "simple_block",
+			"id": "0",
+			"group": "",
+			"width": 16,
+			"height": 16,
+			"uv_width": 16,
+			"uv_height": 16,
+			"particle": true,
+			"use_as_default": false,
+			"layers_enabled": false,
+			"sync_to_project": "",
+			"render_mode": "default",
+			"render_sides": "auto",
+			"frame_time": 1,
+			"frame_order_type": "loop",
+			"frame_order": "",
+			"frame_interpolate": false,
+			"visible": true,
+			"internal": false,
+			"saved": true,
+			"uuid": "e774d968-2d4f-5579-a50b-521ef47c9f4f",
+			"relative_path": "../../src/main/resources/assets/simple_block/textures/block/cable_hook.png",
+			"source": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAwklEQVR4nGNgYGBgqFpx7b9nSsN/BiRwrSfk/7WekP8NIUb/G0KMUOTuHEn631Jq9Z+BgYGBKapm3v93Lx4xCErIMWRM2IGiEBtYNNHj/8MnnxjkZPgY9q4I+c+CrmBeut1/BgYGhkdvvjAwMDAwyAnzMDAwMDDsqPD4z8DAwPAKTT0TIRsJAQwXJM08xEiKAYwMDAwM005UwP1+ZMMFuOSyjh0EDWPMnxLxX0iCHy7w7sVHBmR+fchMklw0CkYBWQAAfDg8iytBRk8AAAAASUVORK5CYII="
+		}
+	]
+}

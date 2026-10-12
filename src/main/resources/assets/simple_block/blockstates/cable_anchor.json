@@ -1,0 +1,18 @@
+{
+	"variants": {
+		"facing=north": {
+			"model": "simple_block:block/cable_anchor"
+		},
+		"facing=south": {
+			"model": "simple_block:block/cable_anchor"
+		},
+		"facing=east": {
+			"model": "simple_block:block/cable_anchor",
+			"y": 90
+		},
+		"facing=west": {
+			"model": "simple_block:block/cable_anchor",
+			"y": 90
+		}
+	}
+}
