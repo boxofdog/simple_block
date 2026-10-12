@@ -10,15 +10,20 @@
 | M02 | Geology, mining tiers, ore deposits, heavy inventory, hostile light attraction, hunger and QoL | **Shipped** |
 | M03 | Existing minecarts become 256-item single-commodity freight carts; cushions enable riding; storage bypasses removed | **Shipped** |
 | M04 | Cable coils, drum, underside copper anchors, routed overhead cable and minecart gripping rod | **Implemented / awaiting owner acceptance** |
-| M05 | Reversible cable loops, default hand crank, Cobblestone Engine and drum-side rendering fix | **Authorized / specification prepared; not implemented** |
+| M05 | Reversible cable loops, default hand crank, Cobblestone Engine and drum-side rendering fix | **Implementation in progress locally (owner report); no verified handoff yet** |
+| M06 | Loading track, freight cart front gate, rail cleanup and no hand-pushing for non-passenger carts | **Design scaffold only — not implementation-authorized** |
 
 M04 has 95 passing server game tests, a passing real-client test and CI Build #16 according to its [report](MILESTONE_04_REPORT.md). Cable/grip **does not yet move carts**. Do not mark owner acceptance or full mining-loop playtesting complete without confirmation.
 
-## M05 — authorized handoff (not yet implemented)
+## M05 — active implementation (handoff not yet verified)
 
 [**MILESTONE_05.md**](MILESTONE_05.md) defines four connected work packages: **(A)** close M04 cable routes into reversible circulating loops with a discreet side-return strand and terminal pulley; **(B)** always-visible hand crank and usable manual drive; **(C)** a bidirectional, coal-powered **Cobblestone Engine** made by applying a furnace to a vanilla cart, including minimal functional train coupling; **(D)** fix the observed drum rendering defect (BUG-001). Preserve all M04 interaction and visual foundations; implement in separable, tested stages.
 
-M05 is a larger combined milestone specifically requested by the owner, **not** permission for unrelated systems. M04 owner acceptance still requires an explicit confirmation; do not silently mark it accepted.
+M05 is a larger combined milestone specifically requested by the owner, **not** permission for unrelated systems. The owner reports implementation underway locally but not yet handed off, committed or verified here. M04 owner acceptance still requires an explicit confirmation; do not silently mark it accepted.
+
+## M06 — draft only (not yet authorized to implement)
+
+[**MILESTONE_06.md**](MILESTONE_06.md) is an **initial design scaffold**, not a final executable brief. Owner direction so far: add a **loading track** that holds an ordinary non-cushioned freight cart stationary and opens its **front panel**; **retire redstone-dependent rails specifically**, keeping ordinary rails; and make **non-passenger carts immune to manual player pushing** without disabling engine, coupling, winch or gravity movement. The loading track will be the physical transfer point for later cart/skip logistics, with no separate mandatory station. Exact gate orientation, how the cart unlocks, rail recipes, transfer triggering and the detailed redstone-rail removal policy remain to be designed. **Do not begin M06 until M05 is finished and the owner approves a final M06 brief.**
 
 ## After M05 (suggested; not automatically authorized)
 
@@ -42,9 +47,9 @@ Small standalone improvements (such as faster ladders) may be scheduled between 
 
 ### High-priority scope review (design status; M05 still in progress)
 
-- **#1 Vertical mining skips/hoisting and #2 freight loading, unloading and transfer:** **design-scoped, not implemented**. Skip dimensions, construction recipe, built-in chute, track-driven transfer, bridle, winch lifting and basic automatic docking are documented below. Claude chooses predictable, local alignment tolerance when that later milestone is authorized; retain implementation-level edge cases for its brief.
+- **#1 Vertical mining skips/hoisting and #2 freight loading, unloading and transfer:** **design-scoped, not implemented**. Skip dimensions, recipe, built-in chute, track-driven transfer, bridle, winch lifting and docking are documented below. **M06 drafts the loading-track and cart-gate interface**, not the skip or full transfer implementation. Claude can choose predictable local skip-alignment tolerances only once that later implementation is authorized.
 - **#3 Coal-powered winch attachment:** **next design discussion**; the power-upgrade mechanics and controls still need a decision.
-- **#4 Train stopping/braking/stations and #5 M05 locomotive/coupling/cable balancing:** **defer further design until M05 finishes and is playtested**; assess actual in-game behavior first.
+- **#4 General train stopping/braking/stations and #5 M05 locomotive/coupling/cable balancing:** **defer full redesign until M05 finishes and is playtested**. **Exception:** M06's dedicated freight loading track is now a specific owner-requested draft feature; it is not a complete general station or signalling system.
 - **#6 Gravel/sand freight eligibility:** **already owner-approved but not implemented**; user wants it scheduled only after M05 playtesting, with cargo-tag and test updates then. No additional scope discussion required.
 - **#7 Minecart cargo visuals/dev text:** **design decided, implementation later**. Ordinary vanilla freight carts retain their models but show a **visible material surface rising in discrete fill steps** proportional to the 0–256 load, analogous to a cauldron or composter. Provide new owner-paintable texture/art assets with editable sources; remove the intrusive always-floating cargo-count label in favor of the fill visual while retaining deliberate exact-quantity inspection. Exact step count, mesh/render method and how to depict different commodities can be chosen during implementation; no extra cart type or UI machinery. Other noisy development text remains logged in [UX_TEXT_LOG.md](UX_TEXT_LOG.md).
 - **#8 Spelunker's ropes and faster ladders:** **rope recipes and hanging/extension behavior now design-scoped; not implemented**. Faster ladder speed remains open; rope climbing, retrieval and placement edge cases can be settled in its implementation brief.
