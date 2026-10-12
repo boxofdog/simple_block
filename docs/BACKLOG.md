@@ -70,7 +70,7 @@ These rejections do not prohibit ordinary visual polish or other environmental m
 - Hand winch operation and mechanical cable traction; turning/guide pulleys, grip clearance, alternate track alignments.
 - Coal-fired **mechanical** winch attachment and counterweight incline reset; no electrical power grid or Create-style power network.
 - Upright vertical mining skip, loading by gravity from elevated minecart tracks, and unloading at the surface.
-- Cargo visibility and minecart UI polish without replacing the original minecart.
+- Cargo visibility is **design-scoped**: keep the original freight minecart and render a cauldron/composter-like stepped fill surface proportional to cargo count with new owner-paintable texture assets; defer implementation until after M05. Exact quantity remains inspectable and floating dev text is addressed in `UX_TEXT_LOG.md`.
 - Metalworking, durable anvils, differentiated armor roles and steel.
 - Redstone dependency audit: preserve worthwhile standalone mechanisms rather than automatically deleting associated devices.
 
