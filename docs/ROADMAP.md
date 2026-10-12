@@ -35,6 +35,10 @@ Small standalone improvements (such as faster ladders) may be scheduled between 
 
 Full design context lives in [BACKLOG.md](BACKLOG.md), confirmed implementation choices in [DECISIONS.md](DECISIONS.md), and the running visible-text cleanup list in [UX_TEXT_LOG.md](UX_TEXT_LOG.md).
 
+## Claude Code commit verification
+
+- [ ] **Verify documentation cleanup on `main`** (commit `fe9a73a5fe069c10f68819320aa558051ed16c1e`): confirm the duplicate `docs/docs/` files are gone, `ROADMAP.md`, `BACKLOG.md`, and `UX_TEXT_LOG.md` are present and linked correctly, and existing milestone specifications/reports remain intact. Check this box only after inspecting the repository and record the verified commit SHA here: `________`. This is a verification task, **not** permission to start the next milestone.
+
 ## Working rules
 
 - **Addition by subtraction:** prefer making existing Minecraft objects useful over adding redundant variants.
