@@ -41,7 +41,7 @@ Small standalone improvements (such as faster ladders) may be scheduled between 
 ## Later workstreams
 
 - **Villages:** terrain suitability, larger buildings, population and destinations, pubs, centralized stores, workshop services, real golem protection.
-- **Character and equipment:** retire gold and chainmail armor from normal gameplay/creative, develop separate spelunking and mining backpack chestplates (details below), add climbable ropes and tune faster ladders.
+- **Character and equipment:** retire gold/chain armor from normal gameplay/creative; define copper headlamp, low-protection backpack overalls covering chest/legs, and swappable spiked/mining utility boots (details below). Add climbable ropes and tune baseline ladders.
 - **Geology/metallurgy:** bulk smelting and hopper-fed ore handling, alluvial iron sand/gravel, steel, useful long-lived anvil/smithing.
 - **Rules and usability:** selective redstone-system redesign, guidebook, stepped freight-cart cargo visuals and player-facing text polish.
 
@@ -56,11 +56,13 @@ Small standalone improvements (such as faster ladders) may be scheduled between 
 
 ### Future armor/loadout redesign (owner-approved direction; not authorized)
 
-- **Remove gold and chainmail armor sets entirely from player-facing Simple Block:** no craftable, lootable, tradeable or creative-listed armor items or naturally equipped examples. Retire them with world/registry compatibility precautions; this does **not** remove gold the raw material. Replacement/drop mappings and mob gear tables need a dedicated audit when implemented.
-- **Spelunking chestplate:** includes a built-in **backpack restoring M02's third inventory row (+9 slots; 27 → 36 total including hotbar)**. When worn, allows faster climbing on **both ladders and hanging Spelunker's Rope**. Exact climb multiplier and armor/recipe stats remain open.
-- **Mining chestplate:** includes the **same +9-slot backpack**. Permits picking up/carrying designated heavy materials **above M02's 64-unit weight limit**, with a **progressive movement-speed penalty** increasing with overload rather than an immediate pickup refusal. The exact function, any upper bound and equipment stats remain open. Do not conflate metal weight with cobble/gravel/sand freight cargo.
-- The two chestplates are **alternatives** for different jobs, not a single always-best armor set. Baseline remains 27 slots and the 64-unit heavy limit when not wearing the appropriate equipment. Extra inventory rows require safe unequip/death/save/load/sort semantics; when the additional slots are occupied, contents must not vanish or duplicate. Ordinary combat rules such as jump criticals are **not** being rewritten here.
-- **Future balance questions:** whether utility gear needs full sets or only specialized chestplates; how protective combat armor fits; piglin interactions after gold armor retirement; protection/durability/recipes, overweight speed curve and handling of occupied backpack slots. **No implementation authorization in M05/M06.**
+- **Remove gold and chainmail armor sets entirely from player-facing Simple Block:** no craftable, lootable, tradeable or creative-listed items or naturally equipped examples. Retire them with world/registry compatibility precautions; gold as a material stays. Replacement/drop mappings and mob gear tables need an audit.
+- **Head: copper Headlamp**, with head protection **just below iron armor**. Whether and how it emits light, the exact defense stat, recipe, and model remain open; do not preemptively impose a fuel chore.
+- **Chest and legs: Overalls.** A single workwear concept spanning chest/leggings, with a built-in **backpack** restoring M02's third inventory row (**+9 slots, 27 → 36 including hotbar**). Combined protection should be **no greater than vanilla leather chestplate plus leggings**. Whether the overalls equip as one linked item occupying two slots or another simple arrangement remains to be decided.
+- **Feet: Spiked Boots** let the player climb both ropes and ladders faster; climb multiplier, recipe, material and protection open.
+- **Feet: Mining Boots** let the player exceed the ordinary **64-unit designated-heavy-item limit**, but apply a **progressively increasing movement-speed penalty** based on how overloaded the player is. Exact penalty and any maximum remain open; freight weight exemptions stay intact.
+- **Roles are modular:** same headlamp/overalls for work, with a **boots choice** between fast climbing and carrying overweight. There are **not separate spelunking/mining chestplates**. Neither boots variant adds slots by itself. Conventional combat mechanics (including jump crits) are unaffected by this decision.
+- **Before implementation:** carefully handle backpack-row slots when overalls are removed/replaced, and preserve sorting, shift-click, deaths, persistence and no-duplication. Decide armor recipes/protection/durability, headlamp lighting and what to do about the vanilla piglin/gold-armor interaction. **No implementation authorization in M05/M06.**
 
 ### Future spelunker's rope (owner-approved direction; not authorized)
 
