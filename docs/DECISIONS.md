@@ -300,7 +300,25 @@ Recipe layouts and components are settled. The number of output items per craft 
 
 - **M06 — loading track/freight-cart handling, coal-powered winch, unlimited cable and Creative cleanup (IMPLEMENTATION AUTHORIZED 2026-10-12):** the freight interface and rail cleanup already drafted, now plus furnace-on-drum power, **replacement shaped cable/coil recipes (three iron nuggets center column → cable; three cables center column → coil), and ONE coil installing UNLIMITED routed cable without the 128-block drum limit, strand-length cost or extra extension coils**. Revise reverse crafting to prevent item duplication and **retain physical anchor/span/collision requirements**. Also audit/hide existing retired items from Creative tabs/search. **Furnace mounts on drum's free side, replacing crank with a latching lever (back = pull, center = neutral, forward = feed), advanced one setting per right-click.** Coal right-click loads fuel, empty-hand right-click on winch body reports stored coal. PULL/FEED keep running without held input; physical path/transfer stops automatically reset lever to NEUTRAL. Motion-only burning and **preserved partial burn time** across stops are settled. **Settled:** lever click cycle NEUTRAL → PULL → FEED → NEUTRAL and loading-track right-click release/whole-train hold; physical cart↔skip transfer waits for M07. **Delegated to Claude:** fuel capacity/tuning and **safe long-route operation with unloaded/non-ticking distant anchors**, avoiding force-loading and item loss; see [MILESTONE_06.md](MILESTONE_06.md). **M06 authorized now; M05 owner signoff remains pending.**
 - **M07 — upright mining skips:** implement the existing 512-unit vertical skip concept, triangular bridle, one main hoisting cable, door/chute and automatic loading-track transfer and safe stops using the M05/M06 winch systems. No smelter included; docking and cargo details need a dedicated brief.
-- **M08 — standalone industrial smelter:** build the large raw iron/copper/gold smelter with its hopper, industrial block fuel and safe output mold; retire blast furnace and slow normal-furnace raw-ore processing as specified in [ROADMAP.md](ROADMAP.md). Skips were scheduled earlier in M07 and should not be reimplemented here; no steelmaking or factory network by default.
+- **M08 — standalone industrial smelter:** build the large raw iron/copper/gold smelter with its hopper, industrial block fuel and safe output mold; retire blast furnace and slow normal-furnace raw-ore processing as specified in [ROADMAP.md](ROADMAP.md). **The shaped smelter recipe is now owner-settled with horizontal mirroring** (exact original and mirror shown below). Skips were scheduled earlier in M07 and should not be reimplemented here; no steelmaking or factory network by default.
+**M08 Smelter crafting — owner-settled, not implementation-authorized:** the standalone industrial Smelter uses the following **shaped 3×3 pattern**, accepting **either this layout OR its horizontal mirror**, with all other slots empty. Vanilla **hopper**, **block of iron**, **iron ingots** (two), **cauldron**, and **furnace**; do not substitute an iron ingot for the iron block or invent intermediate components.
+
+```text
+[empty]    [hopper]     [empty]
+[empty]    [iron block] [iron ingot]
+[cauldron] [furnace]    [iron ingot]
+```
+
+Horizontal mirror (also valid):
+
+```text
+[empty]      [hopper]     [empty]
+[iron ingot] [iron block] [empty]
+[iron ingot] [furnace]    [cauldron]
+```
+
+This is **mirror-capable shaped crafting, NOT shapeless or freely rotatable**. Ingredients, position and mirrored acceptance are owner-settled; **craft output quantity remains open** (ordinary one-item yield may be proposed when finalizing M08). M08 implementation still requires a separate executable brief and owner permission; M06 is unaffected.
+
 - **M09 — armor and full modular workwear implementation:** implement agreed armor removals, exact recipes, Headlamp, two-slot Overalls/backpack, Spiked Boots/**Spelunker's Speed**, Mining Boots/**Mule**, plus complete-set **Trail Blazer** and **Old Pro** with ALL defined functions. Open lighting, controls, tuning and compatibility require a dedicated finalized brief.
 - The milestone order is the **owner's planned sequence**, not permission to code. M05 implementation/CI are completed; **M06 is explicitly authorized even while M05 owner acceptance waits for the owner's home playtest**. M07–M09 each require a later separate brief and authorization.
 
