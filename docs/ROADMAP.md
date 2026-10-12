@@ -15,6 +15,7 @@
 | M07 | **Upright mining skips and winch hoisting/transfer** | **HANDOFF-READY — standalone brief committed; NOT implementation-authorized** |
 | M08 | **Large industrial smelter, standalone** | **Planned scope; not implementation-authorized** |
 | M09 | **Full modular armor/workwear implementation** | **Planned scope; not implementation-authorized** |
+| After M09 (unnumbered) | **Vanilla iron/diamond/netherite full-set combat armor bonuses** | **Owner-settled future design; NOT implementation-authorized; separate from M09** |
 
 M04 has 95 passing server game tests, a passing real-client test and CI Build #16 according to its [report](MILESTONE_04_REPORT.md). **M04 alone** supplied nonmoving cable infrastructure; **M05 now implements motion**. Do not mark owner acceptance or full mining-loop playtesting complete without confirmation.
 
@@ -40,6 +41,18 @@ M05 is a larger combined milestone specifically requested by the owner, **not** 
 - **M08 — Standalone large smelter:** a dedicated milestone for the owner-specified large metal smelter and direct processing interfaces: hopper-fed charging, coal/charcoal/dried-kelp **blocks** as exclusive industrial fuel (new charcoal block needed), raw iron/copper/gold into metal blocks, animated molten pour and a single-type, 64-metal-block mold/output inventory with safe stopping. **The exact shaped smelter crafting ingredients and layout, horizontally mirror-capable, are now owner-settled** (see M08 section below). Include the related blast-furnace retirement and slower raw-ore smelting in an ordinary furnace. Footprint, throughput, **craft output quantity**, fuel/input limits and transfer arrangements still require a brief. **Do not expand into steelmaking, extra factory stages or settlements.**
 - **M09 — Modular armor and equipment:** the complete planned workwear/armor redesign **and all its functions**, not just items/recipes: remove gold/chainmail armor from normal gameplay and creative search; copper Headlamp; one-piece, two-slot backpack Overalls; Spiked Boots **Spelunker's Speed**, Mining Boots **Mule**; full-outfit **Trail Blazer** (climbing, colored through-wall infrastructure silhouettes, skeleton aim penalty) and **Old Pro** (Mule, offhand pickaxe mining, unobstructed second-block neck-height rear warning within 20 blocks). Include agreed shaped recipes, inventory/slot safety, art assets, multiplayer, save/load and real client testing. Resolve lighting, precise protection, offhand controls and tuning first.
 - **Order and authorization:** M06 is the **currently authorized implementation milestone**. **M07's brief is ready but may NOT be implemented until the owner explicitly starts M07** and the actual M06 interfaces are checked. M08 smelter and M09 armor still need their own executable briefs and owner authorization. Planning documents never authorize work by themselves.
+
+## After M09 — existing combat armor gains full-set identities (owner-settled design; not authorized)
+
+This is a **separate, unnumbered post-M09 workstream**, not additional M09 scope. Keep the original vanilla **iron, diamond and netherite armor items**; each of the following activates **only with all four pieces of its matching set**. M09's workwear bonuses **Trail Blazer** and **Old Pro** remain separate, and gold/chainmail retirement remains an M09 task.
+
+| Complete vanilla armor set | Named bonus | Owner-settled behavior |
+|---|---|---|
+| **Iron** | **Cast Iron Crusader** | No knockback from zombie attacks or arrows; after hitting a mob, show its **remaining hitpoints**. |
+| **Diamond** | **Iridescent Infantry** | Reflect incoming arrows back with **reduced travel distance but full damage/strength**; a zombie biting the wearer **breaks its teeth**, damaging it and **reducing its subsequent attack damage**. |
+| **Netherite** | **Netherfire Knight** | **Piglins never fight back** against the wearer and offer **more favorable trade/barter outcomes**; any hostile mob that hits the wearer **ignites**. |
+
+**Implementation timing:** settle numerical reductions, durations, reflected-arrow return/range, teeth-broken state behavior, UI feedback, piglin barter odds and exact triggering on a future implementation brief. Do **not** improvise extra systems, equipment tiers or automation. See [DECISIONS.md §5.7](DECISIONS.md). **M06 is the only currently authorized implementation milestone; M07 remains handoff-ready but unauthorized; M08/M09 are planned.**
 
 ## After M05 (suggested; not automatically authorized)
 
