@@ -50,7 +50,7 @@ Small standalone improvements (such as faster ladders) may be scheduled between 
 
 ### Upright mining skip — specified physical form (owner-approved direction; not authorized)
 
-- **Size and clearance:** skip body is **one block wide and three blocks tall** (NOT a 1×3 horizontal footprint); it needs **four blocks of vertical clearance** so its top loading door can unfold toward the loading track. Its horizontal depth and precise collision shape have not been finalized. The **upper two blocks** are the ore container and the **bottom block** houses a built-in angled discharge chute. No extra unloading station/chute block is required.
+- **Size and clearance:** skip body is **one block wide and three blocks tall** (NOT a 1×3 horizontal footprint); it needs **four blocks of vertical clearance** so its top loading door can unfold toward the loading track. Its horizontal depth and precise collision shape have not been finalized. The **upper two blocks** are the ore container, whose **floor is a sliding discharge gate**. The **bottom block is an exposed/open-air angled chute**, not an enclosed chamber; ore falls onto it after the gate slides open and travels sideways into a receiving cart. The chute is permanently built into the skip, with no extra station or chute block required.
 - **Capacity:** **512 units** of ore. Exact mixed/single-material rules need confirmation.
 - **Crafting recipe** (shaped):
 
@@ -60,7 +60,7 @@ Small standalone improvements (such as faster ladders) may be scheduled between 
   [iron]  [minecart]      [iron]
   ```
 
-- **Physical freight transfer:** a specially designated load/unload track is itself the interface. A cart above the skip empties downward through the opening; a cart aligned beside it receives ore from the skip's permanent chute. Do not require a separately built station or receiver to transfer freight.
+- **Physical freight transfer:** a specially designated load/unload track is itself the interface. A cart above the skip empties downward through the top opening. **When the skip is stationary and aligned with a receiving minecart on the special load/unload rail, its upper compartment's sliding floor gate automatically opens**, discharging ore down the exposed lower chute and into that cart. No separate docking structure, interaction or external chute should be required. Transfers must respect receiving capacity and cargo type; gate safety and partial loads need implementation design.
 - **Cable attachment:** right-click the skip with the existing cable's loose hook to attach it; the connection creates a **triangular two-leg suspension bridle**, anchored to either side of the skip's ore intake and converging to **one attachment point above the skip**. From that apex, **one main hoisting cable** rises to the existing overhead guide wheel and onward to a higher winch. The visible bridle appears as part of the hook-attachment gesture; its material accounting and clearance still need design. Do not assume two independent cables running to the wheel or invent unaccounted-for free cable.
 - **Not M05 work.** Need a later design/implementation brief for real lifting, braking, stations/rail trigger details and world-collision/guide behavior. The footprint was clarified to **one block wide, three blocks tall**; settle its horizontal depth, collision envelope and unfolded-door clearance before building models or collision boxes.
 
