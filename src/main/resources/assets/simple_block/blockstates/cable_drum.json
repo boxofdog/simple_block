@@ -1,33 +1,71 @@
 {
 	"variants": {
-		"facing=north,wound=false": {
-			"model": "simple_block:block/cable_drum"
+		"facing=north,hanging=false,wound=false": {
+			"model": "simple_block:block/cable_drum_frame"
 		},
-		"facing=north,wound=true": {
-			"model": "simple_block:block/cable_drum_wound"
+		"facing=north,hanging=true,wound=false": {
+			"model": "simple_block:block/cable_drum_frame",
+			"x": 180
 		},
-		"facing=east,wound=false": {
-			"model": "simple_block:block/cable_drum",
+		"facing=north,hanging=false,wound=true": {
+			"model": "simple_block:block/cable_drum_frame"
+		},
+		"facing=north,hanging=true,wound=true": {
+			"model": "simple_block:block/cable_drum_frame",
+			"x": 180
+		},
+		"facing=east,hanging=false,wound=false": {
+			"model": "simple_block:block/cable_drum_frame",
 			"y": 90
 		},
-		"facing=east,wound=true": {
-			"model": "simple_block:block/cable_drum_wound",
+		"facing=east,hanging=true,wound=false": {
+			"model": "simple_block:block/cable_drum_frame",
+			"x": 180,
 			"y": 90
 		},
-		"facing=south,wound=false": {
-			"model": "simple_block:block/cable_drum",
+		"facing=east,hanging=false,wound=true": {
+			"model": "simple_block:block/cable_drum_frame",
+			"y": 90
+		},
+		"facing=east,hanging=true,wound=true": {
+			"model": "simple_block:block/cable_drum_frame",
+			"x": 180,
+			"y": 90
+		},
+		"facing=south,hanging=false,wound=false": {
+			"model": "simple_block:block/cable_drum_frame",
 			"y": 180
 		},
-		"facing=south,wound=true": {
-			"model": "simple_block:block/cable_drum_wound",
+		"facing=south,hanging=true,wound=false": {
+			"model": "simple_block:block/cable_drum_frame",
+			"x": 180,
 			"y": 180
 		},
-		"facing=west,wound=false": {
-			"model": "simple_block:block/cable_drum",
+		"facing=south,hanging=false,wound=true": {
+			"model": "simple_block:block/cable_drum_frame",
+			"y": 180
+		},
+		"facing=south,hanging=true,wound=true": {
+			"model": "simple_block:block/cable_drum_frame",
+			"x": 180,
+			"y": 180
+		},
+		"facing=west,hanging=false,wound=false": {
+			"model": "simple_block:block/cable_drum_frame",
 			"y": 270
 		},
-		"facing=west,wound=true": {
-			"model": "simple_block:block/cable_drum_wound",
+		"facing=west,hanging=true,wound=false": {
+			"model": "simple_block:block/cable_drum_frame",
+			"x": 180,
+			"y": 270
+		},
+		"facing=west,hanging=false,wound=true": {
+			"model": "simple_block:block/cable_drum_frame",
+			"y": 270
+		},
+		"facing=west,hanging=true,wound=true": {
+			"model": "simple_block:block/cable_drum_frame",
+			"x": 180,
 			"y": 270
 		}
 	}

@@ -32,7 +32,10 @@
 		"shulker.BlockItemMixin",
 		"shulker.ShulkerBoxBlockEntityMixin",
 		"shulker.ShulkerBoxBlockMixin",
-		"sleep.ServerLevelMixin"
+		"sleep.ServerLevelMixin",
+		"train.AbstractMinecartMixin",
+		"train.MinecartFurnaceMixin",
+		"train.VehicleEntityMixin"
 	],
 	"injectors": {
 		"defaultRequire": 1

@@ -15,6 +15,7 @@ import io.github.boxofdog.simpleblock.feature.MinecartCargo;
 import io.github.boxofdog.simpleblock.feature.NoElytraFlight;
 import io.github.boxofdog.simpleblock.feature.RemovedRocks;
 import io.github.boxofdog.simpleblock.feature.SaturationSync;
+import io.github.boxofdog.simpleblock.train.TrainContent;
 import io.github.boxofdog.simpleblock.tuning.Tuning;
 import io.github.boxofdog.simpleblock.worldgen.IronWorldgen;
 
@@ -81,6 +82,18 @@ import io.github.boxofdog.simpleblock.worldgen.IronWorldgen;
  *   <li>the copper connecting rod on a minecart, gripping the cable — {@code cable/ConnectingRods},
  *       {@code mixin/minecart}, client {@code CargoMinecartRenderer}</li>
  * </ul>
+ *
+ * <p>Milestone 05, haulage and trains ({@code cable/}, {@code train/}; registrations in {@link TrainContent}):
+ * <ul>
+ *   <li>closed cable loops, the drum's hand crank and cable haulage — {@code cable/CableLoops},
+ *       {@code cable/CableDrive}, client {@code CableDrumRenderer}; the overhead (hanging) drum —
+ *       {@code cable/CableDrumBlock}</li>
+ *   <li>the Cobblestone Engine (vanilla's furnace minecart) — {@code train/CobblestoneEngine},
+ *       {@code mixin/train/MinecartFurnaceMixin}, {@code mixin/train/VehicleEntityMixin}, recipe and
+ *       advancement overrides, client {@code CobblestoneEngineRenderer}</li>
+ *   <li>iron-chain couplings — {@code train/Couplings}, {@code mixin/train/AbstractMinecartMixin}, client
+ *       {@code CouplingChains}; rail mass and grade — {@code train/TrainPhysics}</li>
+ * </ul>
  */
 public class SimpleBlock implements ModInitializer {
 	public static final String MOD_ID = "simple_block";
@@ -90,6 +103,7 @@ public class SimpleBlock implements ModInitializer {
 	public void onInitialize() {
 		Tuning.load();
 		CableContent.register();
+		TrainContent.register();
 		NoElytraFlight.register();
 		RemovedRocks.register();
 		IronWorldgen.register();

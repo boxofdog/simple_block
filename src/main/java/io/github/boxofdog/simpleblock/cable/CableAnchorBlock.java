@@ -3,8 +3,11 @@ package io.github.boxofdog.simpleblock.cable;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.util.RandomSource;
+import net.minecraft.util.StringRepresentable;
+import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
@@ -39,15 +42,41 @@ import org.jspecify.annotations.Nullable;
  * matters: the model is the same for north and south, and for east and west. The hanger arm is on one
  * side only, west of a north-south cable and north of an east-west one, so a gripping rod's stem can
  * pass the roller on the other side.
+ *
+ * <p>M05: on a closed loop an anchor also carries the return strand ({@link #RETURN}): a guide roller
+ * on the arm side, or, on the last anchor, the return wheel. Using a copper anchor on the last anchor
+ * of a route closes the loop ({@link CableLoops}).
  */
 public class CableAnchorBlock extends BaseEntityBlock {
 	public static final EnumProperty<Direction> FACING = BlockStateProperties.HORIZONTAL_FACING;
+
+	/** M05: what an anchor carries for a closed loop's return strand ({@link CableLoops}). */
+	public enum Return implements StringRepresentable {
+		NONE("none"),
+		/** A small guide roller for the return strand, beside the main roller on the arm side. */
+		GUIDE("guide"),
+		/** The return wheel at the end of a loop, on the side {@link #FACING} points to. */
+		WHEEL("wheel");
+
+		private final String name;
+
+		Return(String name) {
+			this.name = name;
+		}
+
+		@Override
+		public String getSerializedName() {
+			return this.name;
+		}
+	}
+
+	public static final EnumProperty<Return> RETURN = EnumProperty.create("return", Return.class);
 	/** Mounting plate, arm and roller, whichever way the roller faces. */
 	private static final VoxelShape SHAPE = Shapes.or(Block.box(4.0, 15.0, 4.0, 12.0, 16.0, 12.0), Block.box(3.5, 7.75, 4.0, 12.5, 15.0, 12.0));
 
 	public CableAnchorBlock(BlockBehaviour.Properties properties) {
 		super(properties);
-		this.registerDefaultState(this.stateDefinition.any().setValue(FACING, Direction.NORTH));
+		this.registerDefaultState(this.stateDefinition.any().setValue(FACING, Direction.NORTH).setValue(RETURN, Return.NONE));
 	}
 
 	/** Whether the block at {@code above} can carry an anchor hung under it. */
@@ -57,7 +86,7 @@ public class CableAnchorBlock extends BaseEntityBlock {
 
 	@Override
 	protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
-		builder.add(FACING);
+		builder.add(FACING, RETURN);
 	}
 
 	@Override
@@ -92,6 +121,16 @@ public class CableAnchorBlock extends BaseEntityBlock {
 	@Override
 	protected boolean isPathfindable(BlockState state, PathComputationType type) {
 		return true;
+	}
+
+	/** M05: a copper anchor used on the last anchor of a route closes it into a loop (the anchor becomes its return wheel). */
+	@Override
+	protected InteractionResult useItemOn(ItemStack itemStack, BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand,
+		BlockHitResult hitResult) {
+		if (itemStack.is(CableContent.CABLE_ANCHOR_ITEM) && CableLoops.routeEndDrum(level, pos) != null) {
+			return CableLoops.close(level, pos, player, itemStack);
+		}
+		return InteractionResult.TRY_WITH_EMPTY_HAND;
 	}
 
 	@Override

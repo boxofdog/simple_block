@@ -53,5 +53,22 @@
 	"simple_block.cable.taken_off": "Cable taken off the drum: %s blocks",
 	"simple_block.cable.too_far": "Too far: a span can be at most %s blocks, this one would be %s",
 	"simple_block.cable.too_short": "Not enough cable: this span needs %s blocks, the drum has %s",
-	"simple_block.cable.wound": "Coil wound on: %s blocks of cable on the drum"
+	"simple_block.cable.wound": "Coil wound on: %s blocks of cable on the drum",
+	"block.simple_block.cable_drum_part": "Cable Drum Spool",
+	"block.simple_block.cobblestone_engine_model": "Cobblestone Engine",
+	"entity.minecraft.furnace_minecart": "Cobblestone Engine",
+	"item.minecraft.furnace_minecart": "Cobblestone Engine",
+	"simple_block.cable.crank_locked": "Close the loop to haul",
+	"simple_block.cable.drum_loop": "Cable loop: %s blocks laid out and %s in the return, %s wound on",
+	"simple_block.cable.loop_already": "This route is already a loop",
+	"simple_block.cable.loop_blocked": "The return cable would run through %s at %s",
+	"simple_block.cable.loop_closed": "Loop closed: %s blocks of return cable",
+	"simple_block.cable.loop_not_straight": "A loop needs a straight route: the cable turns at %s",
+	"simple_block.cable.loop_opened": "Loop opened: the return cable is back on the drum",
+	"simple_block.cable.loop_short": "Not enough cable for the return: it needs %s blocks, the drum has %s",
+	"simple_block.train.ends_taken": "Both ends of this cart are coupled",
+	"simple_block.train.too_far": "Too far apart to couple",
+	"simple_block.engine.not_empty": "Empty the cart first",
+	"simple_block.engine.full": "The firebox is full",
+	"simple_block.engine.no_fuel": "Needs coal"
 }

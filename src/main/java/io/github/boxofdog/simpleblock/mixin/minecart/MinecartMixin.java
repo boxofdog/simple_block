@@ -32,6 +32,8 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import io.github.boxofdog.simpleblock.cable.ConnectingRods;
 import io.github.boxofdog.simpleblock.feature.MinecartCargo;
 import io.github.boxofdog.simpleblock.feature.MinecartCushions;
+import io.github.boxofdog.simpleblock.train.CobblestoneEngine;
+import io.github.boxofdog.simpleblock.train.Couplings;
 
 /**
  * FRT-01..08: the vanilla minecart carries cargo instead of a rider (rules in {@link MinecartCargo}),
@@ -120,11 +122,20 @@ abstract class MinecartMixin extends AbstractMinecart implements MinecartCargo.C
 
 	/**
 	 * Using a minecart loads or unloads it instead of getting in, unless it has a cushion (or one is
-	 * being fitted); getting into a cushioned cart is left to vanilla.
+	 * being fitted); getting into a cushioned cart is left to vanilla. M05: a chain or shears couples
+	 * ({@link Couplings}) and a furnace makes a Cobblestone Engine ({@link CobblestoneEngine}) first.
 	 */
 	@Inject(method = "interact", at = @At("HEAD"), cancellable = true)
 	private void simpleBlock$cargoInsteadOfRiding(Player player, InteractionHand hand, Vec3 location, CallbackInfoReturnable<InteractionResult> cir) {
 		Minecart self = (Minecart) (Object) this;
+		InteractionResult train = Couplings.interact(self, player, hand, location);
+		if (train == null) {
+			train = CobblestoneEngine.convert(self, player, hand);
+		}
+		if (train != null) {
+			cir.setReturnValue(train);
+			return;
+		}
 		if (ConnectingRods.handles(self, player, hand)) {
 			cir.setReturnValue(ConnectingRods.interact(self, player, hand));
 			return;

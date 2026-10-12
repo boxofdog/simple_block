@@ -1,17 +1,45 @@
 {
 	"variants": {
-		"facing=north": {
+		"facing=north,return=none": {
 			"model": "simple_block:block/cable_anchor"
 		},
-		"facing=south": {
+		"facing=north,return=guide": {
+			"model": "simple_block:block/cable_anchor_guide"
+		},
+		"facing=north,return=wheel": {
+			"model": "simple_block:block/cable_anchor_wheel_front"
+		},
+		"facing=south,return=none": {
 			"model": "simple_block:block/cable_anchor"
 		},
-		"facing=east": {
+		"facing=south,return=guide": {
+			"model": "simple_block:block/cable_anchor_guide"
+		},
+		"facing=south,return=wheel": {
+			"model": "simple_block:block/cable_anchor_wheel_back"
+		},
+		"facing=east,return=none": {
 			"model": "simple_block:block/cable_anchor",
 			"y": 90
 		},
-		"facing=west": {
+		"facing=east,return=guide": {
+			"model": "simple_block:block/cable_anchor_guide",
+			"y": 90
+		},
+		"facing=east,return=wheel": {
+			"model": "simple_block:block/cable_anchor_wheel_front",
+			"y": 90
+		},
+		"facing=west,return=none": {
 			"model": "simple_block:block/cable_anchor",
+			"y": 90
+		},
+		"facing=west,return=guide": {
+			"model": "simple_block:block/cable_anchor_guide",
+			"y": 90
+		},
+		"facing=west,return=wheel": {
+			"model": "simple_block:block/cable_anchor_wheel_back",
 			"y": 90
 		}
 	}

@@ -118,16 +118,50 @@ The authoritative brief is [MILESTONE_04.md](MILESTONE_04.md); the as-built reco
 
 ### Open M04 follow-ups — not implemented
 
-- **Cable motion topology (M05 direction now approved):** keep the M04 open-ended route for placement and add a closed circulating loop for powered travel, with the original strand retained for the rod and a discreet side-offset return strand. A terminal anchor becomes a return wheel, ideally by adding another copper anchor. Exact closing gesture, return clearances and drive mechanics are still to be validated in M05.
-- **Grip versus rollers:** a moving cable needs a believable grip/guide geometry that passes anchor rollers. Present M04 engagement and no-collision behavior is not proof of future powered haulage.
-- **Curves and multiple tracks:** tight curves can pull the grip out of alignment; two-track layouts, diagonal passages and bidirectional geometry need rules.
-- **Tension, braking and stopping:** present cable renders taut without simulation; future powered motion must decide sag/tension, braking, release and route ends.
-- **Drum alignment and support variants:** decide barrel/outlet facing, and whether to add support types beyond underside-mounted wood.
+- **Cable motion topology:** implemented in M05 as a closed loop on straight routes (section 5.0).
+- **Grip versus rollers:** a moving cable needs a believable grip/guide geometry that passes anchor rollers. M04 engagement and no-collision behavior is kept as is in M05; the grip still has no physical shape that would clear a roller.
+- **Curves and multiple tracks:** tight curves can pull the grip out of alignment; two-track layouts, diagonal passages and bidirectional geometry need rules. M05 loops refuse routes that turn (section 5.0).
+- **Tension, braking and stopping:** the cable still renders taut without simulation. M05 settles stopping for loops: carts are held when the crank stops and stop short of both ends (section 5.0).
+- **Drum alignment and support variants:** M05 lines a looped drum up with its route and lets a drum hang under a wooden beam; other support types remain open.
 - **Balance:** cable and coil costs, 12-block spans, 128-block drum capacity and grip reach are implemented starting values, not validated long-term balance.
 
 ## 5. M05 and future transport / mechanical design
 
-**M05 is owner-authorized for implementation but not yet built.** Its specification is [MILESTONE_05.md](MILESTONE_05.md): circulating cable loop, reversible manual drum crank, coal-powered bidirectional Cobblestone Engine with minimally functional coupling, and the drum-side render fix. The longer-term decisions below (coal winch motors, skips, extreme rails, counterweights) **are not automatically authorized** by M05.
+**M05 is implemented; owner acceptance pending.** Its specification is [MILESTONE_05.md](MILESTONE_05.md): circulating cable loop, reversible manual drum crank, coal-powered bidirectional Cobblestone Engine with minimally functional coupling, and the drum-side render fix. The as-built record and tests are [MILESTONE_05_REPORT.md](MILESTONE_05_REPORT.md). The longer-term decisions below (coal winch motors, skips, extreme rails, counterweights) **are not automatically authorized** by M05.
+
+### 5.0 M05 as built (implemented; owner acceptance pending)
+
+**Owner decisions during M05:**
+
+- **Coupling:** an **iron chain**. Use a chain on one cart, then on the next; shears uncouple and give the chain back.
+- **Engine controls:** **driver seat plus ground toggle**. A rider in any cushioned cart coupled to the engine holds forward to power the train towards where they look along the track, and back to brake. From the ground, an empty-hand use starts the engine away from you, or stops it if it is running. (Chosen so a train can be driven from either end without getting out.)
+
+**As-built implementation choices (provisional until playtested):**
+
+| Component | Implemented rule / starting value |
+|---|---|
+| Closing a loop | Use a copper anchor on the **last anchor** of an open route: it becomes the return wheel (the anchor used goes into it), the anchors in between get return guides, and the drum and anchors turn to line up with the route. The return strand runs **4.75 pixels beside** the working strand, on the anchors' arm side, at the same height. |
+| Loop rules | **Straight routes only**: drum and anchors in one line along a world axis, climbing or falling freely but not turning; a turning route is refused, naming the anchor. The return strand must be clear of solid blocks. It costs the return spans plus **3 blocks** for the turns, taken off the drum, and refused if the drum is short. |
+| Opening a loop | Sneak-use (empty hands) any anchor of the loop or the drum: the return cable winds back and the wheel's anchor comes back. Breaking an anchor or the drum also opens it; nothing is lost. Opening never dismantles the route; a further sneak-use does, as in M04. |
+| Crank | On every drum, on the axle end to the right of the cable side. **Hold use on it** to turn it (a held use key repeats every 4 ticks; it keeps turning 6 ticks after each); **sneak while holding** to turn it backwards. Use anywhere else on the drum does what it did in M04. A drum with an **open route is locked** (short message: "Close the loop to haul"); an empty drum just spins. |
+| Hauling | On a loop the drum is a capstan: the working strand moves at `cable.crank_speed` **0.06 blocks/tick** (1.2 blocks/s), and the cable never piles up on the spool. A cart whose rod grips the **working strand only** moves with it, with its coupled carts. Crank stopped: the carts are held. Carts stop **1.5 blocks** (`cable.end_clearance`) short of the drum and the wheel, or where the cable would leave the rod's reach. |
+| Hauling uphill | Speed divided by 1 + `cable.grade_load` (1.0) x mass of the gripping trains on a climbing rail. Lowering is not faster. |
+| Overhead drum | Place a drum against the underside of a wooden beam (same supports as anchors): it hangs upside down and its cable leaves at about the anchors' roller height. Ground placement is unchanged. A hanging drum drops when its beam goes. |
+| Mass | In empty-minecart units: cart **1.0** (`rail.cart_mass`), a full load of 256 adds **2.0** (`rail.cargo_mass`, pro rata), a rider **0.5**, the engine **2.0**. Nothing depends on what the cargo is. |
+| Cobblestone Engine | Vanilla's **furnace minecart entity**, renamed and redrawn. Made by using a furnace on an **empty** plain minecart (no cargo, cushion, rod or rider); it keeps the cart's couplings. Breaking it drops **one minecart and one furnace**. The furnace-minecart recipe and its advancement are disabled. |
+| Engine fuel | Coal or charcoal (`#minecraft:furnace_minecart_fuel`), 3,600 ticks of driving each, up to 32,000; burns only while it powers the train. |
+| Engine traction | Force `train.engine_force` **0.02**; each car on a climbing rail pulls back `train.grade_force` **0.0078** per unit of mass; rolling resistance **0.0005** per unit; brake **0.02** blocks/tick per tick; top speed **0.2 blocks/tick** (4 blocks/s). An engine alone climbs a 45-degree rail slowly; any cart behind it on a sustained climb stalls it (momentum carries short humps). A stopped or stalled train holds where it is. |
+| Couplings | Iron chain; carts within **3 blocks**; held **1.6 blocks** apart; at most two per cart; snaps (dropping its chain) past **4 blocks**. Plain minecarts (freight, cushioned, with a rod) and engines couple. A destroyed cart drops its chains. A train with a coupled cart in an unloaded chunk is held still. |
+| Models | New editable sources: anchor return guide and wheel, the drum split into frame, spool and crank, and the Cobblestone Engine; UV templates, not artwork. |
+
+**Open M05 follow-ups — not implemented:**
+
+- **Loops on curves:** refused for now. A loop round a corner needs curve pulleys and a rule for the return strand's side.
+- **Engine and loop in one train:** if a cable and an engine both drive one train in the same tick, whichever is handled first wins; an engine that is stopped never holds a train the cable is hauling. Not designed further.
+- **Fine control:** a rider has power and brake only; there is no throttle, reverser lever or speed display (deliberately: "no speed-control dashboard").
+- **Downhill:** the grade helps a running engine, but never past its top speed, and a stopped engine brakes; a cable-hauled cart goes no faster downhill than the crank turns. Runaways and crash damage are left to the extreme-rail milestone.
+- **Hopper, TNT and other special minecarts** do not couple.
+- **Balance:** every number above is a starting value with no playtest behind it.
 
 ### 5.1 Cobblestone Engine — coal-powered railway locomotive
 
@@ -137,7 +171,7 @@ The authoritative brief is [MILESTONE_04.md](MILESTONE_04.md); the as-built reco
 - **Minecarts are heavy before adding cargo.** Empty carts have meaningful baseline mass, so several empty carts returning uphill can still strain an engine. Cargo adds to that burden.
 - Engine suitability depends on **cart base mass, cargo load, number of carts, gradient and available traction**; never disable movement simply because a train contains freight.
 - A relatively level, well-engineered railway can rely on a Cobblestone Engine alone. Grades sharply limit propulsion; sustained steep climbs, including some empty-cart climbs, may be impractical.
-- Specific speed, fuel use, traction equations, downhill braking and coupling rules are **open**.
+- Speed, fuel use, traction, braking and coupling have **provisional M05 values** (section 5.0); downhill behaviour and crash consequences remain **open**.
 
 ### 5.2 Winches, dangerous gradients, and upright mining skips
 
@@ -267,9 +301,9 @@ Only record settled answers in sections 1–5 after the owner decides them.
 
 | System | Unsettled details |
 |---|---|
-| Cable motion | **M05 loop direction settled** (outgoing grip strand and side-offset return); **M05 manual** bare-hand winch input is **hold left = feed away**, **hold right = pull toward**, including future manual vertical hoists. **M06 coal upgrade replaces the crank with a latched right-click-cycle lever**, PULL/back, NEUTRAL/center, FEED/forward, and auto-neutral on physical stops. Circulating loops reverse direction without changing wound length. Input interception, terminal gesture, guide clearance, braking and safe release still need engineering validation. |
-| Cobblestone Engine | Mass and traction model, practical grade limits, how coal is spent, interaction/controls and what happens when trains stall or reverse. |
-| Coupling | How carts attach/detach, how tension propagates through a mixed train, and behavior on curves/grade transitions. |
+| Cable motion | **M05 loop direction settled** (outgoing grip strand and side-offset return); **M05 manual** bare-hand winch input is **hold left = feed away**, **hold right = pull toward**, including future manual vertical hoists. **M06 coal upgrade replaces the crank with a latched right-click-cycle lever**, PULL/back, NEUTRAL/center, FEED/forward, and auto-neutral on physical stops. Circulating loops reverse direction without changing wound length. Input interception, terminal gesture, guide clearance, braking and safe release still need engineering validation. **M05 as built (provisional):** straight closed loops only, anchor-on-last-anchor gesture, end clearance, hold on stop (section 5.0); loops round curves and tension/sag remain open. |
+| Cobblestone Engine | **M05 provisional:** mass/force/grade numbers, coal per tick of driving, seat and ground controls, hold on stall (section 5.0). Open: balance after playtesting, downhill behaviour. |
+| Coupling | **M05 provisional:** iron chain, shears, fixed 1.6-block spacing. Open: behaviour on tight curves and grade transitions beyond what M05 tested, slack. |
 | Rails | Geometry and construction of extended extreme slopes; whether steep routes require special rail pieces; speed and crash damage. |
 | M06 freight track, coal winch and redstone rail retirement | **Settled:** shapeless loading track = vanilla rail + copper anchor; track determines cart front and skip-relative loading modes; retire redstone rails safely and disallow manual freight shoving. **Powered winch:** apply furnace on free side of drum, replacing crank with **three-position latching lever (PULL/back, NEUTRAL/center, FEED/forward)**; **right-click lever advances one state** and PULL/FEED run without continuous input. **At derailment/path end, cart dock or M07 skip dock/shaft end, auto-flip to NEUTRAL**, stopping and pausing burn until player starts a new segment. Right-click coal on drum to load; bare-hand right-click body inspects supply. Remaining partly used coal burn survives stop and save/load. **Settled:** first click from neutral selects PULL. **Open:** subsequent cycle transitions, fuel capacity, speed/fallback, loading track facing/release and transfer details. M06 not authorized. |
 | Armor and utility gear | **Settled:** retire gold/chainmail; copper Headlamp; one-piece Overalls occupy BOTH chest/legs (+9 inventory slots, low protection). **Spiked Boots alone: Spelunker's Speed**, replaced in full outfit by **Trail Blazer** (climbing, nearby yellow/blue infrastructure outlines and skeleton inaccuracy). **Mining Boots alone: Mule** (overweight carrying with progressive slowdown), replaced in full outfit by **Old Pro** (retains Mule and adds offhand pickaxe mining and a red bottom-edge warning). Warning triggers ONLY for hostile monsters **behind, within 20 blocks, with unobstructed line of sight to Steve's second-block-high upper body/neck**; not through walls. Old proposed +5% mining speed retired. **Recipes settled:** exact shaped layouts for Headlamp, Overalls, Spiked Boots, Mining Boots below; output count/design models still open. **Open:** rear angle and ray target precision, offhand controls, provenance, balance and equipment safety. Not implementation-authorized. |

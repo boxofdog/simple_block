@@ -145,6 +145,28 @@ public final class Tuning {
 		// Height of the cable above a minecart (its position on the rail) that a connecting rod grips.
 		define("cable.rod_reach_min", 1.5);
 		define("cable.rod_reach_max", 3.0);
+		// M05 cable loops (provisional). Working-strand speed while the crank is held, blocks per tick
+		// (0.06 = 1.2 blocks a second on the level).
+		define("cable.crank_speed", 0.06);
+		// Extra effort per unit of hauled mass on a rail climb (vanilla slopes: one up per one along):
+		// speed = crank speed / (1 + grade_load x mass climbing).
+		define("cable.grade_load", 1.0);
+		// How close to the drum's exit or the return wheel (along the track) a hauled cart stops.
+		define("cable.end_clearance", 1.5);
+
+		// M05 rail mass (provisional), in empty-minecart units: an empty cart, a full load of cargo on
+		// top (scaled by the load), a rider, a Cobblestone Engine.
+		define("rail.cart_mass", 1.0);
+		define("rail.cargo_mass", 2.0);
+		define("rail.passenger_mass", 0.5);
+		define("train.engine_mass", 2.0);
+		// Cobblestone Engine (provisional), in blocks per tick per tick and mass units: driving force,
+		// the pull of a 45-degree rail on each unit of mass, rolling resistance, braking, top speed.
+		define("train.engine_force", 0.02);
+		define("train.grade_force", 0.0078);
+		define("train.rolling_resistance", 0.0005);
+		define("train.brake", 0.02);
+		define("train.max_speed", 0.2);
 	}
 
 	private Tuning() {

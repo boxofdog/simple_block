@@ -74,36 +74,69 @@ class Cube:
         return Cube(name or self.name, [self.frm[i] + d[i] for i in range(3)], [self.to[i] + d[i] for i in range(3)], rot, self.uv_key)
 
 
-def prism_x(name, x1, x2, cy, cz, r):
-    """An octagonal prism along x (a drum barrel or flange): four bands at 0, 90 and +-45 degrees."""
+# BUG-001: the bands of an octagonal prism overlap, so their end faces used to lie in one plane and
+# z-fought (flickering stripes on the drum's flanges). Each band after the first is now a little shorter
+# at both ends (RECESS model pixels), so wherever two end faces overlap one is clearly in front.
+RECESS = 0.1
+AXES = 'xyz'
+
+
+def prism(name, axis, a1, a2, c1, c2, r):
+    """An octagonal prism along `axis` from a1 to a2, centred on (c1, c2) in the other two axes (in
+    xyz order): four bands at 0, 90 and +-45 degrees. The 90-degree band is recessed by RECESS at each
+    end, the two diagonal ones by twice that (see BUG-001)."""
+    i = AXES.index(axis)
+    j, k = [n for n in range(3) if n != i]
     w = r * TAN
-    band = ([x1, cy - r, cz - w], [x2, cy + r, cz + w])
-    origin = [(x1 + x2) / 2, cy, cz]
+
+    def box(lo_j, hi_j, lo_k, hi_k, inset):
+        frm, to = [0.0] * 3, [0.0] * 3
+        frm[i], to[i] = a1 + inset, a2 - inset
+        frm[j], to[j] = c1 + lo_j, c1 + hi_j
+        frm[k], to[k] = c2 + lo_k, c2 + hi_k
+        return frm, to
+
+    origin = [0.0] * 3
+    origin[i], origin[j], origin[k] = (a1 + a2) / 2, c1, c2
     return [
-        Cube(name + '_a', [x1, cy - w, cz - r], [x2, cy + w, cz + r]),
-        Cube(name + '_b', *band),
-        Cube(name + '_c', *band, rot=('x', 45, origin), uv_key=name + '_b'),
-        Cube(name + '_d', *band, rot=('x', -45, origin), uv_key=name + '_b'),
+        Cube(name + '_a', *box(-w, w, -r, r, 0.0)),
+        Cube(name + '_b', *box(-r, r, -w, w, RECESS)),
+        Cube(name + '_c', *box(-r, r, -w, w, 2 * RECESS), rot=(axis, 45, origin), uv_key=name + '_b'),
+        Cube(name + '_d', *box(-r, r, -w, w, 2 * RECESS), rot=(axis, -45, origin), uv_key=name + '_b'),
     ]
 
 
+def prism_x(name, x1, x2, cy, cz, r):
+    return prism(name, 'x', x1, x2, cy, cz, r)
+
+
 def ring_y(name, cx, cz, y1, y2, radius, thickness, key=None):
-    """An octagonal ring of bars lying flat around a vertical axis (a loop of cable)."""
+    """An octagonal ring of bars lying flat around a vertical axis (a loop of cable). The diagonal bars
+    are a little thinner than the straight ones where they overlap at the corners (see BUG-001)."""
     key = key or name
     half = (radius + thickness / 2) * TAN
     t = thickness / 2
-    bar_x = lambda z: ([cx - half, y1, z - t], [cx + half, y2, z + t])
-    bar_z = lambda x: ([x - t, y1, cz - half], [x + t, y2, cz + half])
+    bar_x = lambda z, inset: ([cx - half, y1 + inset, z - t], [cx + half, y2 - inset, z + t])
+    bar_z = lambda x, inset: ([x - t, y1 + inset, cz - half], [x + t, y2 - inset, cz + half])
     origin = [cx, (y1 + y2) / 2, cz]
     cubes = []
-    for i, (frm, to) in enumerate([bar_x(cz - radius), bar_x(cz + radius), bar_z(cx - radius), bar_z(cx + radius)]):
-        cubes.append(Cube(f'{name}_{i}', frm, to, uv_key=key))
-        cubes.append(Cube(f'{name}_{i}r', frm, to, rot=('y', 45, origin), uv_key=key))
+    for i, bar in enumerate([lambda e: bar_x(cz - radius, e), lambda e: bar_x(cz + radius, e), lambda e: bar_z(cx - radius, e),
+                             lambda e: bar_z(cx + radius, e)]):
+        cubes.append(Cube(f'{name}_{i}', *bar(0.0), uv_key=key))
+        cubes.append(Cube(f'{name}_{i}r', *bar(RECESS), rot=('y', 45, origin), uv_key=key))
     return cubes
 
 
 def mirror_x(cube, name):
     return Cube(name, [16 - cube.to[0], cube.frm[1], cube.frm[2]], [16 - cube.frm[0], cube.to[1], cube.to[2]], uv_key=name)
+
+
+def mirror_z(cube):
+    rot = None
+    if cube.rot:
+        axis, angle, origin = cube.rot
+        rot = (axis, -angle if axis != 'z' else angle, [origin[0], origin[1], 16 - origin[2]])
+    return Cube(cube.name, [cube.frm[0], cube.frm[1], 16 - cube.to[2]], [cube.to[0], cube.to[1], 16 - cube.frm[2]], rot, cube.uv_key)
 
 
 # Copper cable anchor, as placed facing north: the cable runs north-south over the roller; the
@@ -117,9 +150,28 @@ ANCHOR = [
     Cube('flange_west', [6, 7.75, 6], [6.5, 12.5, 10]),
     Cube('flange_east', [9.5, 7.75, 6], [10, 12.5, 10]),
 ]
+# M05 cable loop: an intermediate anchor carries the return strand on a small guide roller on the arm
+# side (strand at x 3.25, beside the working strand at x 8, same height).
+ANCHOR_GUIDE = ANCHOR + [
+    Cube('guide_flange', [2.25, 8.5, 6.75], [2.75, 11.75, 9.25]),
+    Cube('guide_roller', [2.75, 8.75, 7], [4, 11.25, 9]),
+]
+# The last anchor of a loop carries the return wheel: a flat pulley beyond the anchor (towards model
+# north), on a bracket under the beam, turning the working strand (x 8) back into the return strand
+# (x 3.25). A second model has it to the south; the block state picks the one facing away from the drum.
+ANCHOR_WHEEL_FRONT = ANCHOR + [
+    Cube('wheel_bracket', [5.125, 13.25, 2.5], [6.125, 15, 4.5]),
+    Cube('wheel_pin', [5.125, 10.25, 2.5], [6.125, 13.25, 3.5]),
+] + prism('wheel', 'y', 11.25, 12.75, 5.625, 3, 1.75) + prism('wheel_flange_low', 'y', 10.75, 11.25, 5.625, 3, 2.75) \
+    + prism('wheel_flange_high', 'y', 12.75, 13.25, 5.625, 3, 2.75)
+for c in ANCHOR_WHEEL_FRONT:
+    if c.name.startswith('wheel_flange_'):
+        c.uv_key = c.uv_key.replace('_low', '').replace('_high', '')
+ANCHOR_WHEEL_BACK = ANCHOR + [mirror_z(c) for c in ANCHOR_WHEEL_FRONT[len(ANCHOR):]]
 
-# Cable drum, facing north (the cable pays out to the north): timber side frames, the axle running
-# east-west at y 9.5, z 8, spool flanges and the barrel (bare, or wound with cable up to y 14).
+# Cable drum, facing north (the cable pays out to the north): timber side frames (the block model),
+# and, drawn turning by the block entity renderer about the axle (x, at y 9.5, z 8), the spool (flanges
+# and the barrel, bare or wound with cable up to y 14) and the hand crank on the east side.
 _frame_west = [
     Cube('rail_west', [0, 0, 1], [2, 2, 15]),
     Cube('post_front_west', [0, 2, 2], [2, 6.5, 4]),
@@ -128,12 +180,18 @@ _frame_west = [
     Cube('bearing_west', [0, 8, 6.5], [2, 11, 9.5]),
     Cube('axle_cap_west', [-0.5, 8.75, 7.25], [0, 10.25, 8.75]),
 ]
-_frame = _frame_west + [mirror_x(c, c.name.replace('west', 'east')) for c in _frame_west]
+DRUM_FRAME = _frame_west + [mirror_x(c, c.name.replace('west', 'east')) for c in _frame_west]
 _flanges = prism_x('flange_west', 2, 3, 9.5, 8, 6) + prism_x('flange_east', 13, 14, 9.5, 8, 6)
 for c in _flanges:
     c.uv_key = c.uv_key.replace('_west', '').replace('_east', '')
-DRUM = _frame + _flanges + prism_x('barrel', 3, 13, 9.5, 8, 3.5)
-DRUM_WOUND = _frame + _flanges + prism_x('wound_cable', 3, 13, 9.5, 8, 4.5)
+DRUM_SPOOL = _flanges + prism_x('barrel', 3, 13, 9.5, 8, 3.5)
+DRUM_SPOOL_WOUND = _flanges + prism_x('wound_cable', 3, 13, 9.5, 8, 4.5)
+DRUM_CRANK = [
+    Cube('crank_hub', [16.5, 8.5, 7], [17.5, 10.5, 9]),
+    Cube('crank_arm', [17.5, 9, 7.5], [18.5, 14.5, 8.5]),
+    Cube('crank_handle', [18.5, 13, 7.25], [21, 14.5, 8.75]),
+]
+DRUM = DRUM_FRAME + DRUM_SPOOL + DRUM_CRANK
 
 # The loose end's hook, 8 px tall, standing on the model's floor at the centre (the entity's position).
 HOOK = [
@@ -175,10 +233,36 @@ COIL_ITEM = (ring_y('turn_1', 8, 8, 4, 6, 5.5, 2, key='strand')
              + ring_y('turn_2', 8, 8, 6, 8, 5.5, 2, key='strand')
              + ring_y('turn_3', 8, 8, 8, 10, 5.5, 2, key='strand'))
 
+# M05 Cobblestone Engine: a small stone-fired locomotive on a minecart's footprint, drawn in place of
+# the cart body. The cart's length runs along model x (-4 to 20); y 0 is just above the rail. The stack
+# is at the low-x end, the firebox (the furnace) at the high-x end.
+_wheels = []
+for x in (1.5, 14.5):
+    _wheels += prism('wheel_left_' + str(int(x)), 'z', 0.5, 1.5, x, 2.5, 2.5)
+    _wheels += prism('wheel_right_' + str(int(x)), 'z', 14.5, 15.5, x, 2.5, 2.5)
+for c in _wheels:
+    c.uv_key = 'wheel' + c.uv_key[c.uv_key.rindex('_'):]
+ENGINE = _wheels + [
+    Cube('chassis', [-3, 2, 1.5], [19, 4, 14.5]),
+    Cube('buffer_front_left', [-4, 2.5, 3], [-3, 4, 5]),
+    Cube('buffer_front_right', [-4, 2.5, 11], [-3, 4, 13]),
+    Cube('buffer_back_left', [19, 2.5, 3], [20, 4, 5]),
+    Cube('buffer_back_right', [19, 2.5, 11], [20, 4, 13]),
+    Cube('firebox', [8, 4, 2.5], [18, 13, 13.5]),
+    Cube('firebox_door', [18, 5, 5.5], [18.5, 9, 10.5]),
+    Cube('smokestack', [0, 12, 6.5], [3, 17, 9.5]),
+    Cube('smokestack_cap', [-0.5, 17, 6], [3.5, 18, 10]),
+] + prism_x('boiler', -2, 8, 8, 8, 4)
+for c in ENGINE:
+    if c.name.startswith('buffer_'):
+        c.uv_key = 'buffer'
+
 # Texture groups: models that share one texture (and one UV layout).
 GROUPS = {
-    'block/cable_anchor': {'cable_anchor': ANCHOR},
-    'block/cable_drum': {'cable_drum': DRUM, 'cable_drum_wound': DRUM_WOUND},
+    'block/cable_anchor': {'cable_anchor': ANCHOR, 'cable_anchor_guide': ANCHOR_GUIDE, 'cable_anchor_wheel_front': ANCHOR_WHEEL_FRONT,
+                           'cable_anchor_wheel_back': ANCHOR_WHEEL_BACK},
+    'block/cable_drum': {'cable_drum': DRUM, 'cable_drum_frame': DRUM_FRAME, 'cable_drum_spool': DRUM_SPOOL,
+                         'cable_drum_spool_wound': DRUM_SPOOL_WOUND, 'cable_drum_crank': DRUM_CRANK},
     'block/cable_hook': {'cable_hook': HOOK},
     'block/connecting_rod': {
         'connecting_rod_base': ROD_BASE,
@@ -189,14 +273,13 @@ GROUPS = {
     },
     'item/cable': {'cable': CABLE_ITEM},
     'item/cable_coil': {'cable_coil': COIL_ITEM},
+    'block/cobblestone_engine': {'cobblestone_engine': ENGINE},
 }
 # Where each model's JSON goes (block models are used by blockstates, block items and renderers).
-MODEL_PATHS = {
-    'cable_anchor': 'block/cable_anchor', 'cable_drum': 'block/cable_drum', 'cable_drum_wound': 'block/cable_drum_wound',
-    'cable_hook': 'block/cable_hook', 'connecting_rod_base': 'block/connecting_rod_base', 'connecting_rod_shaft': 'block/connecting_rod_shaft',
-    'connecting_rod_head_open': 'block/connecting_rod_head_open', 'connecting_rod_head_closed': 'block/connecting_rod_head_closed',
-    'copper_connecting_rod': 'item/copper_connecting_rod', 'cable': 'item/cable', 'cable_coil': 'item/cable_coil',
-}
+MODEL_PATHS = {name: ('item/' if name in ('copper_connecting_rod', 'cable', 'cable_coil') else 'block/') + name
+               for models in GROUPS.values() for name in models}
+# Models also shown as items (they get the standard block display transforms).
+ITEM_DISPLAY = {'cable_anchor', 'cable_drum', 'copper_connecting_rod', 'cable', 'cable_coil'}
 
 # ---- UV layout ----
 
@@ -356,7 +439,7 @@ def main():
         texture_id = f'{NAMESPACE}:{texture}'
         for name, model_cubes in models.items():
             path = MODEL_PATHS[name]
-            item = path.startswith('item/') or name in ('cable_anchor', 'cable_drum')
+            item = name in ITEM_DISPLAY
             model_file = os.path.join(ASSETS, 'models', path + '.json')
             write_json(model_file, model_json(name, model_cubes, texture_id, regions, size, item))
             bb_file = os.path.join(ART, name + '.bbmodel')
@@ -373,20 +456,31 @@ def main():
     img.save(buf, 'PNG')
     write(os.path.join(ASSETS, 'textures', 'entity', 'cable.png'), buf.getvalue(), binary=True)
 
-    m = lambda path, **kw: dict({'model': f'{NAMESPACE}:{path}'}, **kw)
-    write_json(os.path.join(ASSETS, 'blockstates', 'cable_anchor.json'), {'variants': {
-        'facing=north': m('block/cable_anchor'), 'facing=south': m('block/cable_anchor'),
-        'facing=east': m('block/cable_anchor', y=90), 'facing=west': m('block/cable_anchor', y=90),
-    }})
+    m = lambda path, **kw: dict({'model': f'{NAMESPACE}:{path}'}, **{k: v for k, v in kw.items() if v})
+    # Anchors: only the axis of the facing matters for the plain and guide models (arm west of a
+    # north-south cable, north of an east-west one); a return wheel sits on the side the facing points to.
+    anchor = {}
+    for facing in ('north', 'south', 'east', 'west'):
+        y = 90 if facing in ('east', 'west') else 0
+        anchor[f'facing={facing},return=none'] = m('block/cable_anchor', y=y)
+        anchor[f'facing={facing},return=guide'] = m('block/cable_anchor_guide', y=y)
+        anchor[f'facing={facing},return=wheel'] = m('block/cable_anchor_wheel_' + ('front' if facing in ('north', 'east') else 'back'), y=y)
+    write_json(os.path.join(ASSETS, 'blockstates', 'cable_anchor.json'), {'variants': anchor})
+    # Drums: the block model is the frame; the spool and crank are drawn turning by the renderer. A drum
+    # hung under a beam is the same frame upside down.
     rotations = {'north': 0, 'east': 90, 'south': 180, 'west': 270}
     drum_variants = {}
     for facing, y in rotations.items():
-        for wound, path in (('false', 'block/cable_drum'), ('true', 'block/cable_drum_wound')):
-            drum_variants[f'facing={facing},wound={wound}'] = m(path, y=y) if y else m(path)
+        for wound in ('false', 'true'):
+            for hanging in ('false', 'true'):
+                drum_variants[f'facing={facing},hanging={hanging},wound={wound}'] = m('block/cable_drum_frame', x=180 if hanging == 'true' else 0, y=y)
     write_json(os.path.join(ASSETS, 'blockstates', 'cable_drum.json'), {'variants': drum_variants})
+    write_json(os.path.join(ASSETS, 'blockstates', 'cable_drum_part.json'), {'variants': {
+        f'part={part}': m(f'block/cable_drum_{part}') for part in ('spool', 'spool_wound', 'crank')}})
     write_json(os.path.join(ASSETS, 'blockstates', 'cable_hook.json'), {'variants': {'': m('block/cable_hook')}})
     write_json(os.path.join(ASSETS, 'blockstates', 'connecting_rod_part.json'), {'variants': {
         f'part={part}': m(f'block/connecting_rod_{part}') for part in ('base', 'shaft', 'head_open', 'head_closed')}})
+    write_json(os.path.join(ASSETS, 'blockstates', 'cobblestone_engine_model.json'), {'variants': {'': m('block/cobblestone_engine')}})
     for item, path in (('cable', 'item/cable'), ('cable_coil', 'item/cable_coil'), ('copper_connecting_rod', 'item/copper_connecting_rod'),
                        ('cable_anchor', 'block/cable_anchor'), ('cable_drum', 'block/cable_drum')):
         write_json(os.path.join(ASSETS, 'items', item + '.json'), {'model': {'type': 'minecraft:model', 'model': f'{NAMESPACE}:{path}'}})

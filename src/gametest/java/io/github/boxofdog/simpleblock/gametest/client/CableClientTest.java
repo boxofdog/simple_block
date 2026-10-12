@@ -53,6 +53,7 @@ public class CableClientTest implements FabricClientGameTest {
 			world.getConnection().waitForChunksRender();
 
 			drum(context, server, g);
+			drumCloseUps(context, server, g);
 			anchors(context, server, g);
 			route(context, server, g);
 			rod(context, server, g);
@@ -111,6 +112,24 @@ public class CableClientTest implements FabricClientGameTest {
 		assertTrue(stored == CableContent.BLOCKS_PER_COIL && wound, "drum after one coil: " + stored + " blocks, wound " + wound);
 		assertTrue(clientHooks == 1, "the client should see the loose end's hook, saw " + clientHooks);
 		server.runCommand("clear @a");
+	}
+
+	/**
+	 * BUG-001: close-ups of a wound drum's sides (the spool flanges seen along the axle and at angles),
+	 * where the owner saw flickering stripes.
+	 */
+	private static void drumCloseUps(ClientGameTestContext context, TestServerContext server, int g) {
+		Vec3 centre = new Vec3(20.5, g + 0.6, Z + 0.5);
+		double[][] views = {{20.5, g + 0.9, Z - 1.6}, {21.9, g + 1.2, Z - 1.0}, {19.0, g + 1.4, Z + 2.1}, {20.5, g + 2.0, Z + 2.0}};
+		for (int i = 0; i < views.length; i++) {
+			server.runCommand("tp @a " + views[i][0] + " " + (views[i][1] - 1.62) + " " + views[i][2]);
+			context.waitTicks(5);
+			lookAtPoint(context, centre);
+			context.waitTicks(5);
+			context.takeScreenshot("bug001-drum-side-" + i);
+		}
+		server.runCommand("tp @a 23.5 " + g + " 6.5 90 20");
+		context.waitTicks(5);
 	}
 
 	/** CAB-02 in the client: right-click the underside of the planks to hang anchors; under stone it is refused. */
@@ -309,14 +328,14 @@ public class CableClientTest implements FabricClientGameTest {
 
 	// ---- Helpers ----
 
-	private static CableDrumBlockEntity drumOf(ServerLevel level, BlockPos pos) {
+	static CableDrumBlockEntity drumOf(ServerLevel level, BlockPos pos) {
 		if (level.getBlockEntity(pos) instanceof CableDrumBlockEntity drum) {
 			return drum;
 		}
 		throw new AssertionError("no cable drum at " + pos);
 	}
 
-	private static CableHook hookOf(ServerLevel level, BlockPos drum) {
+	static CableHook hookOf(ServerLevel level, BlockPos drum) {
 		return level.getEntitiesOfClass(CableHook.class, new AABB(drum).inflate(40.0), hook -> hook.drumPos().equals(drum)).stream().findFirst()
 			.orElseThrow(() -> new AssertionError("no cable end for the drum at " + drum));
 	}
@@ -326,14 +345,14 @@ public class CableClientTest implements FabricClientGameTest {
 	}
 
 	/** Turns the camera to the middle of the (hanging) hook nearest the player. */
-	private static void lookAtHook(ClientGameTestContext context) {
+	static void lookAtHook(ClientGameTestContext context) {
 		Vec3 target = context.computeOnClient(client -> client.level.getEntitiesOfClass(CableHook.class, client.player.getBoundingBox().inflate(8.0))
 			.stream().map(hook -> hook.getBoundingBox().getCenter()).findFirst().orElseThrow(() -> new AssertionError("no hook in sight")));
 		lookAtPoint(context, target);
 	}
 
 	/** Turns the camera so the crosshair is on {@code target} (a world position). */
-	private static void lookAtPoint(ClientGameTestContext context, Vec3 target) {
+	static void lookAtPoint(ClientGameTestContext context, Vec3 target) {
 		float[] angles = context.computeOnClient(client -> {
 			Vec3 d = target.subtract(client.player.getEyePosition());
 			float yaw = (float) (Mth.atan2(d.z, d.x) * Mth.RAD_TO_DEG) - 90.0F;
@@ -344,14 +363,14 @@ public class CableClientTest implements FabricClientGameTest {
 		context.waitTicks(1);
 	}
 
-	private static String overlayMessage(ClientGameTestContext context) {
+	static String overlayMessage(ClientGameTestContext context) {
 		return context.computeOnClient(client -> {
 			Component message = ((HudAccessor) client.gui.hud).simple_block$getOverlayMessage();
 			return message == null ? "" : message.getString();
 		});
 	}
 
-	private static void assertTrue(boolean condition, String message) {
+	static void assertTrue(boolean condition, String message) {
 		if (!condition) {
 			throw new AssertionError(message);
 		}

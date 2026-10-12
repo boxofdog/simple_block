@@ -4,7 +4,8 @@
 	"compatibilityLevel": "JAVA_25",
 	"client": [
 		"AbstractContainerScreenAccessor",
-		"AbstractMinecartRendererMixin"
+		"AbstractMinecartRendererMixin",
+		"MinecartRenderStateMixin"
 	],
 	"injectors": {
 		"defaultRequire": 1

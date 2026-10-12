@@ -68,7 +68,7 @@ public class CableHook extends Entity {
 
 	/** Where the loose cable starts: the drum's exit or the last anchor's roller. */
 	public Vec3 endPoint() {
-		return CableRoutes.point(this.endPos(), this.endPos().equals(this.drumPos()));
+		return CableRoutes.point(this.level(), this.endPos(), this.endPos().equals(this.drumPos()));
 	}
 
 	public int holderId() {
@@ -103,12 +103,15 @@ public class CableHook extends Entity {
 
 	/**
 	 * Where a hook that nobody holds hangs: just under the last anchor, or, with no route, lying at the
-	 * foot of the drum's front (low, so a click on the drum's upper half reaches the drum).
+	 * foot of a standing drum's front (low, so a click on the drum's upper half reaches the drum), or
+	 * hanging just below the front of a drum hung under a beam.
 	 */
 	static Vec3 restPosition(BlockPos drum, BlockState drumState, BlockPos end) {
 		if (end.equals(drum)) {
 			Direction facing = drumState.hasProperty(CableDrumBlock.FACING) ? drumState.getValue(CableDrumBlock.FACING) : Direction.NORTH;
-			return new Vec3(drum.getX() + 0.5 + facing.getStepX() * 0.62, drum.getY() + 0.02, drum.getZ() + 0.5 + facing.getStepZ() * 0.62);
+			boolean hanging = drumState.hasProperty(CableDrumBlock.HANGING) && drumState.getValue(CableDrumBlock.HANGING);
+			return new Vec3(drum.getX() + 0.5 + facing.getStepX() * 0.62, drum.getY() + (hanging ? -0.3 : 0.02),
+				drum.getZ() + 0.5 + facing.getStepZ() * 0.62);
 		}
 		return CableRoutes.point(end, false).subtract(0.0, HANG + CableContent.CABLE_HOOK.getHeight(), 0.0);
 	}

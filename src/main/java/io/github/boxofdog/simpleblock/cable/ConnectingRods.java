@@ -24,9 +24,10 @@ import io.github.boxofdog.simpleblock.tuning.Tuning;
  * where the cable leaves. The grip stays on across anchors: the head's jaw is open on the side away
  * from the anchors' hanger arms, so it rolls past their rollers instead of catching on them.
  *
- * <p>Gripping does nothing to the cart yet: the cable does not move, and pulling carts with it is a
- * later milestone. The cart remembers the rod (synced, saved) and its current reach (synced, 0 when
- * not gripping), on {@link Fitted}, implemented by {@code mixin/minecart/MinecartMixin}.
+ * <p>On an open route gripping does nothing to the cart. On a closed loop (M05) the cart moves with the
+ * working strand ({@link CableDrive}); the rod never grips a loop's return strand. The cart remembers
+ * the rod (synced, saved) and its current reach (synced, 0 when not gripping), on {@link Fitted},
+ * implemented by {@code mixin/minecart/MinecartMixin}.
  *
  * <ul>
  *   <li>Fitting: use a connecting rod on a minecart. One rod is used up.</li>
@@ -103,18 +104,24 @@ public final class ConnectingRods {
 		return InteractionResult.SUCCESS;
 	}
 
-	/** Server, every tick of a cart with a rod: grips the cable above, if any. */
+	/**
+	 * Server, every tick of a cart with a rod: grips the cable above, if any, and (M05) moves with a
+	 * closed loop's working strand ({@link CableDrive}).
+	 */
 	public static void tick(Minecart minecart) {
 		if (!(minecart.level() instanceof ServerLevel level) || !hasRod(minecart)) {
 			return;
 		}
 		Fitted rod = fitted(minecart);
-		double reach = CableIndex.reachAbove(level, minecart.position(), TOLERANCE, reachMin(), reachMax());
-		float next = Double.isNaN(reach) ? 0.0F : (float) reach;
+		CableIndex.Grip grip = CableIndex.grip(level, minecart.position(), TOLERANCE, reachMin(), reachMax());
+		float next = grip == null ? 0.0F : (float) grip.reach();
 		if (next > 0.0F && rod.simpleBlock$reach() <= 0.0F) {
 			minecart.playSound(SoundEvents.CHAIN_PLACE, 0.4F, 1.6F);
 		}
 		rod.simpleBlock$setReach(next);
+		if (grip != null) {
+			CableDrive.driveCart(level, minecart, grip);
+		}
 	}
 
 	/** Drops the rod as an item and clears it; does nothing the second time. */

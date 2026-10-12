@@ -2,7 +2,7 @@
 
 A stripped-down Minecraft Java Edition overhaul built around hostile nights, territory, mining and physical transport infrastructure. See [`docs/VISION.md`](docs/VISION.md) for the design and [`CLAUDE.md`](CLAUDE.md) for the working rules.
 
-**Status:** Milestones 01 (Survival Foundation) and 02 (World, Night, Inventory) are done: see [`docs/MILESTONE_01_REPORT.md`](docs/MILESTONE_01_REPORT.md) and [`docs/MILESTONE_02_REPORT.md`](docs/MILESTONE_02_REPORT.md). Milestone 03 (minecart cargo and storage-bypass closure) is reported in [`docs/MILESTONE_03_REPORT.md`](docs/MILESTONE_03_REPORT.md). Milestone 04 (cable infrastructure) is reported in [`docs/MILESTONE_04_REPORT.md`](docs/MILESTONE_04_REPORT.md).
+**Status:** Milestones 01 (Survival Foundation) and 02 (World, Night, Inventory) are done: see [`docs/MILESTONE_01_REPORT.md`](docs/MILESTONE_01_REPORT.md) and [`docs/MILESTONE_02_REPORT.md`](docs/MILESTONE_02_REPORT.md). Milestone 03 (minecart cargo and storage-bypass closure) is reported in [`docs/MILESTONE_03_REPORT.md`](docs/MILESTONE_03_REPORT.md). Milestone 04 (cable infrastructure) is reported in [`docs/MILESTONE_04_REPORT.md`](docs/MILESTONE_04_REPORT.md). Milestone 05 (cable haulage, the Cobblestone Engine and train couplings) is reported in [`docs/MILESTONE_05_REPORT.md`](docs/MILESTONE_05_REPORT.md).
 
 **Fresh worlds only.** The mod is not meant to be added to existing saves.
 
@@ -53,7 +53,7 @@ Each feature is self-contained. To revert one, remove its mixin entries from `sr
 
 ## What Milestone 04 adds
 
-See [`docs/MILESTONE_04.md`](docs/MILESTONE_04.md) and, for the choices made where the brief left room, [`docs/DECISIONS.md`](docs/DECISIONS.md). Nothing moves yet: the cable doesn't run and the rod doesn't pull carts (later milestones).
+See [`docs/MILESTONE_04.md`](docs/MILESTONE_04.md) and, for the choices made where the brief left room, [`docs/DECISIONS.md`](docs/DECISIONS.md). In M04 nothing moves: M05 (below) makes the cable haul carts.
 
 | Component | What it does | Where |
 |---|---|---|
@@ -63,6 +63,19 @@ See [`docs/MILESTONE_04.md`](docs/MILESTONE_04.md) and, for the choices made whe
 | Laying cable | Use the hook to pick up the end; it follows your hand like a lead. Use anchors in turn to run the cable through them: each straight span (at most 12 blocks, clear of solid blocks) uses its length off the drum. Use the drum or the last anchor to put the end down. Wind on more coils and carry on to extend. Sneak + use an anchor to disconnect from there on, sneak + use the drum to wind everything back and then take the cable off as coils; breaking an anchor or the drum does the same. | `cable/CableRoutes`, `cable/CableHook`, client `cable/CableHookRenderer` |
 | Copper connecting rod | Use it on a minecart to fit it (sneak + use takes it off once the cart is empty). Under a laid cable, 1.5 to 3 blocks above the rail, it reaches up and grips it, rolls past the anchors, and lets go where the cable ends. | `cable/ConnectingRods`, `mixin/minecart/MinecartMixin`, client `CargoMinecartRenderer` |
 | Models | Editable Blockbench sources with UV-template textures for you to paint: `art/blockbench/` (see its README). | `art/blockbench/*.bbmodel`, `assets/simple_block/{models,textures,blockstates,items}` |
+
+## What Milestone 05 adds
+
+See [`docs/MILESTONE_05.md`](docs/MILESTONE_05.md), and section 5.0 of [`docs/DECISIONS.md`](docs/DECISIONS.md) for the choices and starting numbers. Every M04 part and gesture works as before.
+
+| Component | What it does | Where |
+|---|---|---|
+| Cable loops | Use a copper anchor on the last anchor of a straight route to close it into a loop: that anchor becomes a return wheel and the return cable runs back beside the working one, off the drum (refused, with nothing used, if the drum is short of cable, the return path is blocked or the route turns). Sneak + use an anchor or the drum (empty hands) to open it again; breaking a part opens it too. No cable is ever lost. | `cable/CableLoops`, `cable/CableAnchorBlock` (`return` state), `CableAnchorBlockEntity`, client `cable/CableDrumRenderer` |
+| Hand crank and hauling | Every drum has a crank on its axle end. Hold use on it to turn it; sneak to turn it back. On a loop the cable moves, and a cart whose rod grips the working strand (never the return) is hauled out or back with the carts coupled to it, slower uphill the heavier the train, stopping short of either end; let go and it is held. An open route's drum is locked; other uses of the drum are as in M04. | `cable/CableDrive`, `cable/CableIndex`, `cable/ConnectingRods`, `cable/CableDrumBlock`, `train/TrainPhysics` |
+| Overhead drum | Place a drum against the underside of a wooden beam and it hangs there, its cable at roller height. Standing drums work as before. | `cable/CableDrumBlock` (`hanging` state) |
+| Cobblestone Engine | Use a furnace on an empty minecart: it becomes a Cobblestone Engine. Coal or charcoal fuels it; with an empty hand, use it to start it away from you or to stop it. A player sitting in a cushioned cart coupled to it drives: forward powers it towards where you look along the track, back brakes. It pushes and pulls its train both ways; weight and climbs slow it, and a sustained climb stalls a train. Breaking it gives back the minecart and the furnace. The furnace-minecart recipe is gone. | `train/CobblestoneEngine`, `mixin/train/MinecartFurnaceMixin`, `mixin/train/VehicleEntityMixin`, recipe/advancement overrides, client `train/CobblestoneEngineRenderer` |
+| Couplings | Use an iron chain on a cart, then on the next (within 3 blocks): they are coupled. Shears take a coupling off and give the chain back; a broken cart drops its chains. | `train/Couplings`, `mixin/train/AbstractMinecartMixin`, client `train/CouplingChains` |
+| Models | New editable sources: anchor return guide and wheel, the drum's frame, spool and crank, the engine. The drum's side ghosting (BUG-001) is fixed in the model generator. | `art/blockbench/`, `tools/models/generate_models.py` |
 
 ## Toolchain
 

@@ -4,6 +4,7 @@ import net.fabricmc.api.ClientModInitializer;
 
 import io.github.boxofdog.simpleblock.client.cable.CableDrumRenderer;
 import io.github.boxofdog.simpleblock.client.cable.CableHookRenderer;
+import io.github.boxofdog.simpleblock.client.train.CobblestoneEngineRenderer;
 
 /** Client-only display parts of Simple Block. Every rule is enforced by the server. */
 public class SimpleBlockClient implements ClientModInitializer {
@@ -14,5 +15,6 @@ public class SimpleBlockClient implements ClientModInitializer {
 		CargoMinecartRenderer.register();
 		CableDrumRenderer.register();
 		CableHookRenderer.register();
+		CobblestoneEngineRenderer.register();
 	}
 }

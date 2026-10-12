@@ -1,0 +1,13 @@
+{
+	"variants": {
+		"part=spool": {
+			"model": "simple_block:block/cable_drum_spool"
+		},
+		"part=spool_wound": {
+			"model": "simple_block:block/cable_drum_spool_wound"
+		},
+		"part=crank": {
+			"model": "simple_block:block/cable_drum_crank"
+		}
+	}
+}

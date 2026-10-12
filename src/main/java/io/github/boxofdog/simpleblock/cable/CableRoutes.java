@@ -1,7 +1,9 @@
 package io.github.boxofdog.simpleblock.cable;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
@@ -17,6 +19,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.VoxelShape;
 
@@ -67,9 +70,26 @@ public final class CableRoutes {
 		return Tuning.getInt("cable.max_span");
 	}
 
-	/** Where the cable runs at a support: the drum's exit or an anchor's roller. */
+	/** Where the cable leaves a drum hung under a beam (upside down): about the anchors' roller height. */
+	static final double HANGING_EXIT_Y = 11.0 / 16.0;
+
+	/** Where the cable runs at a support: a standing drum's exit or an anchor's roller. */
 	public static Vec3 point(BlockPos pos, boolean drum) {
 		return new Vec3(pos.getX() + 0.5, pos.getY() + (drum ? DRUM_EXIT_Y : ROLLER_Y), pos.getZ() + 0.5);
+	}
+
+	/** Where the cable leaves a drum, standing or hung under a beam. */
+	public static Vec3 drumPoint(BlockPos pos, boolean hanging) {
+		return new Vec3(pos.getX() + 0.5, pos.getY() + (hanging ? HANGING_EXIT_Y : DRUM_EXIT_Y), pos.getZ() + 0.5);
+	}
+
+	/** Where the cable runs at a support in the world (a drum's exit depends on how it is mounted). */
+	public static Vec3 point(BlockGetter level, BlockPos pos, boolean drum) {
+		if (drum) {
+			BlockState state = level.getBlockState(pos);
+			return drumPoint(pos, state.hasProperty(CableDrumBlock.HANGING) && state.getValue(CableDrumBlock.HANGING));
+		}
+		return point(pos, false);
 	}
 
 	/** Cable a span uses, in whole blocks (rounded up). */
@@ -118,7 +138,10 @@ public final class CableRoutes {
 			return InteractionResult.SUCCESS;
 		}
 		CableHook held = heldHook(level, player);
-		if (player.isSecondaryUseActive()) {
+		if (player.isSecondaryUseActive() && drum.looped()) {
+			CableLoops.open(serverLevel, drum, player);
+			tell(player, message("loop_opened", "Loop opened: the return cable is back on the drum"));
+		} else if (player.isSecondaryUseActive()) {
 			tell(player, dismantle(serverLevel, drum, player));
 		} else if (held != null && held.drumPos().equals(pos)) {
 			held.release();
@@ -132,6 +155,10 @@ public final class CableRoutes {
 	static Component status(CableDrumBlockEntity drum) {
 		if (!drum.hasCable()) {
 			return message("drum_empty", "Empty cable drum: use a cable coil on it");
+		}
+		if (drum.looped()) {
+			return message("drum_loop", "Cable loop: %s blocks laid out and %s in the return, %s wound on", drum.laidOut(), drum.returnLength(),
+				drum.stored());
 		}
 		return message("drum_status", "Cable drum: %s blocks wound on, %s laid out through %s anchors", drum.stored(), drum.laidOut(), drum.route().size());
 	}
@@ -184,6 +211,9 @@ public final class CableRoutes {
 		if (sneaking) {
 			if (owner == null) {
 				tell(player, message("not_routed", "No cable runs through this anchor"));
+			} else if (owner.looped()) {
+				CableLoops.open(serverLevel, owner, player);
+				tell(player, message("loop_opened", "Loop opened: the return cable is back on the drum"));
 			} else {
 				int rewound = disconnect(serverLevel, owner, owner.route().indexOf(pos));
 				level.playSound(null, pos, SoundEvents.CHAIN_PLACE, SoundSource.BLOCKS, 1.0F, 0.7F);
@@ -227,7 +257,8 @@ public final class CableRoutes {
 		}
 		BlockPos from = drum.routeEnd();
 		boolean fromDrum = drum.route().isEmpty();
-		double distance = point(from, fromDrum).distanceTo(point(pos, false));
+		Vec3 start = fromDrum ? drum.exitPoint() : point(from, false);
+		double distance = start.distanceTo(point(pos, false));
 		int length = Mth.ceil(distance);
 		if (distance > maxSpan()) {
 			return message("too_far", "Too far: a span can be at most %s blocks, this one would be %s", maxSpan(), length);
@@ -235,7 +266,7 @@ public final class CableRoutes {
 		if (length > drum.stored()) {
 			return message("too_short", "Not enough cable: this span needs %s blocks, the drum has %s", length, drum.stored());
 		}
-		BlockPos obstacle = obstacle(level, from, fromDrum, pos);
+		BlockPos obstacle = obstacle(level, start, point(pos, false), fromDrum ? supports(from, drum.hanging(), pos) : supports(from, true, pos));
 		if (obstacle != null) {
 			return message("blocked", "The cable would run through %s at %s", level.getBlockState(obstacle).getBlock().getName(), obstacle.toShortString());
 		}
@@ -257,10 +288,22 @@ public final class CableRoutes {
 	 * otherwise catch the beam's edge.
 	 */
 	public static @Nullable BlockPos obstacle(BlockGetter level, BlockPos from, boolean fromDrum, BlockPos to) {
-		Vec3 start = point(from, fromDrum);
-		Vec3 end = point(to, false);
+		return obstacle(level, point(level, from, fromDrum), point(to, false), supports(from, !fromDrum, to));
+	}
+
+	/** The supports a span from {@code from} to the anchor {@code to} may pass: both ends and the beam over the anchor (and over {@code from}, if it hangs). */
+	private static Set<BlockPos> supports(BlockPos from, boolean fromHangs, BlockPos to) {
+		Set<BlockPos> ignored = new HashSet<>(List.of(from, to, to.above()));
+		if (fromHangs) {
+			ignored.add(from.above());
+		}
+		return ignored;
+	}
+
+	/** The first block with a collision shape that the straight line from {@code start} to {@code end} passes through, apart from {@code ignored}. */
+	public static @Nullable BlockPos obstacle(BlockGetter level, Vec3 start, Vec3 end, Set<BlockPos> ignored) {
 		return BlockGetter.traverseBlocks(start, end, level, (getter, pos) -> {
-			if (pos.equals(from) || pos.equals(to) || pos.equals(to.above()) || !fromDrum && pos.equals(from.above())) {
+			if (ignored.contains(pos)) {
 				return null;
 			}
 			VoxelShape shape = getter.getBlockState(pos).getCollisionShape(getter, pos);
@@ -273,6 +316,7 @@ public final class CableRoutes {
 	 * back onto the drum. A held end is put down. Returns the blocks of cable wound back.
 	 */
 	static int disconnect(ServerLevel level, CableDrumBlockEntity drum, int index) {
+		CableLoops.open(level, drum, null);
 		int before = drum.laidOut();
 		for (BlockPos anchor : drum.cutFrom(index)) {
 			if (level.isLoaded(anchor) && level.getBlockEntity(anchor) instanceof CableAnchorBlockEntity freed && drum.getBlockPos().equals(freed.drum())) {
@@ -300,7 +344,24 @@ public final class CableRoutes {
 	}
 
 	static void drumRemoved(ServerLevel level, CableDrumBlockEntity drum) {
-		int blocks = drum.stored() + drum.laidOut();
+		int blocks = drum.stored() + drum.laidOut() + drum.returnLength();
+		if (drum.looped()) {
+			// The return wheel's anchor drops where it is; the anchors lose their return parts.
+			drum.setLoop(false, 0);
+			for (BlockPos anchor : drum.route()) {
+				if (!level.isLoaded(anchor)) {
+					continue;
+				}
+				BlockState state = level.getBlockState(anchor);
+				if (state.is(CableContent.CABLE_ANCHOR)) {
+					level.setBlock(anchor, state.setValue(CableAnchorBlock.RETURN, CableAnchorBlock.Return.NONE), Block.UPDATE_ALL);
+				}
+				if (level.getBlockEntity(anchor) instanceof CableAnchorBlockEntity entity && entity.wheel()) {
+					entity.setWheel(false);
+					Block.popResource(level, anchor, new ItemStack(CableContent.CABLE_ANCHOR_ITEM));
+				}
+			}
+		}
 		for (BlockPos anchor : drum.route()) {
 			if (level.isLoaded(anchor) && level.getBlockEntity(anchor) instanceof CableAnchorBlockEntity freed && drum.getBlockPos().equals(freed.drum())) {
 				freed.setDrum(null);
@@ -324,7 +385,7 @@ public final class CableRoutes {
 			validate(level, drum);
 		}
 		CableHook hook = hook(level, drum);
-		if (!drum.hasCable()) {
+		if (!drum.hasCable() || drum.looped()) {
 			if (hook != null) {
 				hook.discard();
 			}

@@ -39,8 +39,8 @@ import io.github.boxofdog.simpleblock.SimpleBlock;
  *       cable the cart passes under ({@link ConnectingRods}).</li>
  * </ul>
  *
- * <p>Two blocks exist only to carry models for renderers ({@link #CABLE_HOOK_MODEL},
- * {@link #CONNECTING_ROD_MODEL}): no item, no drops, no collision. Routing rules are in
+ * <p>Three blocks exist only to carry models for renderers ({@link #CABLE_HOOK_MODEL},
+ * {@link #CONNECTING_ROD_MODEL}, {@link #DRUM_PART_MODEL}): no item, no drops, no collision. Routing rules are in
  * {@link CableRoutes}.
  */
 public final class CableContent {
@@ -56,6 +56,8 @@ public final class CableContent {
 		.mapColor(MapColor.WOOD).noOcclusion().strength(2.0F).sound(SoundType.WOOD).ignitedByLava());
 	public static final Block CABLE_HOOK_MODEL = block("cable_hook", Block::new, technical());
 	public static final Block CONNECTING_ROD_MODEL = block("connecting_rod_part", ConnectingRodPartBlock::new, technical());
+	/** M05: the drum's turning parts (spool, crank), drawn by the drum renderer. */
+	public static final Block DRUM_PART_MODEL = block("cable_drum_part", CableDrumPartBlock::new, technical());
 
 	public static final BlockEntityType<CableAnchorBlockEntity> CABLE_ANCHOR_ENTITY = Registry.register(BuiltInRegistries.BLOCK_ENTITY_TYPE,
 		id("cable_anchor"), new BlockEntityType<>(CableAnchorBlockEntity::new, Set.of(CABLE_ANCHOR)));
