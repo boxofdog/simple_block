@@ -166,6 +166,14 @@ This is the **shared handoff between Claude Code, ChatGPT and the project owner*
 
 **Claude's handoff notes:** Loops: a copper anchor on the last anchor of a **straight** route closes it (turning routes are refused, a deviation to confirm); cable is conserved and refunded. Crank on every drum: **hold left-click to feed, right-click to pull** (owner's clarification); left-click on the crank never breaks the drum; an open route's crank is locked. Drums can hang under wooden beams. Cobblestone Engine = vanilla furnace-minecart entity, made by a furnace on an **empty** minecart, drops a minecart and a furnace; furnace-minecart recipe disabled. Coupling by iron chain, shears uncouple; engine driven from a cushioned seat (forward/back) or toggled from the ground (owner decisions). Mass and grade slow both haulage and engines; a loaded train stalls and holds on a sustained climb. All numbers are provisional tuning (report section 7). Open items: report sections 2 and 8.
 
+**M06 implementation handoff — authorized, not yet coded/verified** ([M06 executable brief](MILESTONE_06.md)). Track separately from the existing M05 review; **M05 owner acceptance is pending and must remain unchecked**.
+
+- [ ] **Claude — M06 code committed and pushed to `main`.** Implementation SHA(s): `—`.
+- [ ] **Claude — M06 tests and closeout report.** Report: `docs/MILESTONE_06_REPORT.md` (NOT YET WRITTEN). Include tests on a **greater-than-128-block cable line with distant non-ticking anchors**, ≤12-block spans, route persistence, one-coil refunds, freight station dock/release and full-train stop, lever/coal pause and save/load, retired Creative entries and negative controls. Results: NOT RUN.
+- [ ] **Claude — M06 CI verified and artifact published.** Build/run/artifact: `—`.
+- [ ] **ChatGPT — M06 independently verified on GitHub.** Pending.
+- [ ] **Owner — M06 playtested and accepted.** Pending. M05 owner acceptance separately pending.
+
 **Verified milestone receipts** (one row per accepted milestone; older details remain in milestone reports):
 
 | Milestone | Implementation commit(s) | CI / artifact | Verified by ChatGPT | Owner accepted |
