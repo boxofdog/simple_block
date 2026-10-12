@@ -1,10 +1,10 @@
-# Simple Block — Milestone 06: Loading Track and Freight-Cart Handling (DRAFT)
+# Simple Block — Milestone 06: Freight Handling and Coal-Powered Winch (DRAFT)
 
 **Status: Design scaffold — NOT authorized for implementation.** This is the owner's initial M06 direction and is intentionally incomplete. **M05 is still in progress**; finish, commit, verify and review M05 before starting M06. Refine this document together rather than asking Claude to execute it as-is.
 
 ## Purpose
 
-Build the first physical **freight-transfer railway interface** for the future mine → skip → railway → smelter loop. Preserve the ordinary vanilla minecart as Simple Block's freight cart. The special loading track *is* the future transfer station: no compulsory secondary loading/unloading station block or item-conveyor system.
+Build the first physical **freight-transfer railway interface** and add a **coal-powered upgrade to the existing manual winch**, preparing the mine → skip → railway → smelter loop. Preserve the ordinary vanilla minecart as Simple Block's freight cart. The special loading track *is* the future transfer station: no compulsory secondary loading/unloading station block or item-conveyor system. The powered winch must improve the SAME M05 cable system, **not introduce a parallel machine network**. Actual upright mining skips and their transfer/hoisting gameplay are planned for **M07**; the large smelter is **M08** and the full armor overhaul **M09**, all requiring later authorization.
 
 ## 1. Loading track (owner-specified direction)
 
@@ -32,12 +32,20 @@ Build the first physical **freight-transfer railway interface** for the future m
 - **Cushioned passenger carts remain manually movable** (retain practical player interaction). Freight carts must still move under **Cobblestone Engine traction, coupling, cable haulage and gravity** as designed; this is not an instruction to immobilize freight or block ordinary world physics.
 - Clarify whether the powered Cobblestone Engine is subject to exactly the same no-player-push rule, and ensure protections do not break M05 movement, loading into tracks, or train physics.
 
-## 4. M06 boundaries and work still to scope
+## 4. Coal-powered winch upgrade (M06 design requirement; mechanical details OPEN)
 
-**Do not fold the following into the initial scaffold without further owner decisions:** actual skip entity/hoisting/door logic; bulk smelter; coal-powered winch attachment; full cargo-transfer automation; extreme-grade custom rails; general redstone redesign; complete station signalling; overhaul of M05's coupling or locomotive controls. A future M06 draft can add deliberate, independent work packages once the owner approves their requirements.
+- **Owner has added the coal-powered winch to M06's intended scope.** The existing hand-operated M05 winch/drum gains a **localized coal-fueled drive**, usable for the same cable-hauling system and later M07 upright skip hoisting. This is **not** a request for a new power-grid, generic rotary-shaft network or unrelated factory tech tree.
+- **Do not yet choose the construction mechanic.** The owner wants to discuss whether fuel power is applied directly to the existing drum, how its engine attachment is represented/crafted, or whether another compact localized mechanism makes more sense. Do not automatically assume a furnace item attachment merely because that is how the M05 Cobblestone Engine is made.
+- **Preserve the M05 hand crank and cable-direction semantics:** empty hand, hold **left-click = feed/away** and **right-click = pull/toward** while using the crank. A closed cable loop still retains its installed length; powered reversal moves the strand, it does not wind extra loop length. Decide how powered activation/reversal and manual fallback coexist without conflicting click actions.
+- **Still to design with owner:** attachment/recipe and visual identity; exact eligible fuel (coal vs coal blocks vs other fuels), loading and burn timing; which gesture/controls start, stop, reverse and optionally adjust motor speed; whether powered operation runs continuously or only while held; safe stopping/holding under load and blocked/colliding cable routes; comparative hand-vs-motor power/fuel/speed; break/retrieval/save-load behavior and shared use with M07 skip. These are **questions, not resolved specifications**.
+- **M06 acceptance when authorized:** confirm the upgrade genuinely drives existing winch cable hauling without breaking manual operation, stops/reverses predictably and preserves cargo/fuel state, works on a dedicated server and in a real client, and has no unrelated machine-system dependencies. Test M07-ready vertical hoist attachment interfaces only as needed for future compatibility; **do not implement the skip itself in M06**.
+
+## 5. M06 boundaries and work still to scope
+
+**Excluded from M06 unless separately approved:** the actual M07 skip entity/doors/automatic docking/vertical-motion gameplay; M08 bulk smelter; M09 armor/workwear overhaul; full freight-transfer automation beyond the agreed track/cart interface; extreme-grade custom rails; general redstone redesign; complete station signalling; and redesign of the M05 Cobblestone Engine/coupling. **Coal-powered winch attachment is now IN M06's intended scope**, but its mechanism must be settled before Claude can implement it.
 
 **Potential adjacent work, NOT included yet:** visible cargo level filling in steps like a cauldron/composter with new owner-paintable texture (already specified in ROADMAP/DECISIONS), UX text cleanup, gravel/sand cargo eligibility. These remain separate unless the owner explicitly includes them.
 
-**Expected implementation discipline after the brief is finalized:** preserve editable Blockbench sources and painted owner assets; perform baseline checks against finished M05; test rail locking/opening/release, cart push prohibition vs legitimate train movement, cargo conservation, multiplayer/save/load behavior, structure/recipe consequences of rail removal, and a real-client demonstration. Document implementation SHA, CI and owner acceptance through the established roadmap handoff. Stop after M06.
+**Expected implementation discipline after the brief is finalized:** preserve editable Blockbench sources and painted owner assets; perform baseline checks against finished M05; test rail locking/opening/release, cart push prohibition vs legitimate train movement, powered AND manual winch movement, safe stopping/reversing, fuel and cable conservation, multiplayer/save-load behavior, structure/recipe consequences of rail removal, and a real-client demonstration. Document implementation SHA, CI and owner acceptance through the established roadmap handoff. Stop after M06.
 
-**Next design question:** How does the player choose the loading track's **facing** when placing it, and how does a freight cart **unlock/depart** after its transfer? The cart's front direction is now fixed by track orientation.
+**Next design question (priority):** How exactly should the **coal-powered winch upgrade** be built and controlled on the existing drum? Settle that with the owner before writing an executable M06 brief. Loading-track facing, cart unlock/depart and cargo transfer triggers also remain unresolved.
