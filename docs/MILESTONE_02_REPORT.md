@@ -1,6 +1,6 @@
 # Milestone 02 report: World, Night, Inventory
 
-Scope: `docs/MILESTONE_02.md` and `docs/M02_*.md`. All four phases (02A–02D) are implemented and tested.
+All four phases (02A–02D) were implemented and tested. This is the retained closeout record for M02; the original `MILESTONE_02.md` handoff, M02 phase specifications, test plan, and continuation checkpoint were removed from the active docs tree after completion. Those historic files remain recoverable through Git history.
 
 - **Tests:** 63 required server game tests pass in `./gradlew build`: Milestone 01, 02A–02D, and vanilla's built-in one. The real-client test passes.
 - **Negative controls:** each restriction phase was run against a copy with its change removed, and the restriction tests failed as expected.
@@ -194,7 +194,7 @@ These values are locked by the design, so they are constants in their features r
     - Mobs without a wander goal are unaffected: slimes, phantoms, ghasts, wardens, piglins and others.
     - Drowned are attracted. The full list is in `Entrancement`'s Javadoc.
 12. **Rain protects creepers** from evaporating, exactly as it protects zombies from burning.
-13. **Exhaustion factor as a constant:** `M02_HUNGER_HUD.md` asks for a config key, while `M02_DECISIONS_AND_TUNING.md` locks 50% for the first balance pass. It is a constant; making it a key is one line.
+13. **Exhaustion factor as a constant:** the original M02 handoff asked for a config key, while its locked tuning decision specified 50% for the first balance pass. It is a constant; making it a key is one line.
 14. **Saturation display look:** gold-tinted vanilla food icons plus a gold underline, drawn without new art. Saturation only shows when the mod is on both client and server; the server sends it only to clients that have the mod.
 
 ## 7. Known gaps and unverified feel

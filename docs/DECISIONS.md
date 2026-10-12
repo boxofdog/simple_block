@@ -64,7 +64,7 @@ These answer the "discover from repo" items above. The repository was empty, so 
 
 | Topic | Decision |
 |---|---|
-| Freight cart = the minecart | **Supersedes the separate "freight cart" of `docs/MILESTONE_03.md`** (FRT-01, FRT-11 "keep ordinary minecarts and introduce the new freight cart separately", T23). M03 overhauls the vanilla minecart itself: nobody sits in one without a cushion (a later milestone), and its job is to be filled with raw material: 256 of one kind. There is no new cart item, entity or recipe; the vanilla minecart recipe is unchanged. |
+| Freight cart = the minecart | **Supersedes the separate "freight cart" in the original M03 handoff (retained in Git history)** (FRT-01, FRT-11 "keep ordinary minecarts and introduce the new freight cart separately", T23). M03 overhauls the vanilla minecart itself: nobody sits in one without a cushion (a later milestone), and its job is to be filled with raw material: 256 of one kind. There is no new cart item, entity or recipe; the vanilla minecart recipe is unchanged. |
 | Capacity | 256 items of one kind per cart (starting playtest value). |
 | Storage bypasses | Ender chests and vanilla chest minecarts are removed from ordinary play; donkeys, mules and llamas keep their chests. |
 | Cushions (after the first M03 delivery) | Vanilla 26.3 cushions make a minecart a passenger cart. A cushion is a seat entity fixed to the block under it and can't ride along, so it becomes part of the minecart's own state: fitted by using a cushion on an empty cart, drawn inside it, taken out with sneak + use. This brings forward the roadmap's "passenger cushions" item. |
