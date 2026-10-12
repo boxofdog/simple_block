@@ -24,7 +24,7 @@ M05 is a larger combined milestone specifically requested by the owner, **not** 
 
 | Order | Independent future deliverable | Notes |
 |---|---|---|
-| Later | **Coal-powered winch attachment** | Upgrade the existing hand winch with localized fuel power; no generalized network. |
+| Later | **Coal-powered winch attachment** | **Next high-priority design question:** upgrade the same manual drum with localized fuel power; determine attachment, fueling, actuation, stopping and player interaction. No generalized network. |
 | Later | **Refined train coupling and operation** | Expand/adjust only after M05's minimum viable consist can push and pull. |
 | Later | **Incline counterweights and upright mining skips** | Skip upright dimensions, recipe, 512 capacity, built-in chute and single-line hoist with triangular bridle now specified below. Vertical lifting, safe reset and freight-transfer implementation remain separate; connect to the mine-to-smelter flow. |
 | Later | **Bulk ore transfer and large smelter** | Gravity-charge raw ore from a minecart or vertical skip into a substantial smelter's hopper. Remove the vanilla blast furnace and slow ordinary-furnace raw-ore processing to make bulk smelting worthwhile. Details below; do not start within M05. |
@@ -38,7 +38,16 @@ Small standalone improvements (such as faster ladders) may be scheduled between 
 - **Villages:** terrain suitability, larger buildings, population and destinations, pubs, centralized stores, workshop services, real golem protection.
 - **Character and equipment:** armor/loadout redesign, climbable ropes and faster ladders.
 - **Geology/metallurgy:** bulk smelting and hopper-fed ore handling, alluvial iron sand/gravel, steel, useful long-lived anvil/smithing.
-- **Rules and usability:** selective redstone-system redesign, guidebook, cargo visuals and player-facing text polish.
+- **Rules and usability:** selective redstone-system redesign, guidebook, stepped freight-cart cargo visuals and player-facing text polish.
+
+### High-priority scope review (design status; M05 still in progress)
+
+- **#1 Vertical mining skips/hoisting and #2 freight loading, unloading and transfer:** **design-scoped, not implemented**. Skip dimensions, construction recipe, built-in chute, track-driven transfer, bridle, winch lifting and basic automatic docking are documented below. Claude chooses predictable, local alignment tolerance when that later milestone is authorized; retain implementation-level edge cases for its brief.
+- **#3 Coal-powered winch attachment:** **next design discussion**; the power-upgrade mechanics and controls still need a decision.
+- **#4 Train stopping/braking/stations and #5 M05 locomotive/coupling/cable balancing:** **defer further design until M05 finishes and is playtested**; assess actual in-game behavior first.
+- **#6 Gravel/sand freight eligibility:** **already owner-approved but not implemented**; user wants it scheduled only after M05 playtesting, with cargo-tag and test updates then. No additional scope discussion required.
+- **#7 Minecart cargo visuals/dev text:** **design decided, implementation later**. Ordinary vanilla freight carts retain their models but show a **visible material surface rising in discrete fill steps** proportional to the 0–256 load, analogous to a cauldron or composter. Provide new owner-paintable texture/art assets with editable sources; remove the intrusive always-floating cargo-count label in favor of the fill visual while retaining deliberate exact-quantity inspection. Exact step count, mesh/render method and how to depict different commodities can be chosen during implementation; no extra cart type or UI machinery. Other noisy development text remains logged in [UX_TEXT_LOG.md](UX_TEXT_LOG.md).
+- **#8 Faster ladders and climbable ropes:** still future scope; no new design decisions here.
 
 ### Future winch mounting and shaft layout (owner-approved direction)
 
