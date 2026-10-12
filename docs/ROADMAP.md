@@ -35,6 +35,16 @@ Small standalone improvements (such as faster ladders) may be scheduled between 
 
 Full design context lives in [BACKLOG.md](BACKLOG.md), confirmed implementation choices in [DECISIONS.md](DECISIONS.md), and the running visible-text cleanup list in [UX_TEXT_LOG.md](UX_TEXT_LOG.md).
 
+## Bug log (observed; not automatically scheduled)
+
+Record reproducible defects here as they are noticed. This list is **not** permission to change active milestone scope. Use a new `BUG-###` ID for each distinct issue; keep the symptom, location, reproduction/evidence, status, and eventual fix/verification concise. Maintain player-facing *wording* cleanup separately in [UX_TEXT_LOG.md](UX_TEXT_LOG.md).
+
+| ID | Area | Observed problem | Evidence / suggested check | Status |
+|---|---|---|---|---|
+| BUG-001 | M04 cable drum — side geometry | **Ghosting / flickering stripe-like texture artifacts** on the side of the drum/frame, particularly around the angled side panels. | Close-up screenshot shared by the owner in chat. Inspect the in-game model and source Blockbench geometry at several angles for overlapping or nearly coplanar faces (**possible z-fighting; unconfirmed**) and for UV/rendering overlap. Verify visually in the actual client before closing. | **OPEN — cosmetic; cause unconfirmed** |
+
+Keep bugs open until the fix is observed in game. Do not conflate completion of tests with confirmation that a visual defect is gone.
+
 ## Milestone commit handoff
 
 This is the **shared handoff between Claude Code, ChatGPT and the project owner**. At the end of **each authorized milestone**, Claude updates this section **in the repository**, not only in its chat. A checked box means that named party performed that check; it is not a substitute for the checks below. Claude can add brief notes and links. After independent review and owner acceptance, keep one compact receipt in the history table and reset this checklist for the next authorized milestone. Do not start another milestone automatically.
