@@ -2,8 +2,9 @@
 
 Scope: the owner's brief, recorded verbatim in `docs/MILESTONE_04.md`. Implemented and tested in a server and in a real client; not playtested by a person yet.
 
-- **Tests:** 95 required server game tests pass in `./gradlew build`: the 85 from Milestones 01-03 plus 10 new ones in `CableGameTests`.
+- **Tests:** 95 required server game tests pass in `./gradlew build` and in CI (Build #16): the 85 from Milestones 01-03 plus 10 new ones in `CableGameTests`, which also passed three extra filtered runs.
 - **Negative controls:** with the M04 rules removed (anchors on any block, no span limit, two cables per anchor, no grip, no obstacle check), the matching tests fail; see section 6.
+- **Dedicated server:** starts with the M04 code.
 - **Real client:** a new client test, `CableClientTest`, builds a short line in a fresh world and drives every component with real key presses: drum, coil, anchors, picking up and dragging the end, routing, a rod on a rolling minecart, save and reopen, disconnecting and dismantling. It passes, and the earlier `SurvivalSmokeClientTest` still passes alongside it.
 - **Assets:** editable Blockbench sources for every model, with UV-template textures, in `art/blockbench/` (section 4).
 - **Not built (by the brief):** engines, counterweights, inclined-lift automation, skips, locomotives. **Also not built:** anything that moves the cable or pulls a cart (section 2).
@@ -88,9 +89,9 @@ GT = server game test in `CableGameTests` (fresh test world, stand-in players, e
 | CAB-14 rod fitting | PASS | GT `connectingRodFitsAMinecart`: fitted (a second refused); the cart still takes cargo; sneak-use unloads the cargo first, then takes the rod off; saved with the cart; dropped when the cart is broken. Client: fitted with the use key | |
 | CAB-15 rod grips the cable | PASS | GT `rodGripsTheCableAndPassesAnchors`: a cart with a rod on powered rails under a 3-anchor route grips on every one of 40 ticks between the first and last anchor (reach 2.69 blocks) and lets go past the last. Client: frozen between the first two anchors, the rod grips at 2.69 on server and client and is drawn stretched to the cable; past the last anchor it has let go | |
 | CAB-16 passes supports without snagging | PASS | Same GT: the cart under the cable and a control cart with a rod on a track with no cable stay at exactly the same position every tick until they pass the last anchor | Nothing can snag because nothing collides; whether the *shapes* would clear in reality is a design question (section 7) |
-| CAB-17 server authority | PASS | Every rule runs on the server; clients get the route, the hook's holder and the rod's grip by sync. The client test compares server and client route, hook position and grip | Remote client on a dedicated server: NOT RUN |
-| CAB-18 M01-M03 regression | PASS | All 85 earlier game tests pass in the 95-test build (three full builds; see the note below); `SurvivalSmokeClientTest` passes (bed, shulker, movement, elytra, inventory, light, creeper, food, minecart cargo, cushion, storage) | One of the three full builds had the M02 test `pursuingZombieBreaksOakDoor` time out waiting for the door; it passed 3 of 3 on its own and in the next full build. M04 touches no zombie, door or pathfinding code |
-| CAB-19 build, artifact | PENDING | `./gradlew build` passes locally; CI Build to be confirmed after pushing | |
+| CAB-17 server authority | PASS | Every rule runs on the server; clients get the route, the hook's holder and the rod's grip by sync. The client test compares server and client route, hook position and grip. Dedicated: `runServer` starts with the cable content registered ("Cable: 4 blocks per cable, 32 per coil", "Done (0.278s)") | Remote client on a dedicated server: NOT RUN |
+| CAB-18 M01-M03 regression | PASS | All 85 earlier game tests pass in the 95-test build (four local full builds and CI; see the note below); `SurvivalSmokeClientTest` passes (bed, shulker, movement, elytra, inventory, light, creeper, food, minecart cargo, cushion, storage) | One of the four local full builds had the M02 test `pursuingZombieBreaksOakDoor` time out waiting for the door; it passed 3 of 3 on its own and in the next full build. M04 touches no zombie, door or pathfinding code |
+| CAB-19 build, artifact | PASS | `./gradlew build` 95/95 locally (four full builds, one with the door flake below); CI Build #16 green on `215a24a` and published `simple-block-mod`; the jar carries the models, textures, block states, recipes and tags | Software renderer in the client test, not a desktop GPU |
 
 ## 6. Negative controls
 
