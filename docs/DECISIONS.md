@@ -73,8 +73,9 @@ For exact ore distributions, AI tests, hunger tuning, weight mappings, and perfo
 |---|---|
 | Freight vehicle | **The existing vanilla minecart is the freight cart.** No separate freight minecart item/entity or recipe. This supersedes the original M03 brief, retained only in Git history. |
 | Capacity | Holds **256 of exactly one eligible bulk item type**, a playtestable starting value. |
-| Bulk cargo expansion (approved, pending implementation) | **Cobbled stone materials, gravel and sand are freightable** in ordinary minecarts while remaining weightless for personal heavy-load calculations. Existing `cobblestone` and `cobbled_deepslate` already qualify; add `gravel` and `sand` to the eligible cargo tag. Other possible cobbled/sand variants are not silently assumed. |
+| Bulk cargo expansion (approved, pending implementation) | **Cobbled stone materials, gravel and sand are freightable** in ordinary minecarts while remaining weightless for personal heavy-load calculations. Existing `cobblestone` and `cobbled_deepslate` already qualify; add `gravel` and `sand` to the eligible cargo tag **after the owner has playtested M05**. Other possible cobbled/sand variants are not silently assumed. |
 | Passenger use | Install a **vanilla 26.3 cushion** into an empty cart to enable riding and mob pickup; a cart without a cushion cannot take riders. Cushion and bulk cargo are mutually exclusive. |
+| Cargo appearance (future owner decision) | Keep the existing vanilla freight minecart. Display its cargo as a **surface that rises in discrete steps with item count**, cauldron/composter-style, from empty to its 256-item capacity; implement new editable, owner-paintable texture assets. Replace persistent floating item-count text with visual fullness while preserving an intentional interaction to inspect exact count/type. The exact number of steps and how different bulk materials look remain implementation details. **Not in M05.** |
 | Storage bypasses | Ender chests and ordinary chest minecarts cannot serve as portable storage; donkeys, mules and llamas retain their cargo role. |
 | Other variants | Furnace, hopper, TNT and other specialized cart variants were left unchanged by M03; future Cobblestone Engine work is a separate decision. |
 
@@ -84,7 +85,7 @@ For exact ore distributions, AI tests, hunger tuning, weight mappings, and perfo
 - Cushions fit only empty carts, are visible, and return on removal or cart destruction. A cushioned cart carries passengers instead of bulk cargo.
 - A broken cargo cart spills its contents into the world rather than storing them inside the dropped minecart item. Minecart storage survives world save/load.
 - Mineshaft loot chest minecarts remain sealed: they cannot open or feed hoppers, and breaking them spills loot plus a minecart and chest. Ender chests drop obsidian rather than becoming usable containers.
-- M03 introduced an on-look cargo readout and action-bar feedback. **Their presentation is slated for polish**, tracked in [UX_TEXT_LOG.md](UX_TEXT_LOG.md); the useful cargo information must not simply disappear.
+- M03 introduced an on-look cargo readout and action-bar feedback. The owner has now decided that **visible stepped cargo-fill geometry replaces the intrusive floating on-look count**, while deliberate inspection can still provide exact material/count. This is a future presentation update, tracked in [UX_TEXT_LOG.md](UX_TEXT_LOG.md); other useful information must not simply disappear.
 - Full **as-shipped** eligible-item list, edge cases and test evidence: [MILESTONE_03_REPORT.md](MILESTONE_03_REPORT.md). **Pending follow-up:** the new gravel/sand eligibility decision above is not yet implemented; the M03 report's former "gravel refused" tests describe the old behavior. Update the item tag and relevant tests only in an authorized implementation pass.
 
 ## 4. M04 — Cable infrastructure (implemented; owner acceptance pending)
