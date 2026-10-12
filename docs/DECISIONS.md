@@ -209,7 +209,47 @@ The authoritative brief is [MILESTONE_04.md](MILESTONE_04.md); the as-built reco
 - **Mining set bonus — Old Pro (owner decision):** only the full **Headlamp + Overalls + Mining Boots** outfit grants **Old Pro**, which **replaces the displayed boots-only Mule bonus while retaining the same overweight-carrying behavior**. Old Pro additionally provides (a) **functional offhand pickaxe block mining**, letting the player keep a sword, axe or other item in the main hand without putting away the pickaxe; and (b) a **subtle red glow along the bottom screen edge ONLY when a hostile monster is behind the player, within 20 blocks, AND has a direct unobstructed sightline to Steve's upper body/neck in his SECOND block of height** (an eye-level-to-neck/head line-of-sight check, not a check to the feet). **Monsters behind walls, in sealed caves or otherwise without that clear sightline do not trigger the alert**, even if in range. 'Clear path' here means **unobstructed line of sight**, not a monster-navigation/pathfinding route. Behind is determined relative to the player's facing; the precise rear angular threshold and neck-point height are implementation tuning. This is a directional threat cue, NOT a general mob radar or full-screen overlay. The pickaxe remains a mining tool: no new offhand combat attack, doubled mining speed, or change to jump criticals. Exact offhand-mining gesture/priority versus main-hand attack or chopping is open. **Old Pro supersedes the tentative +5% mining-speed set perk; do not retain or stack it.**
 - **Trail Blazer implementation boundaries:** reveal nearby qualifying blocks regardless of who placed them; **yellow = player placed, blue = originally world generated**. Track placement provenance safely with appropriate save/load and multiplayer behavior; do not presume vanilla stores that provenance for existing blocks. For pre-existing worlds / unclassifiable blocks, pick a conservative documented fallback rather than inventing origin. Keep outlines subtle and range-bounded; do not highlight ore, mobs or arbitrary blocks through walls. The skeleton inaccuracy effect is part of this same named set bonus.
 - **Inventory safety before implementation:** if overalls are unequipped or replaced when their third-row slots contain items, those items must not disappear, duplicate, become permanently inaccessible, or permit swapping exploits. Preserve save/load, death, sorting and shift-click semantics; the behavior for occupied slots is open.
-- **Still open:** technical two-slot-equipment handling for one-piece overalls, headlamp illumination, recipes/models/exact protection and durability, combat armor tiers, piglin behavior without gold armor, Mule overload/climb tuning, **Trail Blazer range/provenance fallback and skeleton accuracy penalty**, plus **Old Pro offhand-mining input/priority and the exact rear-angle, second-block neck-target ray and red-edge intensity**. The requirement for unobstructed monster-eye-to-upper-player line of sight within 20 blocks is settled; the tentative +5% mining-speed set perk remains replaced. This is a **future armor milestone**, not authorization for M05 or M06.
+- **Still open:** technical two-slot-equipment handling for one-piece overalls, headlamp illumination, recipe output count/models/exact protection and durability, combat armor tiers, piglin behavior without gold armor, Mule overload/climb tuning, **Trail Blazer range/provenance fallback and skeleton accuracy penalty**, plus **Old Pro offhand-mining input/priority and the exact rear-angle, second-block neck-target ray and red-edge intensity**. **All four crafting ingredient layouts are now settled below.** The requirement for unobstructed monster-eye-to-upper-player line of sight within 20 blocks is settled; the tentative +5% mining-speed set perk remains replaced. This is a **future armor milestone**, not authorization for M05 or M06.
+
+#### Exact shaped workwear recipes (owner decision; not implemented)
+
+All four recipes are **shaped 3×3 crafting layouts**. The specified positions and empty slots matter; do not convert these to shapeless crafting recipes. "Chest" means the **ordinary vanilla chest block/item**; "leather pants" means **vanilla leather leggings**. Reuse vanilla copper ingot, torch, string, leather armor, pointed dripstone and iron ingot; no additional intermediate ingredients.
+
+**Headlamp** — 5 copper ingots and 1 torch:
+
+```text
+[copper ingot] [copper ingot] [copper ingot]
+[copper ingot] [torch]        [copper ingot]
+[empty]        [empty]        [empty]
+```
+
+**Overalls** — 2 string, 1 vanilla chest, 1 leather chestplate, 1 leather leggings:
+
+```text
+[string] [chest]              [string]
+[empty]  [leather chestplate] [empty]
+[empty]  [leather leggings]   [empty]
+```
+
+**Spiked Boots** — 1 leather boots, 1 pointed dripstone underneath:
+
+```text
+[empty] [empty]            [empty]
+[empty] [leather boots]    [empty]
+[empty] [pointed dripstone][empty]
+```
+
+**Mining Boots** — 1 leather boots, 1 iron ingot underneath:
+
+```text
+[empty] [empty]         [empty]
+[empty] [leather boots] [empty]
+[empty] [iron ingot]    [empty]
+```
+
+Recipe layouts and components are settled. The number of output items per craft is not explicitly set here; default crafting behavior may be proposed in the future milestone brief. Headlamp's torch ingredient does not itself decide illumination mechanics or fuel consumption, which remain open. Overalls still occupy BOTH chest and leggings slots simultaneously.
+
+
 
 ## 6. Open decisions requiring a future milestone brief
 
@@ -222,7 +262,7 @@ Only record settled answers in sections 1–5 after the owner decides them.
 | Coupling | How carts attach/detach, how tension propagates through a mixed train, and behavior on curves/grade transitions. |
 | Rails | Geometry and construction of extended extreme slopes; whether steep routes require special rail pieces; speed and crash damage. |
 | M06 loading track and redstone rail retirement | **Settled:** shapeless rail + copper anchor (yield TBD), track-determined front, ramp deploys only toward a compatible skip **below** with clear frontage, and a cart receiving from a skip **beside** stays closed. **Open:** rail facing/placement, model, unlocking/releasing, transfer timing, coupled trains, recipe output count and cargo safety, exact scope and worldgen/loot/recipe effects of removing powered/detector/activator rails, and whether Cobblestone Engines can be hand-shoved. M06 implementation not authorized yet. |
-| Armor and utility gear | **Settled:** retire gold/chainmail; copper Headlamp; one-piece Overalls occupy BOTH chest/legs (+9 inventory slots, low protection). **Spiked Boots alone: Spelunker's Speed**, replaced in full outfit by **Trail Blazer** (climbing, nearby yellow/blue infrastructure outlines and skeleton inaccuracy). **Mining Boots alone: Mule** (overweight carrying with progressive slowdown), replaced in full outfit by **Old Pro** (retains Mule and adds offhand pickaxe mining and a red bottom-edge warning). Warning triggers ONLY for hostile monsters **behind, within 20 blocks, with unobstructed line of sight to Steve's second-block-high upper body/neck**; not through walls. Old proposed +5% mining speed retired. **Open:** rear angle and ray target precision, offhand controls, provenance, balance and equipment safety. Not implementation-authorized. |
+| Armor and utility gear | **Settled:** retire gold/chainmail; copper Headlamp; one-piece Overalls occupy BOTH chest/legs (+9 inventory slots, low protection). **Spiked Boots alone: Spelunker's Speed**, replaced in full outfit by **Trail Blazer** (climbing, nearby yellow/blue infrastructure outlines and skeleton inaccuracy). **Mining Boots alone: Mule** (overweight carrying with progressive slowdown), replaced in full outfit by **Old Pro** (retains Mule and adds offhand pickaxe mining and a red bottom-edge warning). Warning triggers ONLY for hostile monsters **behind, within 20 blocks, with unobstructed line of sight to Steve's second-block-high upper body/neck**; not through walls. Old proposed +5% mining speed retired. **Recipes settled:** exact shaped layouts for Headlamp, Overalls, Spiked Boots, Mining Boots below; output count/design models still open. **Open:** rear angle and ray target precision, offhand controls, provenance, balance and equipment safety. Not implementation-authorized. |
 | Incline winches | Grade-versus-speed relationship, winch load limits, controlled lowering and automated return/reset. |
 | Mining skips | **Settled:** one block wide × three blocks tall, four-block clearance for top door; recipe, 512 capacity, exposed lower chute and automatic discharge to aligned minecarts; triangular bridle and single-line, sway-free winch hoisting; left-feed/lower and right-pull/raise; loaded stop at unloading rail and empty-descending top-door check upon release/bottom-out. **Claude may select the local alignment range/tolerance and docking details.** Still open: horizontal depth, cable/bridle accounting, cargo-type and partial-transfer rules, collision and safety. No extra guide/station machinery. |
 | M04 balance | Final recipes, route spans and cable capacity after actual owner playtesting. |
