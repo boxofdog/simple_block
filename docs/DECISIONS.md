@@ -145,18 +145,18 @@ The authoritative brief is [MILESTONE_04.md](MILESTONE_04.md); the as-built reco
 - Allow purpose-built rail geometry as extreme as a **three-block vertical rise/drop**. This states the design goal, **not** an approved track shape or a claim that existing vanilla rails support it.
 - **Extreme downhill travel is dangerous.** An uncontrolled cart can accelerate and strike the bottom hard enough to **break the cart**. Braking, crash thresholds and preservation/dropping of cargo require explicit design; items must not silently vanish.
 - **Skips remain upright** and lift ore through near-vertical shafts. They should be substantially more practical for steep vertical ore transfer than winching conventional minecarts up extreme-grade rails. A skip is the hoisted carrier; a winch provides lifting power.
-- **Skip form (owner decision; not implemented):** a large **three-block-tall carrier with a 1×3 footprint**, requiring **four blocks of clearance** for an upper loading door that unfolds toward an elevated loading track. The upper **two blocks** form the ore storage compartment; the lower **one block** contains the permanent angled discharge chute for delivering material sideways into an adjacent minecart. The skip itself carries the chute—do not require a separate station building or discharge structure.
+- **Skip form (owner decision; not implemented):** a large upright carrier **one block wide and three blocks tall** (NOT three blocks long), requiring **four blocks of vertical clearance** for an upper loading door that unfolds toward an elevated loading track. Its horizontal depth is not yet specified. The upper **two blocks** form the ore storage compartment; the lower **one block** contains the permanent angled discharge chute for delivering material sideways into an adjacent minecart. The skip itself carries the chute—do not require a separate station building or discharge structure.
 - **Skip capacity and recipe (owner decision):** **512 units** of bulk ore, with the shaped crafting layout:
 
   ```text
   [empty] [cable]         [empty]
-  [iron]  [iron trapdoor] [iron]
-  [empty] [minecart]      [empty]
+  [empty] [iron trapdoor] [empty]
+  [iron]  [minecart]      [iron]
   ```
 
   The precise allowed cargo mix/type behavior and the construction orientation are still to be confirmed; do not assume additional materials or ingredients.
 - **Loading/unloading track (owner direction):** a dedicated load/unload rail itself defines the transfer point; a cart **above** a skip can dump into its top compartment, while a cart **beside** an aligned skip receives material through the skip's built-in lower chute. No additional station machinery should be needed for the cart to accept ore. Transfer must respect capacity and avoid item loss.
-- **Hoisting hookup (owner direction):** using the existing loose cable **hook on a skip** attaches it; this visually yields **two upward lifting cable runs**, one on each side flanking the skip's ore-intake opening. Both run toward an already mounted overhead guide wheel linked to a higher winch. Keep one clear player attachment gesture while allowing a visibly balanced two-point suspension. Whether those runs are a split bridle from one paid-out line, and the cable-length accounting, need engineering design before implementation.
+- **Hoisting hookup (owner direction):** using the existing loose cable **hook on a skip** attaches it; this generates a **triangular two-leg connecting bridle**: two attachment points flank the skip's ore-intake opening and converge at **a single apex above the skip**. **One main hoisting cable** then continues upward from that apex, over an already established overhead guide wheel, to a higher winch. The bridle is not a pair of independently routed lines all the way to the wheel. Cable/bridle material accounting and clearance remain engineering details to settle before implementation.
 - Counterweights, coal-powered winch attachments, automated handoff/reset, skips and new rail shapes are **separate future designs**, not implicit M04 work.
 
 ### 5.3 Intended logistics tradeoff
@@ -174,7 +174,7 @@ Only record settled answers in sections 1–5 after the owner decides them.
 | Coupling | How carts attach/detach, how tension propagates through a mixed train, and behavior on curves/grade transitions. |
 | Rails | Geometry and construction of extended extreme slopes; whether steep routes require special rail pieces; speed and crash damage. |
 | Incline winches | Grade-versus-speed relationship, winch load limits, controlled lowering and automated return/reset. |
-| Mining skips | **Form, recipe, 512 capacity, integral chute and hookup gesture settled.** Clarify 1×3 footprint orientation relative to track/shaft, guide construction, cable splitting and consumption, exact door clearance, cargo type rules, transfer triggers, stops and safety. |
+| Mining skips | **Form, recipe, 512 capacity, integral chute and hookup gesture settled.** **One block wide × three blocks tall, four-block vertical door clearance, revised recipe, 512 capacity, integral chute and triangular bridle-to-single-cable hookup settled.** Clarify horizontal depth, guide construction, cable/bridle material accounting, door swing clearance, cargo type rules, transfer triggers, stops and safety. |
 | M04 balance | Final recipes, route spans and cable capacity after actual owner playtesting. |
 
 ## 7. Superseded ideas (historical only)
