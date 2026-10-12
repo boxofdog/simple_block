@@ -26,7 +26,8 @@ M05 is a larger combined milestone specifically requested by the owner, **not** 
 |---|---|---|
 | Later | **Coal-powered winch attachment** | Upgrade the existing hand winch with localized fuel power; no generalized network. |
 | Later | **Refined train coupling and operation** | Expand/adjust only after M05's minimum viable consist can push and pull. |
-| Later | **Incline counterweights and upright mining skips** | Separate vertical lifting, safe reset and freight-transfer milestones. |
+| Later | **Incline counterweights and upright mining skips** | Separate vertical lifting, safe reset and freight-transfer milestones; design unloading into a raised receiving hopper as part of the mine-to-smelter flow. |
+| Later | **Bulk ore transfer and large smelter** | Gravity-charge raw ore from a minecart or vertical skip into a substantial smelter's hopper. Remove the vanilla blast furnace and slow ordinary-furnace raw-ore processing to make bulk smelting worthwhile. Details below; do not start within M05. |
 | Later | **Extreme-grade rails and downhill crashes** | Design three-block rises/drops and consequences separately. |
 | Later | **Full mining/logistics playtest** | Once powered rail haulage and vertical transport make a representative loop possible. |
 
@@ -36,7 +37,7 @@ Small standalone improvements (such as faster ladders) may be scheduled between 
 
 - **Villages:** terrain suitability, larger buildings, population and destinations, pubs, centralized stores, workshop services, real golem protection.
 - **Character and equipment:** armor/loadout redesign, climbable ropes and faster ladders.
-- **Geology/metallurgy:** alluvial iron sand/gravel, steel, useful long-lived anvil/smithing.
+- **Geology/metallurgy:** bulk smelting and hopper-fed ore handling, alluvial iron sand/gravel, steel, useful long-lived anvil/smithing.
 - **Rules and usability:** selective redstone-system redesign, guidebook, cargo visuals and player-facing text polish.
 
 ### Future winch mounting and shaft layout (owner-approved direction)
@@ -46,6 +47,14 @@ Small standalone improvements (such as faster ladders) may be scheduled between 
 - Leave room beneath the overhead assembly for an elevated rail's minecart to stop and **dump bulk freight into an upright mining skip below**, which a shaft hoist can move vertically. Exact transfer mechanics and headframe geometry are still to be designed.
 - A hand-operated overhead winch must have an accessible operating position; a later coal engine attachment should fit the same assembly. Other mounting configurations need not be prohibited merely because overhead is the normal layout.
 - **M05 design direction:** preserve the open-ended construction route and add a reversible closed loop with an offset return strand and terminal pulley. Specific pulley conversion and cable-routing edge cases are detailed in the M05 brief; they must preserve existing anchors and the loose hook.
+
+### Future bulk ore smelting and freight transfer (owner-approved direction; not authorized)
+
+- **Batch-based raw-material handling, not Create-style ore conveyors.** The practical mine-to-smelter loop should move bulk ore in minecarts or upright mining skips, then discharge it **by gravity into a raised receiving hopper** on a substantial, constructed smelter. No requirement to transport every individual ore item through exposed processing belts.
+- **Two processing scales:** retain the ordinary furnace for early/small-scale iron and other familiar uses, but **slow its raw-ore smelting** so it does not compete with bulk processing. **Remove/disable the vanilla blast furnace** in a future authorized metallurgy milestone to avoid a redundant intermediate metal-processing shortcut.
+- **Large smelter:** a visually substantial piece of settlement infrastructure with a hopper/charging point, a fuel demand, and a deliberate output or tapping point. Its functional reward is handling large quantities of ore efficiently, making rail elevation, terminal placement, vertical skips and a permanent mine-to-settlement supply line valuable.
+- **Physical delivery:** design unloading from elevated rails and skips alongside the receiving hopper, not as independent item-teleportation or general automatic-factory systems. Material should never disappear or duplicate when an unloading attempt fails or the recipient is full.
+- **Open design questions before a milestone brief:** smelter structure/footprint, whether it takes one load or multiple stored loads, which ores/materials it processes, furnace slowdown amount, fuel and smelting throughput, hopper capacity/behavior, player-controlled vs passive dumping, casting/tapping/output collection and integration with later steelmaking. A larger internal reservoir is a **suggestion**, not yet approved. Do not add mandatory crushing, waste handling, conveyor networks or industrial process simulation by assumption.
 
 Full design context lives in [BACKLOG.md](BACKLOG.md), confirmed implementation choices in [DECISIONS.md](DECISIONS.md), and the running visible-text cleanup list in [UX_TEXT_LOG.md](UX_TEXT_LOG.md).
 
