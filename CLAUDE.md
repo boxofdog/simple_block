@@ -1,11 +1,11 @@
 # Instructions for Claude Code — Minecraft Overhaul
 
-Read `docs/VISION.md`, `docs/DESIGN_REGISTER.md` and `docs/DECISIONS.md`, then the current milestone's documents: `docs/MILESTONE_04.md` (the owner's brief, verbatim; its test matrix is in `docs/MILESTONE_04_REPORT.md`), and `docs/ROADMAP.md` for context only (Milestones 01-03 are complete and must keep working; their reports are `docs/MILESTONE_01_REPORT.md`, `docs/MILESTONE_02_REPORT.md` and `docs/MILESTONE_03_REPORT.md`). The owner's Milestone 03 clarification in `docs/DECISIONS.md` (the vanilla minecart is the cargo cart; no separate freight cart) still stands. M04's provisional choices and open questions are in `docs/DECISIONS.md`; editable models are in `art/blockbench/` (see its README). If a `docs/MILESTONE_0N_CHECKPOINT.md` exists for the current milestone, read it first: it records what is done and the next steps.
+Read `docs/VISION.md`, `docs/DESIGN_REGISTER.md`, `docs/DECISIONS.md`, and `docs/ROADMAP.md` before working. Then read the **latest milestone explicitly authorized by the owner**, its specification/report, and any checkpoint. M01-M03 are shipped; M04 has an implementation and report in `docs/MILESTONE_04.md` and `docs/MILESTONE_04_REPORT.md`, awaiting owner acceptance. The roadmap is planning context and contains the **shared milestone commit handoff**, not authorization to implement the next milestone. Editable models are in `art/blockbench/`. Preserve the owner's M03 clarification: the vanilla minecart itself is the cargo cart.
 
 ## Priority and scope
 
 1. The user's current direct instructions take priority.
-2. The current milestone's documents define the **only authorized implementation scope**. Now that is Milestone 04: `docs/MILESTONE_04.md`. Milestones 01-03's rules stay in force.
+2. The **owner-authorized milestone brief** defines the only authorized implementation scope. Do not assume a milestone remains active because this file or the roadmap mentions it; completed milestones' rules stay in force.
 3. `docs/DESIGN_REGISTER.md` provides future context and decision status, **not permission to implement future systems**.
 4. `docs/VISION.md` is a design guide, not a technical specification.
 5. If documents conflict, flag the conflict and prefer the narrowest interpretation that satisfies the current milestone in a fresh world.
@@ -21,14 +21,14 @@ Before changing code:
 
 ## Engineering boundaries
 
-- Work incrementally. Isolate the four features so they are independently modifiable or revertible.
+- Work incrementally. Keep the authorized milestone small, testable, and independently modifiable.
 - Prefer supported loader hooks/events and data/recipe overrides over invasive patches where practical. Use mixins/patching only when needed for the selected game version and document why.
 - Put authoritative game-rule enforcement on the logical server, including integrated single-player. Do not rely on client UI restrictions alone.
 - Prefer a small, understandable implementation over speculative frameworks for future trains, custom rendering, or worldgen.
 - This overhaul targets **newly created worlds only**. Do not implement existing-world migration, legacy-data recovery, or compatibility layers.
 - Keep vanilla block, item, and entity registrations where the game/loader requires them; disable targeted gameplay behavior through appropriate hooks, recipes, and acquisition paths instead. This is a technical constraint, not an old-save compatibility promise.
 - Avoid adding broad dependencies or unrelated code cleanup.
-- Do not modify user-authored art or generate custom models (Milestones 01 and 02 add no new block art). Future custom assets will use editable Blockbench `.bbmodel` source with replaceable textures.
+- Do not overwrite user-authored art. When an approved milestone calls for custom models, provide editable Blockbench `.bbmodel` source and UV templates with replaceable textures, not unsolicited finished textures.
 - Record any platform/version-specific limitations rather than pretending a behavior is implemented.
 
 ## Verification
@@ -40,12 +40,26 @@ Before changing code:
 - Don't call the milestone complete while a required acceptance test is known to fail.
 - Preserve a clean, reviewable diff; do not overwrite user changes. Explain any unusual configuration edits.
 
+## Shared milestone handoff (required on every completion)
+
+After implementing and pushing an **owner-authorized milestone**, update the **Milestone commit handoff** section in `docs/ROADMAP.md`:
+
+1. Record the milestone ID, **implementation/code commit SHA(s)**, the milestone report link, a concise change summary, deviations and unresolved issues.
+2. Check **Claude — code committed and pushed** only after confirming the implementation commits are on `main`. Commit the code **before** recording the SHA in the roadmap; the later documentation commit is a separate commit.
+3. Check **Claude — tests and closeout report recorded** only after recording actual results, including skipped/flaky checks.
+4. Check **Claude — CI verified** only after checking the specific GitHub Actions run for the implementation SHA and confirming the `simple-block-mod` artifact. Otherwise leave unchecked with a note.
+5. Commit and push the updated roadmap so ChatGPT and the owner can independently inspect the **same repository record**. Include the roadmap/handoff commit SHA in your final reply.
+6. **Never check ChatGPT's independent verification or the owner's acceptance boxes.** Those are separate checks; do not mark a milestone accepted based on tests alone.
+7. After verification and acceptance, keep a short line in the receipts table and reset the live checklist for the **next explicitly authorized** milestone. Don't auto-start it.
+
+This is a factual bookkeeping workflow, **not permission to change scope, reprioritize work, or start another milestone**.
+
 ## Session output
 
 At the end, provide:
 1. Baseline repository/runtime findings.
 2. Files changed and why.
-3. Implementation summary for sleeping, phantoms, elytra, and shulker boxes.
+3. Implementation summary for the **current milestone** (including any deviations from the authorized brief).
 4. Test results and limitations.
 5. How to run/build locally.
 6. Remaining issues and next recommended milestone.
