@@ -127,7 +127,7 @@ These rejections do not prohibit ordinary visual polish or other environmental m
 
 - Train coupling, reversible coal locomotive, fuel efficiency and gradients.
 - Hand winch operation and mechanical cable traction; turning/guide pulleys, grip clearance, alternate track alignments.
-- Coal-fired **mechanical** winch attachment and counterweight incline reset; no electrical power grid or Create-style power network.
+- **M06 intended scope:** coal-fired LOCAL mechanical winch upgrade mounted to/working with the existing M05 drum, with attachment, fuel, reversible controls, safe holding and manual fallback still requiring owner decisions; no electrical power grid or Create-style power network. Counterweight incline reset is not automatically included. **M07 planned:** vertical mining skips and hoisting/transfer; **M08 planned:** large smelter; **M09 planned:** complete armor/workwear overhaul. These are milestone plans, not implementation authorization.
 - Upright vertical mining skip, loading by gravity from elevated minecart tracks, and unloading at the surface.
 - Cargo visibility is **design-scoped**: keep the original freight minecart and render a cauldron/composter-like stepped fill surface proportional to cargo count with new owner-paintable texture assets; defer implementation until after M05. Exact quantity remains inspectable and floating dev text is addressed in `UX_TEXT_LOG.md`.
 - Metalworking, durable anvils, differentiated armor roles and steel.
