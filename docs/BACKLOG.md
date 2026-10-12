@@ -15,6 +15,16 @@ Ideas here are **not approved implementation tasks**. The short [roadmap](ROADMA
 | I-007 | **Alluvial iron sand and iron gravel**, naturally occurring at appropriate riverbanks; require new original textures. This is a proposed additional deposit *form* beyond M02's existing alluvial enrichment, not an amendment to M02. | BTA-inspired prospecting discussion; owner-approved future direction | DESIGN | Design finite deposits and extraction/processing; reconcile surface iron availability with iron demand and huge mountain veins |
 | I-008 | **Steel** as a crafted/manufactured material with a distinctive purpose, using a production system of our own design rather than BTA's | BTA inspiration; owner-approved future direction | DESIGN | Decide properties, production chain, and smithy/anvil integration |
 | I-009 | **Recipe guide / guidebook** for learning about tools, materials, and machines as the player discovers them | BTA inspiration; owner-approved future feature | DESIGN | Decide discovery presentation, recipe navigation, and whether any unlock restrictions exist (none assumed) |
+| I-010 | **Post-M09 full-set bonuses for existing iron, diamond and netherite armor:** **Cast Iron Crusader** (zombie/arrow knockback immunity; target mob's remaining HP after hitting), **Iridescent Infantry** (full-strength but shorter-range arrow reflection; zombie teeth break, hurting and weakening them), **Netherfire Knight** (piglins never fight back and give better barters; hostile attackers ignite) | Owner-settled post-M09 direction; NOT M09 scope | DESIGNED — not implementation-authorized | Future dedicated brief: set checks, numerical effects, UI, arrow physics, zombie weakening, piglin behavior, tests; no new armor items |
+
+### I-010 — Post-M09 vanilla combat armor roles (owner-settled, NOT authorized)
+
+**Existing complete sets only (helmet + chestplate + leggings + boots; no new tiers):**
+- **Iron / Cast Iron Crusader:** wearer cannot be knocked back by **zombies or arrows**; hitting a mob reveals its **remaining hitpoints**.
+- **Diamond / Iridescent Infantry:** incoming **arrows reflect back** at **full strength but reduced distance**; a zombie that bites the wearer **breaks its teeth**, taking damage and dealing reduced damage afterward.
+- **Netherite / Netherfire Knight:** **piglins never fight back** and offer the wearer **better trades/barters**; hostile mobs that hit the wearer **catch fire**.
+
+Full-match set activation, numerical damage/slowdown/range, display style, durations, zombie-state persistence, piglin barter weights and test design belong to a **later standalone implementation brief**. Never silently add these to M09 or M06–M08. M09's **Trail Blazer/Old Pro** are separate workwear bonuses; gold/chainmail retirement still belongs to M09. Design details live in [DECISIONS.md §5.7](DECISIONS.md).
 
 ### I-004 — Modular armor roles and integrated overalls backpack
 
