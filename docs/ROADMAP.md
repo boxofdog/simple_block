@@ -41,7 +41,7 @@ Small standalone improvements (such as faster ladders) may be scheduled between 
 ## Later workstreams
 
 - **Villages:** terrain suitability, larger buildings, population and destinations, pubs, centralized stores, workshop services, real golem protection.
-- **Character and equipment:** armor/loadout redesign, climbable ropes and faster ladders.
+- **Character and equipment:** retire gold and chainmail armor from normal gameplay/creative, develop separate spelunking and mining backpack chestplates (details below), add climbable ropes and tune faster ladders.
 - **Geology/metallurgy:** bulk smelting and hopper-fed ore handling, alluvial iron sand/gravel, steel, useful long-lived anvil/smithing.
 - **Rules and usability:** selective redstone-system redesign, guidebook, stepped freight-cart cargo visuals and player-facing text polish.
 
@@ -53,6 +53,14 @@ Small standalone improvements (such as faster ladders) may be scheduled between 
 - **#6 Gravel/sand freight eligibility:** **already owner-approved but not implemented**; user wants it scheduled only after M05 playtesting, with cargo-tag and test updates then. No additional scope discussion required.
 - **#7 Minecart cargo visuals/dev text:** **design decided, implementation later**. Ordinary vanilla freight carts retain their models but show a **visible material surface rising in discrete fill steps** proportional to the 0–256 load, analogous to a cauldron or composter. Provide new owner-paintable texture/art assets with editable sources; remove the intrusive always-floating cargo-count label in favor of the fill visual while retaining deliberate exact-quantity inspection. Exact step count, mesh/render method and how to depict different commodities can be chosen during implementation; no extra cart type or UI machinery. Other noisy development text remains logged in [UX_TEXT_LOG.md](UX_TEXT_LOG.md).
 - **#8 Spelunker's ropes and faster ladders:** **rope recipes and hanging/extension behavior now design-scoped; not implemented**. Faster ladder speed remains open; rope climbing, retrieval and placement edge cases can be settled in its implementation brief.
+
+### Future armor/loadout redesign (owner-approved direction; not authorized)
+
+- **Remove gold and chainmail armor sets entirely from player-facing Simple Block:** no craftable, lootable, tradeable or creative-listed armor items or naturally equipped examples. Retire them with world/registry compatibility precautions; this does **not** remove gold the raw material. Replacement/drop mappings and mob gear tables need a dedicated audit when implemented.
+- **Spelunking chestplate:** includes a built-in **backpack restoring M02's third inventory row (+9 slots; 27 → 36 total including hotbar)**. When worn, allows faster climbing on **both ladders and hanging Spelunker's Rope**. Exact climb multiplier and armor/recipe stats remain open.
+- **Mining chestplate:** includes the **same +9-slot backpack**. Permits picking up/carrying designated heavy materials **above M02's 64-unit weight limit**, with a **progressive movement-speed penalty** increasing with overload rather than an immediate pickup refusal. The exact function, any upper bound and equipment stats remain open. Do not conflate metal weight with cobble/gravel/sand freight cargo.
+- The two chestplates are **alternatives** for different jobs, not a single always-best armor set. Baseline remains 27 slots and the 64-unit heavy limit when not wearing the appropriate equipment. Extra inventory rows require safe unequip/death/save/load/sort semantics; when the additional slots are occupied, contents must not vanish or duplicate. Ordinary combat rules such as jump criticals are **not** being rewritten here.
+- **Future balance questions:** whether utility gear needs full sets or only specialized chestplates; how protective combat armor fits; piglin interactions after gold armor retirement; protection/durability/recipes, overweight speed curve and handling of occupied backpack slots. **No implementation authorization in M05/M06.**
 
 ### Future spelunker's rope (owner-approved direction; not authorized)
 
