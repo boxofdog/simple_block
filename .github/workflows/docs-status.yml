@@ -1,47 +1,75 @@
 name: Milestone Status Sync
 
-on: [push, workflow_dispatch]
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'docs/**'
+      - 'src/**'
+      - 'art/**'
+      - 'tools/docs/**'
+      - 'tools/models/**'
+      - 'CLAUDE.md'
+      - 'README.md'
+      - 'build.gradle'
+      - 'gradle.properties'
+      - '.github/workflows/build.yml'
+      - '.github/workflows/docs-status.yml'
+  workflow_dispatch:
 
 permissions:
   contents: write
+
+concurrency:
+  group: docs-status-main
+  cancel-in-progress: false
 
 jobs:
   sync:
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
-      - name: Checkout
+      - name: Checkout with comparison history
         uses: actions/checkout@v4
-      - name: Generate status cells
-        run: python3 tools/docs/sync_milestone_statuses.py --write
-      - name: Test synchronizer
-        run: python3 -m unittest discover -s tools/docs -p 'test_sync_milestone_statuses.py' -v
-      - name: Validate milestone reports and links
-        run: python3 tools/docs/check_reporting.py
-      - name: Push changed status cells on main
+        with:
+          fetch-depth: 2
+      - name: Update generated documentation
+        run: |
+          python3 tools/docs/sync_milestone_statuses.py --write
+          python3 tools/docs/automation.py readme --write
+          python3 tools/docs/automation.py evidence --write
+      - name: Run all documentation unit tests
+        run: python3 -m unittest discover -s tools/docs -p 'test_*.py' -v
+      - name: Validate statuses, reports, references, and generated indexes
+        run: |
+          python3 tools/docs/sync_milestone_statuses.py --check
+          python3 tools/docs/automation.py readme --check
+          python3 tools/docs/automation.py evidence --check
+          python3 tools/docs/automation.py drift
+          python3 tools/docs/check_reporting.py
+      - name: Source-to-doc impact hints (advisory)
+        run: python3 tools/docs/automation.py impact
+      - name: Commit only generated documentation
         shell: bash
         run: |
           set -euo pipefail
-          if [ "$GITHUB_REF" != "refs/heads/main" ]; then
-            echo "Not main: validation only"
-            exit 0
-          fi
+          if [ "$GITHUB_REF" != "refs/heads/main" ]; then exit 0; fi
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           for attempt in 1 2 3; do
             git fetch origin main
             git reset --hard origin/main
             python3 tools/docs/sync_milestone_statuses.py --write
-            if git diff --quiet -- docs/ROADMAP.md; then
-              echo "Status cells already synchronized"
-              exit 0
-            fi
+            python3 tools/docs/automation.py readme --write
+            python3 tools/docs/automation.py evidence --write
+            python3 tools/docs/automation.py drift
             python3 tools/docs/check_reporting.py
-            git add docs/ROADMAP.md
-            git commit -m "docs: sync roadmap status labels"
-            if git push origin HEAD:main; then
+            git add docs/ROADMAP.md README.md docs/evidence/INDEX.md
+            if git diff --cached --quiet; then
+              echo "Generated content already synchronized"
               exit 0
             fi
-            echo "Main moved during push; retrying"
+            git commit -m "docs: refresh generated status and inventories"
+            if git push origin HEAD:main; then exit 0; fi
           done
           exit 1

@@ -8,9 +8,17 @@ name: Build
 on:
   push:
     branches: [main]
-    paths-ignore: ['**.md', 'docs/**']
+    paths: &build_paths
+      - 'src/**'
+      - 'gradle/**'
+      - 'gradlew'
+      - 'build.gradle'
+      - 'settings.gradle'
+      - 'gradle.properties'
+      - 'tools/models/**'
+      - '.github/workflows/build.yml'
   pull_request:
-    paths-ignore: ['**.md', 'docs/**']
+    paths: *build_paths
   workflow_dispatch:
 
 permissions:

@@ -58,52 +58,56 @@ policy = json.loads((DOCS / "REPORTING_POLICY.json").read_text(encoding="utf-8")
 allowed = policy["milestone_status_schema"]["allowed_values"]
 max_words = policy["documentation_policy"]["max_report_words"]
 
-# Appended verification sections.
-for n in range(1, 8):
-    mid = f"M{n:02d}"
-    path = DOCS / f"MILESTONE_{n:02d}.md"
-    text = path.read_text(encoding="utf-8")
-    heads = list(HEADING.finditer(text))
-    if len(heads) != 1:
-        fail(f"{path.name}: expected exactly one verification heading, found {len(heads)}")
+# All milestones are discovered; no future M08+ exemptions. A planned milestone
+# can have no appendix, while PLAYTESTING/SHIPPED requires one.
+for path in sorted(DOCS.glob("MILESTONE_??.md")):
+    mid = "M" + path.stem[-2:]
+    content = path.read_text(encoding="utf-8")
+    heads = list(HEADING.finditer(content))
+    if not heads:
+        if EXPECTED[mid] in ("PLAYTESTING", "SHIPPED"):
+            fail(f"{path.name}: {EXPECTED[mid]} requires a dated verification appendix")
         continue
-    section = text[heads[0].start():]
-    if re.search(r"^#{1,2} ", section[3:], re.M):
-        fail(f"{path.name}: verification section is not the last section")
-    body = section.split("\n", 1)[1]
-    if words(body) > max_words:
-        fail(f"{path.name}: verification section has {words(body)} words (> {max_words})")
-    pos = -1
-    for s in SECTIONS:
-        p = body.find(s)
-        if p < 0 or p < pos:
-            fail(f"{path.name}: section {s} missing or out of order")
-        pos = max(pos, p)
-    meta = re.search(r"\*\*Metadata:\*\*\s*(M\d{2})\s*\|\s*([^|]+?)\s*\|", body)
-    if not meta or meta.group(1) != mid:
-        fail(f"{path.name}: metadata milestone id missing or not {mid}")
-    elif meta.group(2) not in allowed:
-        fail(f"{path.name}: status '{meta.group(2)}' is not an allowed label")
-    for c in CATEGORIES:
-        if not re.search(rf"^\| {re.escape(c)} \| (PASS|FAIL|NOT RUN) \|", body, re.M):
-            fail(f"{path.name}: test category '{c}' missing or result invalid")
-    for label in ("- Commits:", "- Source SHA:"):
-        line = next((l for l in body.splitlines() if l.startswith(label)), None)
-        if line is None:
-            fail(f"{path.name}: '{label}' line missing")
-            continue
-        shas = SHA40.findall(line)
-        if not shas and "UNAVAILABLE" not in line:
-            fail(f"{path.name}: '{label}' has no SHA")
-        for sha in shas:
-            if len(sha) != 40:
-                fail(f"{path.name}: '{label}' SHA {sha} is not 40 characters")
-    gaps = re.search(r"\*\*Known gaps\*\*\n(.*?)\n\*\*Owner playtest\*\*", body, re.S)
-    if gaps and len(re.findall(r"^- ", gaps.group(1), re.M)) > 5:
-        fail(f"{path.name}: more than 5 known gaps")
-    plays = body.split("**Owner playtest**", 1)[-1]
-    if len(re.findall(r"^- ", plays, re.M)) > 5:
-        fail(f"{path.name}: more than 5 owner playtest steps")
+    for i, head in enumerate(heads):
+        end = heads[i+1].start() if i+1 < len(heads) else len(content)
+        section = content[head.start():end]
+        if re.search(r"^#{1,2} (?!Implementation and verification —)", section[3:], re.M):
+            fail(f"{path.name}: appendix must be the last substantive section")
+        body = section.split("\n",1)[1] if "\n" in section else ""
+        if words(body)>max_words:
+            fail(f"{path.name}: appendix {i+1} has {words(body)} words (> {max_words})")
+        pos=-1
+        for s in SECTIONS:
+            p=body.find(s)
+            if p<0 or p<pos:
+                fail(f"{path.name}: appendix {i+1}: {s} missing or out of order")
+            pos=max(pos,p)
+        meta=re.search(r"\*\*Metadata:\*\*\s*(M\d{2})\s*\|\s*([^|]+?)\s*\|",body)
+        if not meta or meta.group(1)!=mid:
+            fail(f"{path.name}: appendix {i+1}: wrong/missing milestone metadata")
+        elif meta.group(2) not in allowed:
+            fail(f"{path.name}: appendix {i+1}: unsupported status {meta.group(2)}")
+        for c in CATEGORIES:
+            if not re.search(rf"^\| {re.escape(c)} \| (PASS|FAIL|NOT RUN) \|",body,re.M):
+                fail(f"{path.name}: appendix {i+1}: missing/invalid {c} test row")
+        for label in ("- Commits:","- Source SHA:"):
+            line=next((line for line in body.splitlines() if line.startswith(label)),None)
+            if line is None:
+                fail(f"{path.name}: appendix {i+1}: missing {label}")
+                continue
+            shas=SHA40.findall(line)
+            if not shas and "UNAVAILABLE" not in line:
+                fail(f"{path.name}: appendix {i+1}: missing SHA or UNAVAILABLE")
+            for sha in shas:
+                if len(sha)!=40:
+                    fail(f"{path.name}: appendix {i+1}: truncated SHA {sha}")
+        gaps=re.search(r"\*\*Known gaps\*\*\n(.*?)\n\*\*Owner playtest\*\*",body,re.S)
+        if gaps and len(re.findall(r"^- ",gaps.group(1),re.M))>5:
+            fail(f"{path.name}: appendix {i+1}: too many gaps")
+        if "**Owner playtest**" in body:
+            plays=body.split("**Owner playtest**",1)[-1]
+            if len(re.findall(r"^- ",plays,re.M))>5:
+                fail(f"{path.name}: appendix {i+1}: too many playtest steps")
 
 # Validate roadmap using the current milestone metadata, never a hardcoded snapshot.
 roadmap = (DOCS / "ROADMAP.md").read_text(encoding="utf-8")
