@@ -2,7 +2,7 @@
 
 A stripped-down Minecraft Java Edition overhaul built around hostile nights, territory, mining and physical transport infrastructure. See [`docs/VISION.md`](docs/VISION.md) for the design and [`CLAUDE.md`](CLAUDE.md) for the working rules.
 
-**Status:** Milestones 01 (Survival Foundation) and 02 (World, Night, Inventory) are done: see [`docs/MILESTONE_01_REPORT.md`](docs/MILESTONE_01_REPORT.md) and [`docs/MILESTONE_02_REPORT.md`](docs/MILESTONE_02_REPORT.md). Milestone 03 (minecart cargo and storage-bypass closure) is reported in [`docs/MILESTONE_03_REPORT.md`](docs/MILESTONE_03_REPORT.md). Milestone 04 (cable infrastructure) is reported in [`docs/MILESTONE_04_REPORT.md`](docs/MILESTONE_04_REPORT.md). Milestone 05 (cable haulage, the Cobblestone Engine and train couplings) is reported in [`docs/MILESTONE_05_REPORT.md`](docs/MILESTONE_05_REPORT.md).
+**Milestone status (2026-10-13): M01–M06 SHIPPED; M07 PLAYTESTING; M08–M10 PLANNED - NOT READY; M11 PLANNED - READY.** Current status and milestone handoff links: [`docs/ROADMAP.md`](docs/ROADMAP.md). Canonical cross-LLM terminology: [`docs/STATUS_KEY.md`](docs/STATUS_KEY.md). **PLANNED - READY is not implementation authorization.**
 
 **Fresh worlds only.** The mod is not meant to be added to existing saves.
 

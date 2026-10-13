@@ -1,6 +1,6 @@
 # M11 — Type-aware minecart cargo fill states, hopper freight transfer and text cleanup
 
-**Owner-scoped 2026-10-13. Status: PLANNED; NOT YET IMPLEMENTATION-AUTHORIZED.** A standalone **freight-cart rendering, progressive transfer and hopper integration** milestone, separate from the active M07 corrections and planned M08–M10. Number is for tracking and **does not require** completing M08–M10 first. Claude starts only upon specific owner authorization.
+**Owner-scoped 2026-10-13. Status: PLANNED - READY. NOT YET IMPLEMENTATION-AUTHORIZED.** A standalone **freight-cart rendering, progressive transfer and hopper integration** milestone, separate from the active M07 corrections and planned M08–M10. Number is for tracking and **does not require** completing M08–M10 first. Claude starts only upon specific owner authorization.
 
 **Responsibilities:** Claude codes real cargo-type-aware rendering, **hopper-to-cart and cart-to-hopper inventory integration, incremental transfer, open-gate geometry and text cleanup**, fill transitions, reusable shapes/models, linked UV and placeholder PNG templates, synchronization and tests. Joe paints final textures later, exclusively tracked in [Joe's To-Do](Joe's%20To-Do/BLOCKBENCH_PAINTING.md). Passing CI does not mean finished paintwork.
 

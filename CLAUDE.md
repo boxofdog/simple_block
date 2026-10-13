@@ -1,13 +1,13 @@
 # Instructions for Claude Code — Minecraft Overhaul
 
-**Current status (2026-10-13): M04–M06 PASSED; M07 IMPLEMENTED AND IN OWNER PLAYTESTING, NOT ACCEPTED.** M07 code `49d7add`, report update `dbda956`, Build #23 green (152/152 required server tests, artifact); reported client suite 9/9 and negative controls 17/17. **M08–M11 NOT IMPLEMENTATION-AUTHORIZED.** Read the concise [ROADMAP](docs/ROADMAP.md) for current status, the matching **milestone handoff** for approved requirements, and its **report** for actual CI/source/test receipts. Superseded M06/M07 instructions and historical handoff text remain in milestone reports and the dated [roadmap archive](docs/archive/ROADMAP_PRE_CONSOLIDATION_2026-10-13.md), **not here as active commands**. Do not autonomously start anything because it appears in a roadmap or design package.
+**Milestone status vocabulary: [docs/STATUS_KEY.md](docs/STATUS_KEY.md), exactly five labels. Current (2026-10-13): M01–M06 SHIPPED; M07 PLAYTESTING (not owner-accepted); M08–M10 PLANNED - NOT READY; M11 PLANNED - READY.** M07 code `49d7add`, report update `dbda956`, Build #23 green (152/152 required server tests, artifact); reported client suite 9/9 and negative controls 17/17. **No M08–M11 implementation has been authorized. PLANNED - READY does not grant permission to start.** Read the concise [ROADMAP](docs/ROADMAP.md) for current status, the matching **milestone handoff** for approved requirements, and its **report** for actual CI/source/test receipts. Superseded M06/M07 instructions and historical handoff text remain in milestone reports and the dated [roadmap archive](docs/archive/ROADMAP_PRE_CONSOLIDATION_2026-10-13.md), **not here as active commands**. Do not autonomously start anything because it appears in a roadmap or design package.
 
 **M07 owner playtest gate:** the main open decision is sequential unloading of a coupled train at one side-on Loading Rail after release; other untested cases are in [M07 report §12](docs/MILESTONE_07_REPORT.md). Do not reopen accepted M06 behavior or mark M07 owner-accepted without a fresh explicit instruction. The old minecart model restriction was superseded by the **shared universal four-gate cart**.
 
 ## Priority and scope
 
 1. The user's current direct instructions take priority.
-2. The **owner-authorized milestone brief** defines the only authorized implementation scope. **M04–M06 are owner-PASSED, M07 is PLAYTESTING, and M08–M11 are not implementation-authorized**; only a new explicit owner direction can authorize new work. Do not assume other milestones are authorized merely because a roadmap mentions them.
+2. The **owner-authorized milestone brief** defines the only authorized implementation scope. **M01–M06 are SHIPPED, M07 is PLAYTESTING, and M08–M11 are not implementation-authorized**; only a new explicit owner direction can authorize new work. Do not assume other milestones are authorized merely because a roadmap mentions them.
 3. `docs/DESIGN_REGISTER.md` provides future context and decision status, **not permission to implement future systems**.
 4. `docs/VISION.md` is a design guide, not a technical specification.
 5. If documents conflict, flag the conflict and prefer the narrowest interpretation that satisfies the current milestone in a fresh world.
@@ -51,7 +51,7 @@ After implementing and pushing an **owner-authorized milestone**, maintain the h
 2. Record full server and real-client test cases, PASS/FAIL/NOT RUN, negative controls, screenshots/logs, dedicated-server evidence where relevant, and the commands used. Do not claim a test was run when it was not.
 3. After the exact code SHA passes CI, link its Build URL and published `simple-block-mod` artifact in the report. A code commit precedes the report/documentation commit.
 4. Report the status of **Claude's** implementation/tests/CI checks only. Leave **ChatGPT independent verification** and **owner acceptance** for those parties. Never auto-authorize a later milestone.
-5. Update only the matching status row and report link in `docs/ROADMAP.md` when warranted; **do not paste milestone requirements, changelogs, CI matrices or handoff checklists back into the roadmap**.
+5. Update only the matching status row and report link in `docs/ROADMAP.md`, using an **exact** [docs/STATUS_KEY.md](docs/STATUS_KEY.md) label when warranted; **do not paste milestone requirements, changelogs, CI matrices or handoff checklists back into the roadmap**.
 6. Commit and push the report and concise roadmap status update; provide SHA(s) and remaining issues in the final reply.
 
 This is a factual reporting workflow, not permission to change scope or start a different milestone.

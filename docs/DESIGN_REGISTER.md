@@ -1,6 +1,6 @@
 # Consolidated Design Register
 
-**Status key:** **DECIDED** = user explicitly established the direction; **DIRECTION** = strong preference, needs specifics; **EXPLORATORY** = floated idea or assistant suggestion, not approved; **OPEN** = unspecified. This file is design context, **not authorization** to code any feature outside the active milestone.
+**Decision-record labels (not milestone lifecycle states):** **DECIDED** = user explicitly established the direction; **DIRECTION** = strong preference, needs specifics; **EXPLORATORY** = floated idea or assistant suggestion, not approved; **OPEN** = unspecified. The five allowed **milestone** status labels live in [STATUS_KEY.md](STATUS_KEY.md). This file is design context, not permission to code.
 
 ## A. Survival, monsters, lighting
 
@@ -78,4 +78,4 @@ The exact numeric proposals made during discussion (e.g., a 27-slot inventory, 6
 
 ## Current authorized implementation
 
-Only the behaviors described in `MILESTONE_01.md` (sleep, phantoms, elytra, shulker boxes). Do **not** implement the other entries in this register during Milestone 01.
+**Current milestone lifecycle/authorization is controlled by [ROADMAP.md](ROADMAP.md) and [STATUS_KEY.md](STATUS_KEY.md), not this historical design register.** As of 2026-10-13, M01–M06 are SHIPPED, M07 is PLAYTESTING, and no M08–M11 implementation is authorized.

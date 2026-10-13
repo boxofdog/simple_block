@@ -1,6 +1,6 @@
 # M10 — Modular workwear, armor retirement and set effects
 
-**Status as of 2026-10-13: OWNER-SCOPED DESIGN; NOT IMPLEMENTATION-AUTHORIZED.** This document relocates the exact workwear design from the former sprawling roadmap. Recipe geometry/ingredients and fuller design decisions also live in [DECISIONS.md §5.6](DECISIONS.md). A future executable brief and test matrix will be required; do not begin M10 on the basis of this draft.
+**Status: PLANNED - NOT READY (2026-10-13).** Not implementation-authorized. This document relocates the exact workwear design from the former sprawling roadmap. Recipe geometry/ingredients and fuller design decisions also live in [DECISIONS.md §5.6](DECISIONS.md). A future executable brief and test matrix will be required; do not begin M10 on the basis of this draft.
 
 ## Owner-settled direction, open tuning and safeguards
 

@@ -1,10 +1,10 @@
 # M08 — Standalone blast furnace + more forgiving heavy-load intake
 
-**Owner scoped:** 2026-10-13. **PLANNED, NOT IMPLEMENTATION-AUTHORIZED.** This is a design addendum / handoff note, not a claim that M08 has begun or that its remaining furnace design decisions are finished. M07 corrections remain separate. No gameplay code changed by this document.
+**Owner scoped:** 2026-10-13. **Status: PLANNED - NOT READY.** Not implementation-authorized. This is a design addendum / handoff note, not a claim that M08 has begun or that its remaining furnace design decisions are finished. M07 corrections remain separate. No gameplay code changed by this document.
 
 M08 contains **two scoped jobs** when eventually authorized:
 
-1. **Existing M08 metallurgy:** the substantial standalone pre-industrial blast furnace, its owner-settled horizontally mirrorable shaped recipe, industrial fuel/charging/casting, normal furnace raw-ore slowdown, and vanilla blast-furnace retirement. **The detailed furnace requirements and recipe remain authoritative in [ROADMAP.md, "Future bulk ore smelting and freight transfer"](ROADMAP.md)**; do not alter or prematurely implement them as part of this weight note.
+1. **Existing M08 metallurgy:** the substantial standalone pre-industrial blast furnace, its owner-settled horizontally mirrorable shaped recipe, industrial fuel/charging/casting, normal furnace raw-ore slowdown, and vanilla blast-furnace retirement. **The detailed furnace requirements and earlier recipe are recorded below in this M08 handoff (subject to the owner’s proposed redesign)**; do not alter or prematurely implement them as part of this weight note.
 2. **NEW M08 owner amendment:** revise the M02 personal heavy-load gate so **mining equipment/supplies keep their existing weight but can always be taken**, while remaining load capacity **only restricts additional ingots, material/storage blocks and ore**. This is meant to make hauling/setting up a mine less irritating, **not** to make carried equipment weightless or undo freight logistics.
 
 ## Weight is still real; restrictions become commodity-specific

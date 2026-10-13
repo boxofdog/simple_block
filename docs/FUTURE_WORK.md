@@ -1,6 +1,6 @@
 # Future work and unnumbered design packages
 
-**Status as of 2026-10-13: BACKLOG / OWNER-SCOPED CONCEPTS; NOT IMPLEMENTATION-AUTHORIZED.** Milestone-specific work belongs in the linked milestone handoffs, not here. This file holds **unassigned or unnumbered** design directions moved out of ROADMAP.md. Confirm scope and acceptance criteria in a dedicated brief before starting one. [BACKLOG.md](BACKLOG.md) contains additional speculative ideas and is never blanket authorization.
+**Unnumbered proposals are not milestone statuses.** Unassigned design ideas in this file have no implementation authorization. Apply the five-state [milestone status key](STATUS_KEY.md) only when a proposal becomes a numbered milestone. Milestone-specific work belongs in the linked milestone handoffs, not here. This file holds **unassigned or unnumbered** design directions moved out of ROADMAP.md. Confirm scope and acceptance criteria in a dedicated brief before starting one. [BACKLOG.md](BACKLOG.md) contains additional speculative ideas and is never blanket authorization.
 
 ### Planned visual follow-up — 3D ordinary rails (NOT implementation-authorized)
 
@@ -42,7 +42,7 @@ This is a **separate, unnumbered post-M10 workstream**, not additional M10 scope
 | **Diamond** | **Iridescent Infantry** | Reflect incoming arrows back with **reduced travel distance but full damage/strength**; a zombie biting the wearer **breaks its teeth**, damaging it and **reducing its subsequent attack damage**. |
 | **Netherite** | **Netherfire Knight** | **Piglins never fight back** against the wearer and offer **more favorable trade/barter outcomes**; any hostile mob that hits the wearer **ignites**. |
 
-**Implementation timing:** settle numerical reductions, durations, reflected-arrow return/range, teeth-broken state behavior, UI feedback, piglin barter odds and exact triggering on a future implementation brief. Do **not** improvise extra systems, equipment tiers or automation. See [DECISIONS.md §5.7](DECISIONS.md). **Current milestone status is in [ROADMAP.md](ROADMAP.md): M04–M06 PASSED; M07 PLAYTESTING.**
+**Implementation timing:** settle numerical reductions, durations, reflected-arrow return/range, teeth-broken state behavior, UI feedback, piglin barter odds and exact triggering on a future implementation brief. Do **not** improvise extra systems, equipment tiers or automation. See [DECISIONS.md §5.7](DECISIONS.md). **Current milestone status is in [ROADMAP.md](ROADMAP.md): M04–M06 SHIPPED; M07 PLAYTESTING.**
 
 ## Other unnumbered workstreams and playtest follow-ups
 
