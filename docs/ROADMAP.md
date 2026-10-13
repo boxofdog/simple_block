@@ -14,7 +14,7 @@
 | M04 | Cable coils, drum, underside copper anchors, routed overhead cable and minecart gripping rod | **Implemented / awaiting owner acceptance** |
 | M05 | Reversible cable loops, default hand crank, Cobblestone Engine and drum-side rendering fix | **Owner accepted 2026-10-12; GitHub/CI independently verified; documented review caveats remain** |
 | M06 | Loading Rail/whole-train stop and release, front gate, rail/Creative cleanup, **unlimited cable + shaped recipes**, no freight hand-pushing, **powered winch** | **IN PROGRESS — owner authorized; implementation/CI closeout pending** |
-| M07 | **Upright mining skips, winch hoisting/transfer, Cobblestone Engine and powered-winch visual remodels** | **OWNER AUTHORIZED 2026-10-12 — implementation next, dependent on M06 interfaces; not yet implemented** |
+| M07 | **Upright mining skips, winch hoisting/transfer, Cobblestone Engine and powered-winch visual remodels** | **OWNER AUTHORIZED 2026-10-12 — Claude: implemented 2026-10-13 (`a63013a`, CI #22 green); awaiting ChatGPT verification and owner acceptance** |
 | M08 | **Large pre-industrial blast furnace, standalone** | **Planned scope; not implementation-authorized** |
 | M09 | **Hostile-mob behavior and settlement defense** | **Owner-settled direction; design brief pending; NOT implementation-authorized** |
 | M10 | **Full modular armor/workwear implementation** | **Planned scope; not implementation-authorized** |
@@ -251,6 +251,14 @@ This is the **shared handoff between Claude Code, ChatGPT and the project owner*
 - **Loading Rail:** one rail and one anchor, shapeless. It docks freight carts, front the track's way, and holds the whole train with engines switched off. Use the post to release.
 - **Clean-up:** redstone rails retired, no retired items in the creative menu, and players can't shove carts that carry no passenger.
 - **Open items:** report section 8. Choices are recorded in DECISIONS §5.5.1. M07 (owner-authorized) is not started in these commits.
+
+**M07 implementation handoff — implemented, awaiting independent verification and owner playtest** ([M07 brief](MILESTONE_07.md)). Tracked separately from M06, whose owner acceptance above is still pending.
+
+- [x] **Claude — M07 code committed and pushed to `main`.** [`886f6f1`](https://github.com/boxofdog/simple_block/commit/886f6f15fb7b9ad51c2a3b7c6bcf2087f1e72efa) (engine and winch-motor visual remodels, §5A/5B), [`a63013a`](https://github.com/boxofdog/simple_block/commit/a63013ab70912736c6054f2c2463cf6d8f320fb0) (ore skip, 512 slot, hoisting, height-based station transfers). Both on `main`.
+- [x] **Claude — M07 tests and closeout report.** Report: [MILESTONE_07_REPORT.md](MILESTONE_07_REPORT.md) · `./gradlew build` **139/139** (8 new `SkipGameTests`); real client: all 8 client tests pass (new `MachineryArtClientTest`, `SkipClientTest`, `SkipServerClientTest` over a dedicated server); 5 negative controls each fail their test · Not tested: human playtest, desktop GPU, two players on one skip; hanging reach ~15 blocks below the head anchor and drum-side controls are recorded limitations.
+- [x] **Claude — M07 CI verified and artifact published.** [Build #22](https://github.com/boxofdog/simple_block/actions/runs/38390569443) on `a63013a`: **success**, `simple-block-mod` artifact id 11808882080 (398,728 bytes); [Build #21](https://github.com/boxofdog/simple_block/actions/runs/38384835982) on `886f6f1`: success.
+- [ ] **ChatGPT — M07 independently verified on GitHub.** Pending.
+- [ ] **Owner — M07 playtested and accepted.** Pending.
 
 **Verified milestone receipts** (one row per accepted milestone; older details remain in milestone reports):
 
