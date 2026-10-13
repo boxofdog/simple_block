@@ -91,6 +91,7 @@ Place witch huts on remote mountain peaks and in deep deepslate caverns. Each fe
 - **Purposeful schedules:** Villagers should prioritize identifiable destinations beyond their homes during the day: workplaces, shops, public areas, and social spaces. They should visibly inhabit and use the buildings that define their village.
 - **Pub / tavern:** Include a suitably large communal pub where **most villagers gather and mingle during the evening/night**. It must support multiple villagers inside at once instead of operating as a decorative empty building. Later return-home/sleep schedules need design, not assumption.
 - **Profession presence:** An existing smithy should reliably have a smith at work; other workplaces likewise should have their associated professionals present and visibly working when appropriate.
+- **Armorer and retired blast-furnace follow-up:** M08 replaces vanilla blast-furnace blocks in newly generated village structures with regular furnaces and retires the vanilla blast furnace from ordinary acquisition. **M08 must not change villager professions, AI, trades or job-site rules.** Investigate later whether Armorer workstation assignment, profession availability, workplace presentation or trade behavior needs redesign under the separate inhabited-villages workstream; owner approval required before changing any of it.
 
 ### Commerce, skilled work, and services
 
