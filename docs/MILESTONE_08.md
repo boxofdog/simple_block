@@ -1,15 +1,15 @@
 ---
 milestone: M08
-status: PLANNED - NOT READY
+status: PLANNED - READY
 ---
 
 # M08 — Standalone blast furnace + more forgiving heavy-load intake
 
-**Owner scoped and refined:** 2026-10-13. **Status: PLANNED - NOT READY.** Not implementation-authorized. Most M08 gameplay, structure and transfer behavior is now owner-settled; the exact revised Bricks-block crafting-grid layout has not yet been recorded, so do not invent it. M07 corrections remain separate. No gameplay code changed by this document.
+**Owner-scoped and handoff-ready:** 2026-10-13. **Status: PLANNED - READY.** The exact Bricks-block furnace recipe and its horizontal mirror are now settled below, completing the M08 design handoff. **Ready does not authorize implementation:** wait for the owner's explicit instruction to begin. M07 corrections remain separate; no gameplay code changed by this document.
 
 M08 contains **two scoped jobs** when eventually authorized:
 
-1. **M08 metallurgy:** a single placed 3×3-footprint, four-block-high pre-industrial blast furnace, Bricks-block-based construction recipe (exact grid still to be settled), bulk ore charging/casting, tuned fuel/processing, slower ordinary-furnace raw-ore smelting, village structure replacement of vanilla blast furnaces, and retirement of the vanilla blast furnace. Detailed owner decisions are below.
+1. **M08 metallurgy:** a single placed 3×3-footprint, four-block-high pre-industrial blast furnace, exact horizontally mirrorable Bricks-block shaped 3×3 recipe, bulk ore charging/casting, tuned fuel/processing, slower ordinary-furnace raw-ore smelting, village structure replacement of vanilla blast furnaces, and retirement of the vanilla blast furnace. Detailed owner decisions are below.
 2. **NEW M08 owner amendment:** revise the M02 personal heavy-load gate so **mining equipment/supplies keep their existing weight but can always be taken**, while remaining load capacity **only restricts additional ingots, material/storage blocks and ore**. This is meant to make hauling/setting up a mine less irritating, **not** to make carried equipment weightless or undo freight logistics.
 
 ## Weight is still real; restrictions become commodity-specific
@@ -42,7 +42,7 @@ M08 contains **two scoped jobs** when eventually authorized:
 - **Physical freight remains valuable:** the normal 64-equivalent allowance and one-way resource-intake restriction stay meaningful; this change must not increase cart/skip capacity, remove cargo item restrictions, globally make metals weightless, or alter furnace throughput.
 - Test integrated-client load bar at **under, exactly at, and above** 64, real inventory/container item movement, dedicated server as relevant; required server game tests should fail on the old blanket-blocking behavior. Separate M08 code/CI/artifact/report only after implementation authorization; preserve all historical M02 tests/reports as history and update current baselines rather than pretending old enforcement rules still hold.
 
-**Scope status:** These M08 decisions are owner-settled design, **not** permission to implement. The revised furnace crafting-grid pattern remains the one concrete outstanding recipe detail. M10 still owns Mining Boots/Mule/Old Pro.
+**Scope status:** M08 is **PLANNED - READY**, with construction, recipe, inventories, freight alignment, retirement rules and weight classification settled. Initial processing/fuel rates remain deliberately tunable at Claude's discretion and do not block handoff. **No implementation authorization is granted.** M10 still owns Mining Boots/Mule/Old Pro.
 
 ---
 
@@ -53,7 +53,23 @@ M08 contains **two scoped jobs** when eventually authorized:
 ### Structure, recipe and village integration
 
 - **Single constructed structure:** a newly crafted furnace item places a single **3×3 footprint × four-block-high** pre-industrial blast furnace, rather than requiring the player to assemble individual structure blocks by hand. The upper receiving hopper and front casting channel/mold are functional parts of that structure; their exact presentation/collision/interaction geometry should support readable, accessible freight and mold access.
-- **Recipe material:** use actual vanilla **Bricks blocks**, not individual Brick items. The owner confirmed the new brick-block direction and structure dimensions. **The literal 3×3 crafting grid and any retained old ingredients have not yet been specified; obtain the exact owner-approved layout before implementation.** One furnace item per craft is the conventional proposed yield pending that final grid. Preserve any horizontal mirroring only if confirmed for the revised recipe; do not assume the superseded layout applies.
+- **Owner-settled crafting recipe:** a **shaped 3×3 recipe**, using vanilla **Bricks blocks** (the placeable block, not individual Brick items), a vanilla hopper, a vanilla Block of Iron, an ordinary furnace, and a cauldron. Exactly **two Bricks blocks**, one of each remaining ingredient. Output **one new pre-industrial blast furnace item per craft**, the standard one-item yield chosen for this handoff. The precise grid, including mandatory empty positions, is:
+
+  ```text
+  [empty]        [hopper]     [empty]
+  [Bricks block] [iron block] [empty]
+  [Bricks block] [furnace]    [cauldron]
+  ```
+
+  **Accept its exact horizontal mirror:**
+
+  ```text
+  [empty]    [hopper]     [empty]
+  [empty]    [iron block] [Bricks block]
+  [cauldron] [furnace]    [Bricks block]
+  ```
+
+  The arrangement is **not shapeless**; do not accept 90°/180° rotations, swapped ingredients, filled empty slots, or the superseded M08 recipe with ingots in place of the two Bricks blocks. Tests must accept both orientations and reject these invalid alternatives.
 - **Vanilla blast furnace retirement:** disable its normal crafting/acquisition path and replace vanilla blast-furnace blocks **in newly generated village structures** with ordinary vanilla furnaces. Do not remove registered block IDs or corrupt existing worlds. **Do not modify villager professions, AI, job-site mappings, trades or workstation assignment in M08**; any Armorer or other profession consequences belong to the inhabited-villages section of [BACKLOG.md](BACKLOG.md).
 - **Ordinary furnace:** remains available and retains its other uses. Raw-ore processing becomes deliberately slower than industrial smelting. Claude may choose initial timing constants for playtesting.
 
@@ -73,13 +89,13 @@ M08 contains **two scoped jobs** when eventually authorized:
 
 ### Acceptance and delegated tuning
 
-- Check the complete placed 3×3×4 shape, collision/access, input and fuel slots, 516th accepted / 517th refused raw item, single-type input, interrupted nine-to-one casting, mold capacity/type protection, and charcoal-block recipe and refusal of invalid fuels.
+- Check both exact 3×3 shaped furnace recipe orientations (and reject rotation, substituted ingredients and filled empty slots), the complete placed 3×3×4 shape, collision/access, input and fuel slots, 516th accepted / 517th refused raw item, single-type input, interrupted nine-to-one casting, mold capacity/type protection, and charcoal-block recipe and refusal of invalid fuels.
 - Exercise diagonal cart→hopper and direct skip-chute→hopper delivery under actual positioning, partial capacity, mixed metal, full/blocked input, save/reload and source recovery; preserve cart/skip inventories on refusal and only accept correctly aligned cargo.
 - Confirm new village structures substitute regular furnaces for vanilla blast furnaces while villager professions, job AI and trades remain unchanged by **M08**. Verify vanilla blast-furnace recipe/acquisition retirement without destructive registry changes.
 - Exercise regular-furnace raw-ore slowdown and compare large-batch industrial throughput. Claude chooses and reports initial testable processing/fuel constants; playtesting determines final balance.
 - No steelmaking, new metal refining stages or charcoal-block reverse recipe are part of M08. Future steel and village-profession redesign remain backlog work.
 
-**One outstanding owner input for an executable M08 brief:** the revised Bricks-block furnace crafting layout (specific ingredients in all nine crafting-grid positions, and any mirror rule). Do not invent it. This unresolved recipe is why the milestone remains PLANNED - NOT READY.
+**Handoff gate:** design is complete for PLANNED - READY. Claude may choose initial tunable fuel/processing constants when implementation is explicitly authorized, recording them for playtesting. **Do not begin M08 implementation merely because this document says READY.**
 
 Full historical design context is archived in [ROADMAP_PRE_CONSOLIDATION_2026-10-13.md](archive/ROADMAP_PRE_CONSOLIDATION_2026-10-13.md); the active requirements are above. Other future ideas remain in [BACKLOG.md](BACKLOG.md).
 
