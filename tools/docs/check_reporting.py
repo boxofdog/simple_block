@@ -9,15 +9,13 @@ import pathlib
 import re
 import sys
 import unicodedata
+from sync_milestone_statuses import read_milestone_statuses, rewrite_roadmap
 
 ROOT = pathlib.Path(__file__).resolve().parents[2]
 DOCS = ROOT / "docs"
 HEADING = re.compile(r"^## Implementation and verification — (\d{4}-\d{2}-\d{2})\s*$", re.M)
 SHA40 = re.compile(r"`([0-9a-f]{7,40})`")
-EXPECTED = {f"M{n:02d}": "SHIPPED" for n in range(1, 7)}
-EXPECTED.update({"M07": "PLAYTESTING", "M08": "PLANNED - NOT READY",
-                 "M09": "PLANNED - NOT READY", "M10": "PLANNED - NOT READY",
-                 "M11": "PLANNED - READY"})
+EXPECTED = read_milestone_statuses(DOCS)
 SECTIONS = ["**Metadata:**", "**Implementation**", "**CI**", "**Tests**",
             "**Known gaps**", "**Owner playtest**"]
 CATEGORIES = ["Server", "Client", "Dedicated server", "Negative controls"]
@@ -86,8 +84,6 @@ for n in range(1, 8):
         fail(f"{path.name}: metadata milestone id missing or not {mid}")
     elif meta.group(2) not in allowed:
         fail(f"{path.name}: status '{meta.group(2)}' is not an allowed label")
-    elif meta.group(2) != EXPECTED[mid]:
-        fail(f"{path.name}: status {meta.group(2)} != expected {EXPECTED[mid]}")
     for c in CATEGORIES:
         if not re.search(rf"^\| {re.escape(c)} \| (PASS|FAIL|NOT RUN) \|", body, re.M):
             fail(f"{path.name}: test category '{c}' missing or result invalid")
@@ -109,14 +105,13 @@ for n in range(1, 8):
     if len(re.findall(r"^- ", plays, re.M)) > 5:
         fail(f"{path.name}: more than 5 owner playtest steps")
 
-# Roadmap statuses.
+# Validate roadmap using the current milestone metadata, never a hardcoded snapshot.
 roadmap = (DOCS / "ROADMAP.md").read_text(encoding="utf-8")
-for mid, status in EXPECTED.items():
-    m = re.search(rf"^\| {mid} \|[^|]*\| \*\*([^*]+)\*\* \|", roadmap, re.M)
-    if not m:
-        fail(f"ROADMAP.md: status row for {mid} not found")
-    elif m.group(1) != status:
-        fail(f"ROADMAP.md: {mid} is {m.group(1)}, expected {status}")
+try:
+    if rewrite_roadmap(roadmap, EXPECTED) != roadmap:
+        fail("ROADMAP.md: status cells differ from milestone metadata")
+except ValueError as exc:
+    fail(f"ROADMAP.md: {exc}")
 
 # No standalone reports outside the archive.
 for p in DOCS.rglob("MILESTONE_*_REPORT.md"):
