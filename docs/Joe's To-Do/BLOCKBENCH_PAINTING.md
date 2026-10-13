@@ -18,9 +18,12 @@ All asset paths below are inside src/main/resources/assets/simple_block/, with e
 - [ ] **Cable item** — textures/item/cable.png (16x16); cable.bbmodel.
 - [ ] **Cable coil item** — textures/item/cable_coil.png (16x16); cable_coil.bbmodel.
 
+## Touch-up only — already visually excellent
+
+- [ ] **Universal four-gate minecart — MINOR TEXTURE TOUCH-UPS ONLY, not a full repaint.** **Owner's 2026-10-13 in-game review:** Claude's rebuilt minecart, including the new short-end and long-side gates, **reuses the existing vanilla minecart texture**. The resulting overall appearance is excellent and is **accepted as the visual direction**; preserve the familiar gray/iron vanilla texture, its shape and the shared cart identity for freight, passenger and Cobblestone Engine configurations. Joe only needs to touch up any small UV seams, corner-post mismatches, hinge/rim/gate transition details or stray pixels **if actually visible in game**. Check both **bottom-hinged short-end ramps** and **top-hinged long-side gates**, open and closed, from several angles. **Do not create a replacement texture atlas, retexture every panel, or remodel/repaint the entire chassis just to satisfy the old checklist.** Record actual committed asset paths after Claude's pending model work is available; this screenshot is an owner visual review, **not proof the implementation is pushed, CI-green, or M07 owner-accepted**.
+
 ## Waiting for Claude's new geometry/UV templates
 
-- [ ] **Universal four-gate minecart body** — paint the **new final** four-post cart shell: **bottom-hinged short ends** opening outward as ramps; **top-hinged long sides** opening outward under fixed side top lips, no fixed top lips across short ends. Same closed shape for freight, passenger and engine carts. The old freight_gate.png and freight_gate_closed/open.bbmodel are *interim reference models*, **not approved final art**. Update this item with actual new asset paths once Claude commits them.
 - [ ] **3D ordinary rail remodel** — paint the future rail/sleeper UVs once a separate roadmap implementation supplies the model and templates. Match the Loading Rail's gauge, level and joints.
 - [ ] **M11 cart cargo fills** — paint after Claude supplies five actual silhouette families, fill-height geometry, unique material mapping and reusable UV templates. See material list below and [M11](../MILESTONE_11.md). Don't paint speculative layouts before their UVs exist.
 
