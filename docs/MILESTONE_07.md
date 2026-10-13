@@ -2,7 +2,7 @@
 
 **Status: OWNER AUTHORIZED FOR IMPLEMENTATION on 2026-10-12.** The owner explicitly authorized this standalone M07 brief. M06 remains in progress, so start M07 implementation when the necessary M06 loading-rail, cable and winch interfaces are actually available; verify the as-built interfaces before integration. Do not claim that M06 is finished, nor mark M07 completed/tested/accepted before evidence. M08–M10 remain unauthorized.
 
-**Source of truth when authorized:** this brief, together with the M06 as-built report and functioning loading-rail/cable/winch code (not assumptions about unimplemented M06 behavior). Also consult [ROADMAP.md](ROADMAP.md), [VISION.md](VISION.md), [M07's historical as-built report](MILESTONE_07_REPORT.md) and earlier milestone reports; the central decisions ledger is retired. Existing vanilla minecarts remain the freight carts; a skip is a *new purpose-built vertical carrier*, not another railway cart variant.
+**Source of truth when authorized:** this brief, together with the M06 as-built report and functioning loading-rail/cable/winch code (not assumptions about unimplemented M06 behavior). Also consult [ROADMAP.md](ROADMAP.md), [VISION.md](VISION.md), [M07's historical as-built report](archive/milestone-reports/MILESTONE_07_REPORT.md) and earlier milestone reports; the central decisions ledger is retired. Existing vanilla minecarts remain the freight carts; a skip is a *new purpose-built vertical carrier*, not another railway cart variant.
 
 **OWNER PLAYTEST PATCH (2026-10-13; supersedes conflicting original placement/render assumptions):** The implementation in CI Build #22 is **NOT owner-accepted**. Read and implement **[MILESTONE_07_PLAYTEST_PATCH.md](MILESTONE_07_PLAYTEST_PATCH.md)** before claiming acceptance. Especially: the skip **appears without a bridle until a cable is attached** (three-block body alone; fourth-block collider only while attached); for **skip → cart UNLOAD**, the receiving cart must be **diagonally adjacent one block LOWER** than the skip's bottom chute, where its existing ramp lip physically meets the minecart — **NOT** at the same height directly beside it; do **NOT reshape the skip**. Verify the cart's front gate visibly lowers on **cart → skip LOAD**, and a ceiling anchor becomes a pulley **ONLY AFTER** the cable is successfully hooked to a skip (not when the hook simply hangs down). Keep the horizontal support rule: held free cable goes taut at 12 blocks horizontally, puts down around 16, and fixed anchor spans remain <=12. **The existing free-hanging hook can be lowered/raised by the manual or coal winch even before attachment to a skip**, with no vertical depth cap. Use the lowered hook to connect a skip at the bottom of a deep shaft without scaffolding; make the free hook position/length safe across chunks and saves. **No new flavor text or in-game messages.** The later owner's physical-geometry instructions take priority over §1/§4 and the §6 matrix below where they conflict; retain all other settled mechanics. Append follow-up test/CI results to the M07 report.
 
@@ -120,3 +120,41 @@ M07 is **already owner-authorized**; once M06's implemented interfaces are avail
 **Before implementation, check M06's actual delivered interface and test evidence.** If its deployed loading rail/door/cable hook differs from the design scaffold, adapt this M07 brief narrowly or ask for an owner decision on a genuine gameplay conflict; do not overwrite delivered work or silently reinterpret settled physical transfer direction.
 
 **M07 STATUS: IMPLEMENTATION AUTHORIZED 2026-10-12; NOT YET IMPLEMENTED.** Once M06's required interfaces are delivered and checked, Claude Code may implement this brief without another permission request. Keep independent M07 report, tests, commits and CI evidence; owner acceptance is a separate later step.
+
+## Implementation and verification — 2026-10-13
+
+**Metadata:** M07 | PLAYTESTING | Ore skip, vertical hoisting, height-based Loading Rail transfers, owner playtest patch §§1–10 and the shared four-gate minecart.
+
+**Implementation**
+- Commits: `886f6f15fb7b9ad51c2a3b7c6bcf2087f1e72efa` engine and winch remodels; `a63013ab70912736c6054f2c2463cf6d8f320fb0` skip, hoisting, stations; `49d7add4a3793b1ac4bb61e1f7f54156eb4d5cbc` playtest patch and four-gate cart (report `dbda9560b5ccb9901eead06dc02c77f03837c936`); `ded41b3b8275f001ca511371841141e536fd4c9a` lever: right-click PULL, left-click FEED
+- Delivered: conditional bridle and ceiling pulley; free hook winched down deep shafts; kitty-corner unloading and bridle loading, end-on or side-on; terminal Loading Rail docking; moving hoist cable.
+- Deviations: Owner direction replaced the vanilla-cart body rule with the four-gate cart for every minecart.
+
+**CI**
+- Build: #24 | Run ID: 38443850502 | PASS
+- Source SHA: `ded41b3b8275f001ca511371841141e536fd4c9a`
+- URL: https://github.com/boxofdog/simple_block/actions/runs/38443850502
+- Artifact: `simple-block-mod` id 11837962048, available. Build #23 (run 38438092565) tested `49d7add`, PASS, artifact 11834545069; `dbda956` is docs-only.
+
+**Tests**
+
+| Category | Result | Passed/Total | Evidence / Notes |
+|---|---|---|---|
+| Server | PASS | 152/152 | local on `49d7add` and `ded41b3`; [evidence](evidence/milestone-07-patch/server-tests-and-controls.md) |
+| Client | PASS | 9/9 | on `49d7add`; after `ded41b3` only `FreightStationClientTest` re-run; [log](evidence/milestone-07-patch/client-test-log.txt) |
+| Dedicated server | PASS | 1/1 | `SkipServerClientTest` |
+| Negative controls | PASS | 17/17 | [controls](evidence/milestone-07-patch/server-tests-and-controls.md) |
+
+**Known gaps**
+- GAP-01: MAJOR — a coupled train cannot unload car by car at one side-on rail after release; next: owner decision.
+- GAP-02: MINOR — terminal approach on curves, slopes, coupled trains and partial chunk unload NOT RUN; next: targeted tests.
+- GAP-03: MINOR — near-drum docking reports `idle`, not `docked`; next: assess in playtest.
+- GAP-04: MINOR — `gated_minecart.bbmodel` not opened in Blockbench; next: open and compare.
+- GAP-05: MINOR — full client suite not re-run after `ded41b3`; next: run `runClientGameTest`.
+
+**Owner playtest**
+- Winch the free hook down a deep shaft, hook a skip, and see the bridle and pulley appear.
+- Load a cart at the bridle and unload into a cart one level below the chute.
+- Unload a coupled car side-on at a Loading Rail.
+- Dock a winched cart on a Loading Rail under the last support.
+- Drive the lever: right-click PULL, left-click FEED, same click NEUTRAL.

@@ -1,6 +1,6 @@
 # Milestone 03 report: Minecart cargo and storage-bypass closure
 
-**HISTORICAL REPORT (M01–M07 format).** This record is preserved for its original implementation and tests. References to the retired decisions ledger now point to the dated archive, **not active implementation authority**. Under the current [roadmap rule](ROADMAP.md), new authorized work appends only a **concise dated implementation/verification note at the bottom of the main milestone document**, not a new standalone report.
+**HISTORICAL REPORT (M01–M07 format).** This record is preserved for its original implementation and tests. References to the retired decisions ledger now point to the dated archive, **not active implementation authority**. Under the current [roadmap rule](../../ROADMAP.md), new authorized work appends only a **concise dated implementation/verification note at the bottom of the main milestone document**, not a new standalone report.
 
 Scope: the original M03 handoff and test plan, **as clarified by the owner during the session** (section 2). Implemented and tested; not playtested by a person yet. This is the retained closeout record; the superseded original handoff and test plan are preserved in Git history, not the active docs tree.
 
@@ -12,9 +12,9 @@ Scope: the original M03 handoff and test plan, **as clarified by the owner durin
 - **Not established by any test:** how hauling *feels* over a real mining session. See section 8.
 
 Evidence is in `docs/evidence/milestone-03/`:
-- [`gametest-evidence.md`](evidence/milestone-03/gametest-evidence.md): the numbers each test logged.
-- [`negative-controls.md`](evidence/milestone-03/negative-controls.md)
-- [`baseline-build.txt`](evidence/milestone-03/baseline-build.txt)
+- [`gametest-evidence.md`](../../evidence/milestone-03/gametest-evidence.md): the numbers each test logged.
+- [`negative-controls.md`](../../evidence/milestone-03/negative-controls.md)
+- [`baseline-build.txt`](../../evidence/milestone-03/baseline-build.txt)
 - `screenshots/` (real client).
 
 ## 1. Baseline
@@ -118,7 +118,7 @@ Methods:
 | T24 pack animals | PASS | GT `packAnimalsStillCarryChests`: a donkey, mule and llama each take a chest from a player's hand, open, accept 32 raw iron by shift-click and carry a rider. Also passes in the negative control | Walking a loaded donkey along a route: NOT RUN (inventory travels with the entity) |
 | T25 M01 shulker controls | PASS | The 6 shulker tests pass in the 80-test build | |
 
-**Negative control:** see [`negative-controls.md`](evidence/milestone-03/negative-controls.md).
+**Negative control:** see [`negative-controls.md`](../../evidence/milestone-03/negative-controls.md).
 - **Without the M03 hooks:** vanilla seats the player, a loaded cart doesn't exist, all six storage restriction tests fail, and the pack-animal test passes.
 
 **Manual playtest** (load a cart at a real mine, push it round a loop, unload at an outpost, ride a donkey the same way): **NOT RUN**. No one has played it. The client test covers the mechanics, not the feel.

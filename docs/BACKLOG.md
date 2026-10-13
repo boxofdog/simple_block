@@ -72,7 +72,7 @@ Place witch huts on remote mountain peaks and in deep deepslate caverns. Each fe
 ## I-014–I-016 — Later railway operation and testing
 
 - **Extreme grades:** Investigate rails as steep as three-block rises/drops, dangerous downhill runaways, crash damage and item-conserving drops. These are not claims about existing vanilla rails.
-- **Whole-train operation:** Investigate loops around curves, coupling slack and grade transitions. Under current **M06** release behavior, a released coupled consist's later wagons do not re-dock at one Loading Rail. **M07 playtesting must decide whether/how to advance and unload individual cars in sequence**. See [M07 report §12](MILESTONE_07_REPORT.md); do not silently change already-SHIPPED M06.
+- **Whole-train operation:** Investigate loops around curves, coupling slack and grade transitions. Under current **M06** release behavior, a released coupled consist's later wagons do not re-dock at one Loading Rail. **M07 playtesting must decide whether/how to advance and unload individual cars in sequence**. See [M07 report §12](archive/milestone-reports/MILESTONE_07_REPORT.md); do not silently change already-SHIPPED M06.
 - **Integrated playtest:** Validate mine → hoist/skip → freight wagon → hopper/furnace once those stages exist. No extra autonomous system is implied.
 
 ## Future design backlog — inhabited villages

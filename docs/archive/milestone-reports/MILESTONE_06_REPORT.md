@@ -1,8 +1,8 @@
 # Milestone 06 report: Freight station, coal winch, cable simplification and clean-up
 
-**HISTORICAL REPORT (M01–M07 format).** This record is preserved for its original implementation and tests. References to the retired decisions ledger now point to the dated archive, **not active implementation authority**. Under the current [roadmap rule](ROADMAP.md), new authorized work appends only a **concise dated implementation/verification note at the bottom of the main milestone document**, not a new standalone report.
+**HISTORICAL REPORT (M01–M07 format).** This record is preserved for its original implementation and tests. References to the retired decisions ledger now point to the dated archive, **not active implementation authority**. Under the current [roadmap rule](../../ROADMAP.md), new authorized work appends only a **concise dated implementation/verification note at the bottom of the main milestone document**, not a new standalone report.
 
-Brief: [MILESTONE_06.md](MILESTONE_06.md). Choices where the brief left room: [DECISIONS.md §5.5.1](archive/DECISIONS_PRE_RETIREMENT_2026-10-13.md). Evidence: [`docs/evidence/milestone-06/`](evidence/milestone-06/).
+Brief: [MILESTONE_06.md](../../MILESTONE_06.md). Choices where the brief left room: [DECISIONS.md §5.5.1](../DECISIONS_PRE_RETIREMENT_2026-10-13.md). Evidence: [`docs/evidence/milestone-06/`](../../evidence/milestone-06).
 
 **Summary.** Everything in the brief's work packages is implemented and tested on the server (129/129 game tests), in the real client by key presses (five client tests, two new), and over a real connection to a dedicated server. The long-route problem (§7) is solved with level-saved cable lines that are driven wherever the cart is loaded, without force-loading. One limitation is recorded: the winch's controls are on the drum, so starting or stopping a haul needs the drum loaded. No human playtest has been done. Skips, transfers, the smelter, armor and the cargo-fill visuals are not touched. M07's engine remodel is not part of this milestone.
 
@@ -175,7 +175,7 @@ M06 is complete pending ChatGPT's independent review and the owner's playtest. M
 
 *Added after the owner's playtest. Everything above, including the Build #19 evidence, is the original record and unchanged. M06 owner acceptance is still pending.*
 
-Authorized as a narrow correction pass before M07 ([MILESTONE_06.md](MILESTONE_06.md) §0, ROADMAP BUG-002). Code commit: [`fc8f99a`](https://github.com/boxofdog/simple_block/commit/fc8f99a529225230f62742837fae505212c6468e). CI: [Build #20](https://github.com/boxofdog/simple_block/actions/runs/38382953782), **success**, `simple-block-mod` artifact id 11803902813 (343,562 bytes).
+Authorized as a narrow correction pass before M07 ([MILESTONE_06.md](../../MILESTONE_06.md) §0, ROADMAP BUG-002). Code commit: [`fc8f99a`](https://github.com/boxofdog/simple_block/commit/fc8f99a529225230f62742837fae505212c6468e). CI: [Build #20](https://github.com/boxofdog/simple_block/actions/runs/38382953782), **success**, `simple-block-mod` artifact id 11803902813 (343,562 bytes).
 
 ### A. BUG-002 — lever stuck at the drum's end
 
@@ -252,4 +252,4 @@ Authorized as a narrow correction pass before M07 ([MILESTONE_06.md](MILESTONE_0
 
 **M06 — SHIPPED.** The owner expressly signed off on M04–M06 (historically called PASSED). An independent GitHub audit confirmed the M06 implementation and correction `fc8f99a` are on `main`, [Build #20](https://github.com/boxofdog/simple_block/actions/runs/38382953782) passed with `simple-block-mod` artifact, and the later [Build #23](https://github.com/boxofdog/simple_block/actions/runs/38438092565) passes all 152 required server tests (including M06 regression coverage). Previously recorded M06 real-client and dedicated-server logs substantiate the Loading Rail, powered winch, long cable, anti-push and BUG-002 behavior as tested by Claude. This is **owner-directed signoff**, not evidence of unreported fresh human tests.
 
-**Important distinction:** The as-implemented M06 release latch deliberately prevents a just-released consist's subsequent cars from re-docking on that same Loading Rail. M06's existing semantics are accepted; **whether/how M07 should support unloading an entire train wagon-by-wagon at one side-on skip station remains an OPEN M07 gameplay design decision**, not a claim that such a workflow is already complete. The original report and amendment retain their historical test/acceptance snapshot; [ROADMAP.md](ROADMAP.md) is the current status.
+**Important distinction:** The as-implemented M06 release latch deliberately prevents a just-released consist's subsequent cars from re-docking on that same Loading Rail. M06's existing semantics are accepted; **whether/how M07 should support unloading an entire train wagon-by-wagon at one side-on skip station remains an OPEN M07 gameplay design decision**, not a claim that such a workflow is already complete. The original report and amendment retain their historical test/acceptance snapshot; [ROADMAP.md](../../ROADMAP.md) is the current status.

@@ -53,8 +53,8 @@ Methods: **GT** = automated server game test (`./gradlew runGameTest`, also part
 
 **Fresh-world-only confirmation:** Yes. No migration, compatibility or recovery code. All tests used newly created worlds.
 
-**Changed files:** see [`MILESTONE_01_REPORT.md`](MILESTONE_01_REPORT.md).
+**Changed files:** see [`MILESTONE_01_REPORT.md`](archive/milestone-reports/MILESTONE_01_REPORT.md).
 
 **How to reproduce:** `./gradlew build` (server game tests) and `./gradlew runClientGameTest` (client test; under Xvfb on a headless machine). See `README.md`.
 
-**Known issues / next action:** see [`MILESTONE_01_REPORT.md`](MILESTONE_01_REPORT.md).
+**Known issues / next action:** see [`MILESTONE_01_REPORT.md`](archive/milestone-reports/MILESTONE_01_REPORT.md).

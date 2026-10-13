@@ -1,6 +1,6 @@
 # Milestone 04 report: Cable infrastructure
 
-**HISTORICAL REPORT (M01–M07 format).** This record is preserved for its original implementation and tests. References to the retired decisions ledger now point to the dated archive, **not active implementation authority**. Under the current [roadmap rule](ROADMAP.md), new authorized work appends only a **concise dated implementation/verification note at the bottom of the main milestone document**, not a new standalone report.
+**HISTORICAL REPORT (M01–M07 format).** This record is preserved for its original implementation and tests. References to the retired decisions ledger now point to the dated archive, **not active implementation authority**. Under the current [roadmap rule](../../ROADMAP.md), new authorized work appends only a **concise dated implementation/verification note at the bottom of the main milestone document**, not a new standalone report.
 
 Scope: the owner's brief, recorded verbatim in `docs/MILESTONE_04.md`. Implemented and tested in a server and in a real client; not playtested by a person yet.
 
@@ -13,9 +13,9 @@ Scope: the owner's brief, recorded verbatim in `docs/MILESTONE_04.md`. Implement
 - **Open design questions** for you are in section 7 and in `docs/archive/DECISIONS_PRE_RETIREMENT_2026-10-13.md`.
 
 Evidence is in `docs/evidence/milestone-04/`:
-- [`gametest-evidence.md`](evidence/milestone-04/gametest-evidence.md): the numbers each test logged, server and client.
-- [`negative-controls.md`](evidence/milestone-04/negative-controls.md)
-- [`baseline-build.txt`](evidence/milestone-04/baseline-build.txt)
+- [`gametest-evidence.md`](../../evidence/milestone-04/gametest-evidence.md): the numbers each test logged, server and client.
+- [`negative-controls.md`](../../evidence/milestone-04/negative-controls.md)
+- [`baseline-build.txt`](../../evidence/milestone-04/baseline-build.txt)
 - `screenshots/` (real client).
 
 ## 1. Baseline
@@ -149,4 +149,4 @@ The roadmap's next cable step is making it move: power for the winch (by hand fi
 
 ## Status disposition, 2026-10-13 (later owner directive)
 
-**M04 — SHIPPED.** The owner explicitly signed off on M04, M05 and M06 after an independent GitHub review (the former status label was PASSED). ChatGPT inspected the M04 report/code lineage and independently confirmed [Build #16](https://github.com/boxofdog/simple_block/actions/runs/38197364425) was green with a published `simple-block-mod` artifact. This is **owner-directed acceptance**, not a claim of a new standalone human M04 playtest or local assistant-run client session. Previous open acceptance notes in the original report are a historical snapshot; the authoritative live status is [ROADMAP.md](ROADMAP.md). M04's originally static cable foundation remains the shipped baseline later extended by M05–M07.
+**M04 — SHIPPED.** The owner explicitly signed off on M04, M05 and M06 after an independent GitHub review (the former status label was PASSED). ChatGPT inspected the M04 report/code lineage and independently confirmed [Build #16](https://github.com/boxofdog/simple_block/actions/runs/38197364425) was green with a published `simple-block-mod` artifact. This is **owner-directed acceptance**, not a claim of a new standalone human M04 playtest or local assistant-run client session. Previous open acceptance notes in the original report are a historical snapshot; the authoritative live status is [ROADMAP.md](../../ROADMAP.md). M04's originally static cable foundation remains the shipped baseline later extended by M05–M07.

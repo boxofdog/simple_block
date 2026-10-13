@@ -1,6 +1,6 @@
 # Simple Block — Milestone 05: Working Haulage and Cobblestone Engine
 
-**Status:** Owner-requested implementation handoff; **not implemented**. Read the [M04 historical report](MILESTONE_04_REPORT.md), [M05 brief](MILESTONE_05.md) and [current roadmap](ROADMAP.md) first. The former decisions ledger is archived.
+**Status:** Owner-requested implementation handoff; **not implemented**. Read the [M04 historical report](archive/milestone-reports/MILESTONE_04_REPORT.md), [M05 brief](MILESTONE_05.md) and [current roadmap](ROADMAP.md) first. The former decisions ledger is archived.
 
 **Goal:** Make the existing M04 overhead cable infrastructure move minecarts reversibly, add an operable crank, introduce a bidirectional coal-powered Cobblestone Engine, and fix the known drum render artifact. **Preserve all existing M04 parts, placement gestures, models and save behavior.** Build additively; do not scrap or reimagine the system.
 
@@ -51,3 +51,33 @@ Investigate and correct the side-panel ghosting/striping seen on the M04 drum. P
 ## Deliberately left for later
 
 Upright vertical skips and dumping into them, counterweights, coal-powered winch attachments, extreme three-block rails/crash physics, sophisticated locomotive controls, and full train-network logistics. These remain roadmap work, **not implied tasks**. Gravel/sand cargo eligibility is a separate approved but unimplemented follow-up unless the owner explicitly folds it into this milestone.
+
+## Implementation and verification — 2026-10-12
+
+**Metadata:** M05 | SHIPPED | Reversible cable loops with a manual crank, overhead drums, Cobblestone Engine, chain coupling and the BUG-001 drum render fix.
+
+**Implementation**
+- Commits: `e662ec21724868336d67ac6dd64d6eb1385f1ee1` work packages A–D; `16b10988d80643741f9e729531cb52c7eff00067` crank controls per owner clarification
+- Delivered: closed loops haul and hold rod carts both ways; held left-click feeds, right-click pulls; drums hang under beams; furnace-on-minecart engine with seat driving; iron-chain couplings; drum flange ghosting fixed.
+- Deviations: NONE recorded. Engine visuals were later changed in M07.
+
+**CI**
+- Build: #17 | Run ID: 38306694723 | PASS
+- Source SHA: `16b10988d80643741f9e729531cb52c7eff00067`
+- URL: https://github.com/boxofdog/simple_block/actions/runs/38306694723
+- Artifact: `simple-block-mod` id 11772702932, available (verified 2026-10-13).
+
+**Tests**
+
+| Category | Result | Passed/Total | Evidence / Notes |
+|---|---|---|---|
+| Server | PASS | 114/114 | [archived report](archive/milestone-reports/MILESTONE_05_REPORT.md); [evidence](evidence/milestone-05/gametest-evidence.md) |
+| Client | PASS | 3/3 | `SurvivalSmokeClientTest`, `CableClientTest`, `HaulageClientTest`; [screenshots](evidence/milestone-05/screenshots/) |
+| Dedicated server | PASS | 1/1 | `runServer` start only; `stop` over piped stdin returned a command error |
+| Negative controls | PASS | 11/11 | 10 server, 1 client; [negative controls](evidence/milestone-05/negative-controls.md) |
+
+**Known gaps**
+- NONE
+
+**Owner playtest**
+- NONE

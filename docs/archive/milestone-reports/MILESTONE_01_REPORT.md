@@ -1,13 +1,13 @@
 # Milestone 01 report: Survival Foundation
 
-**HISTORICAL REPORT (M01–M07 format).** This record is preserved for its original implementation and tests. References to the retired decisions ledger now point to the dated archive, **not active implementation authority**. Under the current [roadmap rule](ROADMAP.md), new authorized work appends only a **concise dated implementation/verification note at the bottom of the main milestone document**, not a new standalone report.
+**HISTORICAL REPORT (M01–M07 format).** This record is preserved for its original implementation and tests. References to the retired decisions ledger now point to the dated archive, **not active implementation authority**. Under the current [roadmap rule](../../ROADMAP.md), new authorized work appends only a **concise dated implementation/verification note at the bottom of the main milestone document**, not a new standalone report.
 
-Completed 2026-10-11. Test status: 22 PASS / 0 FAIL / 1 NOT RUN (see [`TEST_CHECKLIST_01.md`](TEST_CHECKLIST_01.md)).
+Completed 2026-10-11. Test status: 22 PASS / 0 FAIL / 1 NOT RUN (see [`TEST_CHECKLIST_01.md`](../../TEST_CHECKLIST_01.md)).
 
 ## 1. Baseline findings
 
 - The repository was empty apart from `README.md` and an MIT `LICENSE`: one commit, clean tree, no build, loader, version or source. There was nothing to build as a baseline.
-- So a toolchain was selected rather than discovered: **Minecraft 26.3, Fabric Loader 0.19.5, Fabric API 0.162.0+26.3, Loom 1.18.4, Gradle 9.7.1, JDK 25**. Reasons are in [`docs/archive/DECISIONS_PRE_RETIREMENT_2026-10-13.md` (historical)](archive/DECISIONS_PRE_RETIREMENT_2026-10-13.md).
+- So a toolchain was selected rather than discovered: **Minecraft 26.3, Fabric Loader 0.19.5, Fabric API 0.162.0+26.3, Loom 1.18.4, Gradle 9.7.1, JDK 25**. Reasons are in [`docs/archive/DECISIONS_PRE_RETIREMENT_2026-10-13.md` (historical)](../DECISIONS_PRE_RETIREMENT_2026-10-13.md).
 - First build of the unmodified scaffold: success.
 
 ## 2. Files and why
@@ -44,11 +44,11 @@ Mixins are used where Fabric API has no hook. Each mixin's Javadoc explains why.
   - Visiting a naturally generated End city by playing.
   - Swimming and boats.
   - A desktop-GPU client session (the automated client run used software Vulkan under Xvfb).
-- **Raw output:** [`evidence/milestone-01/test-output.txt`](evidence/milestone-01/test-output.txt) plus screenshots.
+- **Raw output:** [`evidence/milestone-01/test-output.txt`](../../evidence/milestone-01/test-output.txt) plus screenshots.
 
 ## 5. Build and run
 
-See the [README](../README.md#commands). In short:
+See the [README](../../../README.md#commands). In short:
 
 - `./gradlew build`: jar plus server game tests.
 - `./gradlew runClient`: play.

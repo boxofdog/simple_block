@@ -7,14 +7,14 @@ All four phases (02A–02D) were implemented and tested. This is the retained cl
 - **Not covered by tests:** gameplay *feel* (how the balance plays over hours) is not established by any of this and needs your playtesting. See section 7.
 
 Evidence lives in `docs/evidence/milestone-02/`:
-- [`gametest-evidence.md`](evidence/milestone-02/gametest-evidence.md): every test's logged numbers.
-- [`negative-controls.md`](evidence/milestone-02/negative-controls.md)
-- [`ore-sampling/ore-sampling-summary.md`](evidence/milestone-02/ore-sampling/ore-sampling-summary.md)
+- [`gametest-evidence.md`](../../evidence/milestone-02/gametest-evidence.md): every test's logged numbers.
+- [`negative-controls.md`](../../evidence/milestone-02/negative-controls.md)
+- [`ore-sampling/ore-sampling-summary.md`](../../evidence/milestone-02/ore-sampling/ore-sampling-summary.md)
 - Screenshots in `inventory-and-weight/`, `mobs-and-light/` and `food-and-hud/`.
 
 ## 1. Baseline
 
-Recorded before any Milestone 02 code, in [`baseline-build.txt`](evidence/milestone-02/baseline-build.txt):
+Recorded before any Milestone 02 code, in [`baseline-build.txt`](../../evidence/milestone-02/baseline-build.txt):
 - **Toolchain:** Minecraft 26.3 (unobfuscated, Mojang names), Fabric Loader 0.19.5, Fabric API 0.162.0+26.3, Loom 1.18.4, Gradle 9.7.1, JDK 25.0.4.
 - **Mod:** `simple_block` 0.1.0, with 6 mixins.
 - **Baseline result:** `./gradlew clean build` passed 22/22 game tests, and the client smoke test passed.

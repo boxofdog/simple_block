@@ -1,6 +1,6 @@
 # M02 — Geology, survival pressure and personal inventory (historical handoff)
 
-**Lifecycle: SHIPPED.** This restores a **compact owner decision and scope reference** because the original M02 handoff was removed after delivery. It does not reopen completed work or supersede code as shipped. The full implementation, measurements, final tuning and test evidence are in [MILESTONE_02_REPORT.md](MILESTONE_02_REPORT.md). Old [DECISIONS.md](archive/DECISIONS_PRE_RETIREMENT_2026-10-13.md) is archive-only.
+**Lifecycle: SHIPPED.** This restores a **compact owner decision and scope reference** because the original M02 handoff was removed after delivery. It does not reopen completed work or supersede code as shipped. The full implementation, measurements, final tuning and test evidence are in [MILESTONE_02_REPORT.md](archive/milestone-reports/MILESTONE_02_REPORT.md). Old [DECISIONS.md](archive/DECISIONS_PRE_RETIREMENT_2026-10-13.md) is archive-only.
 
 ## Scope and owner decisions
 
@@ -25,8 +25,39 @@
 - The Sort control is an icon in an **8-pixel-high** frame aligned with the weight bar.
 - Straw beds, like other beds, cannot skip the night; this gained an explicit regression test.
 
-For exact ore distributions, AI tests, hunger tuning, weight mappings, and performance evidence, use [MILESTONE_02_REPORT.md](MILESTONE_02_REPORT.md), not outdated working-phase handoffs.
+For exact ore distributions, AI tests, hunger tuning, weight mappings, and performance evidence, use [MILESTONE_02_REPORT.md](archive/milestone-reports/MILESTONE_02_REPORT.md), not outdated working-phase handoffs.
 
 **Later requirement overrides:** M08's [revised heavy-load admission design](MILESTONE_08.md) is **PLANNED - NOT READY**, and M10's Mining Boots/Mule carrying benefit is likewise **not implemented**. The M02 report describes the currently shipped blanket weight gate; never claim the future M08/M10 changes are already present.
 
-**Implementation and tests:** [MILESTONE_02_REPORT.md](MILESTONE_02_REPORT.md) and [M02 evidence](evidence/milestone-02/).
+**Implementation and tests:** [MILESTONE_02_REPORT.md](archive/milestone-reports/MILESTONE_02_REPORT.md) and [M02 evidence](evidence/milestone-02/).
+
+## Implementation and verification — 2026-10-11
+
+**Metadata:** M02 | SHIPPED | Geology and ore rework, deepslate gate, 27-slot inventory with 64-ingot heavy load, torch light and hostile mobs, halved exhaustion.
+
+**Implementation**
+- Commits: `9d177181cf7309b7ae1f469be996c39a7638a80c` 02A geology; `0d003d3f2167cbdd1666c61ac71762df572dd32d` 02B inventory and heavy load; `192cae9700e49594dba00ab483e022ba5c742d88` 02C light and mobs; `45fa8383549e6f400b522214b4749ceb3307904d` 02D hunger and report; later refinements `85ee63e65783b96aa93dbc756787c0ecfe1af439` (diamond/netherite weight, load bar), `c45d9015be7b52b7977ecd4189c9186dbe399eed` (weight tooltip), `16d04709fb185a47bc9514d3c7cf720a79c6428f` (lit-area attraction), `2c112b7092e0851fcf0a8fa6f9faf9598c786b1b` (sort order)
+- Delivered: removed rock families and gated deepslate; reworked iron and diamonds; 27 slots, sort, left-first hotbar, shared 64-ingot cap; torches at 12, night light attraction, pursuit-only zombie door breaking, creepers dissolve in sunlight; activity exhaustion halved with saturation display.
+- Deviations: Refinements above shipped after the 02D handoff build.
+
+**CI**
+- Build: #9 | Run ID: 38144733388 | PASS
+- Source SHA: `45fa8383549e6f400b522214b4749ceb3307904d`
+- URL: https://github.com/boxofdog/simple_block/actions/runs/38144733388
+- Artifact: `simple-block-mod` id 11703859176, available (verified 2026-10-13). Refinements green in Builds #11 and #13; #7, #10 and #12 failed on test timing, fixed in the next run.
+
+**Tests**
+
+| Category | Result | Passed/Total | Evidence / Notes |
+|---|---|---|---|
+| Server | PASS | 63/63 | [archived report](archive/milestone-reports/MILESTONE_02_REPORT.md); [game-test evidence](evidence/milestone-02/gametest-evidence.md) |
+| Client | PASS | 1/1 | `SurvivalSmokeClientTest` M02 steps; [screenshots](evidence/milestone-02/) |
+| Dedicated server | PASS | 1/1 | `runServer` start and stop only; no remote client |
+| Negative controls | PASS | 4/4 | one per phase 02A–02D; [negative controls](evidence/milestone-02/negative-controls.md) |
+
+**Known gaps**
+- GAP-01: MINOR — statistical mob tests (`lightBehindWallsStillAttracts`, zombie door tests) fail occasionally; next: make them deterministic or widen their margins.
+- GAP-02: MINOR — all balance values are provisional tuning keys; next: tune from owner playtests.
+
+**Owner playtest**
+- NONE

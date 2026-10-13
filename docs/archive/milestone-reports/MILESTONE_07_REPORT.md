@@ -1,8 +1,8 @@
 # Milestone 07 report: Upright ore skip, vertical hoisting, freight transfer and machinery remodels
 
-**HISTORICAL REPORT (M01–M07 format).** This record is preserved for its original implementation and tests. References to the retired decisions ledger now point to the dated archive, **not active implementation authority**. Under the current [roadmap rule](ROADMAP.md), new authorized work appends only a **concise dated implementation/verification note at the bottom of the main milestone document**, not a new standalone report.
+**HISTORICAL REPORT (M01–M07 format).** This record is preserved for its original implementation and tests. References to the retired decisions ledger now point to the dated archive, **not active implementation authority**. Under the current [roadmap rule](../../ROADMAP.md), new authorized work appends only a **concise dated implementation/verification note at the bottom of the main milestone document**, not a new standalone report.
 
-Brief: [MILESTONE_07.md](MILESTONE_07.md). Choices where the brief left room: [DECISIONS.md §5.5.3](archive/DECISIONS_PRE_RETIREMENT_2026-10-13.md). Evidence: [`docs/evidence/milestone-07/`](evidence/milestone-07/) (server results and negative controls in `server-tests-and-controls.md`).
+Brief: [MILESTONE_07.md](../../MILESTONE_07.md). Choices where the brief left room: [DECISIONS.md §5.5.3](../DECISIONS_PRE_RETIREMENT_2026-10-13.md). Evidence: [`docs/evidence/milestone-07/`](../../evidence/milestone-07) (server results and negative controls in `server-tests-and-controls.md`).
 
 **Summary.** Everything in the brief is implemented and tested:
 
@@ -214,7 +214,7 @@ M07 is complete pending ChatGPT's independent review and the owner's playtest. M
 
 ## 11. Amendment, 2026-10-13: owner playtest patch (§§1–10) and the four-gate cart
 
-Brief: [MILESTONE_07_PLAYTEST_PATCH.md](MILESTONE_07_PLAYTEST_PATCH.md) §§1–10, implemented as one pass as the owner asked, **plus** the owner's later direct instruction that every minecart share one four-gate body. Sections 1–10 above are the **historical** record of Build #22; that build passed the tests of the **old** geometry and does not stand for this one. Choices: [DECISIONS.md §5.5.4](archive/DECISIONS_PRE_RETIREMENT_2026-10-13.md). Evidence: [`docs/evidence/milestone-07-patch/`](evidence/milestone-07-patch/), which holds:
+Brief: [MILESTONE_07_PLAYTEST_PATCH.md](../../MILESTONE_07_PLAYTEST_PATCH.md) §§1–10, implemented as one pass as the owner asked, **plus** the owner's later direct instruction that every minecart share one four-gate body. Sections 1–10 above are the **historical** record of Build #22; that build passed the tests of the **old** geometry and does not stand for this one. Choices: [DECISIONS.md §5.5.4](../DECISIONS_PRE_RETIREMENT_2026-10-13.md). Evidence: [`docs/evidence/milestone-07-patch/`](../../evidence/milestone-07-patch), which holds:
 - `server-tests-and-controls.md`: the server results and every negative control;
 - `client-test-log.txt`;
 - the `m07p-*`, `m07c-*` and `m07-server-*` screenshots.
@@ -301,7 +301,7 @@ M07 owner acceptance stays **unchecked**. M08–M11 are untouched.
 - **Working a whole train car by car:** the M06 release rule makes every car of a released train pass over that Loading Rail once. So side-on transfer serves the car that docks, but after a release the next car of the same train does not dock there. Changing that would change settled M06 behaviour, so it is left for the owner to decide.
 - **Near the drum:** a cart docking 2 blocks from a drum on the ground loses the dipping cable just short of the rail and rolls onto it. The winch then stops as `idle` rather than `docked`; the lever still goes to NEUTRAL.
 - **Client test harness:** once, closing the reopened world in `SkipClientTest` hung inside Fabric's client-gametest threading (the render thread waited on the server halt while the server and test threads waited on the test phaser). The same test passed in every other run, including the full suite. The hung run was stopped and the evidence re-run.
-- **Art:** the pulley texture is a template. The cart body uses vanilla's texture, and per the owner's review only touch-ups are wanted (see [Joe's To-Do](Joe's%20To-Do/BLOCKBENCH_PAINTING.md)).
+- **Art:** the pulley texture is a template. The cart body uses vanilla's texture, and per the owner's review only touch-ups are wanted (see [Joe's To-Do](../../Joe's%20To-Do/BLOCKBENCH_PAINTING.md)).
 
 **Suggested playtest:** repeat §9's steps 2–8 with these changes:
 - hang the skip at the bottom of a deep shaft by winching the free hook down;
@@ -324,4 +324,4 @@ M07 owner acceptance stays **unchecked**. M08–M11 are untouched.
 3. Generated `gated_minecart.bbmodel` has not been opened in Blockbench GUI; no new local GPU/human execution is claimed. Further desktop/multiplayer/mid-transfer persistence edge cases may be useful.
 4. **Near-drum dock diagnostic:** the cart arrives on a rail ~2 blocks from a ground-level drum, but the winch may report `idle` rather than `docked`, although dock and lever neutrality operate correctly. Review in playtest for player-facing confusion.
 
-**Other milestone dispositions:** M04, M05 and M06 are **SHIPPED by owner directive on 2026-10-13**, without changing this M07 acceptance gate. M08–M11 remain planned/not implementation-authorized. See [ROADMAP.md](ROADMAP.md) for the current milestone status and review receipts.
+**Other milestone dispositions:** M04, M05 and M06 are **SHIPPED by owner directive on 2026-10-13**, without changing this M07 acceptance gate. M08–M11 remain planned/not implementation-authorized. See [ROADMAP.md](../../ROADMAP.md) for the current milestone status and review receipts.

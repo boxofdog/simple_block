@@ -100,3 +100,34 @@ Report the smallest concrete blocker, explain any required deviation, and keep a
 These are **known side effects**, not permission to add replacement recipes or alter advancements.
 
 **Source:** These consequences were previously recorded in the retired central decisions ledger. This section does not authorize new recipes, advancements or drop changes.
+
+## Implementation and verification — 2026-10-11
+
+**Metadata:** M01 | SHIPPED | Survival restrictions: no sleep or storm skipping, no survival phantoms, no elytra gliding, no portable shulker-box storage.
+
+**Implementation**
+- Commits: `3e1e6615af0a12330a573ceddc9717d88700e95a` scaffold and SF-01..04; `55362ce17149a330cda73609df4a6479d12795ff` test-player fixes; `c9e6e53456889a69553d552fad486d726122afe8` client smoke test and QA docs
+- Delivered: beds set spawn but never skip night or storms; no natural phantoms; no elytra gliding and no End-ship elytra; shulker boxes neither crafted, placed nor opened.
+- Deviations: NONE recorded.
+
+**CI**
+- Build: #2 | Run ID: 38118083013 | PASS
+- Source SHA: `ba59665a947f9691b1006d1f5fa16e6b526cf125` (first green run containing M01 code; M01 commits predate CI, Build #1 failed)
+- URL: https://github.com/boxofdog/simple_block/actions/runs/38118083013
+- Artifact: `simple-block-mod` id 11693732495, available (verified 2026-10-13).
+
+**Tests**
+
+| Category | Result | Passed/Total | Evidence / Notes |
+|---|---|---|---|
+| Server | PASS | 22/22 | [test output](evidence/milestone-01/test-output.txt); [checklist](TEST_CHECKLIST_01.md) |
+| Client | PASS | 1/1 | `SurvivalSmokeClientTest`; [screenshots](evidence/milestone-01/) |
+| Dedicated server | NOT RUN | 0/1 | ENV-04 (dedicated server with remote client) skipped by agreement |
+| Negative controls | PASS | 12/12 | all restriction tests fail with the changes removed; [archived report](archive/milestone-reports/MILESTONE_01_REPORT.md) |
+
+**Known gaps**
+- GAP-01: MINOR — no dedicated-server session with a remote client was run for M01; next: join a dedicated server and repeat the bed, phantom, elytra and shulker checks.
+- GAP-02: MINOR — a vanilla client may briefly see a ghost shulker box before the server removes it (untested); next: check during that session.
+
+**Owner playtest**
+- NONE

@@ -1,6 +1,6 @@
 # Simple Block — Roadmap
 
-**Purpose:** A compact **milestone status and priority index**. This is **not** a specification, implementation handoff, historical conversation log, or bug tracker. For functional requirements, open the milestone brief; for shipped M01–M07 code/CI evidence, open their historical reports. For future work, the implementation/verification summary goes at the END of its milestone document; settled requirements live there too. See the [project vision](VISION.md).
+**Purpose:** A compact **milestone status and priority index**. This is **not** a specification, implementation handoff, historical conversation log, or bug tracker. For functional requirements, open the milestone brief; for M01–M07 code/CI evidence, open the **Implementation and verification** section at the end of each milestone document (detailed historical reports are archived in [archive/milestone-reports/](archive/milestone-reports/)). For future work, the implementation/verification summary goes at the END of its milestone document; settled requirements live there too. See the [project vision](VISION.md).
 
 **Current lifecycle vocabulary:** [RULES.md](RULES.md) defines the **only five milestone states**. M04–M06 were expressly signed off by the owner and are now labeled **SHIPPED** (formerly PASSED). M07 remains **PLAYTESTING**, with owner signoff outstanding. No new human tests are implied by this terminology change.
 
@@ -8,13 +8,13 @@
 
 | ID | Deliverable | Status | Spec / handoff | Results |
 |---|---|---|---|---|
-| M01 | Remove sleep skipping, phantoms, elytra and shulker bypasses | **SHIPPED** | [Brief](MILESTONE_01.md) | [Report](MILESTONE_01_REPORT.md) |
-| M02 | Geology, heavy inventory, hostile light, hunger and inventory QoL | **SHIPPED** | [Handoff](MILESTONE_02.md) | [Historical report](MILESTONE_02_REPORT.md) |
-| M03 | 256-item freight minecarts, cushions, storage restrictions | **SHIPPED** | [Handoff](MILESTONE_03.md) | [Historical report](MILESTONE_03_REPORT.md) |
-| M04 | Cable drums, anchors, routes, cable grips | **SHIPPED** | [Brief](MILESTONE_04.md) | [Report](MILESTONE_04_REPORT.md) · [CI #16](https://github.com/boxofdog/simple_block/actions/runs/38197364425) |
-| M05 | Reversible cable loops, manual cranks, Cobblestone Engine, coupling | **SHIPPED** | [Brief](MILESTONE_05.md) | [Report](MILESTONE_05_REPORT.md) · [CI #17](https://github.com/boxofdog/simple_block/actions/runs/38306694723) |
-| M06 | Loading Rail, powered winch, unlimited supported cable, related corrections | **SHIPPED** | [Brief](MILESTONE_06.md) | [Report](MILESTONE_06_REPORT.md) · [CI #20](https://github.com/boxofdog/simple_block/actions/runs/38382953782) |
-| M07 | Vertical ore skip, conditional bridle/pulley, four-gate minecart, visual and station fixes | **PLAYTESTING** | [Brief](MILESTONE_07.md) · [Patch](MILESTONE_07_PLAYTEST_PATCH.md) | [Report](MILESTONE_07_REPORT.md) · [CI #23](https://github.com/boxofdog/simple_block/actions/runs/38438092565) |
+| M01 | Remove sleep skipping, phantoms, elytra and shulker bypasses | **SHIPPED** | [Brief](MILESTONE_01.md) | [Verification](MILESTONE_01.md#implementation-and-verification--2026-10-11) |
+| M02 | Geology, heavy inventory, hostile light, hunger and inventory QoL | **SHIPPED** | [Handoff](MILESTONE_02.md) | [Verification](MILESTONE_02.md#implementation-and-verification--2026-10-11) |
+| M03 | 256-item freight minecarts, cushions, storage restrictions | **SHIPPED** | [Handoff](MILESTONE_03.md) | [Verification](MILESTONE_03.md#implementation-and-verification--2026-10-11) |
+| M04 | Cable drums, anchors, routes, cable grips | **SHIPPED** | [Brief](MILESTONE_04.md) | [Verification](MILESTONE_04.md#implementation-and-verification--2026-10-12) · [CI #16](https://github.com/boxofdog/simple_block/actions/runs/38197364425) |
+| M05 | Reversible cable loops, manual cranks, Cobblestone Engine, coupling | **SHIPPED** | [Brief](MILESTONE_05.md) | [Verification](MILESTONE_05.md#implementation-and-verification--2026-10-12) · [CI #17](https://github.com/boxofdog/simple_block/actions/runs/38306694723) |
+| M06 | Loading Rail, powered winch, unlimited supported cable, related corrections | **SHIPPED** | [Brief](MILESTONE_06.md) | [Verification](MILESTONE_06.md#implementation-and-verification--2026-10-13) · [CI #20](https://github.com/boxofdog/simple_block/actions/runs/38382953782) |
+| M07 | Vertical ore skip, conditional bridle/pulley, four-gate minecart, visual and station fixes | **PLAYTESTING** | [Brief](MILESTONE_07.md) · [Patch](MILESTONE_07_PLAYTEST_PATCH.md) | [Verification](MILESTONE_07.md#implementation-and-verification--2026-10-13) · [CI #24](https://github.com/boxofdog/simple_block/actions/runs/38443850502) |
 | M08 | Pre-industrial bulk blast furnace + commodity-only carrying cap | **PLANNED - NOT READY** | [M08 package](MILESTONE_08.md) | Not implemented |
 | M09 | Hostile behavior, persistent light interest and defensive infrastructure | **PLANNED - NOT READY** | [M09 package](MILESTONE_09.md) | Not implemented |
 | M10 | Modular headlamp/overalls/boots, workwear bonuses, armor retirement | **PLANNED - NOT READY** | [M10 package](MILESTONE_10.md) | Not implemented |
@@ -28,7 +28,7 @@
 
 - **Decision to make:** a side-on coupled train can empty its currently docked wagon, but M06's intentional station release rule lets the following wagons pass without docking at the same Loading Rail. Decide how a whole train should advance and re-dock one wagon at a time. Do not change already-shipped M06 semantics without the owner's direction.
 - **Still untested:** terminal station approach on curves/slopes, with coupled trains or partial chunk unloading; opening the generated cart model in Blockbench; further human/desktop-GPU and multiuser checks. The near-drum `idle` versus `docked` stop reason is a minor diagnostic to inspect.
-- **Acceptance:** M07's owner checkbox stays **unchecked** until the owner finishes playtesting and expressly accepts it. Details and negative controls: [M07 Report §12](MILESTONE_07_REPORT.md).
+- **Acceptance:** M07's owner checkbox stays **unchecked** until the owner finishes playtesting and expressly accepts it. Details and negative controls: [M07 verification](MILESTONE_07.md#implementation-and-verification--2026-10-13); history in the [archived M07 report](archive/milestone-reports/MILESTONE_07_REPORT.md).
 
 **M08 — design finalization only.** Furnace footprint/dimensions, the recently discussed brick-based recipe revision, input/fuel capacities, industrial rates and exact physical input/output need to be settled before an executable brief/authorization. The owner has **not yet finalized** the proposed 3×3×4 furnace or whether recipe `brick` is an item versus a Bricks block. The **previous owner-settled recipe remains in [M08](MILESTONE_08.md) as the recorded baseline subject to revision**. The weight-limit design amendment is also there. Neither discussion nor this consolidation starts implementation.
 

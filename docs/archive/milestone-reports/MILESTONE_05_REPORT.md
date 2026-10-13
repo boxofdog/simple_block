@@ -1,6 +1,6 @@
 # Milestone 05 report: Working haulage and the Cobblestone Engine
 
-**HISTORICAL REPORT (M01–M07 format).** This record is preserved for its original implementation and tests. References to the retired decisions ledger now point to the dated archive, **not active implementation authority**. Under the current [roadmap rule](ROADMAP.md), new authorized work appends only a **concise dated implementation/verification note at the bottom of the main milestone document**, not a new standalone report.
+**HISTORICAL REPORT (M01–M07 format).** This record is preserved for its original implementation and tests. References to the retired decisions ledger now point to the dated archive, **not active implementation authority**. Under the current [roadmap rule](../../ROADMAP.md), new authorized work appends only a **concise dated implementation/verification note at the bottom of the main milestone document**, not a new standalone report.
 
 Scope: the owner's brief, `docs/MILESTONE_05.md`, including the owner's mid-milestone clarification of the crank controls (left-click feeds, right-click pulls) and the two owner decisions taken during M05 (coupling by iron chain; engine driven from a seat plus a ground toggle). Implemented and tested on a server and in a real client; **not playtested by a person yet**.
 
@@ -13,9 +13,9 @@ Scope: the owner's brief, `docs/MILESTONE_05.md`, including the owner's mid-mile
 - **Not built (by the brief):** skips, counterweights, coal-powered winch, extreme rails, stations, train controls beyond power and brake.
 
 Evidence is in `docs/evidence/milestone-05/`:
-- [`gametest-evidence.md`](evidence/milestone-05/gametest-evidence.md): what every M05 test logged, server and client.
-- [`negative-controls.md`](evidence/milestone-05/negative-controls.md)
-- [`baseline-build.txt`](evidence/milestone-05/baseline-build.txt)
+- [`gametest-evidence.md`](../../evidence/milestone-05/gametest-evidence.md): what every M05 test logged, server and client.
+- [`negative-controls.md`](../../evidence/milestone-05/negative-controls.md)
+- [`baseline-build.txt`](../../evidence/milestone-05/baseline-build.txt)
 - `screenshots/` (real client), with `screenshots/bug001/before-*.png` and `after-*.png`.
 
 ## 1. Baseline
@@ -159,4 +159,4 @@ M05 stops here. The roadmap's next milestone (M06, freight loading track and the
 
 ## Owner milestone disposition — 2026-10-13 (roadmap reconsolidation)
 
-**M05: SHIPPED.** Originally accepted by the owner 2026-10-12 and expressly reaffirmed by the owner 2026-10-13 after independent GitHub/source/CI review. [Build #17](https://github.com/boxofdog/simple_block/actions/runs/38306694723) is green with a published `simple-block-mod` artifact; 114/114 server tests and three real-client tests are documented above. No new human playtest or assistant-run local execution is claimed by this status. Detailed implementation/CI handoff remains in this report, and the current brief status in [ROADMAP.md](ROADMAP.md). M04 and M06 are also SHIPPED; M07 remains PLAYTESTING.
+**M05: SHIPPED.** Originally accepted by the owner 2026-10-12 and expressly reaffirmed by the owner 2026-10-13 after independent GitHub/source/CI review. [Build #17](https://github.com/boxofdog/simple_block/actions/runs/38306694723) is green with a published `simple-block-mod` artifact; 114/114 server tests and three real-client tests are documented above. No new human playtest or assistant-run local execution is claimed by this status. Detailed implementation/CI handoff remains in this report, and the current brief status in [ROADMAP.md](../../ROADMAP.md). M04 and M06 are also SHIPPED; M07 remains PLAYTESTING.

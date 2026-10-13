@@ -37,7 +37,7 @@ Milestone 02 (world, night, inventory); see [`docs/MILESTONE_02.md`](docs/MILEST
 
 ## What Milestone 03 changes
 
-See the [M03 handoff](docs/MILESTONE_03.md) and [historical implementation report](docs/MILESTONE_03_REPORT.md) for the owner-approved vanilla-minecart change.
+See the [M03 handoff](docs/MILESTONE_03.md) and [historical implementation report](docs/archive/milestone-reports/MILESTONE_03_REPORT.md) for the owner-approved vanilla-minecart change.
 
 | ID | Change | Where |
 |---|---|---|
@@ -53,7 +53,7 @@ Each feature is self-contained. To revert one, remove its mixin entries from `sr
 
 ## What Milestone 04 adds
 
-See the [M04 handoff](docs/MILESTONE_04.md) and [historical as-built report](docs/MILESTONE_04_REPORT.md). In M04 nothing moves: M05 (below) makes the cable haul carts. M06 (below) changes how much cable a drum holds and the cable recipes; the rows here describe M04 as built.
+See the [M04 handoff](docs/MILESTONE_04.md) and [historical as-built report](docs/archive/milestone-reports/MILESTONE_04_REPORT.md). In M04 nothing moves: M05 (below) makes the cable haul carts. M06 (below) changes how much cable a drum holds and the cable recipes; the rows here describe M04 as built.
 
 | Component | What it does | Where |
 |---|---|---|
@@ -66,7 +66,7 @@ See the [M04 handoff](docs/MILESTONE_04.md) and [historical as-built report](doc
 
 ## What Milestone 05 adds
 
-See the [M05 handoff](docs/MILESTONE_05.md) and [historical as-built report](docs/MILESTONE_05_REPORT.md) for choices and starting values. Every M04 part and gesture works as before.
+See the [M05 handoff](docs/MILESTONE_05.md) and [historical as-built report](docs/archive/milestone-reports/MILESTONE_05_REPORT.md) for choices and starting values. Every M04 part and gesture works as before.
 
 | Component | What it does | Where |
 |---|---|---|
@@ -79,7 +79,7 @@ See the [M05 handoff](docs/MILESTONE_05.md) and [historical as-built report](doc
 
 ## What Milestone 06 adds
 
-See [`docs/MILESTONE_06.md`](docs/MILESTONE_06.md) and [`docs/MILESTONE_06_REPORT.md`](docs/MILESTONE_06_REPORT.md). M01–M05 work as before except where this table says otherwise.
+See [`docs/MILESTONE_06.md`](docs/MILESTONE_06.md) and [`docs/MILESTONE_06_REPORT.md`](docs/archive/milestone-reports/MILESTONE_06_REPORT.md). M01–M05 work as before except where this table says otherwise.
 
 | Component | What it does | Where |
 |---|---|---|
@@ -94,7 +94,7 @@ See [`docs/MILESTONE_06.md`](docs/MILESTONE_06.md) and [`docs/MILESTONE_06_REPOR
 
 ## What Milestone 07 adds
 
-See [`docs/MILESTONE_07.md`](docs/MILESTONE_07.md) and [`docs/MILESTONE_07_REPORT.md`](docs/MILESTONE_07_REPORT.md). M01–M06 work as before except where this table says otherwise.
+See [`docs/MILESTONE_07.md`](docs/MILESTONE_07.md) and [`docs/MILESTONE_07_REPORT.md`](docs/archive/milestone-reports/MILESTONE_07_REPORT.md). M01–M06 work as before except where this table says otherwise.
 
 | Component | What it does | Where |
 |---|---|---|

@@ -1,6 +1,6 @@
 # Simple Block — Milestone 04: Cable Infrastructure
 
-**Source:** the owner's handoff in the Claude Code session of 2026-10-12, recorded here verbatim (headings added) so later sessions have it. Historical as-built implementation and tests are in `docs/MILESTONE_04_REPORT.md`. For future authorized patches, append a short dated implementation/verification note at the end of THIS milestone document; do not create a new report.
+**Source:** the owner's handoff in the Claude Code session of 2026-10-12, recorded here verbatim (headings added) so later sessions have it. Historical as-built implementation and tests are in `docs/archive/milestone-reports/MILESTONE_04_REPORT.md` (summary: the verification section at the end of this file). For future authorized patches, append a short dated implementation/verification note at the end of THIS milestone document; do not create a new report.
 
 Implement the foundation for mechanical cable haulage using existing vanilla minecarts. Keep this milestone narrowly scoped.
 
@@ -42,3 +42,33 @@ M04 establishes cable placement, routing, anchors, the winch structure, and mine
 Do not implement coal engines, counterweights, inclined-lift automation, skips, or locomotives in this milestone.
 
 Build and test each component in an actual Minecraft client. Update documentation and report any unresolved design decisions rather than silently inventing new mechanics.
+
+## Implementation and verification — 2026-10-12
+
+**Metadata:** M04 | SHIPPED | Cable, coils, wood-supported anchors, cable drum, routed spans and the minecart connecting rod that grips the cable.
+
+**Implementation**
+- Commits: `02b93e7d63fbc702635dd8d781459bb6015175d2` content and routing; `f7cc3d5f47dbd6b8a626a017b2831d12c3f67291` models and rendering; `215a24af0b9d4eea068fb2b155ad1bfc5f935393` tests and docs
+- Delivered: six recipes; anchors only under wooden supports; drum with coils and a loose end; routing, extending, disconnecting and dismantling; obstacle and 12-block span checks; rod grips the cable past anchors.
+- Deviations: Cable-length consumption was later superseded by M06 (one coil, any supported length).
+
+**CI**
+- Build: #16 | Run ID: 38197364425 | PASS
+- Source SHA: `215a24af0b9d4eea068fb2b155ad1bfc5f935393`
+- URL: https://github.com/boxofdog/simple_block/actions/runs/38197364425
+- Artifact: `simple-block-mod` id 11723758660, available (verified 2026-10-13).
+
+**Tests**
+
+| Category | Result | Passed/Total | Evidence / Notes |
+|---|---|---|---|
+| Server | PASS | 95/95 | [archived report](archive/milestone-reports/MILESTONE_04_REPORT.md); [evidence](evidence/milestone-04/gametest-evidence.md) |
+| Client | PASS | 2/2 | `SurvivalSmokeClientTest`, `CableClientTest`; [screenshots](evidence/milestone-04/screenshots/) |
+| Dedicated server | PASS | 1/1 | `runServer` start only; no remote client |
+| Negative controls | PASS | 2/2 | control A (4 rules) and B (obstacle); [negative controls](evidence/milestone-04/negative-controls.md) |
+
+**Known gaps**
+- NONE
+
+**Owner playtest**
+- NONE

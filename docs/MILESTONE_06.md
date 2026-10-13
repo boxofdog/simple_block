@@ -126,3 +126,33 @@ Implement in **small, testable, reviewable stages**, preserving functioning earl
 **Required implementation discipline:** preserve editable Blockbench sources and painted owner assets; perform baseline checks against committed M05; **test both shaped cable recipes, unlimited-distance routing and one-coil installation/retrieval without item duplication, including former finite-capacity negative controls**; test rail locking/opening/release, cart push prohibition vs legitimate train movement, powered AND manual winch movement, safe stopping/reversing, fuel and cable conservation, **all affected Creative tabs and Creative search for retired items**, multiplayer/save-load behavior, structure/recipe consequences of rail removal, and a real-client demonstration. Document implementation SHA, CI and owner acceptance through the established roadmap handoff. Stop after M06.
 
 **HANDOFF STATUS (2026-10-12): M06 IMPLEMENTATION AUTHORIZED.** The owner approved the entire lever cycle, freight dock/release and M06/M07 boundary, and explicitly delegated the unloaded-chunk architecture to Claude. **Do not ask the owner to approve ordinary numeric defaults before beginning.** Implement §7 and record a clear solution or honest blocker. **M05 is now owner-accepted (2026-10-12)** until the owner returns to playtest; that is an intentionally waived prerequisite for starting M06, not a silent acceptance.
+
+## Implementation and verification — 2026-10-13
+
+**Metadata:** M06 | SHIPPED | Loading Rail station, coal-powered winch, unlimited supported cable, redstone-rail retirement, no freight shoving, Creative cleanup and owner corrections.
+
+**Implementation**
+- Commits: `c38973c90d4532bca1f2cc4f617213b45615d56c` cable overhaul and winch core; `e0314631a47daaa3a0c2582cc49a26bdc52d11cb` Loading Rail; `85ad4fc981bc928b41c3d3cb5fab353ffab1deac` rails, Creative, shoving; `6114a118aa5641ad8b6a064e4c13a0904b3fb469` client proof; `e042fe96ec5eb6d6c2f1e1969767bf3c15ada7cc` long-line test isolation; `fc8f99a529225230f62742837fae505212c6468e` BUG-002, Loading Rail name, hinged stop
+- Delivered: whole-train docking and release; furnace winch with coal burnt only while moving; one coil for any supported route, lines working where loaded; powered, detector and activator rails retired; freight carts cannot be shoved.
+- Deviations: Winch controlled only at its drum. Lever cycle later replaced in M07; freight-gate model replaced by the M07 four-gate cart.
+
+**CI**
+- Build: #20 | Run ID: 38382953782 | PASS
+- Source SHA: `fc8f99a529225230f62742837fae505212c6468e`
+- URL: https://github.com/boxofdog/simple_block/actions/runs/38382953782
+- Artifact: `simple-block-mod` id 11803902813, available (verified 2026-10-13). Build #19 (`e042fe9`) PASS; #18 failed on an M02 door flake.
+
+**Tests**
+
+| Category | Result | Passed/Total | Evidence / Notes |
+|---|---|---|---|
+| Server | PASS | 131/131 | 129/129 before corrections; [archived report](archive/milestone-reports/MILESTONE_06_REPORT.md); [server log](evidence/milestone-06/server-game-tests.txt) |
+| Client | PASS | 5/5 | [client log](evidence/milestone-06-corrections/client-game-tests.txt) |
+| Dedicated server | PASS | 1/1 | `DedicatedServerClientTest`: real client over the network |
+| Negative controls | PASS | 11/11 | 8 initial, 3 corrections; [controls](evidence/milestone-06/negative-controls-and-runs.md) |
+
+**Known gaps**
+- GAP-01: MINOR — a released train's later cars do not re-dock at the same Loading Rail (accepted M06 behaviour); next: owner decision tracked under M07.
+
+**Owner playtest**
+- NONE
