@@ -2,7 +2,7 @@
 
 **Purpose:** A compact **milestone status and priority index**. This is **not** a specification, implementation handoff, historical conversation log, or bug tracker. For functional requirements, open the milestone brief; for M01–M07 code/CI evidence, open the **Implementation and verification** section at the end of each milestone document (detailed historical reports are archived in [archive/milestone-reports/](archive/milestone-reports/)). For future work, the implementation/verification summary goes at the END of its milestone document; settled requirements live there too. See the [project vision](VISION.md).
 
-**Current lifecycle vocabulary:** [RULES.md](RULES.md) defines the **only five milestone states**. M04–M06 were expressly signed off by the owner and are now labeled **SHIPPED** (formerly PASSED). M07 remains **PLAYTESTING**, with owner signoff outstanding. No new human tests are implied by this terminology change.
+**Status column is generated:** The `milestone`/`status` YAML header of each `MILESTONE_XX.md` is authoritative. [RULES.md](RULES.md) defines the five labels; [status synchronization](../tools/docs/sync_milestone_statuses.py) changes only the status cells in the table below. **Do not edit the status cells manually.** Notes and pending decisions below remain editorial and do not change automatically.
 
 ## Milestone status
 

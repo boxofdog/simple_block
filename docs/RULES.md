@@ -16,13 +16,13 @@
 
 **Translation rule:** The old owner-approved `PASSED` label maps to `SHIPPED`, without inventing additional tests or playtest sessions. Old documentary statuses (`owner accepted`, `implemented`, `not authorized`, `PASS` test results, and design-register `DECIDED/DIRECTION/EXPLORATORY/OPEN`) may remain in historical narrative and test matrices; they are **not** milestone lifecycle labels. Authorization is a separate explicit decision recorded in the handoff; readiness alone grants no permission to code.
 
-**As of 2026-10-13:** M01–M06 **SHIPPED**; M07 **PLAYTESTING**; M08, M09 and M10 **PLANNED - NOT READY**; M11 **PLANNED - READY** (detailed rendering/hopper/test handoff is prepared, but still awaits an explicit owner go-ahead). For current status, consult [ROADMAP.md](ROADMAP.md); this file defines the vocabulary, not a separate competing status board.
+**Current statuses:** Each `MILESTONE_XX.md` file's two-field YAML front matter is authoritative (`milestone: MXX` and `status: <one of the five labels>`). The [ROADMAP.md](ROADMAP.md) status column is generated from those headers, not separately maintained. This file defines the vocabulary and rules, not another status list.
 
 ## Where documentation belongs
 
 | Question | Canonical document |
 |---|---|
-| What is next? What is shipped? | **This roadmap**, exact five-state status plus next decision only |
+| What is next? What is shipped? | [ROADMAP.md](ROADMAP.md), generated milestone status column and next decisions |
 | What do the five states mean? | **This document**, the canonical cross-LLM lifecycle key |
 | What exactly must Claude build? | **[MILESTONE_XX.md](MILESTONE_08.md)** or scoped corrective patch, owner-authorized before coding |
 | Where do implementation commits, CI, tests and gaps go? | A **concise dated section at the end of the same `MILESTONE_XX.md`** for all new work. M01–M07 existing reports remain historical records. |
@@ -36,6 +36,8 @@
 ## Handoff rules
 
 **Canonical reporting contract: [REPORTING_POLICY.json](REPORTING_POLICY.json).** Its report schema, mandatory Markdown template, 350-word limit, missing-value markers (`UNAVAILABLE`, `NOT RUN`), lifecycle enum and validation rules govern every milestone verification section. Where this file and the JSON differ on reporting, the JSON wins; this section only summarizes it. Mechanically checkable rules are verified by `python3 tools/docs/check_reporting.py`.
+
+**Automated status sync:** To change a milestone's lifecycle state, change **only the `status` field in that milestone's YAML header**, after the required explicit owner instruction. Do not hand-edit the roadmap Status column. Run `python3 tools/docs/sync_milestone_statuses.py --write`; the [Documentation status sync workflow](../.github/workflows/docs-status.yml) does the same on a push to `main`, committing **only changed status cells**. `python3 tools/docs/sync_milestone_statuses.py --check` and `python3 tools/docs/check_reporting.py` validate consistency. The [reporting-policy JSON](REPORTING_POLICY.json) defines the exact five values. The tool **copies labels; it does not infer readiness, implementation or acceptance from CI**. `SHIPPED` and implementation authorization still require an explicit owner decision. Free-text roadmap notes and milestone narrative are **not automatically rewritten**; update them intentionally when facts change.
 
 **CLAUDE: DO NOT CREATE NEW STANDALONE MILESTONE REPORT FILES.** Following an explicitly owner-authorized implementation, **append a concise, dated `## Implementation and verification — YYYY-MM-DD` section at the very end of that milestone's existing `MILESTONE_XX.md`**. Include only what was implemented, code commit SHA(s), the exact GitHub CI build and published `simple-block-mod` artifact, PASS/FAIL/NOT RUN server/client tests, negative controls where relevant, material deviations, remaining issues and the owner's next playtest. Link fuller logs/screenshots under `docs/evidence/` instead of producing a second lengthy document. Corrective patches also report at the end of the **main milestone file**, with a link to any patch brief. **Do not paste this report into the roadmap.**
 
