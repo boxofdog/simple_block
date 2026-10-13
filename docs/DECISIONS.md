@@ -131,6 +131,8 @@ The authoritative brief is [MILESTONE_04.md](MILESTONE_04.md); the as-built reco
 
 **M05 is implemented and explicitly owner-accepted on 2026-10-12.** Its specification is [MILESTONE_05.md](MILESTONE_05.md): circulating cable loop, reversible manual drum crank, coal-powered bidirectional Cobblestone Engine with minimally functional coupling, and the drum-side render fix. The as-built record and tests are [MILESTONE_05_REPORT.md](MILESTONE_05_REPORT.md). The longer-term decisions below (coal winch motors, skips, extreme rails, counterweights) **are not automatically authorized** by M05.
 
+**M07 OWNER-SETTLED MODEL REVISION (2026-10-12):** Replace the M05 Cobblestone Engine's childish-looking furnace/engine assembly with a large, weighty pre-industrial furnace engine and prominent smokestack **inside the original vanilla Minecraft minecart**. The minecart chassis/model/texture must NOT change; only the separate engine superstructure and its paintable art change. Keep all M05 locomotive rules and behavior, original furnace-minecart entity, creation and drops. Implement this visual-only change alongside M07 skips; do not reopen M06. See [MILESTONE_07.md](MILESTONE_07.md) §5.
+
 ### 5.0 M05 as built (implemented; owner accepted 2026-10-12)
 
 **Owner decisions during M05:**
