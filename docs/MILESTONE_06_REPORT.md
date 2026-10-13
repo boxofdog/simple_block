@@ -243,3 +243,11 @@ Authorized as a narrow correction pass before M07 ([MILESTONE_06.md](MILESTONE_0
 3. Dock a cart on a Loading Rail and watch the stop flip up behind it.
 4. Right-click the stop from behind the cart: it folds and the train is free.
 5. Search "rail" in Creative.
+
+---
+
+## Status disposition, 2026-10-13 (later owner directive)
+
+**M06 — PASSED.** The owner expressly instructed ChatGPT to mark M04–M06 passed. An independent GitHub audit confirmed the M06 implementation and correction `fc8f99a` are on `main`, [Build #20](https://github.com/boxofdog/simple_block/actions/runs/38382953782) passed with `simple-block-mod` artifact, and the later [Build #23](https://github.com/boxofdog/simple_block/actions/runs/38438092565) passes all 152 required server tests (including M06 regression coverage). Previously recorded M06 real-client and dedicated-server logs substantiate the Loading Rail, powered winch, long cable, anti-push and BUG-002 behavior as tested by Claude. This is **owner-directed signoff**, not evidence of unreported fresh human tests.
+
+**Important distinction:** The as-implemented M06 release latch deliberately prevents a just-released consist's subsequent cars from re-docking on that same Loading Rail. M06's existing semantics are accepted; **whether/how M07 should support unloading an entire train wagon-by-wagon at one side-on skip station remains an OPEN M07 gameplay design decision**, not a claim that such a workflow is already complete. The original report and amendment retain their historical test/acceptance snapshot; [ROADMAP.md](ROADMAP.md) is the current status.

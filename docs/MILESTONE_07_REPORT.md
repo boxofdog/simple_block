@@ -307,3 +307,19 @@ M07 owner acceptance stays **unchecked**. M08–M11 are untouched.
 - try a side-on rail with a coupled train;
 - run a cart to a Loading Rail under the last support;
 - look at closed and open carts of every kind.
+
+---
+
+## 12. Independent review and owner status, 2026-10-13
+
+**Review disposition: SOURCE/CI REVIEW PASSED; M07 STATUS = PLAYTESTING; OWNER ACCEPTANCE NOT GIVEN.** At the owner's request, ChatGPT reviewed code `49d7add`, follow-up report `dbda956`, Build #23, documented server/client/negative results, and relevant minecart/skip/cable code paths. The [Build #23](https://github.com/boxofdog/simple_block/actions/runs/38438092565) job log explicitly states **"All 152 required tests passed"**, with successful build and published `simple-block-mod` artifact. Claude's committed evidence reports **9/9 real-client tests and 17/17 negative controls**; ChatGPT did not re-run the game, inspect the Blockbench file in its GUI or personally execute those client tests.
+
+**Confirmed code-path review:** Four real minecart walls now hinge in `GatedMinecartModel`, the end gates bottom-down and side gates top-up; `LoadingTracks` synchronizes gate direction; `SkipStations` accepts adjacent end-on or side-on rail geometry, governs direction by skip height, and unloads kitty-corner from the chute; `CableDrive.stop` permits a final approach only toward a genuine Loading Rail and otherwise keeps the standard endpoint guard; free-hook winching and visible cable travel are present in the code/evidence. The original Build #22 report remains historical. No claim is made that unrun scenarios have been validated.
+
+**Outstanding for M07 playtesting and/or targeted regression:**
+1. **Sequential coupled-train unloading:** One docked wagon can unload sideways while coupled, but under existing M06 train release behavior every wagon bypasses that rail until it has moved away. A complete train cannot yet be presumed to stop each following car in turn at the same station. Owner must decide desired sequential re-docking/advancing behavior before considering this workflow closed.
+2. **Terminal rail approach cases NOT RUN:** curved rails, slopes, coupled consists, or partial chunk unload. Green CI does not establish behavior for these cases.
+3. Generated `gated_minecart.bbmodel` has not been opened in Blockbench GUI; no new local GPU/human execution is claimed. Further desktop/multiplayer/mid-transfer persistence edge cases may be useful.
+4. **Near-drum dock diagnostic:** the cart arrives on a rail ~2 blocks from a ground-level drum, but the winch may report `idle` rather than `docked`, although dock and lever neutrality operate correctly. Review in playtest for player-facing confusion.
+
+**Other milestone dispositions:** M04, M05 and M06 explicitly **PASSED by owner directive on 2026-10-13**, without changing this M07 acceptance gate. M08–M11 remain planned/not implementation-authorized. See [ROADMAP.md](ROADMAP.md) for the current milestone status and review receipts.

@@ -142,3 +142,9 @@ Playtest builds: pushing to `main` publishes the jar through the Build workflow,
 ## 10. Next
 
 The roadmap's next cable step is making it move: power for the winch (by hand first, or the deferred engine) and carts pulled by the rod's grip. Before that, sections 7.1-7.4 decide what "gripping" must survive.
+
+---
+
+## Status disposition, 2026-10-13 (later owner directive)
+
+**M04 — PASSED.** The owner explicitly instructed ChatGPT to mark M04, M05 and M06 PASSED after an independent GitHub review. ChatGPT inspected the M04 report/code lineage and independently confirmed [Build #16](https://github.com/boxofdog/simple_block/actions/runs/38197364425) was green with a published `simple-block-mod` artifact. This is **owner-directed acceptance**, not a claim of a new standalone human M04 playtest or local assistant-run client session. Previous open acceptance notes in the original report are a historical snapshot; the authoritative live status is [ROADMAP.md](ROADMAP.md). M04's originally static cable foundation remains the shipped baseline later extended by M05–M07.
