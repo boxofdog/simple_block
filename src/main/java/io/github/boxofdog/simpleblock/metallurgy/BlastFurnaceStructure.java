@@ -13,9 +13,11 @@ import net.minecraft.world.level.block.state.BlockState;
 /**
  * M08: the furnace's shape, one structure 3x3 blocks across and four high. Its controller
  * ({@link BlastFurnaceBlock}, which holds the inventories) is the middle block of the second layer;
- * every other block is a {@link BlastFurnacePartBlock} that knows its offset from it. Layer 0 is the
- * hearth with the casting mold in the middle of the front, layers 1-2 the stack (the controller
- * draws the whole of layers 0-2), layer 3 the receiving hopper (drawn by its middle block).
+ * every other block is a {@link BlastFurnacePartBlock} that knows its offset from it and the furnace's
+ * facing. Layer 0 is the heat zone (footing, firebrick hearth, tuyeres, the tap arch) with the spout,
+ * the runner and the open casting mold along the front, the mold in the front left corner; layers 1-2
+ * the tapering brick shaft (the controller draws layers 0-2); layer 3 the receiving hopper, a flared
+ * charging mouth (drawn by its middle block).
  */
 public final class BlastFurnaceStructure {
 	public static final int LAYERS = 4;
@@ -56,7 +58,8 @@ public final class BlastFurnaceStructure {
 		return MetallurgyContent.BLAST_FURNACE_PART.defaultBlockState()
 			.setValue(BlastFurnacePartBlock.DX, pos.getX() - controller.getX() + 1)
 			.setValue(BlastFurnacePartBlock.LAYER, pos.getY() - controller.getY() + CONTROLLER_LAYER)
-			.setValue(BlastFurnacePartBlock.DZ, pos.getZ() - controller.getZ() + 1);
+			.setValue(BlastFurnacePartBlock.DZ, pos.getZ() - controller.getZ() + 1)
+			.setValue(BlastFurnacePartBlock.FACING, facing);
 	}
 
 	/** The controller a structure block belongs to (itself for the controller), or null for any other block. */

@@ -123,6 +123,13 @@ public class BlastFurnaceClientTest implements FabricClientGameTest {
 		context.waitTicks(25);
 		boolean pouring = context.computeOnClient(client -> client.level.getBlockState(controller).getValue(BlastFurnaceBlock.POURING));
 		context.takeScreenshot(shots + "-pouring");
+		// The output close up: tap arch, spout, runner and the mold in the front left corner.
+		server.runCommand("tp @a " + (front.getX() - 2.5) + " " + front.getY() + " " + (front.getZ() - 3.5) + " -35 25");
+		context.waitTicks(5);
+		context.takeScreenshot(shots + "-casting");
+		server.runCommand("tp @a " + (front.getX() + 4.5) + " " + (front.getY() + 1) + " " + (front.getZ() - 4.5) + " 40 15");
+		context.waitTicks(5);
+		context.takeScreenshot(shots + "-three-quarter");
 		Tuning.reset("blast_furnace.cast_ticks");
 		int cast = server.computeOnServer(s -> ((BlastFurnaceBlockEntity) s.overworld().getBlockEntity(controller)).mold().getCount());
 		SimpleBlockTestLog.info("CLIENT M08 FURNACE ({}): use-key placement made {} structure blocks on the server, {} seen by the client, controller {}; "
