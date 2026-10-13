@@ -80,7 +80,7 @@ public class BlastFurnaceGameTests {
 	/** Builds a furnace block by block (as its item does), facing north, around {@code controller} (relative). */
 	static BlastFurnaceBlockEntity build(GameTestHelper helper, BlockPos controller) {
 		BlockPos absolute = helper.absolutePos(controller);
-		for (BlockPos pos : BlastFurnaceStructure.blocks(absolute)) {
+		for (BlockPos pos : BlastFurnaceStructure.blocks(absolute, Direction.NORTH)) {
 			helper.getLevel().setBlockAndUpdate(pos, BlastFurnaceStructure.stateAt(absolute, pos, Direction.NORTH));
 		}
 		return (BlastFurnaceBlockEntity) helper.getLevel().getBlockEntity(absolute);
@@ -109,9 +109,10 @@ public class BlastFurnaceGameTests {
 
 	private static int structureBlocks(GameTestHelper helper, BlockPos controller) {
 		int n = 0;
-		for (BlockPos pos : BlastFurnaceStructure.blocks(helper.absolutePos(controller))) {
+		for (BlockPos pos : BlastFurnaceStructure.blocks(helper.absolutePos(controller), Direction.NORTH)) {
 			BlockState state = helper.getLevel().getBlockState(pos);
-			if (state.is(MetallurgyContent.BLAST_FURNACE) || state.is(MetallurgyContent.BLAST_FURNACE_PART)) {
+			if (state.is(MetallurgyContent.BLAST_FURNACE) || state.is(MetallurgyContent.BLAST_FURNACE_PART)
+				|| state.is(MetallurgyContent.BLAST_FURNACE_CHANNEL) || state.is(MetallurgyContent.BLAST_FURNACE_MOLD)) {
 				n++;
 			}
 		}
@@ -189,14 +190,15 @@ public class BlastFurnaceGameTests {
 		// A block in the way at the top back corner: nothing is placed.
 		helper.setBlock(FRONT.offset(1, 3, 2), Blocks.STONE);
 		player.setItemInHand(InteractionHand.MAIN_HAND, new ItemStack(MetallurgyContent.BLAST_FURNACE_ITEM));
-		BlockPos floor = helper.absolutePos(FRONT.below());
+		// The block clicked becomes the mold, two blocks in front of the furnace's front.
+		BlockPos floor = helper.absolutePos(FRONT.north(2).below());
 		BlockHitResult hit = new BlockHitResult(Vec3.atCenterOf(floor).add(0.0, 0.5, 0.0), Direction.UP, floor, false);
 		player.gameMode.useItemOn(player, level, player.getMainHandItem(), InteractionHand.MAIN_HAND, hit);
 		helper.assertValueEqual(structureBlocks(helper, CONTROLLER), 0, "blocks placed with one in the way");
 		helper.assertValueEqual(player.getMainHandItem().getCount(), 1, "item kept");
 		helper.setBlock(FRONT.offset(1, 3, 2), Blocks.AIR);
 		player.gameMode.useItemOn(player, level, player.getMainHandItem(), InteractionHand.MAIN_HAND, hit);
-		helper.assertValueEqual(structureBlocks(helper, CONTROLLER), 36, "furnace blocks placed");
+		helper.assertValueEqual(structureBlocks(helper, CONTROLLER), 38, "furnace blocks placed");
 		helper.assertTrue(player.getMainHandItem().isEmpty(), "item used up");
 		BlockState controller = level.getBlockState(helper.absolutePos(CONTROLLER));
 		helper.assertTrue(controller.is(MetallurgyContent.BLAST_FURNACE) && controller.getValue(BlastFurnaceBlock.FACING) == Direction.NORTH,
@@ -204,6 +206,8 @@ public class BlastFurnaceGameTests {
 		BlockState hopper = level.getBlockState(helper.absolutePos(CONTROLLER.above(2)));
 		helper.assertTrue(hopper.is(MetallurgyContent.BLAST_FURNACE_PART) && hopper.getValue(BlastFurnacePartBlock.LAYER) == 3, "hopper on top");
 		helper.assertTrue(level.getBlockState(helper.absolutePos(FRONT)).is(MetallurgyContent.BLAST_FURNACE_PART), "front middle bottom block");
+		helper.assertTrue(level.getBlockState(helper.absolutePos(FRONT.north())).is(MetallurgyContent.BLAST_FURNACE_CHANNEL), "the channel in front");
+		helper.assertTrue(level.getBlockState(helper.absolutePos(FRONT.north(2))).is(MetallurgyContent.BLAST_FURNACE_MOLD), "the mold beyond it");
 
 		BlastFurnaceBlockEntity furnace = (BlastFurnaceBlockEntity) level.getBlockEntity(helper.absolutePos(CONTROLLER));
 		furnace.setOre(Items.RAW_IRON, 150);
@@ -219,6 +223,11 @@ public class BlastFurnaceGameTests {
 			.stream().allMatch(entity -> entity.getItem().getCount() <= entity.getItem().getMaxStackSize());
 		helper.assertTrue(stacksOk, "every dropped stack within its stack size");
 		clearDrops(helper, CONTROLLER);
+		build(helper, CONTROLLER);
+		player.gameMode.destroyBlock(helper.absolutePos(FRONT.north(2)));
+		helper.assertValueEqual(structureBlocks(helper, CONTROLLER), 0, "blocks left after breaking the mold");
+		helper.assertValueEqual(dropped(helper, CONTROLLER, MetallurgyContent.BLAST_FURNACE_ITEM), 1, "furnace item dropped from the mold");
+		clearDrops(helper, CONTROLLER);
 
 		player.setGameMode(GameType.CREATIVE);
 		build(helper, CONTROLLER).setOre(Items.RAW_GOLD, 9);
@@ -227,8 +236,8 @@ public class BlastFurnaceGameTests {
 		helper.assertValueEqual(dropped(helper, CONTROLLER, MetallurgyContent.BLAST_FURNACE_ITEM), 0, "no furnace item in creative");
 		helper.assertValueEqual(dropped(helper, CONTROLLER, Items.RAW_GOLD), 9, "contents still dropped in creative");
 		clearDrops(helper, CONTROLLER);
-		SimpleBlockTestLog.info("M08-F2: blocked placement refused (item kept); placed 36 blocks facing the player; breaking one part dropped "
-			+ "the furnace item, 150 raw iron, 5 coal blocks and 7 iron blocks and cleared all 36; creative break dropped only the contents");
+		SimpleBlockTestLog.info("M08-F2: blocked placement refused (item kept); placed 38 blocks (furnace, channel, mold) facing the player; breaking one part dropped "
+			+ "the furnace item, 150 raw iron, 5 coal blocks and 7 iron blocks and cleared all 38; breaking the mold clears all 38 too; creative break dropped only the contents");
 		TestPlayers.remove(player);
 		helper.succeed();
 	}
@@ -368,9 +377,9 @@ public class BlastFurnaceGameTests {
 	}
 
 	/**
-	 * M08-F6: a cart docked on a Loading Rail beside the furnace, level with the top of the hopper's rim,
-	 * tips its raw iron in through its gate on the furnace's side: side-on (east, a north-south rail) and
-	 * end-on (north, an east-west... here a north-south rail pointing at the furnace). A partial load fills
+	 * M08-F6: a cart docked on a Loading Rail behind the furnace, beside the space over the hopper (the
+	 * back middle top block), level with the top of its rim, tips its raw iron in through its gate towards
+	 * the hopper: side-on (an east-west rail) and end-on (a north-south rail). A partial load fills
 	 * the furnace to 516 and the rest stays in the cart. Refused, with the cart's gate shut and its cargo
 	 * unchanged: another metal than the furnace holds, coal, a full furnace, a block over the rim, and a
 	 * rail one level too low.
@@ -380,19 +389,21 @@ public class BlastFurnaceGameTests {
 		floor(helper);
 		BlastFurnaceBlockEntity furnace = build(helper, CONTROLLER);
 		int rimY = CONTROLLER.getY() + 3;
-		BlockPos sideOn = new BlockPos(CONTROLLER.getX() + 2, rimY, CONTROLLER.getZ());
-		BlockPos endOn = new BlockPos(CONTROLLER.getX(), rimY, CONTROLLER.getZ() - 2);
+		// The hopper is the back middle block of the top layer; the rail stands behind the furnace, beside the space over its rim.
+		BlockPos over = new BlockPos(CONTROLLER.getX(), rimY, CONTROLLER.getZ() + 1);
+		BlockPos sideOn = over.south();
+		BlockPos endOn = over.south();
 		boolean[] failed = {false};
 		Minecart[] cart = new Minecart[1];
 		List<String> log = new ArrayList<>();
 		var sequence = helper.startSequence()
 			.thenExecute(CableGameTests.step(failed, () -> {
-				rail(helper, sideOn, RailShape.NORTH_SOUTH);
+				rail(helper, sideOn, RailShape.EAST_WEST);
 				cart[0] = SkipGameTests.cartOn(helper, sideOn, Items.RAW_IRON, 100);
 			}))
 			.thenIdle(8)
 			.thenExecute(CableGameTests.step(failed, () -> {
-				helper.assertTrue(LoadingTracks.freight(cart[0]).simpleBlock$gateSide() == Direction.WEST, "side gate open towards the furnace");
+				helper.assertTrue(LoadingTracks.freight(cart[0]).simpleBlock$gateSide() == Direction.NORTH, "side gate open towards the hopper");
 			}))
 			.thenIdle(40)
 			.thenExecute(CableGameTests.step(failed, () -> {
@@ -427,7 +438,7 @@ public class BlastFurnaceGameTests {
 					helper.setBlock(endOn.below(), Blocks.AIR);
 					rail(helper, at, RailShape.NORTH_SOUTH);
 					if (r.block()) {
-						helper.setBlock(endOn.south(), Blocks.STONE);
+						helper.setBlock(over, Blocks.STONE);
 					}
 					furnace.setOre(r.furnaceOre(), r.furnaceCount());
 					cart[0] = SkipGameTests.cartOn(helper, at, r.cartItem(), r.cartCount());
@@ -440,7 +451,7 @@ public class BlastFurnaceGameTests {
 					helper.assertFalse(LoadingTracks.freight(cart[0]).simpleBlock$gateOpen(), r.name() + ": gate shut");
 					log.add(r.name() + ": refused");
 					cart[0].discard();
-					helper.setBlock(endOn.south(), Blocks.AIR);
+					helper.setBlock(over, Blocks.AIR);
 					helper.setBlock(at, Blocks.AIR);
 				}));
 		}

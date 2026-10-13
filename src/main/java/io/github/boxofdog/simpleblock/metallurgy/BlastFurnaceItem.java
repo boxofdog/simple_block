@@ -21,10 +21,10 @@ import net.minecraft.world.level.gameevent.GameEvent;
 import net.minecraft.world.phys.shapes.CollisionContext;
 
 /**
- * M08: the furnace item places the whole structure at once ({@link BlastFurnaceStructure}): the block
- * clicked is the middle of its front at the bottom (where the mold is), facing the player, and the
- * furnace reaches two blocks back, one to each side and four up. Every one of those 36 blocks must be
- * free (air, plants, water, ...) and clear of entities; otherwise nothing is placed and the item is kept.
+ * M08: the furnace item places the whole furnace at once ({@link BlastFurnaceStructure}), facing the
+ * player: the block clicked becomes the mold, the channel goes behind it, and behind that the furnace,
+ * three blocks wide and deep and four high. Every one of those 38 blocks must be free (air, plants,
+ * water, ...) and clear of entities; otherwise nothing is placed and the item is kept.
  */
 public class BlastFurnaceItem extends BlockItem {
 	public BlastFurnaceItem(Block block, Properties properties) {
@@ -39,8 +39,8 @@ public class BlastFurnaceItem extends BlockItem {
 		Level level = context.getLevel();
 		Player player = context.getPlayer();
 		Direction facing = context.getHorizontalDirection().getOpposite();
-		BlockPos controller = BlastFurnaceStructure.controllerFor(context.getClickedPos(), facing);
-		List<BlockPos> blocks = BlastFurnaceStructure.blocks(controller);
+		BlockPos controller = BlastFurnaceStructure.controllerForMold(context.getClickedPos(), facing);
+		List<BlockPos> blocks = BlastFurnaceStructure.blocks(controller, facing);
 		CollisionContext collision = CollisionContext.placementContext(player);
 		for (BlockPos pos : blocks) {
 			BlockState state = BlastFurnaceStructure.stateAt(controller, pos, facing);

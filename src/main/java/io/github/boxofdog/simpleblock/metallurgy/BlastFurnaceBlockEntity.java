@@ -3,6 +3,7 @@ package io.github.boxofdog.simpleblock.metallurgy;
 import java.util.Map;
 
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
@@ -214,6 +215,19 @@ public class BlastFurnaceBlockEntity extends BlockEntity {
 		boolean pouring = furnace.pour > 0;
 		if (state.getValue(BlastFurnaceBlock.LIT) != lit || state.getValue(BlastFurnaceBlock.POURING) != pouring) {
 			level.setBlock(pos, state.setValue(BlastFurnaceBlock.LIT, lit).setValue(BlastFurnaceBlock.POURING, pouring), Block.UPDATE_ALL);
+		}
+		// The channel shows the metal running, the mold the molten metal and then the cast block.
+		Direction facing = state.getValue(BlastFurnaceBlock.FACING);
+		BlockPos channelPos = BlastFurnaceStructure.channel(pos, facing);
+		BlockState channel = level.getBlockState(channelPos);
+		if (channel.is(MetallurgyContent.BLAST_FURNACE_CHANNEL) && channel.getValue(BlastFurnaceChannelBlock.POURING) != pouring) {
+			level.setBlock(channelPos, channel.setValue(BlastFurnaceChannelBlock.POURING, pouring), Block.UPDATE_CLIENTS);
+		}
+		BlockPos moldPos = BlastFurnaceStructure.mold(pos, facing);
+		BlockState mold = level.getBlockState(moldPos);
+		BlastFurnaceMoldBlock.Content content = BlastFurnaceMoldBlock.Content.of(furnace.mold(), pouring);
+		if (mold.is(MetallurgyContent.BLAST_FURNACE_MOLD) && mold.getValue(BlastFurnaceMoldBlock.CONTENT) != content) {
+			level.setBlock(moldPos, mold.setValue(BlastFurnaceMoldBlock.CONTENT, content), Block.UPDATE_CLIENTS);
 		}
 	}
 

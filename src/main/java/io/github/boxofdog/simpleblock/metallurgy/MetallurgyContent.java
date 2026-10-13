@@ -29,7 +29,8 @@ import io.github.boxofdog.simpleblock.SimpleBlock;
 
 /**
  * M08 metallurgy: what is registered. The pre-industrial blast furnace ({@link BlastFurnaceBlock}, its
- * {@link BlastFurnacePartBlock structure blocks}, {@link BlastFurnaceBlockEntity}, {@link BlastFurnaceMenu})
+ * {@link BlastFurnacePartBlock structure blocks}, {@link BlastFurnaceChannelBlock channel} and
+ * {@link BlastFurnaceMoldBlock mold}, {@link BlastFurnaceBlockEntity}, {@link BlastFurnaceMenu})
  * is crafted (owner-settled shaped recipe with two Bricks blocks, and its mirror) and placed whole from
  * its item ({@link BlastFurnaceItem}). The Block of Charcoal (nine charcoal) is a fuel like the Block of
  * Coal.
@@ -44,6 +45,12 @@ public final class MetallurgyContent {
 	public static final Block BLAST_FURNACE_PART = block("pre_industrial_blast_furnace_part", BlastFurnacePartBlock::new,
 		BlockBehaviour.Properties.of().mapColor(MapColor.COLOR_RED).instrument(NoteBlockInstrument.BASEDRUM).requiresCorrectToolForDrops()
 			.strength(3.5F, 6.0F).sound(SoundType.STONE).noOcclusion().noLootTable().pushReaction(PushReaction.IMMOVEABLE));
+	public static final Block BLAST_FURNACE_CHANNEL = block("pre_industrial_blast_furnace_channel", BlastFurnaceChannelBlock::new,
+		BlockBehaviour.Properties.of().mapColor(MapColor.METAL).requiresCorrectToolForDrops().strength(3.5F, 6.0F).sound(SoundType.METAL)
+			.noOcclusion().noLootTable().pushReaction(PushReaction.IMMOVEABLE));
+	public static final Block BLAST_FURNACE_MOLD = block("pre_industrial_blast_furnace_mold", BlastFurnaceMoldBlock::new,
+		BlockBehaviour.Properties.of().mapColor(MapColor.METAL).requiresCorrectToolForDrops().strength(3.5F, 6.0F).sound(SoundType.METAL)
+			.noOcclusion().noLootTable().pushReaction(PushReaction.IMMOVEABLE));
 	public static final Item BLAST_FURNACE_ITEM = register("pre_industrial_blast_furnace",
 		key -> new BlastFurnaceItem(BLAST_FURNACE, new Item.Properties().stacksTo(1).useBlockDescriptionPrefix().setId(key)));
 

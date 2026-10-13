@@ -384,90 +384,103 @@ ORE_SKIP_ITEM = [
     Cube('leg_right', [10.5, 10, 7.5], [11.5, 16, 8.5], rot=('z', 22.5, [11, 13, 8])),
 ]
 
-# M08 pre-industrial blast furnace, facing north (the front, with the tap arch, spout and mold, to
-# z -16), redesigned after the owner's sketch (2026-10-13): a small brick tower whose parts read as the
-# process. The structure is 3x3 blocks and four high; its controller is the middle block of the second
-# layer, so the controller's model spans x and z -16..32, y -16..32 (layers 1-3):
-#   heat (layer 1): a stone footing, the firebrick hearth with corner buttresses, a tuyere pipe on each
-#     side, and in its front an arched tap opening;
-#   output (layer 1, front): a spout projecting from the tap hole, a runner turning along the front to
-#     an open casting mold (thick walls, a floor, an open cavity) in the front left corner;
-#   body (layers 2-3): the shaft, tapering in three brick tiers (bosh, stack, stack top) held by iron
-#     bands, with corner pilasters; it overhangs the arch, centred over the footprint.
-# The fire (the glowing arch and tuyere ends, while lit) and the molten metal (spout, runner and the
-# pool in the mold, while pouring) are separate models the blockstate adds. The receiving hopper
-# (layer 4) is drawn by the middle block of the top layer (y 0..16): a narrow throat on the stack top
-# flaring in three stepped rings to a wide charging mouth with an iron rim, symmetric about the
-# footprint's centre so it needs no rotation.
-def _ring(name, y1, y2, inner, outer):
-    """Four wall slabs between square bounds inner < outer (model x and z), y1..y2."""
-    lo_o, hi_o = outer
-    lo_i, hi_i = inner
+# M08 pre-industrial blast furnace, facing north (its front to z -16), after the owner's sketch and notes
+# (2026-10-13): a very large industrial brick-and-iron fireplace. The furnace is 3x3 blocks and four
+# high; its controller is the middle block of the second layer, so its model spans x and z -16..32 and
+# y -16..32 (layers 1-3): a stone footing, the brick body (stepping in a little above a string course)
+# and, across its front, an enclosed iron facade between iron corner posts, with banding, a cornice,
+# two firebox doors with grilles and, in the middle, the tap housing with its tap hole. The fire (the
+# doors' grilles and the tap hole glowing) is a separate model added while lit. The fourth layer is
+# the brick crown with a stone coping, drawn by the top layer's middle block (y 0..16), leaving the
+# back middle block to the receiving hopper (drawn by that block, 0..16): an iron charging funnel
+# set into the crown, its rim a little proud of it. Out of the front, on the ground, the channel
+# block (an iron trough stepping down from the tap on a trestle) and the mold block (a low iron flask
+# with four corner clamps and two top ties framing a whole block's shape, so the cast standing in it
+# reads as a full metal block); the metal running in the channel and the molten metal in the mold
+# are separate models, and the cast block in the mold uses the game's own iron, copper and gold
+# block textures.
+def _walls(name, y1, y2, x1, z1, x2, z2, t):
+    """Four walls t thick inside the box x1..x2, z1..z2."""
     return [
-        Cube(name + '_north', [lo_o, y1, lo_o], [hi_o, y2, lo_i], uv_key=name + '_ns'),
-        Cube(name + '_south', [lo_o, y1, hi_i], [hi_o, y2, hi_o], uv_key=name + '_ns'),
-        Cube(name + '_west', [lo_o, y1, lo_i], [lo_i, y2, hi_i], uv_key=name + '_we'),
-        Cube(name + '_east', [hi_i, y1, lo_i], [hi_o, y2, hi_i], uv_key=name + '_we'),
+        Cube(name + '_north', [x1, y1, z1], [x2, y2, z1 + t], uv_key=name + '_ns'),
+        Cube(name + '_south', [x1, y1, z2 - t], [x2, y2, z2], uv_key=name + '_ns'),
+        Cube(name + '_west', [x1, y1, z1 + t], [x1 + t, y2, z2 - t], uv_key=name + '_we'),
+        Cube(name + '_east', [x2 - t, y1, z1 + t], [x2, y2, z2 - t], uv_key=name + '_we'),
     ]
 
 
+def _door(name, x1, x2):
+    """A firebox door on the facade: frame, iron door with three grille slits."""
+    return [
+        Cube(name + '_jamb_left', [x1, -12, -16], [x1 + 1.5, 3, -14.5], uv_key='door_jamb'),
+        Cube(name + '_jamb_right', [x2 - 1.5, -12, -16], [x2, 3, -14.5], uv_key='door_jamb'),
+        Cube(name + '_lintel', [x1, 1.5, -16], [x2, 3, -14.5], uv_key='door_lintel'),
+        Cube(name + '_sill', [x1, -12, -16], [x2, -10.5, -14.5], uv_key='door_lintel'),
+        Cube(name + '_leaf', [x1 + 1.5, -10.5, -15.5], [x2 - 1.5, 1.5, -15], uv_key='door_leaf'),
+    ] + [Cube(name + f'_grille_{i}', [x1 + 3, y, -15.6], [x2 - 3, y + 1, -15.5], uv_key='grille') for i, y in enumerate((-6, -3.5, -1))]
+
+
 FURNACE = [
-    # Heat: footing, hearth, buttresses, tuyeres, the tap arch.
     Cube('footing', [-16, -16, -16], [32, -14, 32]),
-    Cube('hearth', [-13, -14, -6], [29, 0, 28]),
-    Cube('buttress_front_left', [-15, -14, -8], [-10, -2, -3], uv_key='buttress'),
-    Cube('buttress_front_right', [26, -14, -8], [31, -2, -3], uv_key='buttress'),
-    Cube('buttress_back_left', [-15, -14, 25], [-10, -2, 30], uv_key='buttress'),
-    Cube('buttress_back_right', [26, -14, 25], [31, -2, 30], uv_key='buttress'),
-    Cube('tuyere_west', [-15, -9, 9], [-13, -6, 12], uv_key='tuyere'),
-    Cube('tuyere_east', [29, -9, 9], [31, -6, 12], uv_key='tuyere'),
-    Cube('arch_lintel', [1, -3, -7.5], [15, -1, -6]),
-    Cube('arch_jamb_left', [1, -14, -7.5], [3, -3, -6], uv_key='arch_jamb'),
-    Cube('arch_jamb_right', [13, -14, -7.5], [15, -3, -6], uv_key='arch_jamb'),
-    Cube('arch_opening', [3, -14, -6.2], [13, -3, -6]),
-    # Output: spout, runner, open mold.
-    Cube('spout_floor', [6, -9, -12], [10, -8, -6]),
-    Cube('spout_side_left', [6, -8, -12], [7, -7, -6], uv_key='spout_side'),
-    Cube('spout_side_right', [9, -8, -12], [10, -7, -6], uv_key='spout_side'),
-    Cube('runner_floor', [-4, -10, -14], [8, -9, -11]),
-    Cube('runner_side_front', [-4, -9, -14.5], [8, -8, -14], uv_key='runner_side'),
-    Cube('runner_side_back', [-4, -9, -11], [6, -8, -10.5], uv_key='runner_side'),
-    Cube('runner_post', [5, -14, -13.5], [7, -10, -11.5]),
-    Cube('mold_floor', [-15, -14, -15], [-3, -12, -3]),
-    Cube('mold_wall_front', [-15, -12, -15], [-3, -9, -13], uv_key='mold_wall_ns'),
-    Cube('mold_wall_back', [-15, -12, -5], [-3, -9, -3], uv_key='mold_wall_ns'),
-    Cube('mold_wall_left', [-15, -12, -13], [-13, -9, -5], uv_key='mold_wall_we'),
-    Cube('mold_wall_right', [-5, -12, -13], [-3, -10, -5]),
-    # Body: the tapering shaft.
-    Cube('bosh', [-12, 0, -12], [28, 10, 28]),
-    Cube('band_low', [-12.5, 9, -12.5], [28.5, 10.5, 28.5]),
-    Cube('stack', [-10, 10, -10], [26, 22, 26]),
-    Cube('band_high', [-10.5, 21, -10.5], [26.5, 22.5, 26.5]),
-    Cube('stack_top', [-8, 22, -8], [24, 32, 24]),
-    Cube('pilaster_front_left', [-11, 10, -11], [-8, 21, -8], uv_key='pilaster'),
-    Cube('pilaster_front_right', [24, 10, -11], [27, 21, -8], uv_key='pilaster'),
-    Cube('pilaster_back_left', [-11, 10, 24], [-8, 21, 27], uv_key='pilaster'),
-    Cube('pilaster_back_right', [24, 10, 24], [27, 21, 27], uv_key='pilaster'),
-]
+    Cube('body', [-15, -14, -13], [31, 16, 31]),
+    Cube('string_course', [-15.5, 15, -13.5], [31.5, 17, 31.5]),
+    Cube('body_upper', [-14, 17, -12], [30, 32, 30]),
+    # The iron front.
+    Cube('facade', [-12, -14, -15], [28, 14, -13]),
+    Cube('post_left', [-15, -14, -16], [-12, 16, -13], uv_key='post'),
+    Cube('post_right', [28, -14, -16], [31, 16, -13], uv_key='post'),
+    Cube('cornice', [-15, 14, -16], [31, 16, -13]),
+    Cube('band_low', [-12, -13, -15.5], [28, -12, -15]),
+    Cube('band_high', [-12, 11, -15.5], [28, 12, -15]),
+    Cube('tap_housing', [3, -1, -15.5], [13, 9, -15]),
+    Cube('tap_hole', [6, 2, -16], [10, 5, -15.5]),
+] + _door('door_left', -10, 1) + _door('door_right', 15, 26)
 FURNACE_FIRE = [
-    Cube('fire_arch', [3.5, -13.5, -6.4], [12.5, -3.5, -6.2]),
-    Cube('fire_tuyere_west', [-15.2, -8.5, 9.5], [-15, -6.5, 11.5], uv_key='fire_tuyere'),
-    Cube('fire_tuyere_east', [31, -8.5, 9.5], [31.2, -6.5, 11.5], uv_key='fire_tuyere'),
-]
-FURNACE_POUR = [
-    Cube('molten_spout', [7, -8, -11.8], [9, -7.7, -6.2]),
-    Cube('molten_fall', [7, -8.9, -12.6], [9, -7.7, -11.8]),
-    Cube('molten_runner', [-4.5, -9, -13.8], [8, -8.7, -11.2]),
-    Cube('molten_pool', [-13, -11.8, -13], [-5, -11, -5]),
+    Cube(f'fire_{side}_{i}', [x1 + 3, y, -15.7], [x2 - 3, y + 1, -15.6], uv_key='fire')
+    for side, (x1, x2) in (('left', (-10, 1)), ('right', (15, 26))) for i, y in enumerate((-6, -3.5, -1))
+] + [Cube('fire_tap', [6.5, 2.5, -16], [9.5, 4.5, -15.9])]
+FURNACE_CROWN = [
+    Cube('crown_front', [-14, 0, -12], [30, 12, 16]),
+    Cube('crown_back_left', [-14, 0, 16], [0, 12, 30], uv_key='crown_back'),
+    Cube('crown_back_right', [16, 0, 16], [30, 12, 30], uv_key='crown_back'),
+    Cube('coping_front', [-15, 12, -13], [31, 14, 16]),
+    Cube('coping_back_left', [-15, 12, 16], [0, 14, 31], uv_key='coping_back'),
+    Cube('coping_back_right', [16, 12, 16], [31, 14, 31], uv_key='coping_back'),
 ]
 FURNACE_HOPPER = (
-    [Cube('throat', [-6, 0, -6], [22, 3, 22]),
-     Cube('charge_hole', [-4, 3, -4], [20, 3.1, 20])]
-    + _ring('ring_low', 3, 7, (-7, 23), (-9, 25))
-    + _ring('ring_mid', 7, 11, (-9, 25), (-12, 28))
-    + _ring('ring_top', 11, 15, (-12, 28), (-15, 31))
-    + _ring('rim', 14, 15.5, (-15, 31), (-15.5, 31.5))
+    [Cube('hopper_throat', [3, 0, 3], [13, 3, 13]),
+     Cube('hopper_floor', [1, 3, 1], [15, 4, 15])]
+    + _walls('hopper_wall', 4, 15, 0, 0, 16, 16, 2)
+    + _walls('hopper_rim', 15, 16.5, -1, -1, 17, 17, 2)
 )
+CHANNEL = (
+    [Cube('tap_spout', [5.5, 18, 15], [10.5, 22, 17]),
+     Cube('trough_upper_floor', [5, 18, 6], [11, 19, 15]),
+     Cube('trough_upper_left', [5, 19, 6], [6, 21, 15], uv_key='trough_side'),
+     Cube('trough_upper_right', [10, 19, 6], [11, 21, 15], uv_key='trough_side'),
+     Cube('trough_lower_floor', [5, 16, -3], [11, 17, 7]),
+     Cube('trough_lower_left', [5, 17, -3], [6, 19, 7], uv_key='trough_side'),
+     Cube('trough_lower_right', [10, 17, -3], [11, 19, 7], uv_key='trough_side'),
+     Cube('trestle_left', [4, 0, 7], [5, 18, 9], uv_key='trestle'),
+     Cube('trestle_right', [11, 0, 7], [12, 18, 9], uv_key='trestle'),
+     Cube('trestle_brace', [5, 8, 7.5], [11, 9, 8.5]),
+     Cube('trestle_foot', [3, 0, 6], [13, 1, 10])]
+)
+CHANNEL_POUR = [
+    Cube('molten_upper', [6, 19, 6], [10, 19.3, 16]),
+    Cube('molten_lower', [6, 17, -3], [10, 17.3, 7]),
+    Cube('molten_step', [6, 17.3, 6], [10, 19, 7]),
+    Cube('molten_fall', [7, 15, -3], [9, 17, -2]),
+]
+MOLD = (
+    [Cube('mold_base', [0, 0, 0], [16, 1, 16]),
+     Cube('mold_cavity_floor', [1, 1, 1], [15, 1.1, 15])]
+    + _walls('mold_wall', 1, 6, 0, 0, 16, 16, 1)
+    + [Cube(f'mold_clamp_{i}', [x, 0, z], [x + 2, 16, z + 2], uv_key='mold_clamp')
+       for i, (x, z) in enumerate(((0, 0), (14, 0), (0, 14), (14, 14)))]
+    + [Cube(f'mold_tie_{i}', [x, 15, z1], [x + 2, 16, z2], uv_key='mold_tie_ns') for i, (x, z1, z2) in enumerate(((0, 2, 14), (14, 2, 14)))]
+)
+MOLD_MOLTEN = [Cube('mold_molten', [1, 1.1, 1], [15, 15, 15])]
 CHARCOAL_BLOCK = [Cube('charcoal_block', [0, 0, 0], [16, 16, 16])]
 
 # Texture groups: models that share one texture (and one UV layout).
@@ -496,8 +509,12 @@ GROUPS = {
                        'ore_skip_gate_open': SKIP_GATE_OPEN, 'ore_skip_lid_closed': SKIP_LID_CLOSED, 'ore_skip_lid_open': SKIP_LID_OPEN,
                        'ore_skip_bridle': SKIP_BRIDLE, 'ore_skip': ORE_SKIP_ITEM},
     'block/pre_industrial_blast_furnace': {'pre_industrial_blast_furnace': FURNACE, 'pre_industrial_blast_furnace_fire': FURNACE_FIRE,
-                                           'pre_industrial_blast_furnace_pour': FURNACE_POUR,
-                                           'pre_industrial_blast_furnace_hopper': FURNACE_HOPPER},
+                                           'pre_industrial_blast_furnace_crown': FURNACE_CROWN,
+                                           'pre_industrial_blast_furnace_hopper': FURNACE_HOPPER,
+                                           'pre_industrial_blast_furnace_channel': CHANNEL,
+                                           'pre_industrial_blast_furnace_channel_pour': CHANNEL_POUR,
+                                           'pre_industrial_blast_furnace_mold': MOLD,
+                                           'pre_industrial_blast_furnace_mold_molten': MOLD_MOLTEN},
     'block/charcoal_block': {'charcoal_block': CHARCOAL_BLOCK},
 }
 # Where each model's JSON goes (block models are used by blockstates, block items and renderers).
@@ -512,15 +529,18 @@ PALETTE = [(214, 140, 84), (122, 168, 214), (150, 200, 120), (220, 196, 98), (19
            (168, 160, 150), (240, 170, 120), (130, 140, 220)]
 # Template colours by UV key for the M08 furnace's template, so that it reads as materials:
 # brick, firebrick, stone, iron, fire and molten metal. Keys not listed take the palette.
-BRICK, FIREBRICK, STONE, IRON, DARK, FIRE, MOLTEN = (156, 82, 62), (98, 52, 44), (128, 128, 124), (86, 88, 94), (34, 28, 26), (255, 170, 40), (255, 112, 24)
+BRICK, STONE, IRON, DARK_IRON, DARK, FIRE, MOLTEN = (156, 82, 62), (128, 128, 124), (112, 114, 120), (66, 68, 74), (34, 28, 26), (255, 170, 40), (255, 112, 24)
 MATERIAL_COLOURS = {
-    'footing': STONE, 'hearth': FIREBRICK, 'buttress': FIREBRICK, 'tuyere': IRON, 'arch_lintel': STONE, 'arch_jamb': STONE,
-    'arch_opening': DARK, 'spout_floor': IRON, 'spout_side': IRON, 'runner_floor': IRON, 'runner_side': IRON, 'runner_post': IRON,
-    'mold_floor': IRON, 'mold_wall_ns': IRON, 'mold_wall_we': IRON, 'mold_wall_right': IRON,
-    'bosh': FIREBRICK, 'band_low': IRON, 'stack': BRICK, 'band_high': IRON, 'stack_top': BRICK, 'pilaster': STONE,
-    'fire_arch': FIRE, 'fire_tuyere': FIRE, 'molten_spout': MOLTEN, 'molten_fall': MOLTEN, 'molten_runner': MOLTEN, 'molten_pool': MOLTEN,
-    'throat': BRICK, 'charge_hole': DARK, 'ring_low_ns': BRICK, 'ring_low_we': BRICK, 'ring_mid_ns': BRICK, 'ring_mid_we': BRICK,
-    'ring_top_ns': BRICK, 'ring_top_we': BRICK, 'rim_ns': IRON, 'rim_we': IRON,
+    'footing': STONE, 'body': BRICK, 'string_course': STONE, 'body_upper': BRICK,
+    'facade': IRON, 'post': DARK_IRON, 'cornice': DARK_IRON, 'band_low': DARK_IRON, 'band_high': DARK_IRON, 'tap_housing': DARK_IRON,
+    'tap_hole': DARK, 'door_jamb': DARK_IRON, 'door_lintel': DARK_IRON, 'door_leaf': IRON, 'grille': DARK,
+    'fire': FIRE, 'fire_tap': MOLTEN,
+    'crown_front': BRICK, 'crown_back': BRICK, 'coping_front': STONE, 'coping_back': STONE,
+    'hopper_throat': DARK, 'hopper_floor': DARK, 'hopper_wall_ns': IRON, 'hopper_wall_we': IRON, 'hopper_rim_ns': DARK_IRON, 'hopper_rim_we': DARK_IRON,
+    'tap_spout': DARK_IRON, 'trough_upper_floor': IRON, 'trough_lower_floor': IRON, 'trough_side': IRON, 'trestle': DARK_IRON,
+    'trestle_brace': DARK_IRON, 'trestle_foot': STONE,
+    'molten_upper': MOLTEN, 'molten_lower': MOLTEN, 'molten_step': MOLTEN, 'molten_fall': MOLTEN, 'mold_molten': MOLTEN,
+    'mold_base': DARK_IRON, 'mold_cavity_floor': DARK, 'mold_wall_ns': IRON, 'mold_wall_we': IRON, 'mold_clamp': DARK_IRON, 'mold_tie_ns': DARK_IRON,
 }
 SHADE = {'up': 1.0, 'north': 0.86, 'south': 0.86, 'east': 0.74, 'west': 0.74, 'down': 0.6}
 
@@ -732,13 +752,33 @@ def main():
     write_json(os.path.join(ASSETS, 'blockstates', 'pre_industrial_blast_furnace.json'), {'multipart': [
         part for facing, y in rotations.items() for part in (
             {'when': {'facing': facing}, 'apply': m('block/pre_industrial_blast_furnace', y=y)},
-            {'when': {'facing': facing, 'lit': 'true'}, 'apply': m('block/pre_industrial_blast_furnace_fire', y=y)},
-            {'when': {'facing': facing, 'pouring': 'true'}, 'apply': m('block/pre_industrial_blast_furnace_pour', y=y)})]})
+            {'when': {'facing': facing, 'lit': 'true'}, 'apply': m('block/pre_industrial_blast_furnace_fire', y=y)})]})
     write_json(os.path.join(ASSETS, 'models', 'block', 'pre_industrial_blast_furnace_part.json'), {
         'textures': {'particle': f'{NAMESPACE}:block/pre_industrial_blast_furnace'}, 'elements': []})
+    # The crown is drawn by the top layer's middle block; the hopper by its back middle block, which
+    # depends on the facing (dx and dz are world offsets from the controller, 1 in the middle).
+    back = {'north': ('1', '2'), 'south': ('1', '0'), 'east': ('0', '1'), 'west': ('2', '1')}
     write_json(os.path.join(ASSETS, 'blockstates', 'pre_industrial_blast_furnace_part.json'), {'multipart': [
-        {'apply': m('block/pre_industrial_blast_furnace_part')},
-        {'when': {'dx': '1', 'layer': '3', 'dz': '1'}, 'apply': m('block/pre_industrial_blast_furnace_hopper')}]})
+        {'apply': m('block/pre_industrial_blast_furnace_part')}]
+        + [{'when': {'dx': '1', 'layer': '3', 'dz': '1', 'facing': facing}, 'apply': m('block/pre_industrial_blast_furnace_crown', y=y)}
+           for facing, y in rotations.items()]
+        + [{'when': {'dx': back[facing][0], 'layer': '3', 'dz': back[facing][1], 'facing': facing},
+            'apply': m('block/pre_industrial_blast_furnace_hopper')} for facing in rotations]})
+    write_json(os.path.join(ASSETS, 'blockstates', 'pre_industrial_blast_furnace_channel.json'), {'multipart': [
+        part for facing, y in rotations.items() for part in (
+            {'when': {'facing': facing}, 'apply': m('block/pre_industrial_blast_furnace_channel', y=y)},
+            {'when': {'facing': facing, 'pouring': 'true'}, 'apply': m('block/pre_industrial_blast_furnace_channel_pour', y=y)})]})
+    write_json(os.path.join(ASSETS, 'blockstates', 'pre_industrial_blast_furnace_mold.json'), {'multipart': [
+        {'apply': m('block/pre_industrial_blast_furnace_mold')},
+        {'when': {'content': 'molten'}, 'apply': m('block/pre_industrial_blast_furnace_mold_molten')}]
+        + [{'when': {'content': metal}, 'apply': m(f'block/pre_industrial_blast_furnace_mold_{metal}')} for metal in ('iron', 'copper', 'gold')]})
+    # The cast block in the mold: the cavity filled with the game's own block texture of that metal.
+    for metal, texture in (('iron', 'iron_block'), ('copper', 'copper_block'), ('gold', 'gold_block')):
+        write_json(os.path.join(ASSETS, 'models', 'block', f'pre_industrial_blast_furnace_mold_{metal}.json'), {
+            'textures': {'cast': f'minecraft:block/{texture}', 'particle': f'minecraft:block/{texture}'},
+            'elements': [{'name': 'cast', 'from': [1, 1.1, 1], 'to': [15, 15, 15], 'faces': {
+                face: {'uv': [1, 1, 15, 15] if face in ('up', 'down') else [1, 1, 15, 14.9], 'texture': '#cast'}
+                for face in FACES}}]})
     write_json(os.path.join(ASSETS, 'models', 'item', 'pre_industrial_blast_furnace.json'), {
         'parent': f'{NAMESPACE}:block/pre_industrial_blast_furnace',
         'display': {'gui': {'rotation': [30, 225, 0], 'translation': [0, -1.5, 0], 'scale': [0.2, 0.2, 0.2]},

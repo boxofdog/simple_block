@@ -29,6 +29,7 @@ import io.github.boxofdog.simpleblock.feature.HeavyLoad;
 import io.github.boxofdog.simpleblock.gametest.SimpleBlockTestLog;
 import io.github.boxofdog.simpleblock.metallurgy.BlastFurnaceBlock;
 import io.github.boxofdog.simpleblock.metallurgy.BlastFurnaceBlockEntity;
+import io.github.boxofdog.simpleblock.metallurgy.BlastFurnaceMoldBlock;
 import io.github.boxofdog.simpleblock.metallurgy.BlastFurnaceStructure;
 import io.github.boxofdog.simpleblock.metallurgy.MetallurgyContent;
 import io.github.boxofdog.simpleblock.tuning.Tuning;
@@ -44,7 +45,7 @@ import io.github.boxofdog.simpleblock.tuning.Tuning;
  * </ul>
  * The furnace placement, lighting and screen are repeated with a dedicated server ({@code m08-server-*}).
  * The yard, at ground level {@code g}: stone x 0..20, z 0..16; the furnace's front middle bottom block
- * at (10, g, 6), facing north towards the player.
+ * at (10, g, 8), facing north towards the player, its channel and mold at z 7 and 6.
  */
 public class BlastFurnaceClientTest implements FabricClientGameTest {
 	@Override
@@ -58,7 +59,7 @@ public class BlastFurnaceClientTest implements FabricClientGameTest {
 			int g = yard(server);
 			world.getConnection().waitForChunksRender();
 			context.waitTicks(10);
-			BlockPos front = new BlockPos(10, g, 6);
+			BlockPos front = new BlockPos(10, g, 8);
 			BlockPos controller = BlastFurnaceStructure.controllerFor(front, net.minecraft.core.Direction.NORTH);
 			furnace(context, server, front, controller, "m08-furnace");
 			screen(context, server, controller, "m08-furnace");
@@ -70,7 +71,7 @@ public class BlastFurnaceClientTest implements FabricClientGameTest {
 			int g = yard(server);
 			connection.waitForChunksRender();
 			context.waitTicks(10);
-			BlockPos front = new BlockPos(10, g, 6);
+			BlockPos front = new BlockPos(10, g, 8);
 			BlockPos controller = BlastFurnaceStructure.controllerFor(front, net.minecraft.core.Direction.NORTH);
 			furnace(context, server, front, controller, "m08-server-furnace");
 			screen(context, server, controller, "m08-server-furnace");
@@ -97,16 +98,17 @@ public class BlastFurnaceClientTest implements FabricClientGameTest {
 	private static void furnace(ClientGameTestContext context, TestServerContext server, BlockPos front, BlockPos controller, String shots) {
 		server.runCommand("item replace entity @a weapon.mainhand with simple_block:pre_industrial_blast_furnace");
 		context.waitTicks(3);
-		lookAtPoint(context, new Vec3(front.getX() + 0.5, front.getY() - 0.02, front.getZ() + 0.5));
+		// The block used becomes the mold, two in front of the furnace.
+		lookAtPoint(context, new Vec3(front.getX() + 0.5, front.getY() - 0.02, front.getZ() - 1.5));
 		context.getInput().pressKey(options -> options.keyUse);
 		context.waitTicks(10);
 		int serverBlocks = server.computeOnServer(s -> count(s.overworld(), controller));
 		int clientBlocks = context.computeOnClient(client -> count(client.level, controller));
 		BlockState clientController = context.computeOnClient(client -> client.level.getBlockState(controller));
-		server.runCommand("tp @a 10.5 " + front.getY() + " -1.5 0 10");
+		server.runCommand("tp @a 10.5 " + front.getY() + " -2.5 0 10");
 		context.waitTicks(10);
 		context.takeScreenshot(shots + "-front");
-		server.runCommand("tp @a 15.5 " + (front.getY() + 6) + " 1.5 35 35");
+		server.runCommand("tp @a 15.5 " + (front.getY() + 7) + " 2.5 35 35");
 		context.waitTicks(10);
 		context.takeScreenshot(shots + "-hopper");
 		// Lit and pouring: a short cast for the picture.
@@ -116,35 +118,42 @@ public class BlastFurnaceClientTest implements FabricClientGameTest {
 			furnace.setOre(Items.RAW_IRON, 100);
 			furnace.items().setItem(BlastFurnaceBlockEntity.FUEL_SLOT, new net.minecraft.world.item.ItemStack(Items.COAL_BLOCK, 4));
 		});
-		server.runCommand("tp @a 10.5 " + front.getY() + " -1.5 0 10");
+		server.runCommand("tp @a 10.5 " + front.getY() + " -2.5 0 10");
 		context.waitTicks(20);
 		boolean lit = context.computeOnClient(client -> client.level.getBlockState(controller).getValue(BlastFurnaceBlock.LIT));
 		context.takeScreenshot(shots + "-lit");
+		// The output close up: the iron front's tap, the channel and the mold, while metal runs.
+		server.runCommand("tp @a " + (front.getX() - 2.5) + " " + front.getY() + " " + (front.getZ() - 5.5) + " -37 25");
 		context.waitTicks(25);
 		boolean pouring = context.computeOnClient(client -> client.level.getBlockState(controller).getValue(BlastFurnaceBlock.POURING));
 		context.takeScreenshot(shots + "-pouring");
-		// The output close up: tap arch, spout, runner and the mold in the front left corner.
-		server.runCommand("tp @a " + (front.getX() - 2.5) + " " + front.getY() + " " + (front.getZ() - 3.5) + " -35 25");
-		context.waitTicks(5);
+		// No more ore: once the pour is over the mold shows the cast block.
+		server.runOnServer(s -> ((BlastFurnaceBlockEntity) s.overworld().getBlockEntity(controller)).setOre(Items.AIR, 0));
+		Tuning.reset("blast_furnace.cast_ticks");
+		context.waitTicks(35);
+		BlockPos moldPos = BlastFurnaceStructure.mold(controller, net.minecraft.core.Direction.NORTH);
+		String moldShows = context.computeOnClient(client -> client.level.getBlockState(moldPos).getValue(BlastFurnaceMoldBlock.CONTENT).getSerializedName());
 		context.takeScreenshot(shots + "-casting");
-		server.runCommand("tp @a " + (front.getX() + 4.5) + " " + (front.getY() + 1) + " " + (front.getZ() - 4.5) + " 40 15");
+		server.runCommand("tp @a " + (front.getX() + 4.5) + " " + (front.getY() + 1) + " " + (front.getZ() - 6.5) + " 28 12");
 		context.waitTicks(5);
 		context.takeScreenshot(shots + "-three-quarter");
-		Tuning.reset("blast_furnace.cast_ticks");
 		int cast = server.computeOnServer(s -> ((BlastFurnaceBlockEntity) s.overworld().getBlockEntity(controller)).mold().getCount());
 		SimpleBlockTestLog.info("CLIENT M08 FURNACE ({}): use-key placement made {} structure blocks on the server, {} seen by the client, controller {}; "
-			+ "lit {}, pouring {}, {} blocks cast in 45 ticks at cast_ticks 40", shots, serverBlocks, clientBlocks, clientController, lit, pouring, cast);
-		assertTrue(serverBlocks == 36 && clientBlocks == 36, "the whole furnace should be placed: server " + serverBlocks + ", client " + clientBlocks);
+			+ "lit {}, pouring {}, {} blocks cast at cast_ticks 40; the mold then shows {}", shots, serverBlocks, clientBlocks, clientController, lit, pouring,
+			cast, moldShows);
+		assertTrue(serverBlocks == 38 && clientBlocks == 38, "the whole furnace should be placed: server " + serverBlocks + ", client " + clientBlocks);
 		assertTrue(clientController.is(MetallurgyContent.BLAST_FURNACE) && clientController.getValue(BlastFurnaceBlock.FACING)
 			== net.minecraft.core.Direction.NORTH, "controller facing the player: " + clientController);
+		assertTrue(moldShows.equals("iron"), "the mold should show the cast iron block, shows " + moldShows);
 		assertTrue(lit && pouring && cast >= 1, "the furnace should light, pour and cast: lit " + lit + ", pouring " + pouring + ", cast " + cast);
 	}
 
 	private static int count(net.minecraft.world.level.Level level, BlockPos controller) {
 		int n = 0;
-		for (BlockPos pos : BlastFurnaceStructure.blocks(controller)) {
+		for (BlockPos pos : BlastFurnaceStructure.blocks(controller, net.minecraft.core.Direction.NORTH)) {
 			BlockState state = level.getBlockState(pos);
-			if (state.is(MetallurgyContent.BLAST_FURNACE) || state.is(MetallurgyContent.BLAST_FURNACE_PART)) {
+			if (state.is(MetallurgyContent.BLAST_FURNACE) || state.is(MetallurgyContent.BLAST_FURNACE_PART)
+				|| state.is(MetallurgyContent.BLAST_FURNACE_CHANNEL) || state.is(MetallurgyContent.BLAST_FURNACE_MOLD)) {
 				n++;
 			}
 		}
@@ -154,7 +163,7 @@ public class BlastFurnaceClientTest implements FabricClientGameTest {
 	private static void screen(ClientGameTestContext context, TestServerContext server, BlockPos controller, String shots) {
 		server.runOnServer(s -> ((BlastFurnaceBlockEntity) s.overworld().getBlockEntity(controller)).setOre(Items.RAW_IRON, 300));
 		server.runCommand("item replace entity @a weapon.mainhand with minecraft:air");
-		server.runCommand("tp @a 10.5 " + (controller.getY() - 1) + " 3.5 0 0");
+		server.runCommand("tp @a 10.5 " + (controller.getY() - 1) + " " + (controller.getZ() - 4.5) + " 0 0");
 		context.waitTicks(3);
 		lookAtPoint(context, new Vec3(controller.getX() + 0.5, controller.getY() + 0.5, controller.getZ() - 1.0));
 		context.getInput().pressKey(options -> options.keyUse);

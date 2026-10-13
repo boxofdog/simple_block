@@ -11,13 +11,14 @@ import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.block.state.BlockState;
 
 /**
- * M08: the furnace's shape, one structure 3x3 blocks across and four high. Its controller
- * ({@link BlastFurnaceBlock}, which holds the inventories) is the middle block of the second layer;
- * every other block is a {@link BlastFurnacePartBlock} that knows its offset from it and the furnace's
- * facing. Layer 0 is the heat zone (footing, firebrick hearth, tuyeres, the tap arch) with the spout,
- * the runner and the open casting mold along the front, the mold in the front left corner; layers 1-2
- * the tapering brick shaft (the controller draws layers 0-2); layer 3 the receiving hopper, a flared
- * charging mouth (drawn by its middle block).
+ * M08: the furnace's shape (redesigned after the owner's sketch and notes, 2026-10-13). The furnace
+ * itself is 3x3 blocks and four high; its controller ({@link BlastFurnaceBlock}, which holds the
+ * inventories) is the middle block of the second layer, and every other block of it is a
+ * {@link BlastFurnacePartBlock} that knows its offset from it and the furnace's facing. Layers 0-2 are
+ * a large brick body behind an iron front (doors, the tap); layer 3 its brick crown with the receiving
+ * hopper in the <b>back middle</b> block, the only place cargo goes in. Out of the front, on the
+ * ground, a {@link BlastFurnaceChannelBlock channel} leads from the tap to a full-block
+ * {@link BlastFurnaceMoldBlock mold}: 38 blocks in all.
  */
 public final class BlastFurnaceStructure {
 	public static final int LAYERS = 4;
@@ -29,13 +30,31 @@ public final class BlastFurnaceStructure {
 	private BlastFurnaceStructure() {
 	}
 
-	/** The controller of a furnace whose front middle block of the hearth is {@code front}, facing {@code facing}. */
+	/** The controller of a furnace whose front middle block of the body's bottom layer is {@code front}, facing {@code facing}. */
 	public static BlockPos controllerFor(BlockPos front, Direction facing) {
 		return front.relative(facing.getOpposite()).above(CONTROLLER_LAYER);
 	}
 
-	/** Every block of the structure around {@code controller}, the controller first. */
-	public static List<BlockPos> blocks(BlockPos controller) {
+	/** The controller of a furnace whose mold (the block its item is used on) is {@code mold}, facing {@code facing}. */
+	public static BlockPos controllerForMold(BlockPos mold, Direction facing) {
+		return controllerFor(mold.relative(facing.getOpposite(), 2), facing);
+	}
+
+	public static BlockPos channel(BlockPos controller, Direction facing) {
+		return controller.below(CONTROLLER_LAYER).relative(facing, 2);
+	}
+
+	public static BlockPos mold(BlockPos controller, Direction facing) {
+		return controller.below(CONTROLLER_LAYER).relative(facing, 3);
+	}
+
+	/** The receiving hopper: the back middle block of the top layer. */
+	public static BlockPos hopper(BlockPos controller, Direction facing) {
+		return controller.above(HOPPER_LAYER - CONTROLLER_LAYER).relative(facing.getOpposite());
+	}
+
+	/** Every block of the furnace around {@code controller}, the controller first, then the body, the channel and the mold. */
+	public static List<BlockPos> blocks(BlockPos controller, Direction facing) {
 		List<BlockPos> blocks = new ArrayList<>();
 		blocks.add(controller.immutable());
 		for (int dy = -CONTROLLER_LAYER; dy < LAYERS - CONTROLLER_LAYER; dy++) {
@@ -47,13 +66,21 @@ public final class BlastFurnaceStructure {
 				}
 			}
 		}
+		blocks.add(channel(controller, facing));
+		blocks.add(mold(controller, facing));
 		return blocks;
 	}
 
-	/** The structure block at {@code pos}, which belongs to the furnace at {@code controller}. */
+	/** The furnace block at {@code pos}, which belongs to the furnace at {@code controller}. */
 	public static BlockState stateAt(BlockPos controller, BlockPos pos, Direction facing) {
 		if (pos.equals(controller)) {
 			return MetallurgyContent.BLAST_FURNACE.defaultBlockState().setValue(BlastFurnaceBlock.FACING, facing);
+		}
+		if (pos.equals(channel(controller, facing))) {
+			return MetallurgyContent.BLAST_FURNACE_CHANNEL.defaultBlockState().setValue(BlastFurnaceChannelBlock.FACING, facing);
+		}
+		if (pos.equals(mold(controller, facing))) {
+			return MetallurgyContent.BLAST_FURNACE_MOLD.defaultBlockState().setValue(BlastFurnaceMoldBlock.FACING, facing);
 		}
 		return MetallurgyContent.BLAST_FURNACE_PART.defaultBlockState()
 			.setValue(BlastFurnacePartBlock.DX, pos.getX() - controller.getX() + 1)
@@ -62,7 +89,7 @@ public final class BlastFurnaceStructure {
 			.setValue(BlastFurnacePartBlock.FACING, facing);
 	}
 
-	/** The controller a structure block belongs to (itself for the controller), or null for any other block. */
+	/** The controller a furnace block belongs to (itself for the controller), or null for any other block. */
 	public static @Nullable BlockPos controllerOf(BlockGetter level, BlockPos pos) {
 		BlockState state = level.getBlockState(pos);
 		if (state.is(MetallurgyContent.BLAST_FURNACE)) {
@@ -72,16 +99,22 @@ public final class BlastFurnaceStructure {
 			return pos.offset(1 - state.getValue(BlastFurnacePartBlock.DX), CONTROLLER_LAYER - state.getValue(BlastFurnacePartBlock.LAYER),
 				1 - state.getValue(BlastFurnacePartBlock.DZ));
 		}
+		if (state.getBlock() instanceof BlastFurnaceAttachmentBlock attachment) {
+			return attachment.controller(state, pos);
+		}
 		return null;
 	}
 
-	/** The furnace whose hopper layer includes {@code pos}, if {@code pos} is one of its top blocks. */
+	/** The furnace whose receiving hopper is the block at {@code pos}, if it is one. */
 	public static @Nullable BlastFurnaceBlockEntity hopperAt(BlockGetter level, BlockPos pos) {
 		BlockState state = level.getBlockState(pos);
-		if (!state.is(MetallurgyContent.BLAST_FURNACE_PART) || state.getValue(BlastFurnacePartBlock.LAYER) != HOPPER_LAYER) {
+		if (!state.is(MetallurgyContent.BLAST_FURNACE_PART)) {
 			return null;
 		}
 		BlockPos controller = controllerOf(level, pos);
-		return controller != null && level.getBlockEntity(controller) instanceof BlastFurnaceBlockEntity furnace ? furnace : null;
+		if (controller == null || !pos.equals(hopper(controller, state.getValue(BlastFurnacePartBlock.FACING)))) {
+			return null;
+		}
+		return level.getBlockEntity(controller) instanceof BlastFurnaceBlockEntity furnace ? furnace : null;
 	}
 }

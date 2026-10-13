@@ -10,6 +10,7 @@ import net.minecraft.world.InteractionResult;
 import net.minecraft.world.SimpleMenuProvider;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.context.BlockPlaceContext;
+import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.BaseEntityBlock;
 import net.minecraft.world.level.block.Block;
@@ -70,6 +71,17 @@ public class BlastFurnaceBlock extends BaseEntityBlock {
 		return state.rotate(mirror.getRotation(state.getValue(FACING)));
 	}
 
+	/** Its model is drawn across its neighbours, which are the furnace's own blocks: no shadow from them, sky light passes. */
+	@Override
+	protected float getShadeBrightness(BlockState state, BlockGetter level, BlockPos pos) {
+		return 1.0F;
+	}
+
+	@Override
+	protected boolean propagatesSkylightDown(BlockState state) {
+		return true;
+	}
+
 	@Override
 	protected RenderShape getRenderShape(BlockState state) {
 		return RenderShape.MODEL;
@@ -106,11 +118,11 @@ public class BlastFurnaceBlock extends BaseEntityBlock {
 	}
 
 	/**
-	 * One of its blocks went: the rest of the furnace goes too. A part gone breaks the controller (which
-	 * drops the furnace item, unless broken in creative, and the furnace's contents); the controller gone
-	 * clears the parts, which drop nothing.
+	 * One of its blocks went: the rest of the furnace goes too. Any other block gone breaks the controller
+	 * (which drops the furnace item, unless broken in creative, and the furnace's contents); the controller
+	 * gone clears the rest, which drop nothing.
 	 */
-	static void dismantle(ServerLevel level, BlockPos controller) {
+	static void dismantle(ServerLevel level, BlockPos controller, Direction facing) {
 		if (dismantling) {
 			return;
 		}
@@ -122,8 +134,9 @@ public class BlastFurnaceBlock extends BaseEntityBlock {
 		}
 		dismantling = true;
 		try {
-			for (BlockPos pos : BlastFurnaceStructure.blocks(controller)) {
-				if (level.getBlockState(pos).is(MetallurgyContent.BLAST_FURNACE_PART)) {
+			for (BlockPos pos : BlastFurnaceStructure.blocks(controller, facing)) {
+				BlockState block = level.getBlockState(pos);
+				if (block.is(MetallurgyContent.BLAST_FURNACE_PART) || block.getBlock() instanceof BlastFurnaceAttachmentBlock) {
 					level.setBlock(pos, Blocks.AIR.defaultBlockState(), Block.UPDATE_ALL);
 				}
 			}
@@ -134,7 +147,7 @@ public class BlastFurnaceBlock extends BaseEntityBlock {
 
 	@Override
 	protected void affectNeighborsAfterRemoval(BlockState state, ServerLevel level, BlockPos pos, boolean movedByPiston) {
-		dismantle(level, pos);
+		dismantle(level, pos, state.getValue(FACING));
 		super.affectNeighborsAfterRemoval(state, level, pos, movedByPiston);
 	}
 
