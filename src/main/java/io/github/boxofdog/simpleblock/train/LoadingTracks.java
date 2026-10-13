@@ -17,6 +17,7 @@ import net.minecraft.world.entity.vehicle.minecart.AbstractMinecart;
 import net.minecraft.world.entity.vehicle.minecart.Minecart;
 import net.minecraft.world.entity.vehicle.minecart.MinecartFurnace;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.BaseRailBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.RailShape;
@@ -35,8 +36,10 @@ import io.github.boxofdog.simpleblock.feature.MinecartCushions;
  *       folding gate is) turns to the track's facing, whichever way it came. Its whole train is held
  *       ({@link Couplings}): an engine in it stops and is switched off, a cable hauling it stops (a coal
  *       winch's lever goes to NEUTRAL). Engines and cushioned carts pass over without docking.</li>
- *   <li><b>Release:</b> use the track (with an empty hand; its post stands above a docked cart) to let
- *       the train go. Nothing starts it: start the engine, or set the winch, again. A released train's
+ *   <li><b>The stop:</b> docking raises the rail's hinged stop behind the cart; release (or the cart
+ *       going away) folds it ({@link LoadingTrackBlock#RAISED}).</li>
+ *   <li><b>Release:</b> use the rail (with an empty hand; the raised stop behind the cart can be clicked
+ *       from behind it) to let the train go. Nothing starts it: start the engine, or set the winch, again. A released train's
  *       carts do not dock at that track again until each has left it.</li>
  *   <li><b>Front gate</b> (drawn by the client): every freight cart has one, at the end that faces the
  *       track's way while docked. Its front is kept on the same end of the cart as it runs round
@@ -137,7 +140,34 @@ public final class LoadingTracks {
 		freight(cart).simpleBlock$setFront(front);
 		stopEngines(cart);
 		Couplings.noteActive(cart);
+		setStop(level, pos, true);
 		level.playSound(null, pos, SoundEvents.IRON_TRAPDOOR_CLOSE, SoundSource.BLOCKS, 0.8F, 0.7F);
+	}
+
+	/** How often a raised stop checks that its cart is still docked. */
+	private static final int STOP_CHECK_TICKS = 20;
+
+	/** Raises or folds the rail's stop (a block state, so it is saved and seen by every client). */
+	static void setStop(ServerLevel level, BlockPos pos, boolean raised) {
+		BlockState state = level.getBlockState(pos);
+		if (state.getBlock() instanceof LoadingTrackBlock && state.getValue(LoadingTrackBlock.RAISED) != raised) {
+			level.setBlock(pos, state.setValue(LoadingTrackBlock.RAISED, raised), Block.UPDATE_ALL);
+		}
+		if (raised) {
+			level.scheduleTick(pos, state.getBlock(), STOP_CHECK_TICKS);
+		}
+	}
+
+	/** A raised stop's check: folds it if no cart is docked here any more, else checks again later. */
+	static void checkStop(ServerLevel level, BlockPos pos, BlockState state) {
+		boolean held = !level.getEntitiesOfClass(AbstractMinecart.class, new AABB(pos).inflate(1.0),
+			cart -> pos.equals(Couplings.coupled(cart).simpleBlock$dock())).isEmpty();
+		if (held || !level.isPositionEntityTicking(pos)) {
+			// Still docked, or its cart is not loaded to look at: keep it up and look again later.
+			level.scheduleTick(pos, state.getBlock(), STOP_CHECK_TICKS);
+		} else {
+			level.setBlock(pos, state.setValue(LoadingTrackBlock.RAISED, false), Block.UPDATE_ALL);
+		}
 	}
 
 	/** Every engine in a docked train is switched off and stopped: it must be started again by hand. */
@@ -166,11 +196,13 @@ public final class LoadingTracks {
 			cart -> pos.equals(Couplings.coupled(cart).simpleBlock$dock()));
 		if (docked.isEmpty()) {
 			serverPlayer.sendOverlayMessage(message("empty", "No train is held here"));
+			setStop(serverLevel, pos, false);
 			return InteractionResult.SUCCESS;
 		}
 		for (AbstractMinecart cart : docked) {
 			releaseTrain(cart, pos);
 		}
+		setStop(serverLevel, pos, false);
 		level.playSound(null, pos, SoundEvents.IRON_TRAPDOOR_OPEN, SoundSource.BLOCKS, 0.8F, 0.9F);
 		serverPlayer.sendOverlayMessage(message("released", "Released: start the engine or the winch to move off"));
 		return InteractionResult.SUCCESS;
@@ -181,6 +213,9 @@ public final class LoadingTracks {
 		for (AbstractMinecart car : Couplings.consist(cart)) {
 			Couplings.Coupled coupled = Couplings.coupled(car);
 			BlockPos from = coupled.simpleBlock$dock() != null ? coupled.simpleBlock$dock() : track;
+			if (coupled.simpleBlock$dock() != null && car.level() instanceof ServerLevel level) {
+				setStop(level, coupled.simpleBlock$dock(), false);
+			}
 			coupled.simpleBlock$setDock(null);
 			Freight freight = freight(car);
 			freight.simpleBlock$setReleased(from.immutable());

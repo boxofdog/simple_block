@@ -106,6 +106,15 @@ public final class CableLines extends SavedData {
 		int stallTicks;
 		/** Why the coal winch's lever last went back to NEUTRAL by itself (for tests and debugging). */
 		@Nullable String lastStop;
+		/**
+		 * BUG-002: the direction (lever sign) a coal winch was last stopped in by something in that
+		 * direction only (an end, a blocked cart, the edge of the loaded world), or 0. The lever's next
+		 * click skips it, so the other way can always be chosen; cleared once the load moves again, or
+		 * once none of the carts that were stopped grips the strand any more.
+		 */
+		int blockedSign;
+		/** The carts (entity ids) gripping when that way was blocked. */
+		java.util.Set<Integer> blockedCarts = java.util.Set.of();
 
 		Line(List<BlockPos> anchors, List<Vec3> points, boolean looped, Optional<Direction> outward, boolean powered, int coal, int burn, int cut) {
 			this.anchors = List.copyOf(anchors);
@@ -158,6 +167,10 @@ public final class CableLines extends SavedData {
 
 		public @Nullable String lastStop() {
 			return this.lastStop;
+		}
+
+		public int blockedSign() {
+			return this.blockedSign;
 		}
 
 		static final Codec<Line> CODEC = RecordCodecBuilder.create(i -> i.group(

@@ -5,6 +5,7 @@ import java.util.List;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.gametest.framework.GameTestHelper;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
@@ -64,6 +65,10 @@ public class LoadingTrackGameTests {
 
 	static boolean docked(AbstractMinecart cart, GameTestHelper helper, BlockPos track) {
 		return helper.absolutePos(track).equals(Couplings.coupled(cart).simpleBlock$dock());
+	}
+
+	static boolean raised(GameTestHelper helper, BlockPos rail) {
+		return helper.getBlockState(rail).getValue(LoadingTrackBlock.RAISED);
 	}
 
 	static Direction front(AbstractMinecart cart) {
@@ -142,7 +147,9 @@ public class LoadingTrackGameTests {
 				}
 				helper.assertTrue(Couplings.coupled(seat).simpleBlock$dock() == null && Couplings.coupled(engine).simpleBlock$dock() == null,
 					"the cushioned cart and the engine never dock");
-				log.add(String.format("from the west and from the east: docked at x 15.5, front EAST both; cushioned cart at x %.1f and engine at x %.1f passed",
+				helper.assertTrue(raised(helper, fromWest) && raised(helper, fromEast), "the stop is raised behind each docked cart");
+				helper.assertFalse(raised(helper, cushioned) || raised(helper, engineLane), "the stop stays folded for a cushioned cart and an engine");
+				log.add(String.format("from the west and from the east: docked at x 15.5, front EAST both, stop raised; cushioned cart at x %.1f and engine at x %.1f passed, stop folded",
 					TrainGameTests.x(helper, seat), TrainGameTests.x(helper, engine)));
 
 				// Saved and loaded with the cart.
@@ -213,10 +220,12 @@ public class LoadingTrackGameTests {
 				helper.assertValueEqual(front(lead), Direction.WEST, "the docked cart's front is the track's way, not the way it came");
 				TrainGameTests.assertSpacingPublic(helper, List.of(engine, rear, lead), "docked");
 				log.add("40 ticks docked: all three cars held, engine refused to start, no fuel burnt");
+				helper.assertTrue(raised(helper, station), "stop raised while the train is held");
 				useTrack(helper, player, station);
 				for (AbstractMinecart car : train) {
 					helper.assertTrue(Couplings.coupled(car).simpleBlock$dock() == null, "released");
 				}
+				helper.assertFalse(raised(helper, station), "stop folded on release");
 			}))
 			.thenIdle(40)
 			.thenExecute(CableGameTests.step(failed, () -> {
@@ -295,6 +304,45 @@ public class LoadingTrackGameTests {
 				SimpleBlockTestLog.info("LT-04: {}", log);
 				cart.discard();
 				TestPlayers.remove(player);
+			}))
+			.thenSucceed();
+	}
+
+	/**
+	 * LT-05 (M06 correction): the stop is raised behind a docked cart on the rail's rear side (from the
+	 * rail's facing, not the way the cart came), is saved with the block, and folds by itself if the
+	 * docked cart is destroyed while held. The display name is "Loading Rail"; the id is unchanged.
+	 */
+	@GameTest(structure = YARD, maxTicks = 300)
+	public void stopRisesBehindTheCartAndFolds(GameTestHelper helper) {
+		TrainGameTests.track(helper, 4, 0, 29);
+		BlockPos station = new BlockPos(15, 1, 4);
+		loadingTrack(helper, station, Direction.WEST);
+		Minecart cart = TrainGameTests.cart(helper, 10.5, 4);
+		List<String> log = new ArrayList<>();
+		boolean[] failed = {false};
+		helper.startSequence()
+			.thenIdle(2)
+			.thenExecute(CableGameTests.step(failed, () -> {
+				helper.assertFalse(raised(helper, station), "folded while empty");
+				helper.assertValueEqual(TrainContent.LOADING_TRACK_ITEM.getName(new ItemStack(TrainContent.LOADING_TRACK_ITEM)).getString(), "Loading Rail",
+					"display name");
+				helper.assertValueEqual(BuiltInRegistries.ITEM.getKey(TrainContent.LOADING_TRACK_ITEM).toString(), "simple_block:loading_track", "id");
+				cart.setDeltaMovement(0.4, 0.0, 0.0);
+			}))
+			.thenWaitUntil(() -> helper.assertTrue(docked(cart, helper, station), "docked"))
+			.thenExecute(CableGameTests.step(failed, () -> {
+				helper.assertTrue(raised(helper, station), "raised behind the docked cart");
+				// Facing west: the front is west, so the stop stands on the rear (east) side, beyond the block's east edge.
+				net.minecraft.world.phys.AABB shape = helper.getBlockState(station).getShape(helper.getLevel(), helper.absolutePos(station)).bounds();
+				helper.assertTrue(shape.maxX > 1.0 && shape.minX >= 0.0 && shape.maxY > 0.5, "the raised stop stands past the rail's east (rear) edge: " + shape);
+				log.add("cart came from the west onto a west-facing rail: front WEST, stop raised; outline " + shape);
+				cart.discard();
+			}))
+			.thenWaitUntil(() -> helper.assertFalse(raised(helper, station), "the stop folds once its cart is gone"))
+			.thenExecute(CableGameTests.step(failed, () -> {
+				log.add("docked cart destroyed: stop folded by itself");
+				SimpleBlockTestLog.info("LT-05: {}", log);
 			}))
 			.thenSucceed();
 	}

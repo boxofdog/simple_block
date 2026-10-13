@@ -148,7 +148,7 @@ public final class CobblestoneEngine {
 			if (state.simpleBlock$running()) {
 				state.simpleBlock$setRunning(false);
 			} else if (Couplings.docked(engine)) {
-				serverPlayer.sendOverlayMessage(message("docked", "Held at a loading track: use the track to release it"));
+				serverPlayer.sendOverlayMessage(message("docked", "Held at a Loading Rail: use the rail to release it"));
 			} else if (state.simpleBlock$fuel() <= 0) {
 				serverPlayer.sendOverlayMessage(message("no_fuel", "Needs coal"));
 			} else {

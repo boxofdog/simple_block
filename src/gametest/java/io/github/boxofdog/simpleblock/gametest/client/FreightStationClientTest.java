@@ -47,6 +47,7 @@ import io.github.boxofdog.simpleblock.feature.RemovedRocks;
 import io.github.boxofdog.simpleblock.gametest.SimpleBlockTestLog;
 import io.github.boxofdog.simpleblock.train.CobblestoneEngine;
 import io.github.boxofdog.simpleblock.train.Couplings;
+import io.github.boxofdog.simpleblock.train.LoadingTrackBlock;
 import io.github.boxofdog.simpleblock.train.LoadingTracks;
 
 /**
@@ -288,17 +289,68 @@ public class FreightStationClientTest implements FabricClientGameTest {
 		assertTrue("docked".equals(stop) && lever == CableLines.Lever.NEUTRAL && clientLever == CableLines.Lever.NEUTRAL, "lever after docking: " + lever + " (" + stop + ")");
 		assertTrue(Math.abs(x - 40.5) < 1.0E-3 && clientFront == Direction.EAST, "docked at x " + x + ", client front " + clientFront);
 
-		// Release with the track's post (on the track's left: north of an east-facing track).
-		server.runCommand("tp @a 40.5 " + g + " " + (Z - 2.0) + " 0 30");
+		// M06 correction: the hinged stop stands behind the cart (west of an east-facing rail, on its left, north,
+		// rail's inside edge). Close-up, then release by right-clicking the stop from behind the cart.
+		boolean raised = server.computeOnServer(s -> s.overworld().getBlockState(station).getValue(LoadingTrackBlock.RAISED));
+		boolean clientRaised = context.computeOnClient(client -> client.level.getBlockState(station).getValue(LoadingTrackBlock.RAISED));
+		server.runCommand("tp @a 38.0 " + g + " " + (Z + 1.8) + " 0 0");
 		context.waitTicks(5);
-		lookAtPoint(context, new Vec3(40.5, g + 0.9, Z + 0.1));
+		lookAtPoint(context, new Vec3(40.0, g + 0.3, Z + 0.4));
+		context.waitTicks(10);
+		context.takeScreenshot("m06fix-stop-raised-behind-cart");
+		server.runCommand("tp @a 37.3 " + g + " " + (Z + 0.3) + " -90 0");
+		context.waitTicks(5);
+		lookAtPoint(context, new Vec3(39.82, g + 0.4, Z + 0.32));
+		String target = context.computeOnClient(client -> client.hitResult == null ? "none" : client.hitResult.getType() + " "
+			+ (client.hitResult instanceof net.minecraft.world.phys.BlockHitResult block ? block.getBlockPos().toShortString() : "entity"));
 		use(context);
 		String released = overlayMessage(context);
 		boolean free = server.computeOnServer(s -> Couplings.coupled(cartOn(s.overworld(), g, Z)).simpleBlock$dock() == null);
-		context.waitTicks(40);
+		context.waitTicks(10);
+		boolean folded = !server.computeOnServer(s -> s.overworld().getBlockState(station).getValue(LoadingTrackBlock.RAISED));
+		boolean clientFolded = !context.computeOnClient(client -> client.level.getBlockState(station).getValue(LoadingTrackBlock.RAISED));
+		server.runCommand("tp @a 38.0 " + g + " " + (Z + 1.8) + " 0 0");
+		context.waitTicks(5);
+		lookAtPoint(context, new Vec3(40.0, g + 0.3, Z + 0.4));
+		context.waitTicks(10);
+		context.takeScreenshot("m06fix-stop-folded-after-release");
+		context.waitTicks(20);
 		double still = server.computeOnServer(s -> cartOn(s.overworld(), g, Z).getX());
-		SimpleBlockTestLog.info("CLIENT STATION: post used: '{}', released {}; 40 ticks later x {} (nothing restarts)", released, free, still);
-		assertTrue(free && Math.abs(still - x) < 0.01, "release: free " + free + ", x " + x + " -> " + still);
+		SimpleBlockTestLog.info("CLIENT STATION: stop raised behind the docked cart {} (client {}); aimed at the stop from behind the cart: {}; "
+			+ "used: '{}', released {}, stop folded {} (client {}); 40 ticks later x {} (nothing restarts)", raised, clientRaised, target, released, free,
+			folded, clientFolded, still);
+		assertTrue(raised && clientRaised, "the stop should be raised behind the docked cart");
+		assertTrue(target.startsWith("BLOCK") && target.contains(station.toShortString()), "the raised stop should be the target, not the cart: " + target);
+		assertTrue(free && folded && clientFolded && Math.abs(still - x) < 0.01, "release by the stop: free " + free + ", folded " + folded + ", x " + x
+			+ " -> " + still);
+
+		// BUG-002 in the client: PULL back to the drum's end, where the lever drops to NEUTRAL; the next click is FEED.
+		server.runCommand("tp @a 20.5 " + g + " " + (Z + 2.5) + " 180 30");
+		context.waitTicks(5);
+		lookAtPoint(context, new Vec3(20.5, g + 9.5 / 16.0, Z + 0.5 + 0.55));
+		context.getInput().pressKey(options -> options.keyUse);
+		context.waitTicks(3);
+		CableLines.Lever pulling = server.computeOnServer(s -> CableLines.line(s.overworld(), drumPos).lever());
+		assertTrue(pulling == CableLines.Lever.PULL, "first click after release: PULL, was " + pulling);
+		int pulled = 0;
+		while (pulled < 600 && server.computeOnServer(s -> CableLines.line(s.overworld(), drumPos).lever()) != CableLines.Lever.NEUTRAL) {
+			context.waitTicks(10);
+			pulled += 10;
+		}
+		double atEnd = server.computeOnServer(s -> cartOn(s.overworld(), g, Z).getX());
+		String endStop = server.computeOnServer(s -> CableLines.line(s.overworld(), drumPos).lastStop());
+		context.getInput().pressKey(options -> options.keyUse);
+		context.waitTicks(2);
+		CableLines.Lever afterEnd = server.computeOnServer(s -> CableLines.line(s.overworld(), drumPos).lever());
+		String skipMessage = overlayMessage(context);
+		context.waitTicks(40);
+		double away = server.computeOnServer(s -> cartOn(s.overworld(), g, Z).getX());
+		context.getInput().pressKey(options -> options.keyUse);
+		context.waitTicks(5);
+		SimpleBlockTestLog.info("CLIENT BUG-002: PULL ran the cart back to x {} ({}); next click: {} ('{}'); 40 ticks later x {}", atEnd, endStop,
+			afterEnd, skipMessage, away);
+		assertTrue("end".equals(endStop) && afterEnd == CableLines.Lever.FEED && away - atEnd > 2.0, "at the drum's end the next click should be FEED: "
+			+ endStop + ", " + afterEnd + ", x " + atEnd + " -> " + away);
 	}
 
 	// ---- A train docks ----
@@ -368,10 +420,10 @@ public class FreightStationClientTest implements FabricClientGameTest {
 			later, running);
 		assertTrue(!running && held.equals(later), "the train should be held with the engine off: running " + running + ", " + held + " -> " + later);
 
-		// Release with the post (left of a west-facing track: its south side), then start again.
-		server.runCommand("tp @a 44.5 " + g + " " + (TRACK_Z + 2.5) + " 180 30");
+		// Release with the stop, raised behind the lead cart (east of a west-facing rail, on its south side), then start again.
+		server.runCommand("tp @a 47.7 " + g + " " + (TRACK_Z + 0.68) + " 90 0");
 		context.waitTicks(5);
-		lookAtPoint(context, new Vec3(44.5, g + 0.9, TRACK_Z + 0.9));
+		lookAtPoint(context, new Vec3(45.18, g + 0.4, TRACK_Z + 0.68));
 		use(context);
 		context.waitTicks(20);
 		List<Double> released = server.computeOnServer(s -> carts(s.overworld(), g, TRACK_Z).stream().map(AbstractMinecart::getX).sorted().toList());
@@ -486,7 +538,7 @@ public class FreightStationClientTest implements FabricClientGameTest {
 			"furnace minecart", "powered", "detector", "activator")) {
 			search(context, term).stream().filter(retiredIds::contains).forEach(id -> found.add(term + ": " + id));
 		}
-		List<String> tracks = search(context, "track");
+		List<String> tracks = search(context, "loading rail");
 		List<String> shulker = search(context, "shulker");
 		context.takeScreenshot("m06-creative-search-shulker");
 		List<String> inTabs = context.computeOnClient(client -> CreativeModeTabs.allTabs().stream()
@@ -496,9 +548,10 @@ public class FreightStationClientTest implements FabricClientGameTest {
 		context.getInput().pressKey(InputConstants.KEY_ESCAPE);
 		context.waitTicks(5);
 		server.runCommand("gamemode survival @a");
-		SimpleBlockTestLog.info("CLIENT CREATIVE: search 'rail': {}; 'track': {}; 'shulker': {}; retired items found by any search: {}; in any tab: {}",
+		SimpleBlockTestLog.info("CLIENT CREATIVE: search 'rail': {}; 'loading rail': {}; 'shulker': {}; retired items found by any search: {}; in any tab: {}",
 			rails, tracks, shulker, found, inTabs);
-		assertTrue(rails.contains("rail") && tracks.contains("loading_track"), "rails and the loading track should be found: " + rails + ", " + tracks);
+		assertTrue(rails.contains("rail") && rails.contains("loading_track") && tracks.contains("loading_track"),
+			"'rail' should find rails and the Loading Rail, 'loading rail' the Loading Rail: " + rails + ", " + tracks);
 		assertTrue(rails.stream().noneMatch(retiredIds::contains), "no retired rail: " + rails);
 		assertTrue(found.isEmpty() && inTabs.isEmpty(), "retired items in the creative menu: search " + found + ", tabs " + inTabs);
 	}

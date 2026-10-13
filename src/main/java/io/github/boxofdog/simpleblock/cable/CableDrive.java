@@ -143,6 +143,10 @@ public final class CableDrive {
 		line.halt = null;
 		line.lastAlongs = line.alongs;
 		line.alongs = new HashMap<>();
+		if (line.blockedSign != 0 && line.lastAlongs.keySet().stream().noneMatch(line.blockedCarts::contains)) {
+			// The blocked way (BUG-002) belongs to the carts that stopped there: once none of them grips, it goes.
+			line.blockedSign = 0;
+		}
 		line.lastLoadForward = line.loadForward;
 		line.lastLoadBackward = line.loadBackward;
 		line.loadForward = 0.0;
@@ -182,6 +186,9 @@ public final class CableDrive {
 			return false;
 		}
 		boolean changed = false;
+		if (moved) {
+			line.blockedSign = 0;
+		}
 		// Coal burns only for ticks the load actually moved.
 		if (moved && line.burn > 0) {
 			line.burn--;

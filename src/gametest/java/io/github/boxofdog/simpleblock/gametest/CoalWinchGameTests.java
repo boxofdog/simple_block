@@ -470,6 +470,78 @@ public class CoalWinchGameTests {
 			.thenSucceed();
 	}
 
+	/**
+	 * WIN-06 (BUG-002): PULL brings the cart to the drum's end of the line, where it stops and the lever
+	 * drops back to NEUTRAL; the next click goes straight to FEED (not PULL again, which could never
+	 * move it) and FEED takes the cart away. Once it has moved, the cycle is NEUTRAL, PULL, FEED as usual. At the far end, FEED is
+	 * stopped the same way and the next click gives PULL, which brings it back.
+	 */
+	@GameTest(structure = YARD, maxTicks = 1200)
+	public void blockedEndLetsTheLeverChooseTheWayOut(GameTestHelper helper) {
+		ServerPlayer player = TestPlayers.create(helper, GameType.SURVIVAL, new BlockPos(3, 1, 6));
+		CableLoopGameTests.line(helper, player, 1);
+		Minecart[] cart = new Minecart[1];
+		double[] marks = new double[4];
+		List<String> log = new ArrayList<>();
+		boolean[] failed = {false};
+		helper.startSequence()
+			.thenIdle(2)
+			.thenExecute(CableGameTests.step(failed, () -> {
+				winch(helper, player, 2);
+				cart[0] = CableLoopGameTests.rodCart(helper, 5.5);
+			}))
+			.thenIdle(5)
+			.thenExecute(CableGameTests.step(failed, () -> {
+				helper.assertTrue(ConnectingRods.isGripping(cart[0]), "gripping at the drum's end");
+				marks[0] = CableLoopGameTests.x(helper, cart[0]);
+				lever(helper, player);
+				helper.assertValueEqual(line(helper).lever(), CableLines.Lever.PULL, "first click");
+			}))
+			.thenWaitUntil(() -> helper.assertValueEqual(line(helper).lever(), CableLines.Lever.NEUTRAL, "PULL at the drum's end stops"))
+			.thenExecute(CableGameTests.step(failed, () -> {
+				helper.assertValueEqual(line(helper).lastStop(), "end", "why it stopped");
+				// The owner's case: the cart now stands at the drum's end, where PULL can't move it.
+				marks[0] = CableLoopGameTests.x(helper, cart[0]);
+				lever(helper, player);
+				helper.assertValueEqual(line(helper).lever(), CableLines.Lever.FEED, "the next click skips the blocked PULL");
+				log.add(String.format("PULL to the drum's end: stopped at x %.2f (end); next click: FEED", marks[0]));
+			}))
+			.thenIdle(60)
+			.thenExecute(CableGameTests.step(failed, () -> {
+				marks[1] = CableLoopGameTests.x(helper, cart[0]);
+				helper.assertTrue(marks[1] - marks[0] > 3.0, "FEED takes the cart away from the drum's end: x " + marks[0] + " -> " + marks[1]);
+				helper.assertValueEqual(line(helper).blockedSign(), 0, "moving clears the blocked way");
+				// Repeated clicks now cycle as usual: FEED -> NEUTRAL -> PULL -> FEED.
+				List<CableLines.Lever> cycle = new ArrayList<>();
+				for (int i = 0; i < 3; i++) {
+					lever(helper, player);
+					cycle.add(line(helper).lever());
+				}
+				helper.assertValueEqual(cycle, List.of(CableLines.Lever.NEUTRAL, CableLines.Lever.PULL, CableLines.Lever.FEED), "cycle after moving");
+				log.add(String.format("FEED 60 ticks: x %.2f -> %.2f; then clicks %s", marks[0], marks[1], cycle));
+			}))
+			.thenWaitUntil(() -> helper.assertValueEqual(line(helper).lever(), CableLines.Lever.NEUTRAL, "FEED to the far end stops"))
+			.thenExecute(CableGameTests.step(failed, () -> {
+				helper.assertValueEqual(line(helper).lastStop(), "end", "why it stopped at the far end");
+				marks[2] = CableLoopGameTests.x(helper, cart[0]);
+				lever(helper, player);
+				helper.assertValueEqual(line(helper).lever(), CableLines.Lever.PULL, "at the far end the next click is PULL");
+			}))
+			.thenIdle(60)
+			.thenExecute(CableGameTests.step(failed, () -> {
+				marks[3] = CableLoopGameTests.x(helper, cart[0]);
+				helper.assertTrue(marks[2] - marks[3] > 3.0, "PULL brings it back from the far end: x " + marks[2] + " -> " + marks[3]);
+				lever(helper, player);
+				lever(helper, player);
+				helper.assertValueEqual(line(helper).lever(), CableLines.Lever.NEUTRAL, "stopped");
+				log.add(String.format("far end at x %.2f: FEED stopped (end), next click PULL, back to x %.2f", marks[2], marks[3]));
+				SimpleBlockTestLog.info("WIN-06 (BUG-002): {}", log);
+				cart[0].discard();
+				TestPlayers.remove(player);
+			}))
+			.thenSucceed();
+	}
+
 	private static CableLines.Line loadedLine(CableLines lines, BlockPos drum) {
 		return lines.lineAt(drum);
 	}

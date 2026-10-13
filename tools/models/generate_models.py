@@ -208,20 +208,30 @@ DRUM_LEVER = [
     Cube('lever_knob', [16.75, 16.5, 7.25], [18.25, 18, 8.75]),
 ]
 
-# M06 Loading Track, facing north (a docked cart's front points north): a straight rail on sleepers,
-# and the station post on the left (west), standing above a docked cart's sides, with a pointer arm
-# showing the front.
-LOADING_TRACK = [
+# M06 Loading Rail (id loading_track), facing north (a docked cart's front points north): a straight
+# rail on sleepers with a hinged triangular iron stop on the inside edge of the west rail (owner's
+# correction, 2026-10-13). Folded, it lies flat along the rail under a passing cart's floor (below
+# y 3); raised (a cart docked), it stands just behind the docked cart's rear wall (z 18), reaching past
+# the block's south edge.
+_rail_bed = [
     Cube('sleeper_1', [1, 0, 1], [15, 1, 3], uv_key='sleeper'),
     Cube('sleeper_2', [1, 0, 5], [15, 1, 7], uv_key='sleeper'),
     Cube('sleeper_3', [1, 0, 9], [15, 1, 11], uv_key='sleeper'),
     Cube('sleeper_4', [1, 0, 13], [15, 1, 15], uv_key='sleeper'),
     Cube('rail_west', [3, 1, 0], [4, 2, 16], uv_key='rail'),
     Cube('rail_east', [12, 1, 0], [13, 2, 16], uv_key='rail'),
-    Cube('post', [0, 0, 6.5], [3, 15, 9.5]),
-    Cube('post_cap', [-0.5, 15, 6], [3.5, 16, 10]),
-    Cube('pointer_arm', [0.75, 13, 2], [2.25, 14.5, 6.5]),
-    Cube('pointer_head', [0.5, 12.5, 1], [2.5, 15, 2]),
+]
+LOADING_TRACK = _rail_bed + [
+    Cube('stop_hinge', [3.75, 1, 16], [6.75, 2.5, 17], uv_key='stop_hinge'),
+    Cube('stop_folded', [4, 1, 8.5], [6.5, 2.5, 16], uv_key='stop_folded'),
+    Cube('stop_folded_tip', [4.5, 1, 7], [6, 2, 8.5], uv_key='stop_folded_tip'),
+]
+LOADING_TRACK_RAISED = _rail_bed + [
+    Cube('stop_hinge', [3.75, 1, 16], [6.75, 2.5, 17], uv_key='stop_hinge'),
+    Cube('stop_base', [4, 1, 17], [6.5, 2, 21], uv_key='stop_base'),
+    Cube('stop_face', [4, 2, 17], [6.5, 10, 18.5], uv_key='stop_face'),
+    Cube('stop_step_1', [4, 2, 18.5], [6.5, 7.5, 19.5], uv_key='stop_step_1'),
+    Cube('stop_step_2', [4, 2, 19.5], [6.5, 5, 20.5], uv_key='stop_step_2'),
 ]
 
 # M06 freight cart front gate, drawn by the cart renderer at the cart's front end wall, hinged at the
@@ -313,7 +323,7 @@ GROUPS = {
     'block/cable_drum': {'cable_drum': DRUM, 'cable_drum_frame': DRUM_FRAME, 'cable_drum_spool': DRUM_SPOOL,
                          'cable_drum_spool_wound': DRUM_SPOOL_WOUND, 'cable_drum_crank': DRUM_CRANK},
     'block/cable_winch': {'cable_drum_furnace': DRUM_FURNACE, 'cable_drum_lever': DRUM_LEVER},
-    'block/loading_track': {'loading_track': LOADING_TRACK},
+    'block/loading_track': {'loading_track': LOADING_TRACK, 'loading_track_raised': LOADING_TRACK_RAISED},
     'block/freight_gate': {'freight_gate_closed': GATE_CLOSED, 'freight_gate_open': GATE_OPEN},
     'block/cable_hook': {'cable_hook': HOOK},
     'block/connecting_rod': {
@@ -530,7 +540,8 @@ def main():
     write_json(os.path.join(ASSETS, 'blockstates', 'cable_drum_part.json'), {'variants': {
         f'part={part}': m(f'block/cable_drum_{part}') for part in ('spool', 'spool_wound', 'crank', 'furnace', 'lever')}})
     write_json(os.path.join(ASSETS, 'blockstates', 'loading_track.json'), {'variants': {
-        f'facing={facing}': m('block/loading_track', y=y) for facing, y in rotations.items()}})
+        f'facing={facing},raised={raised}': m('block/loading_track' + ('_raised' if raised == 'true' else ''), y=y)
+        for facing, y in rotations.items() for raised in ('false', 'true')}})
     write_json(os.path.join(ASSETS, 'blockstates', 'freight_gate.json'), {'variants': {
         f'part={part}': m(f'block/freight_gate_{part}') for part in ('closed', 'open')}})
     write_json(os.path.join(ASSETS, 'blockstates', 'cable_hook.json'), {'variants': {'': m('block/cable_hook')}})

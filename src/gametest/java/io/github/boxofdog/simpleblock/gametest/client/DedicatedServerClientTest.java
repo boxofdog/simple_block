@@ -18,6 +18,7 @@ import net.fabricmc.fabric.api.client.gametest.v1.context.TestDedicatedServerCon
 
 import io.github.boxofdog.simpleblock.gametest.SimpleBlockTestLog;
 import io.github.boxofdog.simpleblock.train.Couplings;
+import io.github.boxofdog.simpleblock.train.LoadingTrackBlock;
 import io.github.boxofdog.simpleblock.train.LoadingTracks;
 
 /**
@@ -89,21 +90,24 @@ public class DedicatedServerClientTest implements FabricClientGameTest {
 			context.waitTicks(10);
 			double afterWalk = server.computeOnServer(s -> cart(s.overworld(), g).getX());
 
-			// The post (north of an east-facing track) releases it.
-			server.runCommand("tp @a 40.5 " + g + " " + (Z - 2.0) + " 0 30");
+			// The hinged stop, raised behind the cart (west of an east-facing rail), releases it.
+			boolean raised = context.computeOnClient(client -> client.level.getBlockState(new BlockPos(40, g, Z)).getValue(LoadingTrackBlock.RAISED));
+			server.runCommand("tp @a 37.3 " + g + " " + (Z + 0.3) + " -90 0");
 			context.waitTicks(10);
-			lookAtPoint(context, new Vec3(40.5, g + 0.9, Z + 0.1));
+			lookAtPoint(context, new Vec3(39.82, g + 0.4, Z + 0.32));
 			context.getInput().pressKey(options -> options.keyUse);
 			context.waitTicks(10);
 			String message = overlayMessage(context);
 			boolean free = server.computeOnServer(s -> Couplings.coupled(cart(s.overworld(), g)).simpleBlock$dock() == null);
+			boolean folded = !context.computeOnClient(client -> client.level.getBlockState(new BlockPos(40, g, Z)).getValue(LoadingTrackBlock.RAISED));
 			context.takeScreenshot("m06-server-released");
 			SimpleBlockTestLog.info("CLIENT DEDICATED SERVER: loading track placed over the network ({}); cart docked after {} ticks at x {}, the client "
-				+ "sees its front {}; walked into it 30 ticks: x {}; post used: '{}', released {}", track, waited, String.format("%.2f", docked), clientFront,
-				String.format("%.2f", afterWalk), message, free);
+				+ "sees its front {} and the stop raised {}; walked into it 30 ticks: x {}; stop used: '{}', released {}, client sees it folded {}", track, waited,
+				String.format("%.2f", docked), clientFront, raised, String.format("%.2f", afterWalk), message, free, folded);
 			assertTrue(Math.abs(docked - 40.5) < 1.0E-3 && clientFront == Direction.EAST, "docked at " + docked + ", client front " + clientFront);
 			assertTrue(Math.abs(afterWalk - docked) < 1.0E-3, "walking into the docked cart moved it: " + docked + " -> " + afterWalk);
-			assertTrue(free, "the post should release the cart over the network: '" + message + "'");
+			assertTrue(raised && free && folded, "the stop should rise, release the cart and fold over the network: raised " + raised + ", '" + message
+				+ "', folded " + folded);
 		}
 	}
 
