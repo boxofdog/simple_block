@@ -60,14 +60,19 @@ def readme(root=ROOT, write=False):
 def evidence(root=ROOT, write=False):
     base = root / "docs/evidence"
     lines = ["# Evidence inventory — generated", "",
-             "File counts and paths only. Presence does not prove execution, PASS, or owner approval.",
-             "", "| Location | Images | Text/logs | Other |", "|---|---:|---:|---:|"]
+             "File names and counts only. Presence does not prove execution, PASS, or owner approval.",
+             "", "| Location | Images | Text/logs | Other | Primary text evidence |",
+             "|---|---:|---:|---:|---|"]
     for d in sorted(p for p in base.iterdir() if p.is_dir()):
         files = [p for p in d.rglob("*") if p.is_file() and p.name != ".gitkeep"]
         imgs = sum(p.suffix.lower() in (".png", ".jpg", ".jpeg", ".webp") for p in files)
         logs = sum(p.suffix.lower() in (".txt", ".log", ".md") for p in files)
+        notes = sorted(p for p in files if p.suffix.lower() in (".txt", ".log", ".md"))
+        links = ", ".join("[" + p.name + "](" + d.name + "/" +
+                          p.relative_to(d).as_posix().replace(" ", "%20") + ")" for p in notes)
         lines.append("| [" + d.name + "](" + d.name + "/) | " +
-                     str(imgs) + " | " + str(logs) + " | " + str(len(files)-imgs-logs) + " |")
+                     str(imgs) + " | " + str(logs) + " | " + str(len(files)-imgs-logs) +
+                     " | " + (links or "—") + " |")
     lines += ["", "Regenerate using tools/docs/automation.py evidence --write", ""]
     return write_or_check(base / "INDEX.md", "\n".join(lines), write)
 
