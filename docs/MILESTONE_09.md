@@ -3,16 +3,52 @@ milestone: M09
 status: PLANNED - NOT READY
 ---
 
-# M09 — Hostile mobs and defended settlements
+# M09 — Hostile attraction, opportunistic intrusion and rare spider jockeys
 
-**Status: PLANNED - NOT READY (2026-10-13).** Not implementation-authorized. This is the milestone-specific home for the formerly inlined roadmap concept, **not** a finalized executable brief. Its behavior/rates and test matrix still require owner approval. M07 is playtesting; M08–M11 are not implementation-authorized.
+**Owner design refinements: 2026-10-13. Status: PLANNED - NOT READY.** Not authorized for implementation. This brief records **behavioral rules already decided**, distinguishes implementation tuning from remaining owner decisions, and avoids introducing siege waves, new species or village-AI work.
 
-## Owner design direction
+## Core intent and existing M02 baseline
 
-Build on existing light entrancement and physical defenses without raids, invasion waves, or new mob species. **Current playtest observation:** monsters trickle toward illuminated areas at a pleasing, natural pace, but lose interest too quickly. Preserve the gradual approach while making their interest in nearby lit areas more persistent; tune and test disengagement/loitering rather than accelerating or mass-aggroing every mob. Monsters should opportunistically exploit newly reachable illuminated areas when a wall, gate, or door opens or is breached: use their existing memory of lit destinations, reevaluate paths after access changes, and temporarily favor reachable interior light before resuming normal loitering or player pursuit. Do not require monsters to identify abstract 'bases' or give them omniscient knowledge of entrances. Explore occasional skeletons seeking spiders to ride (without making jockeys routine), including a readable skeleton-assisted overhang maneuver while mounted. Explore a substantial iron gate using existing winch mechanics: two three-block-wide sections form a full gate, and a creeper damaged by a sheltered player may retaliate by targeting the gate under carefully constrained conditions. Balance rarity, defense readability, pathfinding performance, non-griefing frustration, and tests in a later dedicated brief; no precise rules or models authorized yet.
+Hostile monsters should be **drawn to areas that look inhabited**: illuminated ground implies a greater chance of finding humans to attack. They are **not** intelligent base detectors or tactical siege engineers. The feeling should be a gradual, natural trickle and persistent loitering, not mass aggression.
+
+Reuse M02's existing `Entrancement` behavior: it detects **illuminated areas/ground**, not individual torches or the brightest source; its current range is 20 blocks, active in the Overworld at night and in unskylit underground areas. Vanilla player acquisition/pursuit overrides light attraction. **Preserve these existing boundaries unless the owner separately changes them.** M09 improves persistence and path opportunities, not the basic attraction target.
+
+## Settled M09 behavioral rules
+
+### Light interest, perimeter loitering and entrances
+
+- **Wall outside a lit area:** attracted monsters that cannot reach an interior illuminated area **linger/wander along the exterior wall**, rather than abruptly forgetting the location or inexplicably knowing an entrance on the far side of a building.
+- **Player first:** detecting/pursuing an attackable player takes precedence over ambient light interest, loitering and door investigation. Do not interfere with normal combat goals.
+- **Open doors matter most:** where an entrance provides a usable route toward an illuminated area, monsters are **particularly interested in doors that have remained open**. Exploit actual reachable openings; do not read a base layout through walls or teleport to an entrance.
+- **Wooden door obstructing access:** when an eligible monster actually encounters/recognizes a **closed wooden door blocking the route to an illuminated interior**, it should try to **break the door down**, even without a current player chase. Use real path and door access, not an omniscient search for every door. The exact eligible species must be explicitly settled before implementation: M02 currently gives pursuit-based wood-door breaking to **zombies, husks and zombie villagers**, not every monster.
+- **Lights extinguished:** an area that is no longer illuminated is **no longer an attraction target**. Invalidate stale remembered lit-area destinations; do not continue a light-driven siege of a permanently dark building.
+- **Path viability:** if an opening, door break or other change makes remembered lit ground reachable, monsters may opportunistically enter by ordinary pathfinding. **Claude may choose reasonable path recalculation algorithms, rate limits and performance-safe tuning.** No owner decision on internal pathfinding cadence is needed.
+
+The original M02 system already samples and remembers lit ground and sometimes ignores it for a wander decision. M09 should make interest *more persistent* without removing natural variability. Precise loiter-duration, open-door persistence thresholds and other numerical parameters may be proposed/tuned during design and owner playtest; do not change the rules above.
+
+### Creeper retaliation: arrows from an unreachable attacker
+
+- **Trigger concept:** a creeper is hit by an **arrow** from a player it **cannot readily reach by walking/pathing**. This is a special retaliation against the barrier separating the creeper from its attacker: in the owner's words, "fuck your walls, fuck your doors." This is not restricted to the deferred iron gate.
+- **Explicit negative controls:** **sword/melee damage** does not activate the new behavior. **Arrow damage when the shooter is ordinarily reachable and the creeper can approach to explode** does not activate it; retain normal creeper chase/explosion behavior in both cases.
+- The special behavior is about an *offended, obstructed creeper*, not every distant archer or a universal command to destroy settlements. **Remaining owner decisions:** what barrier the creeper selects, how it reaches or detonates at that barrier, how to establish the player's attribution and reachability, which blocks can be destroyed, fuse/cooldown/abort behavior, and safeguards against accidental unlimited griefing. **Do not improvise those gameplay rules into code yet.**
+- Keep existing M02 creeper sunlight evaporation and ordinary creeper behavior where this narrow trigger is not satisfied.
+
+### Occasional skeleton–spider jockeys
+
+Keep the earlier concept: **rare skeletons seek spiders to ride**, with a readable skeleton-assisted maneuver for dealing with overhangs while mounted. Rarity, recruitment/eligibility, whether jockeys spawn or form dynamically, mounted combat/navigation, what the maneuver physically does, dismount/termination and negative controls remain **unsettled design**, not Claude implementation discretion. Do not silently introduce large numbers of jockeys or new mob types.
+
+## Explicitly out of M09
+
+- **Large winch-operated iron gate:** owner deferred it. Its former idea (two three-block-wide gate sections) is parked in [BACKLOG.md](BACKLOG.md), **not** part of this milestone. Do not confuse this with existing vanilla wooden/iron doors or rewrite those items by assumption.
+- No raid/wave subsystem, omniscient breach planning, new monsters, settlement architecture overhaul, villager profession/trade/scheduling work, or golem-AI redesign. Village-specific work remains in [BACKLOG.md](BACKLOG.md).
+
+## Remaining owner decisions before handoff
+
+1. **Door-break eligibility and presentation:** which attracted monsters may physically break wooden doors beyond the existing zombie family, and how to distinguish deliberate door attacks from ordinary exterior wandering.
+2. **Creeper barrier retaliation mechanics:** target selection, approach/detonation, destructible blocks, shooter attribution, reachability criteria, and anti-frustration safeguards.
+3. **Jockey mechanics:** recruitment rate/trigger and actual overhang maneuver, including failure/dismount rules.
+4. **Acceptance scenarios and tuning:** measurable loitering/open-door/lighting behavior, client-facing cues and regression tests, plus mob-count/performance limits. Claude may propose numeric defaults and pathfinding implementation, but must not redefine the behavior.
+
+**Required negative controls when authorized:** player pursuit wins; darkened areas release ambient interest; closed inaccessible interior does not cause omniscient door navigation; valid wooden-door access behaves as approved; ordinary sword hits and reachable arrow hits do not provoke special creeper retaliation; no out-of-scope iron gate or village changes. Check real client and dedicated-server behavior, alongside regression tests against M02's entrancement, zombie-door breaking and creeper evaporation.
 
 **No implementation authorization for M09.**
-
-## Before authorization
-
-Settle mob interest/loiter timings, entrance breach/pathing boundaries, jockey rarity and readable climbing maneuver, iron-gate dimensions/controls, creeper retaliation constraints, negative controls, actual-client/dedicated-server evidence, and performance limits. No raids, invasion-wave subsystem or new monster type by assumption.

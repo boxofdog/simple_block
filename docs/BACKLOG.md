@@ -16,7 +16,7 @@
 | I-008 | Steel with a purposeful manufacturing chain | Owner-directed concept; decide role, production and smithy/anvil relationship |
 | I-009 | In-world recipe/discovery guidebook | Owner-directed; avoid automatic new crafting/progression gates |
 | I-010 | Named full-set effects for vanilla iron/diamond/netherite armor | **Owner-settled POST-M10, unnumbered**; detailed below |
-| I-011 | Persistent hostile light-attraction, iron defense gate, spider jockeys | **Assigned to [M09](MILESTONE_09.md)**; no duplicate M09 spec |
+| I-011 | Persistent hostile attraction, entrance behavior, rare spider jockeys and provoked creepers | **Assigned to [M09](MILESTONE_09.md)**; detailed rules belong there |
 | I-012 | Witch's Tome and exploration-gated enchanting | Owner-directed POST-M10; detailed below |
 | I-013 | Three-dimensional ordinary rails matching Loading Rail | Owner-requested separate visual task; detailed below |
 | I-014 | Extreme grade rails, runaways, collision/cart damage | Design geometry, thresholds, safe cargo drops |
@@ -24,6 +24,11 @@
 | I-016 | Full mine-to-smelter logistics playtest | Future integrated owner playtest, not a new mod system |
 | I-017 | Selective redstone redesign while retaining useful devices | No blanket removal of worthwhile standalone mechanisms |
 | I-018 | Inhabited villages, stores, pubs and responsive golem defense | Owner-directed workstream; details below |
+| I-019 | Large winch-operated iron defense gate | **Deferred from M09 by owner**; unnumbered future design, not authorized |
+
+## I-019 — Deferred industrial iron gate
+
+Owner deferred the large iron gate from M09 on 2026-10-13. Earlier concept: a substantial winch-operated gate with **two sections, each three blocks wide**, building on existing cable/winch mechanisms. No recipe, final dimensions, operation, durability or relationship with hostile behavior is settled. Do not implement or reconnect it to creeper retaliation merely because the older M09 text mentioned both.
 
 ## I-005 — Spelunker's Rope
 
