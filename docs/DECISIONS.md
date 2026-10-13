@@ -6,6 +6,8 @@
 
 ## 0. Project-wide rules
 
+**OWNER STATUS UPDATE — 2026-10-12:** M05 is owner-accepted by explicit instruction (no separate personal playtest result asserted here). M06 is authorized and IN PROGRESS, not completed or owner-accepted. M07 is NOW EXPLICITLY AUTHORIZED for implementation under its existing brief; implement it against the real M06 interfaces as they become available, ideally after M06 code handoff and verification. Do not treat authorization as M06 completion, and do not mark M07 implemented or verified prematurely. M08–M10 remain unauthorized.
+
 - **Addition by subtraction:** prefer useful extensions to existing Minecraft objects over redundant new items, chores or systems.
 - **Physical logistics:** geography, mine locations, rail networks and permanent infrastructure should matter.
 - **Localized machinery, not a generic power grid:** manual effort, coal and gravity can power purpose-built devices; do not introduce an electrical network or Create-style universal rotation system just because a machine has a crank.
@@ -127,9 +129,11 @@ The authoritative brief is [MILESTONE_04.md](MILESTONE_04.md); the as-built reco
 
 ## 5. M05 and future transport / mechanical design
 
-**M05 is implemented; owner acceptance pending.** Its specification is [MILESTONE_05.md](MILESTONE_05.md): circulating cable loop, reversible manual drum crank, coal-powered bidirectional Cobblestone Engine with minimally functional coupling, and the drum-side render fix. The as-built record and tests are [MILESTONE_05_REPORT.md](MILESTONE_05_REPORT.md). The longer-term decisions below (coal winch motors, skips, extreme rails, counterweights) **are not automatically authorized** by M05.
+**M05 is implemented and explicitly owner-accepted on 2026-10-12.** Its specification is [MILESTONE_05.md](MILESTONE_05.md): circulating cable loop, reversible manual drum crank, coal-powered bidirectional Cobblestone Engine with minimally functional coupling, and the drum-side render fix. The as-built record and tests are [MILESTONE_05_REPORT.md](MILESTONE_05_REPORT.md). The longer-term decisions below (coal winch motors, skips, extreme rails, counterweights) **are not automatically authorized** by M05.
 
-### 5.0 M05 as built (implemented; owner acceptance pending)
+**M07 OWNER-SETTLED MODEL REVISION (2026-10-12):** Replace the M05 Cobblestone Engine's childish-looking furnace/engine assembly with a large, weighty pre-industrial furnace engine and prominent smokestack **inside the original vanilla Minecraft minecart**. The minecart chassis/model/texture must NOT change; only the separate engine superstructure and its paintable art change. Keep all M05 locomotive rules and behavior, original furnace-minecart entity, creation and drops. Implement this visual-only change alongside M07 skips; do not reopen M06. See [MILESTONE_07.md](MILESTONE_07.md) §5.
+
+### 5.0 M05 as built (implemented; owner accepted 2026-10-12)
 
 **Owner decisions during M05:**
 
@@ -175,7 +179,7 @@ The authoritative brief is [MILESTONE_04.md](MILESTONE_04.md); the as-built reco
 - A relatively level, well-engineered railway can rely on a Cobblestone Engine alone. Grades sharply limit propulsion; sustained steep climbs, including some empty-cart climbs, may be impractical.
 - Speed, fuel use, traction, braking and coupling have **provisional M05 values** (section 5.0); downhill behaviour and crash consequences remain **open**.
 
-### 5.2 Winches, dangerous gradients, and upright mining skips ([M07 handoff-ready brief](MILESTONE_07.md); not authorized)
+### 5.2 Winches, dangerous gradients, and upright mining skips ([M07 owner-authorized brief](MILESTONE_07.md); not authorized)
 
 - A **stationary winch** is a localized answer to a difficult rail incline, not an alternative general-purpose locomotive. M05 builds the manually driven winch; **M06 upgrades that very same existing drum by applying a vanilla furnace directly to it**. This is a **player-started, mechanically driven winch**, not a generalized mechanical-energy network or full automatic freight logistics. The M06 lever can run after a right-click, but must stop itself at physical endpoints.
 - **Rail-bound winch haul speed falls sharply as uphill gradient increases.** Very steep climbs with loaded carts should take an extremely long time, making track geometry a meaningful design tradeoff. The exact speed curve is **open**.
@@ -333,7 +337,7 @@ This is **mirror-capable shaped crafting, NOT shapeless or freely rotatable**. I
 
 - **M09 — settlement defense and emergent mob behavior (DESIGN ONLY):** strengthen ordinary base defense without raids or new hostile species. Build on MOB-01's attraction to illuminated *areas*: monsters already remember lit spots through walls and loiter when paths are blocked. A newly reachable lit destination after a door/gate opening or structural breach can motivate an opportunistic push inward, with path viability (not abstract wall/base detection or explosion-only scripting) driving the behavior. Consider rare skeleton recruitment of spiders as mounts and a readable skeleton-assisted overhang climb; keep spider jockey frequency controlled. Consider a large winch-operated iron gate consisting of two 3-block-wide sections and a narrowly provoked creeper retaliating against it when wounded by a sheltered player. All algorithms, event triggers, balance, structure mechanics, safeguards and art need later M09 scoping; no authorization.
 - **M10 — armor and full modular workwear implementation:** implement agreed armor removals, exact recipes, Headlamp, two-slot Overalls/backpack, Spiked Boots/**Spelunker's Speed**, Mining Boots/**Mule**, plus complete-set **Trail Blazer** and **Old Pro** with ALL defined functions. Open lighting, controls, tuning and compatibility require a dedicated finalized brief.
-- The milestone order is the **owner's planned sequence**, not permission to code. M05 implementation/CI are completed; **M06 is explicitly authorized even while M05 owner acceptance waits for the owner's home playtest**. M07–M10 each require a later separate brief and authorization.
+- The milestone order is the **owner's planned sequence**, not permission to code. M05 implementation/CI are completed; **M06 is explicitly authorized even while M05 owner acceptance waits for the owner's home playtest**. M07 is authorized on 2026-10-12, pending M06 interface readiness; M08–M10 still require authorization.
 
 ## 6. Open decisions requiring a future milestone brief
 
