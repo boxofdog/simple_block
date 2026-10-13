@@ -166,3 +166,80 @@ Fixed (constants): blocked after 10 ticks without progress, idle stop after 40 t
 ## 10. Next
 
 M06 is complete pending ChatGPT's independent review and the owner's playtest. M07 (skips, transfers and the engine remodel) is now authorized by the owner and will be a separate milestone with its own commits, tests and report.
+
+---
+
+## Amendment — M06 owner corrections (2026-10-13)
+
+*Added after the owner's playtest. Everything above, including the Build #19 evidence, is the original record and unchanged. M06 owner acceptance is still pending.*
+
+Authorized as a narrow correction pass before M07 ([MILESTONE_06.md](MILESTONE_06.md) §0, ROADMAP BUG-002). Code commit: [`fc8f99a`](https://github.com/boxofdog/simple_block/commit/fc8f99a529225230f62742837fae505212c6468e). CI: [Build #20](https://github.com/boxofdog/simple_block/actions/runs/38382953782), **success**, `simple-block-mod` artifact id 11803902813 (343,562 bytes).
+
+### A. BUG-002 — lever stuck at the drum's end
+
+- **Cause (confirmed by a failing test):** a PULL into the drum's end stops at once and drops the lever to NEUTRAL. The next click picks PULL again, so the cycle never reaches FEED.
+- **Fix:** when a coal winch is stopped by something in its direction of travel, the lever's next click skips that direction. "Something in its direction" means one of:
+  - an end of the line or of the track;
+  - a blocked cart;
+  - the edge of the loaded world;
+  - a derailment guard.
+
+  At the near end, NEUTRAL goes straight to FEED; the chat says "Lever: feed (pull is blocked here)". At the far end, FEED is skipped instead.
+- **When the skip clears:**
+  - as soon as the load moves again;
+  - when none of the carts that were stopped grips the strand any more, so a new cart is never affected.
+- **What is unchanged:**
+  - the safety stops themselves;
+  - no coal burns while stopped;
+  - no movement off the track;
+  - the normal NEUTRAL → PULL → FEED → NEUTRAL cycle away from the ends.
+- **Tests:**
+  - `WIN-06` (server): PULL to the near end stops at x 4.30. The next click gives FEED, and FEED moves the cart from x 4.30 to 11.95. Clicks then cycle normally: NEUTRAL, PULL, FEED. At the far end (x 21.85) FEED stops, the next click gives PULL, and the cart returns to x 14.20.
+  - A new cart on a line that was blocked for another cart cycles normally.
+  - **Negative control:** with the skip disabled, `WIN-06` fails with "Expected the next click skips the blocked PULL to be FEED: was PULL", which is the owner's bug.
+  - Real client (`FreightStationClientTest`): PULL ran the cart back to the end at x 24.0. The next real right-click gave FEED ("Lever: feed (pull is blocked here)"), and 40 ticks later the cart was at x 28.95.
+
+### B. "Loading Rail" name
+
+- The block and item are shown as **Loading Rail**. The ID stays `simple_block:loading_track`, and the recipe and behaviour are unchanged.
+- Real-client Creative search:
+  - "rail" finds `[rail, loading_track]`;
+  - "loading rail" finds `[loading_track]`;
+  - no retired item appears in any search or tab.
+
+### C. Hinged triangular stop (replaces the tall post)
+
+- **Design:** one low, chunky triangular iron stop on the inside edge of the rail's left side, hinged at its base. It is a block state, `raised`, so it is saved and synced to clients.
+  - **Folded** (`raised=false`): flat under a passing cart's floor. Cars and engines pass over it (LT-02).
+  - **Raised:** upright just behind the docked cart's rear wall. The rear is taken from the rail's facing, not from where the cart came in (LT-05 docks from the opposite side).
+- **When it folds:**
+  - when the train is released;
+  - when a periodic check finds no cart docked any more (for example the docked cart was broken). This is LT-05.
+- **Release:** right-click the rail or the raised stop. The raised stop's outline reaches past the block's rear edge, clear of the cart's hitbox, so a player standing behind the cart can always target it.
+  - Real client: aimed from behind the docked cart, the stop was hit, released the train and folded, and the client saw it fold.
+  - Dedicated server over the network: the same.
+- **Model:** the editable Blockbench sources are `art/blockbench/loading_track.bbmodel` (folded) and `loading_track_raised.bbmodel`, with a paintable texture template. Ordinary rails are not remodelled.
+- **Tests:**
+  - LT-02/03: the stop is raised while held and folded on release.
+  - LT-05 (new): rear from facing, the outline is past the rear edge, and the stop folds once its cart is gone.
+  - **Negative controls:**
+    - (a) docking does not raise the stop: LT-02, LT-03 and LT-05 fail;
+    - (b) the stop never folds by itself: LT-05 fails.
+
+### D. Results
+
+- **Local `./gradlew build`:** 131/131 server game tests, including WIN-06 and LT-05. One run hit the pre-existing M02 mob flake `pursuingZombieBreaksOakDoor` (see the M04 report); a re-run passed.
+- **Real client suite on `fc8f99a` (`runClientGameTest`):** **BUILD SUCCESSFUL**. All 5 client tests pass, and the M01–M06 client checks are unchanged (long line, unload, save/reopen, dedicated server). The evidence is in `docs/evidence/milestone-06-corrections/client-game-tests.txt`, with screenshots in `screenshots/`: the stop raised behind a cart, the stop folded after release, the Creative "rail" search, and a docked train on a dedicated server.
+- **Not tested:**
+  - human playtest of the fix;
+  - desktop GPU;
+  - two players at once.
+
+  BUG-002 stays open in the roadmap until the owner sees it fixed in game.
+
+**Suggested owner re-check:**
+1. Put a cart at the drum's end, then click the lever: it should go to FEED, and the cart should move away.
+2. Do the same at the far end, where it should go to PULL.
+3. Dock a cart on a Loading Rail and watch the stop flip up behind it.
+4. Right-click the stop from behind the cart: it folds and the train is free.
+5. Search "rail" in Creative.
