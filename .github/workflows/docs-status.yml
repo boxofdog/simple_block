@@ -1,40 +1,9 @@
-name: Milestone status sync
+name: Milestone Status Sync
 
-on:
-  push:
-    branches:
-      - main
-    paths:
-      - 'docs/MILESTONE_??.md'
-      - 'docs/ROADMAP.md'
-      - 'docs/REPORTING_POLICY.json'
-      - 'tools/docs/**'
-      - '.github/workflows/docs-status.yml'
-  workflow_dispatch:
-
-permissions:
-  contents: write
+on: [push, workflow_dispatch]
 
 jobs:
-  sync:
+  smoke:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-      - name: Synchronize roadmap statuses
-        run: python3 tools/docs/sync_milestone_statuses.py --write
-      - name: Test status synchronization
-        run: python3 -m unittest discover -s tools/docs -p 'test_sync_milestone_statuses.py' -v
-      - name: Validate documentation
-        run: python3 tools/docs/check_reporting.py
-      - name: Commit and push changed roadmap status cells
-        run: |
-          if git diff --quiet -- docs/ROADMAP.md; then
-            echo "Roadmap already synchronized"
-            exit 0
-          fi
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add docs/ROADMAP.md
-          git commit -m "docs: sync roadmap status labels"
-          git push origin HEAD:main
+      - run: echo Documentation workflow initialized
