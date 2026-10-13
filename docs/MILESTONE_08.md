@@ -1,11 +1,11 @@
 ---
 milestone: M08
-status: PLANNED - READY
+status: IMPLEMENTING
 ---
 
 # M08 — Standalone blast furnace + more forgiving heavy-load intake
 
-**Owner-scoped and handoff-ready:** 2026-10-13. **Status: PLANNED - READY.** The exact Bricks-block furnace recipe and its horizontal mirror are now settled below, completing the M08 design handoff. **Ready does not authorize implementation:** wait for the owner's explicit instruction to begin. M07 corrections remain separate; no gameplay code changed by this document.
+**Owner-scoped and handoff-ready:** 2026-10-13. The exact Bricks-block furnace recipe and its horizontal mirror are now settled below, completing the M08 design handoff. **Implementation authorized by the owner on 2026-10-13** ("M08 is ready for you to begin work"); status IMPLEMENTING. The "not authorized" gates below are kept as the handoff's history. M07 corrections remain separate; no gameplay code changed by this document.
 
 M08 contains **two scoped jobs** when eventually authorized:
 

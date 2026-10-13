@@ -1,0 +1,11 @@
+M08 heavy-load negative control, 2026-10-13: HeavyLoad.restrictedUnitWeight temporarily counted every weighted item as a commodity (the M02 blanket rule); ./gradlew build then reported:
+
+simple_block-gametest:heavy_load_game_tests_exact_integer_accounting failed: Expected rails picked up at 61 (equipment always fits) to be 16: was 8 on tick 0
+simple_block-gametest:heavy_load_game_tests_offhand_cursor_count_worn_armor_does_not failed: equip swap allowed at the cap on tick 0
+simple_block-gametest:commodity_cap_game_tests_equipment_fits_at_the_cap_commodities_do_not failed: Expected rails at the cap to be 16: was 0 on tick 0
+simple_block-gametest:commodity_cap_game_tests_over_the_cap_by_equipment_alone failed: Expected rails over the cap to be 8: was 0 on tick 0
+simple_block-gametest:commodity_cap_game_tests_resources_first_then_equipment failed: Expected then a pickaxe to be 1: was 0 on tick 0
+simple_block-gametest:commodity_cap_game_tests_container_transfers_at_the_cap failed: all 32 rails shift-clicked in at the cap on tick 0
+simple_block-gametest:commodity_cap_game_tests_conversions_at_the_cap failed: Expected 16 rails crafted over the cap to be 24: was 8 on tick 0
+simple_block-gametest:commodity_cap_game_tests_offhand_over_the_cap failed: Expected lanterns fill the offhand stack over the cap to be 4: was 0 on tick 0
+8 required tests failed :(
