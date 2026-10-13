@@ -216,7 +216,7 @@
       "Verify the exact CI run, source SHA, and published artifact.",
       "Populate every required report field using verified evidence.",
       "Append the completed Markdown report to the end of the existing milestone document.",
-      "Update only the relevant milestone status and link in ROADMAP.md when warranted.",
+      "Change only the owner-authorized milestone YAML status; run status sync to regenerate the ROADMAP status cell. Edit non-generated roadmap links deliberately.",
       "Commit and push documentation changes.",
       "Output a concise raw Markdown completion summary containing changed paths, commit links, verification status, and unresolved blockers."
     ],
