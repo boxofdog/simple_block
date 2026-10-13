@@ -16,7 +16,7 @@
 | M06 | Loading Rail, powered winch, unlimited supported cable, related corrections | **SHIPPED** | [Brief](MILESTONE_06.md) | [Verification](MILESTONE_06.md#implementation-and-verification--2026-10-13) · [CI #20](https://github.com/boxofdog/simple_block/actions/runs/38382953782) |
 | M07 | Vertical ore skip, conditional bridle/pulley, four-gate minecart, visual and station fixes | **PLAYTESTING** | [Unified M07 handoff](MILESTONE_07.md) | [Verification](MILESTONE_07.md#implementation-and-verification--2026-10-13) · [CI #24](https://github.com/boxofdog/simple_block/actions/runs/38443850502) |
 | M08 | Pre-industrial bulk blast furnace + commodity-only carrying cap | **PLAYTESTING** | [M08 package](MILESTONE_08.md) | Not implemented |
-| M09 | Hostile loitering, opportunistic doors, creeper retaliation, rare jockeys | **PLANNED - NOT READY** | [M09 package](MILESTONE_09.md) | Not implemented |
+| M09 | Hostile loitering, opportunistic doors, creeper retaliation, rare jockeys | **PLANNED - READY** | [M09 package](MILESTONE_09.md) | Not implemented |
 | M10 | Modular headlamp/overalls/boots, workwear bonuses, armor retirement | **PLANNED - NOT READY** | [M10 package](MILESTONE_10.md) | Not implemented |
 | M11 | Material-/shape-specific cart fills, progressive hopper transfer, cart text removal | **PLANNED - READY** | [M11 package](MILESTONE_11.md) | Not implemented |
 
