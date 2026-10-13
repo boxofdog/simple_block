@@ -16,7 +16,7 @@
 | M06 | Loading Rail, powered winch, unlimited supported cable, related corrections | **SHIPPED** | [Brief](MILESTONE_06.md) | [Verification](MILESTONE_06.md#implementation-and-verification--2026-10-13) · [CI #20](https://github.com/boxofdog/simple_block/actions/runs/38382953782) |
 | M07 | Vertical ore skip, conditional bridle/pulley, four-gate minecart, visual and station fixes | **PLAYTESTING** | [Unified M07 handoff](MILESTONE_07.md) | [Verification](MILESTONE_07.md#implementation-and-verification--2026-10-13) · [CI #24](https://github.com/boxofdog/simple_block/actions/runs/38443850502) |
 | M08 | Pre-industrial bulk blast furnace + commodity-only carrying cap | **PLAYTESTING** | [M08 package](MILESTONE_08.md) | Not implemented |
-| M09 | Hostile behavior, persistent light interest and defensive infrastructure | **PLANNED - NOT READY** | [M09 package](MILESTONE_09.md) | Not implemented |
+| M09 | Hostile loitering, opportunistic doors, creeper retaliation, rare jockeys | **PLANNED - NOT READY** | [M09 package](MILESTONE_09.md) | Not implemented |
 | M10 | Modular headlamp/overalls/boots, workwear bonuses, armor retirement | **PLANNED - NOT READY** | [M10 package](MILESTONE_10.md) | Not implemented |
 | M11 | Material-/shape-specific cart fills, progressive hopper transfer, cart text removal | **PLANNED - READY** | [M11 package](MILESTONE_11.md) | Not implemented |
 
@@ -32,7 +32,7 @@
 
 **M08 — owner playtesting.** Implemented after the owner's 2026-10-13 authorization: the commodity-only carrying cap, the pre-industrial blast furnace (redesigned to the owner's iron-fronted brick furnace with a back-middle hopper, an outside channel and a whole-block mold), cart and skip intake, the Block of Charcoal, slower raw-ore smelting and the retired vanilla blast furnace. Results, gaps and the playtest list: [M08 verification](MILESTONE_08.md#implementation-and-verification--2026-10-13). Not owner-accepted; villager professions remain the [village backlog](BACKLOG.md).
 
-**M09–M11:** packages are indexed above. M09–M10 still require design work; M11's implementation handoff is ready, but **none has been authorized to start**. Mining Boots/Mule/Old Pro remain **M10**, not M08; the heavy-freight fill rendering and hopper mechanics remain **M11**, not M07.
+**M09–M11:** packages are indexed above. M09 and M11 handoffs are **ready, but not implementation-authorized**; M10 still requires design. **None has been authorized to start.** Mining Boots/Mule/Old Pro remain **M10**, not M08; the heavy-freight fill rendering and hopper mechanics remain **M11**, not M07.
 
 Documentation and handoff conventions (including the five canonical statuses): [RULES.md](RULES.md).
 
