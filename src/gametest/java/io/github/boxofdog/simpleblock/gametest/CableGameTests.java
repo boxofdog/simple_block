@@ -108,7 +108,7 @@ public class CableGameTests {
 		return beam.below();
 	}
 
-	/** Places a drum on the block below {@code pos} and winds {@code coils} coils onto it. */
+	/** Places a drum on the block below {@code pos} and uses {@code coils} coils on it (M06: the first fits it; more are refused). */
 	static CableDrumBlockEntity windDrum(GameTestHelper helper, ServerPlayer player, BlockPos pos, int coils) {
 		helper.setBlock(pos.below(), Blocks.STONE);
 		player.setItemInHand(InteractionHand.MAIN_HAND, new ItemStack(CableContent.CABLE_DRUM_ITEM));
@@ -127,9 +127,9 @@ public class CableGameTests {
 		player.teleportTo(pos.x, pos.y, pos.z);
 	}
 
-	/** The drum's cable is never lost or made: wound plus laid out is the coils wound on. */
-	static void assertCableKept(GameTestHelper helper, CableDrumBlockEntity drum, int coils, String when) {
-		helper.assertValueEqual(drum.stored() + drum.laidOut(), coils * CableContent.BLOCKS_PER_COIL, "cable wound plus laid out " + when);
+	/** M06: the drum keeps its one coil whatever happens to the route. */
+	static void assertCableKept(GameTestHelper helper, CableDrumBlockEntity drum, String when) {
+		helper.assertTrue(drum.hasCoil(), "the drum should still have its coil " + when);
 	}
 
 	static List<BlockPos> absolute(GameTestHelper helper, BlockPos... relative) {
@@ -192,9 +192,10 @@ public class CableGameTests {
 		Item nugget = Items.IRON_NUGGET;
 		Item copperNugget = Items.COPPER_NUGGET;
 		Item cable = CableContent.CABLE;
-		assertCrafts(helper, craft(helper, nugget, nugget, nugget, Items.STRING, air, air, air, air, air), cable, 2, "3 iron nuggets + string");
-		assertCrafts(helper, craft(helper, cable, cable, cable, cable, air, cable, cable, cable, cable), CableContent.CABLE_COIL, 1, "8 cables in a ring");
-		assertCrafts(helper, craft(helper, CableContent.CABLE_COIL, air, air, air, air, air, air, air, air), cable, 8, "a coil taken apart");
+		// M06: down the middle column (the column itself is checked in a real crafting grid by RecipeGameTests).
+		assertCrafts(helper, craft(helper, air, nugget, air, air, nugget, air, air, nugget, air), cable, 2, "3 iron nuggets down the middle");
+		assertCrafts(helper, craft(helper, air, cable, air, air, cable, air, air, cable, air), CableContent.CABLE_COIL, 1, "3 cables down the middle");
+		assertCrafts(helper, craft(helper, CableContent.CABLE_COIL, air, air, air, air, air, air, air, air), cable, 3, "a coil taken apart");
 		assertCrafts(helper, craft(helper, air, air, air, Items.STICK, Items.IRON_INGOT, Items.STICK, Items.OAK_PLANKS, Items.IRON_INGOT, Items.SPRUCE_PLANKS),
 			CableContent.CABLE_DRUM_ITEM, 1, "drum (empty top row; stick iron stick; plank iron plank)");
 		assertCrafts(helper, craft(helper, copperNugget, air, copperNugget, air, copperNugget, air, air, air, air), CableContent.CABLE_ANCHOR_ITEM, 2,
@@ -204,7 +205,7 @@ public class CableGameTests {
 		// The drum is not made from a different layout (sticks below the planks).
 		helper.assertTrue(craft(helper, air, air, air, Items.OAK_PLANKS, Items.IRON_INGOT, Items.OAK_PLANKS, Items.STICK, Items.IRON_INGOT, Items.STICK).isEmpty(),
 			"an upside-down drum layout should not craft");
-		SimpleBlockTestLog.info("CAB-01: cable x2, coil, coil -> 8 cable, drum, anchor x2 and connecting rod all craft from their recipes");
+		SimpleBlockTestLog.info("CAB-01: cable x2, coil, coil -> 3 cable (M06 recipes), drum, anchor x2 and connecting rod all craft from their recipes");
 		helper.succeed();
 	}
 
@@ -276,7 +277,7 @@ public class CableGameTests {
 
 	// ---- The drum ----
 
-	/** CAB-03: a coil makes the drum a winch with a loose end and hook; it holds up to cable.drum_capacity. */
+	/** CAB-03 (M06): one coil makes the drum a winch with a loose end and hook; a second is refused (one is all it needs). */
 	@GameTest
 	public void coilMakesTheDrumAWinch(GameTestHelper helper) {
 		ServerPlayer player = TestPlayers.create(helper, GameType.SURVIVAL, new BlockPos(5, 1, 4));
@@ -285,16 +286,12 @@ public class CableGameTests {
 		helper.assertFalse(helper.getBlockState(at).getValue(CableDrumBlock.WOUND), "an empty drum should show a bare barrel");
 		helper.assertFalse(drum.hasCable(), "a new drum should have no cable");
 
-		int coils = CableRoutes.capacity() / CableContent.BLOCKS_PER_COIL;
-		player.setItemInHand(InteractionHand.MAIN_HAND, new ItemStack(CableContent.CABLE_COIL, coils + 1));
+		player.setItemInHand(InteractionHand.MAIN_HAND, new ItemStack(CableContent.CABLE_COIL, 2));
 		useBlock(helper, player, at, Direction.UP);
-		helper.assertValueEqual(drum.stored(), CableContent.BLOCKS_PER_COIL, "cable on the drum after one coil");
+		helper.assertTrue(drum.hasCoil(), "the drum should have its coil");
 		helper.assertTrue(helper.getBlockState(at).getValue(CableDrumBlock.WOUND), "a drum with cable should show a wound barrel");
-		for (int i = 1; i < coils + 1; i++) {
-			useBlock(helper, player, at, Direction.UP);
-		}
-		helper.assertValueEqual(drum.stored(), CableRoutes.capacity(), "cable on a full drum");
-		helper.assertValueEqual(player.getMainHandItem().getCount(), 1, "coils left in hand: the last one did not fit");
+		useBlock(helper, player, at, Direction.UP);
+		helper.assertValueEqual(player.getMainHandItem().getCount(), 1, "coils left in hand: a drum takes one");
 
 		boolean[] failed = {false};
 		helper.startSequence()
@@ -303,8 +300,7 @@ public class CableGameTests {
 				CableHook hook = hook(helper, at);
 				helper.assertFalse(hook.isHeld(), "the new loose end should hang, not be held");
 				helper.assertTrue(hook.position().distanceTo(helper.absoluteVec(Vec3.atCenterOf(at))) < 1.0, "the loose end should hang at the drum");
-				SimpleBlockTestLog.info("CAB-03: drum wound with {} coils = {} blocks (one more refused); loose end hangs at {}", coils, drum.stored(),
-					hook.position());
+				SimpleBlockTestLog.info("CAB-03: one coil fitted (a second refused, kept in hand); loose end hangs at {}", hook.position());
 				TestPlayers.remove(player);
 			}))
 			.thenSucceed();
@@ -313,9 +309,9 @@ public class CableGameTests {
 	// ---- Routes ----
 
 	/**
-	 * CAB-04..07: pick up the end, run it through anchors (a straight run, a turn and a climb), and the
-	 * length comes off the drum. Spans longer than cable.max_span, longer than the cable left, or
-	 * through a solid block are refused; an anchor carries one cable.
+	 * CAB-04..07: pick up the end, run it through anchors (a straight run, a turn and a climb). Spans
+	 * longer than cable.max_span or through a solid block are refused. M06: the route's length costs
+	 * nothing, so with one coil the route carries on as far as the anchors go.
 	 */
 	@GameTest(structure = YARD)
 	public void cableRoutesThroughAnchorsAndUsesItsLength(GameTestHelper helper) {
@@ -355,7 +351,6 @@ public class CableGameTests {
 				int spanA = CableRoutes.spanLength(helper.absolutePos(at), true, helper.absolutePos(a));
 				useBlock(helper, player, a, false);
 				helper.assertValueEqual(drum.route(), absolute(helper, a), "route after A");
-				helper.assertValueEqual(drum.stored(), 32 - spanA, "cable left after the span to A");
 				helper.assertValueEqual(anchor(helper, a).drum(), helper.absolutePos(at), "drum recorded on A");
 				helper.assertTrue(hook.isHeld(), "the end should stay in hand for the next anchor");
 				log.add("drum->A: " + spanA + " blocks");
@@ -365,24 +360,21 @@ public class CableGameTests {
 				int spanC = CableRoutes.spanLength(helper.absolutePos(b), false, helper.absolutePos(c));
 				useBlock(helper, player, c, false);
 				helper.assertValueEqual(drum.route(), absolute(helper, a, b, c), "route after the straight run, the turn and the climb");
-				helper.assertValueEqual(drum.stored(), 32 - spanA - spanB - spanC, "cable left after C");
-				assertCableKept(helper, drum, 1, "after C");
+				assertCableKept(helper, drum, "after C");
 				log.add("A->B straight: " + spanB + ", B->C turn and climb 2: " + spanC);
 
 				// Using an anchor already on the route does nothing.
 				useBlock(helper, player, a, false);
 				helper.assertValueEqual(drum.route().size(), 3, "anchors on the route after using A again");
 
-				int left = drum.stored();
 				int spanD = CableRoutes.spanLength(helper.absolutePos(c), false, helper.absolutePos(d));
 				useBlock(helper, player, d, false);
-				helper.assertValueEqual(drum.stored(), left - spanD, "cable left after D");
 				int spanE = CableRoutes.spanLength(helper.absolutePos(d), false, helper.absolutePos(e));
 				useBlock(helper, player, e, false);
-				helper.assertValueEqual(drum.route().size(), 4, "route length after trying E with " + drum.stored() + " blocks left for a " + spanE
-					+ "-block span");
-				log.add("C->D: " + spanD + ", D->E needs " + spanE + " with " + drum.stored() + " left: refused");
-				assertCableKept(helper, drum, 1, "after D");
+				helper.assertValueEqual(drum.route().size(), 5, "route length after E: one coil covers any length (" + drum.laidOut()
+					+ " blocks, more than the old 32-block coil)");
+				log.add("C->D: " + spanD + ", D->E: " + spanE + " (" + drum.laidOut() + " blocks on one coil: no length budget)");
+				assertCableKept(helper, drum, "after E");
 				List<CableIndex.Span> indexed = CableIndex.spans(helper.getLevel());
 				List<Vec3> points = List.of(CableRoutes.point(helper.absolutePos(at), true), CableRoutes.point(helper.absolutePos(a), false),
 					CableRoutes.point(helper.absolutePos(b), false), CableRoutes.point(helper.absolutePos(c), false), CableRoutes.point(helper.absolutePos(d), false));
@@ -390,17 +382,17 @@ public class CableGameTests {
 					helper.assertTrue(indexed.contains(new CableIndex.Span(points.get(i), points.get(i + 1))), "span " + i + " of the route should be indexed");
 				}
 
-				// The last anchor puts the end down; it hangs under D.
-				useBlock(helper, player, d, false);
+				// The last anchor puts the end down; it hangs under E.
+				useBlock(helper, player, e, false);
 				helper.assertFalse(hook.isHeld(), "using the last anchor should put the end down");
 			}))
 			.thenIdle(1)
 			.thenExecute(step(failed, () -> {
 				CableHook hook = hook(helper, at);
-				Vec3 under = CableRoutes.point(helper.absolutePos(d), false);
-				helper.assertTrue(hook.position().distanceTo(under) < 1.5 && hook.position().y < under.y, "the put-down end should hang under D, at "
+				Vec3 under = CableRoutes.point(helper.absolutePos(e), false);
+				helper.assertTrue(hook.position().distanceTo(under) < 1.5 && hook.position().y < under.y, "the put-down end should hang under E, at "
 					+ hook.position());
-				SimpleBlockTestLog.info("CAB-04..07: {}; laid out {} of 32, {} left", log, drum.laidOut(), drum.stored());
+				SimpleBlockTestLog.info("CAB-04..07: {}; {} blocks laid out on one coil", log, drum.laidOut());
 				TestPlayers.remove(player);
 			}))
 			.thenSucceed();
@@ -443,8 +435,9 @@ public class CableGameTests {
 	}
 
 	/**
-	 * CAB-09..11: extend (wind on more, route further), disconnect from an anchor on (sneak-use), break
-	 * an anchor (same), dismantle (sneak-use the drum: rewind, then coils out) and break a laid-out drum.
+	 * CAB-09..11: extend (route further, on the same coil), disconnect from an anchor on (sneak-use),
+	 * break an anchor (same), dismantle (sneak-use the drum: rewind, then the one coil out) and break a
+	 * laid-out drum (one coil drops).
 	 */
 	@GameTest(structure = YARD)
 	public void routesExtendDisconnectAndDismantle(GameTestHelper helper) {
@@ -467,18 +460,9 @@ public class CableGameTests {
 				for (BlockPos anchor : List.of(a, b, c, d, e)) {
 					useBlock(helper, player, anchor, false);
 				}
-				helper.assertValueEqual(drum.route(), absolute(helper, a, b, c, d), "route on one coil (the span to E needs more than is left)");
-				log.add("one coil: A-D laid (" + drum.laidOut() + "), E refused with " + drum.stored() + " left");
-
-				// Extend: wind on another coil and carry on from D.
-				player.setItemInHand(InteractionHand.MAIN_HAND, new ItemStack(CableContent.CABLE_COIL));
-				useBlock(helper, player, at, Direction.UP);
-				player.setItemInHand(InteractionHand.MAIN_HAND, ItemStack.EMPTY);
-				helper.assertTrue(hook.isHeld(), "winding on more should leave the end in hand");
-				useBlock(helper, player, e, false);
-				helper.assertValueEqual(drum.route(), absolute(helper, a, b, c, d, e), "route after extending");
-				assertCableKept(helper, drum, 2, "after extending");
-				log.add("second coil: E laid (" + drum.laidOut() + " out, " + drum.stored() + " left)");
+				helper.assertValueEqual(drum.route(), absolute(helper, a, b, c, d, e), "route through A-E on one coil");
+				assertCableKept(helper, drum, "after routing A-E");
+				log.add("one coil: A-E laid (" + drum.laidOut() + " blocks)");
 
 				// Disconnect from C on.
 				int beforeOut = drum.laidOut();
@@ -487,34 +471,34 @@ public class CableGameTests {
 				helper.assertTrue(anchor(helper, c).drum() == null && anchor(helper, d).drum() == null && anchor(helper, e).drum() == null,
 					"C, D and E should be free");
 				helper.assertFalse(hook.isHeld(), "disconnecting should put the end down");
-				assertCableKept(helper, drum, 2, "after disconnecting at C");
+				assertCableKept(helper, drum, "after disconnecting at C");
 				log.add("sneak-use C: " + (beforeOut - drum.laidOut()) + " blocks wound back");
 
 				// Break B: same as disconnecting there.
 				player.gameMode.destroyBlock(helper.absolutePos(b));
 				helper.assertValueEqual(drum.route(), absolute(helper, a), "route after breaking B");
-				assertCableKept(helper, drum, 2, "after breaking B");
+				assertCableKept(helper, drum, "after breaking B");
 				log.add("B broken: route back to A");
 
 				// Dismantle: the first sneak-use winds A back in, the next takes the cable off.
 				useBlock(helper, player, at, true);
 				helper.assertTrue(drum.route().isEmpty(), "route after the first sneak-use of the drum");
 				helper.assertTrue(anchor(helper, a).drum() == null, "A should be free");
-				helper.assertValueEqual(drum.stored(), 64, "cable on the drum after rewinding");
+				assertCableKept(helper, drum, "after rewinding");
 				player.getInventory().clearContent();
 				useBlock(helper, player, at, true);
 				helper.assertFalse(drum.hasCable(), "the drum should be empty after taking the cable off");
-				helper.assertValueEqual(MinecartCargoGameTests.carried(player, CableContent.CABLE_COIL), 2, "coils given back");
+				helper.assertValueEqual(MinecartCargoGameTests.carried(player, CableContent.CABLE_COIL), 1, "coils given back");
+				helper.assertValueEqual(MinecartCargoGameTests.carried(player, CableContent.CABLE), 0, "loose cables given back");
 				helper.assertFalse(helper.getBlockState(at).getValue(CableDrumBlock.WOUND), "an emptied drum should show a bare barrel");
-				log.add("sneak-use drum: rewound 64, then 2 coils out");
+				log.add("sneak-use drum: rewound, then the one coil out");
 			}))
 			.thenIdle(2)
 			.thenExecute(step(failed, () -> {
 				helper.assertValueEqual(hooks(helper, at).size(), 0, "loose ends of an empty drum");
 
 				// Lay it out again, then break the drum: the cable drops as coils and the anchors are freed.
-				player.setItemInHand(InteractionHand.MAIN_HAND, new ItemStack(CableContent.CABLE_COIL, 2));
-				useBlock(helper, player, at, Direction.UP);
+				player.setItemInHand(InteractionHand.MAIN_HAND, new ItemStack(CableContent.CABLE_COIL));
 				useBlock(helper, player, at, Direction.UP);
 				player.setItemInHand(InteractionHand.MAIN_HAND, ItemStack.EMPTY);
 			}))
@@ -527,7 +511,8 @@ public class CableGameTests {
 				player.gameMode.destroyBlock(helper.absolutePos(at));
 				helper.assertBlockNotPresent(CableContent.CABLE_DRUM, at);
 				List<ItemEntity> items = itemsNear(helper, at);
-				helper.assertValueEqual(count(items, CableContent.CABLE_COIL), 2, "coils dropped by the broken drum");
+				helper.assertValueEqual(count(items, CableContent.CABLE_COIL), 1, "coils dropped by the broken drum");
+				helper.assertValueEqual(count(items, CableContent.CABLE), 0, "loose cables dropped by the broken drum");
 				helper.assertValueEqual(count(items, CableContent.CABLE_DRUM_ITEM), 1, "drums dropped");
 				helper.assertTrue(anchor(helper, a).drum() == null, "A should be free once its drum is gone");
 				log.add("drum broken with A laid: dropped " + count(items, CableContent.CABLE_COIL) + " coils and the drum, A freed");
@@ -552,7 +537,7 @@ public class CableGameTests {
 			helper.setBlock(new BlockPos(x, 0, 4), Blocks.STONE);
 		}
 		windDrum(helper, player, at, 1);
-		double reach = Math.min(CableRoutes.maxSpan(), 32);
+		double reach = CableRoutes.maxSpan();
 		List<String> log = new ArrayList<>();
 		boolean[] failed = {false};
 		helper.startSequence()
@@ -617,7 +602,7 @@ public class CableGameTests {
 				useBlock(helper, player, c, false);
 				helper.assertValueEqual(drum.route().size(), 3, "route before saving");
 				CompoundTag saved = drum.saveWithFullMetadata(level.registryAccess());
-				log.add("saved " + saved.get("route") + " with " + saved.get("cable") + " wound");
+				log.add("saved " + saved.get("route") + " with coil " + saved.get("coil"));
 
 				// B goes without its drum hearing about it (as if broken while the drum was unloaded).
 				level.setBlock(helper.absolutePos(b), Blocks.AIR.defaultBlockState(), Block.UPDATE_ALL | Block.UPDATE_SKIP_BLOCK_ENTITY_SIDEEFFECTS);
@@ -632,8 +617,8 @@ public class CableGameTests {
 				CableDrumBlockEntity loaded = drum(helper, at);
 				helper.assertValueEqual(loaded.route(), absolute(helper, a), "route after the check on loading");
 				helper.assertTrue(anchor(helper, c).drum() == null, "C, beyond the missing anchor, should be freed");
-				assertCableKept(helper, loaded, 1, "after the check on loading");
-				log.add("B missing on load: wound back to A (" + loaded.laidOut() + " out, " + loaded.stored() + " wound), C freed");
+				assertCableKept(helper, loaded, "after the check on loading");
+				log.add("B missing on load: wound back to A (" + loaded.laidOut() + " out), C freed, coil kept");
 				SimpleBlockTestLog.info("CAB-13: {}", log);
 				TestPlayers.remove(player);
 			}))

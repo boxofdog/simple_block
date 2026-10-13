@@ -141,7 +141,7 @@ public class CableHook extends Entity {
 		Vec3 target;
 		if (holder != null) {
 			target = this.heldPosition(holder, 1.0F);
-			double reach = Math.min(CableRoutes.maxSpan(), drum.stored());
+			double reach = CableRoutes.maxSpan();
 			if (this.eyePoint(target).distanceTo(this.endPoint()) > reach + CableRoutes.HOLD_SLACK) {
 				this.release();
 				CableRoutes.tell(holder, CableRoutes.message("slipped", "The cable end slipped from your hand: it only reaches %s blocks from the last support",
@@ -165,13 +165,12 @@ public class CableHook extends Entity {
 		if (this.level() instanceof ServerLevel level && this.drum(level) instanceof CableDrumBlockEntity drum) {
 			if (CableRoutes.heldHook(level, player) != null) {
 				CableRoutes.tell(player, CableRoutes.message("hands_full", "You are already holding a cable end"));
-			} else if (drum.stored() <= 0) {
-				CableRoutes.tell(player, CableRoutes.message("none_left", "No cable left on the drum to pull out"));
+			} else if (!drum.hasCoil()) {
+				CableRoutes.tell(player, CableRoutes.message("none_left", "No cable on the drum: use a cable coil on it"));
 			} else {
 				this.entityData.set(DATA_HOLDER, player.getId());
 				this.playSound(SoundEvents.LEAD_TIED, 0.8F, 1.0F);
-				CableRoutes.tell(player, CableRoutes.message("picked_up",
-					"Cable end picked up: use an anchor to run the cable through it (%s blocks on the drum)", drum.stored()));
+				CableRoutes.tell(player, CableRoutes.message("picked_up", "Cable end picked up: use an anchor to run the cable through it"));
 			}
 		}
 		return InteractionResult.SUCCESS;

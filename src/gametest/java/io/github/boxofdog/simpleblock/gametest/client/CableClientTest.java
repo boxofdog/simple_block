@@ -102,14 +102,14 @@ public class CableClientTest implements FabricClientGameTest {
 		context.getInput().lookAt(drumPos);
 		context.getInput().pressKey(options -> options.keyUse);
 		context.waitTicks(10);
-		int stored = server.computeOnServer(s -> drumOf(s.overworld(), drumPos).stored());
+		boolean coil = server.computeOnServer(s -> drumOf(s.overworld(), drumPos).hasCoil());
 		boolean wound = server.computeOnServer(s -> s.overworld().getBlockState(drumPos).getValue(CableDrumBlock.WOUND));
 		int clientHooks = context.computeOnClient(client -> client.level.getEntitiesOfClass(CableHook.class, new AABB(drumPos).inflate(2.0)).size());
 		String message = overlayMessage(context);
 		context.takeScreenshot("cable-drum-wound-hook");
-		SimpleBlockTestLog.info("CLIENT CABLE: drum placed: {}; coil wound on: {} blocks, wound barrel {}, hooks seen by the client {}, message '{}'", placed,
-			stored, wound, clientHooks, message);
-		assertTrue(stored == CableContent.BLOCKS_PER_COIL && wound, "drum after one coil: " + stored + " blocks, wound " + wound);
+		SimpleBlockTestLog.info("CLIENT CABLE: drum placed: {}; coil fitted: {}, wound barrel {}, hooks seen by the client {}, message '{}'", placed,
+			coil, wound, clientHooks, message);
+		assertTrue(coil && wound, "drum after one coil: coil " + coil + ", wound " + wound);
 		assertTrue(clientHooks == 1, "the client should see the loose end's hook, saw " + clientHooks);
 		server.runCommand("clear @a");
 	}
@@ -186,7 +186,7 @@ public class CableClientTest implements FabricClientGameTest {
 		context.getInput().pressKey(options -> options.keyUse);
 		context.waitTicks(5);
 		List<BlockPos> route = server.computeOnServer(s -> drumOf(s.overworld(), drumPos).route());
-		int stored = server.computeOnServer(s -> drumOf(s.overworld(), drumPos).stored());
+		boolean coil = server.computeOnServer(s -> drumOf(s.overworld(), drumPos).hasCoil());
 		int laid = server.computeOnServer(s -> drumOf(s.overworld(), drumPos).laidOut());
 		boolean stillHeld = server.computeOnServer(s -> hookOf(s.overworld(), drumPos).isHeld());
 		List<BlockPos> clientRoute = context.computeOnClient(client -> client.level.getBlockEntity(drumPos) instanceof CableDrumBlockEntity drum
@@ -197,10 +197,10 @@ public class CableClientTest implements FabricClientGameTest {
 		server.runCommand("tp @a 18.5 " + (g + 2) + " 9.5 -120 15");
 		context.waitTicks(10);
 		context.takeScreenshot("cable-route-from-the-drum");
-		SimpleBlockTestLog.info("CLIENT CABLE: picked up ('{}'); routed through {} (client sees {}), {} blocks laid out, {} left; last message '{}'; "
-			+ "end held after using the last anchor again: {}", pickedUp, route, clientRoute, laid, stored, routedMessage, stillHeld);
+		SimpleBlockTestLog.info("CLIENT CABLE: picked up ('{}'); routed through {} (client sees {}), {} blocks laid out, coil {}; last message '{}'; "
+			+ "end held after using the last anchor again: {}", pickedUp, route, clientRoute, laid, coil, routedMessage, stillHeld);
 		assertTrue(route.size() == 3 && clientRoute.equals(route), "route: server " + route + ", client " + clientRoute);
-		assertTrue(laid + stored == CableContent.BLOCKS_PER_COIL, "cable laid " + laid + " + wound " + stored);
+		assertTrue(coil && laid > 20, "one coil, " + laid + " blocks laid out");
 		assertTrue(!stillHeld, "using the last anchor should put the end down");
 	}
 

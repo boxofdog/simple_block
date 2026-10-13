@@ -8,7 +8,7 @@ import net.minecraft.network.protocol.game.ClientGamePacketListener;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.ProblemReporter;
-import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
@@ -26,6 +26,10 @@ import org.jspecify.annotations.Nullable;
 public class CableAnchorBlockEntity extends BlockEntity {
 	private @Nullable BlockPos drum;
 	private boolean wheel;
+	/** How often a loaded anchor checks itself against its drum's line, in ticks. */
+	private static final int RECONCILE_TICKS = 40;
+	/** Whether this anchor has been checked against its drum's line since it loaded. */
+	private boolean reconciled;
 
 	public CableAnchorBlockEntity(BlockPos pos, BlockState state) {
 		super(CableContent.CABLE_ANCHOR_ENTITY, pos, state);
@@ -86,20 +90,48 @@ public class CableAnchorBlockEntity extends BlockEntity {
 	}
 
 	/**
-	 * The anchor is going (broken, exploded, support removed): a fitted return wheel's anchor drops with
-	 * it, a loop through it opens and the cable is cut back to the support before it.
+	 * After loading, then every {@value #RECONCILE_TICKS} ticks (M06): this anchor may have been
+	 * unrouted, or its loop opened, while its chunk was not loaded or not ticking. Its drum's line
+	 * (always available) says what it carries now: anything stale is cleared, without dropping anything
+	 * (whoever opened the loop already gave the wheel's anchor back). A map lookup, so cheap.
+	 */
+	public static void serverTick(Level level, BlockPos pos, BlockState state, CableAnchorBlockEntity anchor) {
+		if (level instanceof ServerLevel serverLevel
+			&& (!anchor.reconciled || (level.getGameTime() + (pos.hashCode() & 0xFFFF)) % RECONCILE_TICKS == 0)) {
+			anchor.reconcile(serverLevel);
+		}
+	}
+
+	/** Clears what this anchor no longer carries, by its drum's line. */
+	public void reconcile(ServerLevel level) {
+		this.reconciled = true;
+		BlockPos pos = this.getBlockPos();
+		CableLines.Line line = this.drum == null ? null : CableLines.line(level, this.drum);
+		boolean routed = line != null && line.anchors.contains(pos);
+		boolean wheelHere = routed && line.looped && line.anchors.getLast().equals(pos);
+		if (this.drum != null && !routed) {
+			this.setDrum(null);
+		}
+		if (this.wheel && !wheelHere) {
+			this.setWheel(false);
+		}
+		BlockState state = level.getBlockState(pos);
+		boolean looped = routed && line.looped;
+		if (!looped && state.hasProperty(CableAnchorBlock.RETURN) && state.getValue(CableAnchorBlock.RETURN) != CableAnchorBlock.Return.NONE) {
+			level.setBlock(pos, state.setValue(CableAnchorBlock.RETURN, CableAnchorBlock.Return.NONE), Block.UPDATE_ALL);
+		}
+	}
+
+	/**
+	 * The anchor is going (broken, exploded, support removed): a loop through it opens (the return
+	 * wheel's anchor comes back: {@link CableLoops#open}, or {@link CableLines#cut} if the drum is
+	 * unloaded) and the cable is cut back to the support before it.
 	 */
 	@Override
 	public void preRemoveSideEffects(BlockPos pos, BlockState state) {
 		super.preRemoveSideEffects(pos, state);
-		if (this.level instanceof ServerLevel level) {
-			if (this.wheel) {
-				this.wheel = false;
-				Block.popResource(level, pos, new ItemStack(CableContent.CABLE_ANCHOR_ITEM));
-			}
-			if (this.drum != null) {
-				CableRoutes.anchorRemoved(level, this.drum, pos);
-			}
+		if (this.level instanceof ServerLevel level && this.drum != null) {
+			CableRoutes.anchorRemoved(level, this.drum, pos);
 		}
 	}
 }

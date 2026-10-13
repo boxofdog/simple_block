@@ -27,7 +27,9 @@
 			"io.github.boxofdog.simpleblock.gametest.StorageBypassGameTests",
 			"io.github.boxofdog.simpleblock.gametest.CableGameTests",
 			"io.github.boxofdog.simpleblock.gametest.CableLoopGameTests",
-			"io.github.boxofdog.simpleblock.gametest.TrainGameTests"
+			"io.github.boxofdog.simpleblock.gametest.TrainGameTests",
+			"io.github.boxofdog.simpleblock.gametest.LongLineGameTests",
+			"io.github.boxofdog.simpleblock.gametest.RecipeGameTests"
 		],
 		"fabric-client-gametest": [
 			"io.github.boxofdog.simpleblock.gametest.client.SurvivalSmokeClientTest",

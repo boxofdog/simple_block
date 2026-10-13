@@ -2,6 +2,7 @@ package io.github.boxofdog.simpleblock.mixin.train;
 
 import java.util.UUID;
 
+import net.minecraft.core.BlockPos;
 import net.minecraft.core.UUIDUtil;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
@@ -42,6 +43,8 @@ abstract class AbstractMinecartMixin extends VehicleEntity implements Couplings.
 	private @Nullable Vec3 simpleBlock$holdPos;
 	@Unique
 	private boolean simpleBlock$controlled;
+	@Unique
+	private @Nullable BlockPos simpleBlock$dock;
 
 	private AbstractMinecartMixin(EntityType<?> type, Level level) {
 		super(type, level);
@@ -92,6 +95,16 @@ abstract class AbstractMinecartMixin extends VehicleEntity implements Couplings.
 		this.simpleBlock$controlled = controlled;
 	}
 
+	@Override
+	public @Nullable BlockPos simpleBlock$dock() {
+		return this.simpleBlock$dock;
+	}
+
+	@Override
+	public void simpleBlock$setDock(@Nullable BlockPos dock) {
+		this.simpleBlock$dock = dock;
+	}
+
 	@Inject(method = "defineSynchedData", at = @At("TAIL"))
 	private void simpleBlock$defineCouplings(SynchedEntityData.Builder entityData, CallbackInfo ci) {
 		entityData.define(SIMPLE_BLOCK_COUPLED_0, -1);
@@ -101,7 +114,7 @@ abstract class AbstractMinecartMixin extends VehicleEntity implements Couplings.
 	@Inject(method = "tick", at = @At("TAIL"))
 	private void simpleBlock$noteTrain(CallbackInfo ci) {
 		if (!this.level().isClientSide() && (this.simpleBlock$couplings[0] != null || this.simpleBlock$couplings[1] != null
-			|| this.simpleBlock$holdPos != null || this.simpleBlock$controlled)) {
+			|| this.simpleBlock$holdPos != null || this.simpleBlock$controlled || this.simpleBlock$dock != null)) {
 			Couplings.noteActive((AbstractMinecart) (Object) this);
 		}
 	}
@@ -111,6 +124,7 @@ abstract class AbstractMinecartMixin extends VehicleEntity implements Couplings.
 		for (int slot = 0; slot < 2; slot++) {
 			output.storeNullable("simple_block:coupling_" + slot, UUIDUtil.CODEC, this.simpleBlock$couplings[slot]);
 		}
+		output.storeNullable("simple_block:dock", BlockPos.CODEC, this.simpleBlock$dock);
 	}
 
 	@Inject(method = "readAdditionalSaveData", at = @At("TAIL"))
@@ -118,5 +132,6 @@ abstract class AbstractMinecartMixin extends VehicleEntity implements Couplings.
 		for (int slot = 0; slot < 2; slot++) {
 			this.simpleBlock$couplings[slot] = input.read("simple_block:coupling_" + slot, UUIDUtil.CODEC).orElse(null);
 		}
+		this.simpleBlock$dock = input.read("simple_block:dock", BlockPos.CODEC).orElse(null);
 	}
 }

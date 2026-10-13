@@ -26,13 +26,15 @@ import net.minecraft.world.level.material.PushReaction;
 import io.github.boxofdog.simpleblock.SimpleBlock;
 
 /**
- * M04 cable infrastructure: what is registered, and the fixed lengths.
+ * M04 cable infrastructure: what is registered.
  *
  * <ul>
- *   <li><b>Cable</b> ({@link #CABLE}): {@value #BLOCKS_PER_CABLE} blocks of cable per item. Eight make
- *       a <b>cable coil</b> ({@link #CABLE_COIL}, {@value #BLOCKS_PER_COIL} blocks).</li>
- *   <li><b>Cable drum</b> ({@link CableDrumBlock}): a coil used on it winds the cable on and makes it a
- *       winch, with a loose end and hook ({@link CableHook}) to lay the cable out with.</li>
+ *   <li><b>Cable</b> ({@link #CABLE}): M06 recipe, three iron nuggets down the middle column make two.
+ *       Three cables down the middle column make a <b>cable coil</b> ({@link #CABLE_COIL}), which goes
+ *       back into three cables. Both recipes only work in the middle column ({@link CenterColumnRecipes}).</li>
+ *   <li><b>Cable drum</b> ({@link CableDrumBlock}): a coil used on it fits the cable (M06: one coil, for
+ *       any length of route) and makes it a winch, with a loose end and hook ({@link CableHook}) to lay
+ *       the cable out with. A furnace makes it a coal winch ({@link CoalWinch}).</li>
  *   <li><b>Copper cable anchor</b> ({@link CableAnchorBlock}): hangs from the underside of a wooden
  *       block ({@code #simple_block:cable_anchor_supports}) and carries the cable on a roller.</li>
  *   <li><b>Copper connecting rod</b> ({@link #CONNECTING_ROD}): fitted to a minecart, it grips a
@@ -44,9 +46,6 @@ import io.github.boxofdog.simpleblock.SimpleBlock;
  * {@link CableRoutes}.
  */
 public final class CableContent {
-	public static final int BLOCKS_PER_CABLE = 4;
-	public static final int CABLES_PER_COIL = 8;
-	public static final int BLOCKS_PER_COIL = BLOCKS_PER_CABLE * CABLES_PER_COIL;
 
 	public static final TagKey<Block> ANCHOR_SUPPORTS = TagKey.create(Registries.BLOCK, id("cable_anchor_supports"));
 
@@ -112,6 +111,6 @@ public final class CableContent {
 			output.insertAfter(Items.MINECART, CABLE, CABLE_COIL, CABLE_DRUM_ITEM, CABLE_ANCHOR_ITEM, CONNECTING_ROD));
 		CableIndex.register();
 		CableDrive.register();
-		SimpleBlock.LOGGER.info("Cable: {} blocks per cable, {} per coil", BLOCKS_PER_CABLE, BLOCKS_PER_COIL);
+		SimpleBlock.LOGGER.info("Cable: one coil per drum, spans of up to {} blocks", CableRoutes.maxSpan());
 	}
 }

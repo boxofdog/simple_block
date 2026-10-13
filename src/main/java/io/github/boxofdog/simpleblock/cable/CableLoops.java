@@ -34,15 +34,14 @@ import org.jspecify.annotations.Nullable;
  * <ul>
  *   <li>the route must be straight: drum and anchors in one line along a world axis, climbing or
  *       falling as it likes, but not turning (refused, naming the anchor where it turns);</li>
- *   <li>the return strand must be clear of solid blocks, like any span;</li>
- *   <li>the drum must still hold enough cable for it: the return spans plus {@value #TURN_CABLE} blocks
- *       for the turns round the wheel and the drum. The cable comes off the drum, and goes back on when
- *       the loop opens.</li>
+ *   <li>the return strand must be clear of solid blocks, like any span.</li>
  * </ul>
+ * The return strand costs no extra cable (M06: the one coil covers any route).
  * Closing lines the drum and the anchors up with the route, so their arms and wheel face the right way.
  *
  * <p>Opening: sneak-use any anchor of the loop, or the drum, with empty hands (the anchor in the
- * wheel comes back), or break an anchor (the wheel's anchor drops with it) or the drum. Opening never
+ * wheel comes back, even if the wheel is far away and unloaded), or break an anchor (the wheel's anchor
+ * drops) or the drum. Opening never
  * dismantles the route; only a further sneak-use does, as in M04.
  */
 public final class CableLoops {
@@ -50,8 +49,6 @@ public final class CableLoops {
 	public static final double RETURN_OFFSET = 4.75 / 16.0;
 	/** How far beyond the last anchor's roller the return wheel turns the cable. */
 	public static final double WHEEL_OFFSET = 5.0 / 16.0;
-	/** Cable round the return wheel and the drum, in blocks. */
-	public static final int TURN_CABLE = 3;
 
 	private CableLoops() {
 	}
@@ -104,15 +101,6 @@ public final class CableLoops {
 		return drum.points().stream().map(point -> point.add(offset)).toList();
 	}
 
-	/** Cable the return strand takes, in blocks. */
-	static int returnCable(List<Vec3> points) {
-		int total = TURN_CABLE;
-		for (int i = 1; i < points.size(); i++) {
-			total += (int) Math.ceil(points.get(i - 1).distanceTo(points.get(i)));
-		}
-		return total;
-	}
-
 	/** The drum whose open or looped route ends at {@code anchorPos} (client and server: both know routes). */
 	static @Nullable CableDrumBlockEntity routeEndDrum(Level level, BlockPos anchorPos) {
 		if (level.getBlockEntity(anchorPos) instanceof CableAnchorBlockEntity anchor && anchor.drum() != null && level.isLoaded(anchor.drum())
@@ -154,19 +142,12 @@ public final class CableLoops {
 				return InteractionResult.SUCCESS;
 			}
 		}
-		int length = returnCable(points);
-		if (length > drum.stored()) {
-			CableRoutes.tell(player, CableRoutes.message("loop_short", "Not enough cable for the return: it needs %s blocks, the drum has %s",
-				length, drum.stored()));
-			return InteractionResult.SUCCESS;
-		}
 		CableHook hook = CableRoutes.hook(serverLevel, drum);
 		if (hook != null) {
 			hook.discard();
 		}
 		drum.hookId = -1;
-		drum.setStored(drum.stored() - length);
-		drum.setLoop(true, length);
+		drum.setLoop(true);
 		BlockState drumState = serverLevel.getBlockState(drumPos);
 		if (drumState.getValue(CableDrumBlock.FACING) != outward) {
 			serverLevel.setBlock(drumPos, drumState.setValue(CableDrumBlock.FACING, outward), Block.UPDATE_ALL);
@@ -180,7 +161,7 @@ public final class CableLoops {
 		}
 		stack.consume(1, player);
 		serverLevel.playSound(null, pos, SoundEvents.CHAIN_PLACE, SoundSource.BLOCKS, 1.0F, 1.0F);
-		CableRoutes.tell(player, CableRoutes.message("loop_closed", "Loop closed: %s blocks of return cable", length));
+		CableRoutes.tell(player, CableRoutes.message("loop_closed", "Loop closed"));
 		return InteractionResult.SUCCESS;
 	}
 
@@ -213,12 +194,11 @@ public final class CableLoops {
 		if (!drum.looped()) {
 			return;
 		}
-		int length = drum.returnLength();
-		drum.setLoop(false, 0);
-		drum.setStored(drum.stored() + length);
+		drum.setLoop(false);
 		List<BlockPos> route = drum.route();
 		for (BlockPos anchor : route) {
 			if (!level.isLoaded(anchor)) {
+				// Reconciled when it loads (CableAnchorBlockEntity.serverTick).
 				continue;
 			}
 			BlockState state = level.getBlockState(anchor);
@@ -227,28 +207,19 @@ public final class CableLoops {
 			}
 			if (level.getBlockEntity(anchor) instanceof CableAnchorBlockEntity entity && entity.wheel()) {
 				entity.setWheel(false);
-				ItemStack wheel = new ItemStack(CableContent.CABLE_ANCHOR_ITEM);
-				if (player != null) {
-					player.getInventory().placeItemBackInInventory(wheel, Prediction.SERVER_ONLY);
-				} else {
-					Block.popResource(level, anchor, wheel);
-				}
+			}
+		}
+		// The wheel's anchor comes back whether or not the wheel is loaded (M06: lines can be very long).
+		if (!route.isEmpty()) {
+			ItemStack wheel = new ItemStack(CableContent.CABLE_ANCHOR_ITEM);
+			BlockPos wheelAt = route.getLast();
+			if (player != null) {
+				player.getInventory().placeItemBackInInventory(wheel, Prediction.SERVER_ONLY);
+			} else {
+				Block.popResource(level, level.isLoaded(wheelAt) ? wheelAt : drum.getBlockPos(), wheel);
 			}
 		}
 		level.playSound(null, drum.getBlockPos(), SoundEvents.CHAIN_PLACE, SoundSource.BLOCKS, 1.0F, 0.7F);
-	}
-
-	/** Whether every block the loop runs through is loaded and ticking entities (otherwise the drum will not drive it). */
-	static boolean ticking(ServerLevel level, CableDrumBlockEntity drum) {
-		if (!level.isPositionEntityTicking(drum.getBlockPos())) {
-			return false;
-		}
-		for (BlockPos anchor : drum.route()) {
-			if (!level.isPositionEntityTicking(anchor)) {
-				return false;
-			}
-		}
-		return true;
 	}
 
 	/** Points of the cable round the return wheel at the last anchor's roller {@code roller}: the working side first. */

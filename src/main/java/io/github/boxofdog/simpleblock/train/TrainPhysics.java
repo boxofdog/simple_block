@@ -43,6 +43,11 @@ public final class TrainPhysics {
 		return state.getBlock() instanceof BaseRailBlock rail ? state.getValue(rail.getShapeProperty()) : null;
 	}
 
+	/** Whether the cart is on a rail (not derailed). */
+	public static boolean onRail(AbstractMinecart cart) {
+		return railShape(cart) != null;
+	}
+
 	/** +1 if the rail under the cart climbs in {@code direction} (horizontal), -1 if it falls, 0 if level or no rail. */
 	public static int gradeSign(AbstractMinecart cart, Vec3 direction) {
 		RailShape shape = railShape(cart);

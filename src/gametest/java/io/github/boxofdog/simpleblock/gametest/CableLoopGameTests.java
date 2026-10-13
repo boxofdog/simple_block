@@ -35,6 +35,7 @@ import io.github.boxofdog.simpleblock.cable.CableDrive;
 import io.github.boxofdog.simpleblock.cable.CableDrumBlockEntity;
 import io.github.boxofdog.simpleblock.cable.CableHook;
 import io.github.boxofdog.simpleblock.cable.CableIndex;
+import io.github.boxofdog.simpleblock.cable.CableLines;
 import io.github.boxofdog.simpleblock.cable.CableLoops;
 import io.github.boxofdog.simpleblock.cable.ConnectingRods;
 import io.github.boxofdog.simpleblock.feature.MinecartCargo;
@@ -107,6 +108,12 @@ public class CableLoopGameTests {
 		player.setShiftKeyDown(false);
 	}
 
+	/** The drum's working-strand speed as its line has it (M06: the drive lives in the level's lines; the drum's copy lags a tick). */
+	static float lineSpeed(GameTestHelper helper, BlockPos drumRelative) {
+		CableLines.Line line = CableLines.line(helper.getLevel(), helper.absolutePos(drumRelative));
+		return line == null ? 0.0F : line.speed();
+	}
+
 	static Minecart rodCart(GameTestHelper helper, double x) {
 		Minecart cart = helper.spawn(EntityTypes.MINECART, new Vec3(x, 1.0625, 4.5));
 		cart.setDeltaMovement(Vec3.ZERO);
@@ -118,8 +125,9 @@ public class CableLoopGameTests {
 		return cart.getX() - helper.absoluteVec(Vec3.ZERO).x;
 	}
 
-	static void assertCableKept(GameTestHelper helper, CableDrumBlockEntity drum, int coils, String when) {
-		helper.assertValueEqual(drum.totalCable(), coils * CableContent.BLOCKS_PER_COIL, "wound + laid out + return cable " + when);
+	/** M06: the drum keeps its one coil (the loop's return strand costs nothing extra). */
+	static void assertCableKept(GameTestHelper helper, CableDrumBlockEntity drum, String when) {
+		helper.assertTrue(drum.hasCoil(), "the drum should still have its one coil " + when);
 	}
 
 	static CableAnchorBlock.Return returnState(GameTestHelper helper, BlockPos anchor) {
@@ -140,12 +148,10 @@ public class CableLoopGameTests {
 			.thenExecute(CableGameTests.step(failed, () -> {
 				route(helper, player, DRUM, ANCHORS);
 				int laid = drum.laidOut();
-				int before = drum.stored();
 				close(helper, player, ANCHORS[2]);
 				helper.assertTrue(drum.looped(), "the route should be a loop");
 				helper.assertTrue(player.getMainHandItem().isEmpty(), "the anchor used should go into the wheel");
-				helper.assertValueEqual(before - drum.stored(), drum.returnLength(), "cable taken off the drum for the return");
-				assertCableKept(helper, drum, 2, "after closing");
+				assertCableKept(helper, drum, "after closing");
 				helper.assertValueEqual(returnState(helper, ANCHORS[2]), CableAnchorBlock.Return.WHEEL, "last anchor");
 				helper.assertValueEqual(returnState(helper, ANCHORS[0]), CableAnchorBlock.Return.GUIDE, "first anchor");
 				helper.assertValueEqual(helper.getBlockState(ANCHORS[2]).getValue(CableAnchorBlock.FACING), Direction.EAST, "wheel side");
@@ -155,7 +161,7 @@ public class CableLoopGameTests {
 				for (int i = 1; i < points.size(); i++) {
 					helper.assertTrue(indexed.contains(new CableIndex.Span(points.get(i - 1), points.get(i))), "working span " + i + " should stay indexed");
 				}
-				log.add("closed: " + laid + " laid out, return " + drum.returnLength() + " (" + before + " -> " + drum.stored() + " on the drum)");
+				log.add("closed with one coil: " + laid + " blocks laid out, no extra cable for the return");
 			}))
 			.thenIdle(2)
 			.thenExecute(CableGameTests.step(failed, () -> {
@@ -164,11 +170,10 @@ public class CableLoopGameTests {
 				CableGameTests.useBlock(helper, player, ANCHORS[1], true);
 				helper.assertFalse(drum.looped(), "sneak-use of an anchor should open the loop");
 				helper.assertValueEqual(drum.route().size(), 3, "route after opening (not dismantled)");
-				helper.assertValueEqual(drum.returnLength(), 0, "return cable after opening");
-				assertCableKept(helper, drum, 2, "after opening");
+				assertCableKept(helper, drum, "after opening");
 				helper.assertValueEqual(MinecartCargoGameTests.carried(player, CableContent.CABLE_ANCHOR_ITEM), 1, "wheel anchor given back");
 				helper.assertValueEqual(returnState(helper, ANCHORS[2]), CableAnchorBlock.Return.NONE, "last anchor after opening");
-				log.add("opened by sneak-use: route kept, " + drum.stored() + " on the drum, wheel anchor back");
+				log.add("opened by sneak-use: route kept, coil kept, wheel anchor back");
 			}))
 			.thenIdle(2)
 			.thenExecute(CableGameTests.step(failed, () -> {
@@ -178,7 +183,7 @@ public class CableLoopGameTests {
 				player.gameMode.destroyBlock(helper.absolutePos(ANCHORS[2]));
 				helper.assertFalse(drum.looped(), "breaking the wheel anchor should open the loop");
 				helper.assertValueEqual(drum.route(), CableGameTests.absolute(helper, ANCHORS[0], ANCHORS[1]), "route after breaking the last anchor");
-				assertCableKept(helper, drum, 2, "after breaking the wheel anchor");
+				assertCableKept(helper, drum, "after breaking the wheel anchor");
 				List<ItemEntity> items = CableGameTests.itemsNear(helper, ANCHORS[2]);
 				helper.assertValueEqual(CableGameTests.count(items, CableContent.CABLE_ANCHOR_ITEM), 2, "anchors dropped (the anchor and its wheel)");
 				items.forEach(ItemEntity::discard);
@@ -189,7 +194,7 @@ public class CableLoopGameTests {
 			.thenSucceed();
 	}
 
-	/** LOOP-03: closing is refused, with nothing lost, without enough cable, on a turning route, or with the return path blocked. */
+	/** LOOP-03: closing is refused, with nothing lost, on a turning route or with the return path blocked. M06: one coil is always enough cable. */
 	@GameTest(structure = YARD)
 	public void loopClosingIsRefusedWhenItCannotWork(GameTestHelper helper) {
 		ServerPlayer player = TestPlayers.create(helper, GameType.SURVIVAL, new BlockPos(3, 1, 6));
@@ -201,15 +206,6 @@ public class CableLoopGameTests {
 			.thenIdle(2)
 			.thenExecute(CableGameTests.step(failed, () -> {
 				route(helper, player, DRUM, ANCHORS);
-				close(helper, player, ANCHORS[2]);
-				helper.assertFalse(drum.looped(), "one coil leaves " + drum.stored() + " blocks: too little for the return");
-				helper.assertValueEqual(player.getMainHandItem().getCount(), 1, "anchor kept after a refusal");
-				assertCableKept(helper, drum, 1, "after the refusal");
-				log.add("short of cable: refused with " + drum.stored() + " on the drum, anchor kept");
-
-				player.setItemInHand(InteractionHand.MAIN_HAND, new ItemStack(CableContent.CABLE_COIL));
-				CableGameTests.useBlock(helper, player, DRUM, Direction.UP);
-				player.setItemInHand(InteractionHand.MAIN_HAND, ItemStack.EMPTY);
 				helper.setBlock(new BlockPos(11, 3, 4), Blocks.STONE);
 				close(helper, player, ANCHORS[2]);
 				helper.assertFalse(drum.looped(), "the return strand would run through the stone at (11, 3, 4)");
@@ -247,9 +243,12 @@ public class CableLoopGameTests {
 		helper.startSequence()
 			.thenIdle(2)
 			.thenExecute(CableGameTests.step(failed, () -> {
+				// A bare drum: a coil used on its crank must not be fitted.
+				BlockPos bare = new BlockPos(1, 1, 8);
+				CableDrumBlockEntity bareDrum = CableGameTests.windDrum(helper, player, bare, 0);
 				player.setItemInHand(InteractionHand.MAIN_HAND, new ItemStack(CableContent.CABLE_COIL));
-				crank(helper, player, DRUM, true);
-				helper.assertValueEqual(drum.stored(), 32, "cable after cranking with a coil in hand");
+				crank(helper, player, bare, true);
+				helper.assertFalse(bareDrum.hasCoil(), "a coil used on the crank should not be fitted");
 				helper.assertValueEqual(player.getMainHandItem().getCount(), 1, "coils in hand after cranking");
 				player.setItemInHand(InteractionHand.MAIN_HAND, ItemStack.EMPTY);
 				route(helper, player, DRUM, ANCHORS);
@@ -258,7 +257,7 @@ public class CableLoopGameTests {
 			}))
 			.thenIdle(1)
 			.thenExecute(CableGameTests.step(failed, () -> {
-				helper.assertValueEqual(drum.speed(), 0.0F, "an open route's drum speed while cranked");
+				helper.assertValueEqual(lineSpeed(helper, DRUM), 0.0F, "an open route's drum speed while cranked");
 				log.add("coil in hand, right-click on the crank: crank only; sneak on the crank: no dismantling; open route: locked");
 				CableGameTests.useBlock(helper, player, DRUM, true);
 				CableGameTests.useBlock(helper, player, DRUM, true);
@@ -267,8 +266,8 @@ public class CableLoopGameTests {
 			}))
 			.thenIdle(1)
 			.thenExecute(CableGameTests.step(failed, () -> {
-				helper.assertTrue(drum.speed() > 0.0F, "an empty drum's spool should turn with the crank");
-				log.add("drum body sneak-use still dismantles; empty drum spins at " + drum.speed());
+				helper.assertTrue(lineSpeed(helper, DRUM) > 0.0F, "an empty drum's spool should turn with the crank");
+				log.add("drum body sneak-use still dismantles; empty drum spins at " + lineSpeed(helper, DRUM));
 				SimpleBlockTestLog.info("CRANK-01: {}", log);
 				TestPlayers.remove(player);
 			}))
@@ -383,7 +382,7 @@ public class CableLoopGameTests {
 			.thenExecute(CableGameTests.step(failed, () -> {
 				route(helper, player, DRUM, anchors);
 				close(helper, player, anchors[3]);
-				helper.assertTrue(drum.looped(), "loop closed over the climb (" + drum.returnLength() + " blocks of return)");
+				helper.assertTrue(drum.looped(), "loop closed over the climb");
 				player.getInventory().clearContent();
 				cart[0] = rodCart(helper, 5.5);
 			}))
@@ -483,7 +482,7 @@ public class CableLoopGameTests {
 			.thenExecute(CableGameTests.step(failed, () -> {
 				double moved = x(helper, cart[0]) - at[0];
 				helper.assertTrue(Math.abs(moved) < 0.1, "the cart should have stopped, it moved " + moved);
-				assertCableKept(helper, drum, 2, "after the break");
+				assertCableKept(helper, drum, "after the break");
 				SimpleBlockTestLog.info("LOOP-08: anchor broken while hauling at x {}: loop opened, cart stopped (moved {} in 60 ticks), cable kept",
 					String.format("%.2f", at[0]), String.format("%.3f", moved));
 				CableGameTests.itemsNear(helper, ANCHORS[1]).forEach(ItemEntity::discard);
@@ -575,7 +574,7 @@ public class CableLoopGameTests {
 		}
 	}
 
-	/** LOOP-12: breaking a looped drum gives back all its cable (wound, laid out and return) and the wheel's anchor, and frees the anchors. */
+	/** LOOP-12: breaking a looped drum gives back its one coil (M06) and the wheel's anchor, and frees the anchors. */
 	@GameTest(structure = YARD)
 	public void breakingALoopedDrumGivesAllTheCableBack(GameTestHelper helper) {
 		ServerPlayer player = TestPlayers.create(helper, GameType.SURVIVAL, new BlockPos(3, 1, 6));
@@ -593,17 +592,16 @@ public class CableLoopGameTests {
 			.thenIdle(2)
 			.thenExecute(CableGameTests.step(failed, () -> {
 				List<ItemEntity> atDrum = CableGameTests.itemsNear(helper, DRUM);
-				int blocks = CableGameTests.count(atDrum, CableContent.CABLE_COIL) * CableContent.BLOCKS_PER_COIL
-					+ CableGameTests.count(atDrum, CableContent.CABLE) * CableContent.BLOCKS_PER_CABLE;
-				helper.assertValueEqual(blocks, 2 * CableContent.BLOCKS_PER_COIL, "blocks of cable dropped by the looped drum");
+				int blocks = CableGameTests.count(atDrum, CableContent.CABLE_COIL);
+				helper.assertValueEqual(blocks, 1, "coils dropped by the looped drum (one, whatever the route)");
+				helper.assertValueEqual(CableGameTests.count(atDrum, CableContent.CABLE), 0, "loose cables dropped by the looped drum");
 				List<ItemEntity> atWheel = CableGameTests.itemsNear(helper, ANCHORS[2]);
 				helper.assertValueEqual(CableGameTests.count(atWheel, CableContent.CABLE_ANCHOR_ITEM), 1, "the wheel's anchor dropped");
 				for (BlockPos anchor : ANCHORS) {
 					helper.assertValueEqual(returnState(helper, anchor), CableAnchorBlock.Return.NONE, "return parts on " + anchor);
 					helper.assertTrue(CableGameTests.anchor(helper, anchor).drum() == null, "anchor " + anchor + " should be free");
 				}
-				SimpleBlockTestLog.info("LOOP-12: looped drum broken: {} blocks of cable dropped ({} coils, {} cables), wheel anchor dropped, anchors free",
-					blocks, CableGameTests.count(atDrum, CableContent.CABLE_COIL), CableGameTests.count(atDrum, CableContent.CABLE));
+				SimpleBlockTestLog.info("LOOP-12: looped drum broken: {} coil dropped, wheel anchor dropped, anchors free", blocks);
 				atDrum.forEach(ItemEntity::discard);
 				atWheel.forEach(ItemEntity::discard);
 				TestPlayers.remove(player);
@@ -634,10 +632,10 @@ public class CableLoopGameTests {
 				CableDrumBlockEntity loaded = CableGameTests.drum(helper, DRUM);
 				helper.assertTrue(loaded.looped(), "loop after loading");
 				helper.assertValueEqual(loaded.route().size(), 3, "route after loading");
-				assertCableKept(helper, loaded, 2, "after loading");
+				assertCableKept(helper, loaded, "after loading");
 				helper.assertValueEqual(CableGameTests.hooks(helper, DRUM).size(), 0, "loose ends after loading a loop");
-				SimpleBlockTestLog.info("LOOP-09: loop saved and loaded: closed, {} return, {} laid out, {} wound, no loose end", loaded.returnLength(),
-					loaded.laidOut(), loaded.stored());
+				SimpleBlockTestLog.info("LOOP-09: loop saved and loaded: closed, {} blocks laid out, coil {}, no loose end", loaded.laidOut(),
+					loaded.hasCoil());
 				TestPlayers.remove(player);
 			}))
 			.thenSucceed();
@@ -659,7 +657,7 @@ public class CableLoopGameTests {
 		helper.assertTrue(Math.abs(exit - 11.0 / 16.0) < 1.0E-6, "a hanging drum's cable should leave at 11/16, was " + exit);
 		player.setItemInHand(InteractionHand.MAIN_HAND, new ItemStack(CableContent.CABLE_COIL));
 		CableGameTests.useBlock(helper, player, at, Direction.NORTH);
-		helper.assertValueEqual(drum.stored(), 32, "cable wound onto the hanging drum");
+		helper.assertTrue(drum.hasCoil(), "coil fitted to the hanging drum");
 		player.setItemInHand(InteractionHand.MAIN_HAND, ItemStack.EMPTY);
 		crank(helper, player, at, false);
 		helper.setBlock(beam, Blocks.AIR);

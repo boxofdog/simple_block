@@ -8,6 +8,12 @@
 		},
 		"part=crank": {
 			"model": "simple_block:block/cable_drum_crank"
+		},
+		"part=furnace": {
+			"model": "simple_block:block/cable_drum_furnace"
+		},
+		"part=lever": {
+			"model": "simple_block:block/cable_drum_lever"
 		}
 	}
 }

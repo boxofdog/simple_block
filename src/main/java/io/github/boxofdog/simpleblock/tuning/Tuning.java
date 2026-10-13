@@ -137,9 +137,8 @@ public final class Tuning {
 		// MOB-03: how long a creeper smokes in direct sunlight before it is gone (ticks; 0.3-0.6 s target).
 		define("mob.creeper.evaporation_ticks", 10);
 
-		// M04 cable (provisional; see docs/DECISIONS.md). Cable a drum holds, in blocks (wound plus laid
-		// out; whole coils of 32).
-		define("cable.drum_capacity", 128);
+		// M04 cable (provisional; see docs/DECISIONS.md). M06: one coil equips a drum for any route length,
+		// so there is no drum capacity any more.
 		// Longest straight span between two supports (drum or anchor), in blocks.
 		define("cable.max_span", 12);
 		// Height of the cable above a minecart (its position on the rail) that a connecting rod grips.
@@ -153,6 +152,16 @@ public final class Tuning {
 		define("cable.grade_load", 1.0);
 		// How close to the drum's exit or the return wheel (along the track) a hauled cart stops.
 		define("cable.end_clearance", 1.5);
+		// M06 coal winch (provisional). Working-strand speed with the lever at PULL or FEED, blocks per
+		// tick (0.15 = 3 blocks a second, 2.5x the hand crank), before the uphill load.
+		define("winch.powered_speed", 0.15);
+		// How much the powered speed may change per tick (smooth starts and PULL-to-FEED reversals).
+		define("winch.acceleration", 0.01);
+		// Ticks of actual hauling one coal gives (a furnace smelts for 1600 ticks on one coal): 1600 ticks
+		// at full speed is 240 blocks of haulage per coal.
+		define("winch.burn_ticks_per_coal", 1600);
+		// Coal a winch holds (one is put in per right-click).
+		define("winch.coal_capacity", 64);
 
 		// M05 rail mass (provisional), in empty-minecart units: an empty cart, a full load of cargo on
 		// top (scaled by the load), a rider, a Cobblestone Engine.

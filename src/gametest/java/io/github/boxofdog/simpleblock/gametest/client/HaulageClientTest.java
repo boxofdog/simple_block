@@ -143,7 +143,7 @@ public class HaulageClientTest implements FabricClientGameTest {
 		context.waitTicks(5);
 		String closeMessage = overlayMessage(context);
 		boolean looped = server.computeOnServer(s -> drumOf(s.overworld(), drumPos).looped());
-		int returnLength = server.computeOnServer(s -> drumOf(s.overworld(), drumPos).returnLength());
+		boolean coil = server.computeOnServer(s -> drumOf(s.overworld(), drumPos).hasCoil());
 		boolean clientLooped = context.computeOnClient(client -> client.level.getBlockEntity(drumPos) instanceof CableDrumBlockEntity drum && drum.looped());
 		server.runCommand("tp @a 46.5 " + (g + 2) + " 9.5 135 15");
 		context.waitTicks(10);
@@ -151,9 +151,9 @@ public class HaulageClientTest implements FabricClientGameTest {
 		server.runCommand("tp @a 32.5 " + (g + 1) + " 0.5 0 5");
 		context.waitTicks(10);
 		context.takeScreenshot("loop-closed");
-		SimpleBlockTestLog.info("CLIENT LOOP: anchor used on the last anchor: '{}'; looped {} (client {}), {} blocks of return cable", closeMessage,
-			looped, clientLooped, returnLength);
-		assertTrue(looped && clientLooped && returnLength > 0, "loop: server " + looped + ", client " + clientLooped + ", return " + returnLength);
+		SimpleBlockTestLog.info("CLIENT LOOP: anchor used on the last anchor: '{}'; looped {} (client {}), coil still fitted {}", closeMessage,
+			looped, clientLooped, coil);
+		assertTrue(looped && clientLooped && coil, "loop: server " + looped + ", client " + clientLooped + ", coil " + coil);
 	}
 
 	/** Fit a rod to a minecart under the line, then haul it out and back by holding the use key on the crank. */
@@ -367,10 +367,10 @@ public class HaulageClientTest implements FabricClientGameTest {
 	// ---- Unloading and reopening ----
 
 	/** What must survive the yard's chunks unloading, or the world being saved and reopened. */
-	private record Snapshot(boolean looped, int returnLength, int stored, int carts, int engines, double rodCartX, boolean gripping, double engineX,
+	private record Snapshot(boolean looped, int laidOut, boolean coil, int carts, int engines, double rodCartX, boolean gripping, double engineX,
 		double seatX, int fuel, boolean coupled) {
 		boolean matches(Snapshot other) {
-			return this.looped == other.looped && this.returnLength == other.returnLength && this.stored == other.stored && this.carts == other.carts
+			return this.looped == other.looped && this.laidOut == other.laidOut && this.coil == other.coil && this.carts == other.carts
 				&& this.engines == other.engines && Math.abs(this.rodCartX - other.rodCartX) < 0.05 && this.gripping == other.gripping
 				&& Math.abs(this.engineX - other.engineX) < 0.05 && Math.abs(this.seatX - other.seatX) < 0.05 && this.fuel == other.fuel
 				&& this.coupled == other.coupled;
@@ -386,7 +386,7 @@ public class HaulageClientTest implements FabricClientGameTest {
 			Minecart rodCart = (Minecart) cartAt(level, g, Z);
 			MinecartFurnace engine = engineOf(level, g).orElseThrow();
 			Minecart seat = seatOf(level, g);
-			return new Snapshot(drum.looped(), drum.returnLength(), drum.stored(), level.getEntitiesOfClass(Minecart.class, yard).size(),
+			return new Snapshot(drum.looped(), drum.laidOut(), drum.hasCoil(), level.getEntitiesOfClass(Minecart.class, yard).size(),
 				level.getEntitiesOfClass(MinecartFurnace.class, yard).size(), rodCart.getX(), ConnectingRods.isGripping(rodCart), engine.getX(),
 				seat.getX(), CobblestoneEngine.engine(engine).simpleBlock$fuel(), Couplings.hasCouplings(seat) && Couplings.hasCouplings(engine));
 		});

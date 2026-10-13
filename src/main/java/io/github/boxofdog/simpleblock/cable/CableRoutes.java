@@ -1,6 +1,5 @@
 package io.github.boxofdog.simpleblock.cable;
 
-import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -16,6 +15,7 @@ import net.minecraft.util.Prediction;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
@@ -28,28 +28,28 @@ import org.jspecify.annotations.Nullable;
 import io.github.boxofdog.simpleblock.tuning.Tuning;
 
 /**
- * Laying out cable. A drum holds cable wound on it ({@link CableDrumBlockEntity#stored}, in blocks) and
- * a route: the anchors the laid-out cable runs through, in order. The cable's loose end and hook
+ * Laying out cable. A drum is fitted with one cable coil (M06: a reusable installation, not a length of
+ * cable) and has a route: the anchors the cable runs through, in order. The cable's loose end and hook
  * ({@link CableHook}) hang at the last support.
  *
  * <ul>
- *   <li><b>Winding on</b>: use a cable coil on a drum ({@value CableContent#BLOCKS_PER_COIL} blocks, up to
- *       {@code cable.drum_capacity} in all).</li>
+ *   <li><b>Fitting the coil</b>: use a cable coil on a drum. One is all a drum takes or needs.</li>
  *   <li><b>Picking up the end</b>: use the hook. It follows the hand like a lead, and slips out of it if
- *       the player walks further than the cable could reach (the longest span or the cable left on the
- *       drum, plus a player's reach).</li>
+ *       the player walks further than a span could reach ({@code cable.max_span}, plus a player's
+ *       reach).</li>
  *   <li><b>Routing</b>: holding the end, use an anchor. The span from the last support to that anchor
- *       must be at most {@code cable.max_span} blocks, clear of solid blocks, and its length (rounded up
- *       to whole blocks) comes off the drum. The end stays in the hand for the next anchor; using the
- *       drum or the last anchor puts it down. An anchor carries one cable.</li>
+ *       must be at most {@code cable.max_span} blocks and clear of solid blocks; there is no limit to
+ *       the number of anchors or the route's length, and the length costs nothing. The end stays in
+ *       the hand for the next anchor; using the drum or the last anchor puts it down. An anchor carries
+ *       one cable.</li>
  *   <li><b>Disconnecting</b>: sneak and use an anchor on the route (empty hands): the cable from there
- *       on comes off its anchors and winds back onto the drum. Breaking an anchor does the same.</li>
+ *       on comes off its anchors and winds back onto the drum. Breaking an anchor does the same; if the
+ *       drum is unloaded, its line is cut at once and the drum winds back when it loads.</li>
  *   <li><b>Dismantling</b>: sneak and use the drum: the first time the whole route winds back in, the
- *       next the cable comes off as coils. Breaking the drum drops all its cable as coils.</li>
+ *       next the coil comes off. Breaking the drum drops the coil.</li>
  * </ul>
  *
- * Cable is never lost or made: the drum's cable (wound plus laid out) is always the coils wound on.
- * Nothing moves the cable yet (no winch power, no traction: later milestones).
+ * The coil is never lost or made: one coil in, the same one out, whatever the route's length.
  */
 public final class CableRoutes {
 	/** Where the cable leaves a drum: the top of the barrel, over the middle. */
@@ -60,10 +60,6 @@ public final class CableRoutes {
 	static final double HOLD_SLACK = 3.0;
 
 	private CableRoutes() {
-	}
-
-	public static int capacity() {
-		return Tuning.getInt("cable.drum_capacity");
 	}
 
 	public static int maxSpan() {
@@ -92,7 +88,7 @@ public final class CableRoutes {
 		return point(pos, false);
 	}
 
-	/** Cable a span uses, in whole blocks (rounded up). */
+	/** A span's length in whole blocks (rounded up). */
 	public static int spanLength(BlockPos from, boolean fromDrum, BlockPos to) {
 		return Mth.ceil(point(from, fromDrum).distanceTo(point(to, false)));
 	}
@@ -121,13 +117,13 @@ public final class CableRoutes {
 
 	static InteractionResult windCoil(Level level, BlockPos pos, Player player, ItemStack coil) {
 		if (level instanceof ServerLevel && level.getBlockEntity(pos) instanceof CableDrumBlockEntity drum) {
-			if (drum.stored() + drum.laidOut() + CableContent.BLOCKS_PER_COIL > capacity()) {
-				tell(player, message("drum_full", "The drum is full: it holds %s blocks of cable", capacity()));
+			if (drum.hasCoil()) {
+				tell(player, message("coil_fitted", "The drum already has its cable: one coil reaches as far as you route it"));
 			} else {
 				coil.consume(1, player);
-				drum.setStored(drum.stored() + CableContent.BLOCKS_PER_COIL);
+				drum.setCoil(true);
 				level.playSound(null, pos, SoundEvents.CHAIN_PLACE, SoundSource.BLOCKS, 1.0F, 0.8F);
-				tell(player, message("wound", "Coil wound on: %s blocks of cable on the drum", drum.stored()));
+				tell(player, message("wound", "Cable fitted: run it through as many anchors as you like"));
 			}
 		}
 		return InteractionResult.SUCCESS;
@@ -157,43 +153,25 @@ public final class CableRoutes {
 			return message("drum_empty", "Empty cable drum: use a cable coil on it");
 		}
 		if (drum.looped()) {
-			return message("drum_loop", "Cable loop: %s blocks laid out and %s in the return, %s wound on", drum.laidOut(), drum.returnLength(),
-				drum.stored());
+			return message("drum_loop", "Cable loop: %s blocks through %s anchors", drum.laidOut(), drum.route().size());
 		}
-		return message("drum_status", "Cable drum: %s blocks wound on, %s laid out through %s anchors", drum.stored(), drum.laidOut(), drum.route().size());
+		return message("drum_status", "Cable drum: %s blocks laid out through %s anchors", drum.laidOut(), drum.route().size());
 	}
 
 	/** One dismantling step: wind the route back in, or take the cable off as coils. */
 	private static Component dismantle(ServerLevel level, CableDrumBlockEntity drum, Player player) {
 		if (!drum.route().isEmpty()) {
-			disconnect(level, drum, 0);
+			int anchors = disconnect(level, drum, 0);
 			level.playSound(null, drum.getBlockPos(), SoundEvents.CHAIN_PLACE, SoundSource.BLOCKS, 1.0F, 0.7F);
-			return message("rewound", "Cable wound back in: %s blocks on the drum", drum.stored());
+			return message("rewound", "Cable wound back in from %s anchors", anchors);
 		}
-		if (drum.stored() > 0) {
-			int blocks = drum.stored();
-			drum.setStored(0);
-			for (ItemStack stack : asItems(blocks)) {
-				player.getInventory().placeItemBackInInventory(stack, Prediction.SERVER_ONLY);
-			}
+		if (drum.hasCoil()) {
+			drum.setCoil(false);
+			player.getInventory().placeItemBackInInventory(new ItemStack(CableContent.CABLE_COIL), Prediction.SERVER_ONLY);
 			level.playSound(null, drum.getBlockPos(), SoundEvents.CHAIN_PLACE, SoundSource.BLOCKS, 1.0F, 0.7F);
-			return message("taken_off", "Cable taken off the drum: %s blocks", blocks);
+			return message("taken_off", "Cable coil taken off the drum");
 		}
 		return status(drum);
-	}
-
-	/** Cable as items: whole coils, then single cables for the rest (rounded down). */
-	static List<ItemStack> asItems(int blocks) {
-		List<ItemStack> stacks = new ArrayList<>();
-		int coils = blocks / CableContent.BLOCKS_PER_COIL;
-		int cables = blocks % CableContent.BLOCKS_PER_COIL / CableContent.BLOCKS_PER_CABLE;
-		for (int left = coils; left > 0; left -= CableContent.CABLE_COIL.getDefaultMaxStackSize()) {
-			stacks.add(new ItemStack(CableContent.CABLE_COIL, Math.min(left, CableContent.CABLE_COIL.getDefaultMaxStackSize())));
-		}
-		if (cables > 0) {
-			stacks.add(new ItemStack(CableContent.CABLE, cables));
-		}
-		return stacks;
 	}
 
 	// ---- Using an anchor ----
@@ -215,9 +193,9 @@ public final class CableRoutes {
 				CableLoops.open(serverLevel, owner, player);
 				tell(player, message("loop_opened", "Loop opened: the return cable is back on the drum"));
 			} else {
-				int rewound = disconnect(serverLevel, owner, owner.route().indexOf(pos));
+				int freed = disconnect(serverLevel, owner, owner.route().indexOf(pos));
 				level.playSound(null, pos, SoundEvents.CHAIN_PLACE, SoundSource.BLOCKS, 1.0F, 0.7F);
-				tell(player, message("disconnected", "Cable disconnected here: %s blocks wound back onto the drum", rewound));
+				tell(player, message("disconnected", "Cable disconnected here: wound back from %s anchors", freed));
 			}
 		} else if (held == null) {
 			tell(player, owner != null
@@ -263,22 +241,14 @@ public final class CableRoutes {
 		if (distance > maxSpan()) {
 			return message("too_far", "Too far: a span can be at most %s blocks, this one would be %s", maxSpan(), length);
 		}
-		if (length > drum.stored()) {
-			return message("too_short", "Not enough cable: this span needs %s blocks, the drum has %s", length, drum.stored());
-		}
 		BlockPos obstacle = obstacle(level, start, point(pos, false), fromDrum ? supports(from, drum.hanging(), pos) : supports(from, true, pos));
 		if (obstacle != null) {
 			return message("blocked", "The cable would run through %s at %s", level.getBlockState(obstacle).getBlock().getName(), obstacle.toShortString());
 		}
 		anchor.setDrum(drum.getBlockPos());
 		drum.addAnchor(pos);
-		drum.setStored(drum.stored() - length);
 		level.playSound(null, pos, SoundEvents.CHAIN_PLACE, SoundSource.BLOCKS, 1.0F, 1.2F);
-		if (drum.stored() == 0) {
-			hook.release();
-			return message("routed_last", "Cable run through the anchor (%s blocks): that was the last of it", length);
-		}
-		return message("routed", "Cable run through the anchor: %s blocks used, %s left on the drum", length, drum.stored());
+		return message("routed", "Cable run through the anchor: a %s-block span, %s blocks of route", length, drum.laidOut());
 	}
 
 	/**
@@ -313,23 +283,21 @@ public final class CableRoutes {
 
 	/**
 	 * Cuts the route at {@code index}: the cable comes off that anchor and every one after it and winds
-	 * back onto the drum. A held end is put down. Returns the blocks of cable wound back.
+	 * back onto the drum. A held end is put down. Returns the number of anchors freed.
 	 */
 	static int disconnect(ServerLevel level, CableDrumBlockEntity drum, int index) {
 		CableLoops.open(level, drum, null);
-		int before = drum.laidOut();
-		for (BlockPos anchor : drum.cutFrom(index)) {
+		List<BlockPos> cut = drum.cutFrom(index);
+		for (BlockPos anchor : cut) {
 			if (level.isLoaded(anchor) && level.getBlockEntity(anchor) instanceof CableAnchorBlockEntity freed && drum.getBlockPos().equals(freed.drum())) {
 				freed.setDrum(null);
 			}
 		}
-		int rewound = before - drum.laidOut();
-		drum.setStored(drum.stored() + rewound);
 		CableHook hook = hook(level, drum);
 		if (hook != null) {
 			hook.release();
 		}
-		return rewound;
+		return cut.size();
 	}
 
 	// ---- The world changing ----
@@ -340,28 +308,16 @@ public final class CableRoutes {
 			if (index >= 0) {
 				disconnect(level, drum, index);
 			}
+		} else {
+			// M06: the drum is far away and unloaded. Stop its line here now; the drum winds back when it loads.
+			CableLines.cut(level, drumPos, anchor);
 		}
 	}
 
 	static void drumRemoved(ServerLevel level, CableDrumBlockEntity drum) {
-		int blocks = drum.stored() + drum.laidOut() + drum.returnLength();
-		if (drum.looped()) {
-			// The return wheel's anchor drops where it is; the anchors lose their return parts.
-			drum.setLoop(false, 0);
-			for (BlockPos anchor : drum.route()) {
-				if (!level.isLoaded(anchor)) {
-					continue;
-				}
-				BlockState state = level.getBlockState(anchor);
-				if (state.is(CableContent.CABLE_ANCHOR)) {
-					level.setBlock(anchor, state.setValue(CableAnchorBlock.RETURN, CableAnchorBlock.Return.NONE), Block.UPDATE_ALL);
-				}
-				if (level.getBlockEntity(anchor) instanceof CableAnchorBlockEntity entity && entity.wheel()) {
-					entity.setWheel(false);
-					Block.popResource(level, anchor, new ItemStack(CableContent.CABLE_ANCHOR_ITEM));
-				}
-			}
-		}
+		CableLines.Line line = CableLines.line(level, drum.getBlockPos());
+		// A loop opens: the anchors lose their return parts and the wheel's anchor drops.
+		CableLoops.open(level, drum, null);
 		for (BlockPos anchor : drum.route()) {
 			if (level.isLoaded(anchor) && level.getBlockEntity(anchor) instanceof CableAnchorBlockEntity freed && drum.getBlockPos().equals(freed.drum())) {
 				freed.setDrum(null);
@@ -371,9 +327,17 @@ public final class CableRoutes {
 		if (hook != null) {
 			hook.discard();
 		}
-		for (ItemStack stack : asItems(blocks)) {
-			Block.popResource(level, drum.getBlockPos(), stack);
+		if (drum.hasCoil()) {
+			Block.popResource(level, drum.getBlockPos(), new ItemStack(CableContent.CABLE_COIL));
 		}
+		// M06 coal winch: the furnace and the unburnt coal come back too (the coal alight is spent).
+		if (line != null && line.powered) {
+			Block.popResource(level, drum.getBlockPos(), new ItemStack(Items.FURNACE));
+			for (int left = line.coal; left > 0; left -= 64) {
+				Block.popResource(level, drum.getBlockPos(), new ItemStack(Items.COAL, Math.min(64, left)));
+			}
+		}
+		CableLines.remove(level, drum.getBlockPos());
 	}
 
 	/**
@@ -381,7 +345,7 @@ public final class CableRoutes {
 	 * the loose end in the world while there is cable.
 	 */
 	static void tickDrum(ServerLevel level, CableDrumBlockEntity drum) {
-		if (!drum.validated && (!drum.indexed || level.getGameTime() % 20 == 0)) {
+		if (!drum.validated && (!drum.checked || level.getGameTime() % 20 == 0)) {
 			validate(level, drum);
 		}
 		CableHook hook = hook(level, drum);
@@ -414,7 +378,6 @@ public final class CableRoutes {
 			}
 		}
 		drum.validated = complete;
-		drum.indexed = true;
-		CableIndex.update(level, drum);
+		drum.checked = true;
 	}
 }

@@ -193,6 +193,21 @@ DRUM_CRANK = [
 ]
 DRUM = DRUM_FRAME + DRUM_SPOOL + DRUM_CRANK
 
+# M06 coal winch: a drum with a furnace fitted on its free (west) side, driving the axle, and the crank
+# replaced by a lever on the east bearing. The lever is drawn tilted about the axle by the renderer:
+# upright for NEUTRAL, back (south) for PULL, forward (north) for FEED.
+DRUM_FURNACE = [
+    Cube('furnace_body', [-7, 0, 3], [-1, 8, 13]),
+    Cube('furnace_door', [-6, 1, 2.5], [-2, 5, 3]),
+    Cube('furnace_chimney', [-5.5, 8, 9], [-2.5, 14, 12]),
+    Cube('furnace_shaft', [-1, 9, 7.5], [-0.5, 10, 8.5]),
+]
+DRUM_LEVER = [
+    Cube('lever_plate', [16, 8, 6.5], [17, 11, 9.5]),
+    Cube('lever_bar', [17, 9, 7.5], [18, 17, 8.5]),
+    Cube('lever_knob', [16.75, 16.5, 7.25], [18.25, 18, 8.75]),
+]
+
 # The loose end's hook, 8 px tall, standing on the model's floor at the centre (the entity's position).
 HOOK = [
     Cube('socket', [7, 6, 7], [9, 8, 9]),
@@ -263,6 +278,7 @@ GROUPS = {
                            'cable_anchor_wheel_back': ANCHOR_WHEEL_BACK},
     'block/cable_drum': {'cable_drum': DRUM, 'cable_drum_frame': DRUM_FRAME, 'cable_drum_spool': DRUM_SPOOL,
                          'cable_drum_spool_wound': DRUM_SPOOL_WOUND, 'cable_drum_crank': DRUM_CRANK},
+    'block/cable_winch': {'cable_drum_furnace': DRUM_FURNACE, 'cable_drum_lever': DRUM_LEVER},
     'block/cable_hook': {'cable_hook': HOOK},
     'block/connecting_rod': {
         'connecting_rod_base': ROD_BASE,
@@ -476,7 +492,7 @@ def main():
                 drum_variants[f'facing={facing},hanging={hanging},wound={wound}'] = m('block/cable_drum_frame', x=180 if hanging == 'true' else 0, y=y)
     write_json(os.path.join(ASSETS, 'blockstates', 'cable_drum.json'), {'variants': drum_variants})
     write_json(os.path.join(ASSETS, 'blockstates', 'cable_drum_part.json'), {'variants': {
-        f'part={part}': m(f'block/cable_drum_{part}') for part in ('spool', 'spool_wound', 'crank')}})
+        f'part={part}': m(f'block/cable_drum_{part}') for part in ('spool', 'spool_wound', 'crank', 'furnace', 'lever')}})
     write_json(os.path.join(ASSETS, 'blockstates', 'cable_hook.json'), {'variants': {'': m('block/cable_hook')}})
     write_json(os.path.join(ASSETS, 'blockstates', 'connecting_rod_part.json'), {'variants': {
         f'part={part}': m(f'block/connecting_rod_{part}') for part in ('base', 'shaft', 'head_open', 'head_closed')}})

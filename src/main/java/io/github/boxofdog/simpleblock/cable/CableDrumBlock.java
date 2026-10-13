@@ -7,6 +7,7 @@ import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
@@ -128,8 +129,15 @@ public class CableDrumBlock extends BaseEntityBlock {
 	@Override
 	protected InteractionResult useItemOn(ItemStack itemStack, BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand,
 		BlockHitResult hitResult) {
+		boolean powered = level.getBlockEntity(pos) instanceof CableDrumBlockEntity drum && drum.powered();
 		if (hand == InteractionHand.MAIN_HAND && isCrank(state, pos, hitResult.getLocation())) {
-			return CableDrive.pull(level, pos, player);
+			return powered ? CoalWinch.cycleLever(level, pos, player) : CableDrive.pull(level, pos, player);
+		}
+		if (itemStack.is(Items.FURNACE) && !powered) {
+			return CoalWinch.fitFurnace(level, pos, player, itemStack);
+		}
+		if (powered && CoalWinch.isCoal(itemStack)) {
+			return CoalWinch.addCoal(level, pos, player, itemStack);
 		}
 		if (itemStack.is(CableContent.CABLE_COIL)) {
 			return CableRoutes.windCoil(level, pos, player, itemStack);
@@ -139,8 +147,12 @@ public class CableDrumBlock extends BaseEntityBlock {
 
 	@Override
 	protected InteractionResult useWithoutItem(BlockState state, Level level, BlockPos pos, Player player, BlockHitResult hitResult) {
+		boolean powered = level.getBlockEntity(pos) instanceof CableDrumBlockEntity drum && drum.powered();
 		if (isCrank(state, pos, hitResult.getLocation())) {
-			return CableDrive.pull(level, pos, player);
+			return powered ? CoalWinch.cycleLever(level, pos, player) : CableDrive.pull(level, pos, player);
+		}
+		if (powered && !player.isSecondaryUseActive() && CableRoutes.heldHook(level, player) == null) {
+			return CoalWinch.inspect(level, pos, player);
 		}
 		return CableRoutes.useDrum(level, pos, player);
 	}

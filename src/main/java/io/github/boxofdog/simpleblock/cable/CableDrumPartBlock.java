@@ -16,7 +16,10 @@ public class CableDrumPartBlock extends Block {
 	public enum Part implements StringRepresentable {
 		SPOOL("spool"),
 		SPOOL_WOUND("spool_wound"),
-		CRANK("crank");
+		CRANK("crank"),
+		/** M06 coal winch: the furnace on the drum's free side, and the lever where the crank was. */
+		FURNACE("furnace"),
+		LEVER("lever");
 
 		private final String name;
 

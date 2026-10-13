@@ -1,0 +1,329 @@
+{
+	"meta": {
+		"format_version": "4.10",
+		"model_format": "java_block",
+		"box_uv": false
+	},
+	"name": "cable_drum_lever",
+	"model_identifier": "",
+	"parent": "",
+	"ambientocclusion": true,
+	"front_gui_light": false,
+	"visible_box": [
+		1,
+		1,
+		0
+	],
+	"variable_placeholders": "",
+	"variable_placeholder_buttons": [],
+	"export_path": "../../src/main/resources/assets/simple_block/models/block/cable_drum_lever.json",
+	"unhandled_root_fields": {},
+	"resolution": {
+		"width": 32,
+		"height": 32
+	},
+	"elements": [
+		{
+			"name": "lever_plate",
+			"box_uv": false,
+			"rescale": false,
+			"locked": false,
+			"light_emission": 0,
+			"render_order": "default",
+			"allow_mirror_modeling": true,
+			"from": [
+				16.0,
+				8.0,
+				6.5
+			],
+			"to": [
+				17.0,
+				11.0,
+				9.5
+			],
+			"autouv": 0,
+			"color": 0,
+			"origin": [
+				8,
+				8,
+				8
+			],
+			"rotation": [
+				0,
+				0,
+				0
+			],
+			"faces": {
+				"north": {
+					"uv": [
+						19,
+						21,
+						20.0,
+						24.0
+					],
+					"texture": 0
+				},
+				"east": {
+					"uv": [
+						16,
+						21,
+						19.0,
+						24.0
+					],
+					"texture": 0
+				},
+				"south": {
+					"uv": [
+						23,
+						21,
+						24.0,
+						24.0
+					],
+					"texture": 0
+				},
+				"west": {
+					"uv": [
+						20,
+						21,
+						23.0,
+						24.0
+					],
+					"texture": 0
+				},
+				"up": {
+					"uv": [
+						19,
+						18,
+						20.0,
+						21.0
+					],
+					"texture": 0
+				},
+				"down": {
+					"uv": [
+						20,
+						18,
+						21.0,
+						21.0
+					],
+					"texture": 0
+				}
+			},
+			"type": "cube",
+			"uuid": "c9fed687-307f-5832-8752-46b91d3450a2"
+		},
+		{
+			"name": "lever_bar",
+			"box_uv": false,
+			"rescale": false,
+			"locked": false,
+			"light_emission": 0,
+			"render_order": "default",
+			"allow_mirror_modeling": true,
+			"from": [
+				17.0,
+				9.0,
+				7.5
+			],
+			"to": [
+				18.0,
+				17.0,
+				8.5
+			],
+			"autouv": 0,
+			"color": 1,
+			"origin": [
+				8,
+				8,
+				8
+			],
+			"rotation": [
+				0,
+				0,
+				0
+			],
+			"faces": {
+				"north": {
+					"uv": [
+						13,
+						19,
+						14.0,
+						27.0
+					],
+					"texture": 0
+				},
+				"east": {
+					"uv": [
+						12,
+						19,
+						13.0,
+						27.0
+					],
+					"texture": 0
+				},
+				"south": {
+					"uv": [
+						15,
+						19,
+						16.0,
+						27.0
+					],
+					"texture": 0
+				},
+				"west": {
+					"uv": [
+						14,
+						19,
+						15.0,
+						27.0
+					],
+					"texture": 0
+				},
+				"up": {
+					"uv": [
+						13,
+						18,
+						14.0,
+						19.0
+					],
+					"texture": 0
+				},
+				"down": {
+					"uv": [
+						14,
+						18,
+						15.0,
+						19.0
+					],
+					"texture": 0
+				}
+			},
+			"type": "cube",
+			"uuid": "225100ce-a8e5-50fd-862c-4640d295dfc8"
+		},
+		{
+			"name": "lever_knob",
+			"box_uv": false,
+			"rescale": false,
+			"locked": false,
+			"light_emission": 0,
+			"render_order": "default",
+			"allow_mirror_modeling": true,
+			"from": [
+				16.75,
+				16.5,
+				7.25
+			],
+			"to": [
+				18.25,
+				18.0,
+				8.75
+			],
+			"autouv": 0,
+			"color": 2,
+			"origin": [
+				8,
+				8,
+				8
+			],
+			"rotation": [
+				0,
+				0,
+				0
+			],
+			"faces": {
+				"north": {
+					"uv": [
+						12,
+						29,
+						13.5,
+						30.5
+					],
+					"texture": 0
+				},
+				"east": {
+					"uv": [
+						10,
+						29,
+						11.5,
+						30.5
+					],
+					"texture": 0
+				},
+				"south": {
+					"uv": [
+						16,
+						29,
+						17.5,
+						30.5
+					],
+					"texture": 0
+				},
+				"west": {
+					"uv": [
+						14,
+						29,
+						15.5,
+						30.5
+					],
+					"texture": 0
+				},
+				"up": {
+					"uv": [
+						12,
+						27,
+						13.5,
+						28.5
+					],
+					"texture": 0
+				},
+				"down": {
+					"uv": [
+						14,
+						27,
+						15.5,
+						28.5
+					],
+					"texture": 0
+				}
+			},
+			"type": "cube",
+			"uuid": "9b1d8cee-38a7-50ac-95ea-b8a7e0e505f4"
+		}
+	],
+	"outliner": [
+		"c9fed687-307f-5832-8752-46b91d3450a2",
+		"225100ce-a8e5-50fd-862c-4640d295dfc8",
+		"9b1d8cee-38a7-50ac-95ea-b8a7e0e505f4"
+	],
+	"textures": [
+		{
+			"path": "",
+			"name": "cable_winch.png",
+			"folder": "block",
+			"namespace": "simple_block",
+			"id": "0",
+			"group": "",
+			"width": 32,
+			"height": 32,
+			"uv_width": 32,
+			"uv_height": 32,
+			"particle": true,
+			"use_as_default": false,
+			"layers_enabled": false,
+			"sync_to_project": "",
+			"render_mode": "default",
+			"render_sides": "auto",
+			"frame_time": 1,
+			"frame_order_type": "loop",
+			"frame_order": "",
+			"frame_interpolate": false,
+			"visible": true,
+			"internal": false,
+			"saved": true,
+			"uuid": "ce5cda0f-fa3a-5c02-a576-c988ab4693e5",
+			"relative_path": "../../src/main/resources/assets/simple_block/textures/block/cable_winch.png",
+			"source": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAACHUlEQVR4nGNkIBK0hJn8xyZ++t5rrOo3nnnISIy5LMQ6gIGBgSHITAGFv+7UAwYGBgYGQwVhFPHzD94SbSYTKQ6gBRh1wKgDRh1AUjkAy/fogJR8jw4YkxzUsJZw6ECAiw2r+Idvv4iyCJd+FgYGBgYbdQm8mo/cfMHAwMDA4KYngyK+69ITBkr1D3gaGHXAqAMGPBuitFpia7zgjrl17hFc/OS2Kyjq8o7s+n9l41aGfd0TUcT3tZz4v+X0Boa+jR1EtYYYGLBEgaWPHpytjJZvGRgYGAIndv7/8OQpA7+MFEPcivlEhR5JDji+5RKcfRda0NASsLhEm8N98endV7gEryA3nO2fZY/Tp+E20XC5p2+fMDx9+xgu5mMayBDbH4I3OpgYGBgYtC0V4QJGThpwNi5xdGCqaomXT9ABlILTt4/j5eMDJFXH2MDKI0sZkdjocgT1D3hBxMTAwMBw9fh9uMC5fTfgbFzi1AQse5aeZKxacQ0llZ/fs4qBlRPB3zitAR7Mj6pc/zO8fMqw9PxpDMPuHEn6v2LjDYaa7mNEF0QsUTXz/h/fOAdFUFJZh+H53StwvmNk0f/9y/vwGrpoosf/h08+McjJ8DHsXRHy3zliDWl9Q3VzNwYGBgaGmyd3MWATWx6V+J+BgYHhwTtI+09BUIiBgYGB4VBG4X8GBgYGu/x+on2NDAY8EcJDANnn2MQil80ny4eEAACvKbbdinqWkQAAAABJRU5ErkJggg=="
+		}
+	]
+}

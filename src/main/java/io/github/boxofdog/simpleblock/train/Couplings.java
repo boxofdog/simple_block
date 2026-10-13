@@ -83,6 +83,11 @@ public final class Couplings {
 		boolean simpleBlock$controlled();
 
 		void simpleBlock$setControlled(boolean controlled);
+
+		/** M06: the loading track this cart is docked at (its train is held), or null. Saved. */
+		@Nullable BlockPos simpleBlock$dock();
+
+		void simpleBlock$setDock(@Nullable BlockPos dock);
 	}
 
 	private record Pending(UUID cart, long time) {
@@ -163,6 +168,47 @@ public final class Couplings {
 			}
 		}
 		return found;
+	}
+
+	/** M06: whether any car of {@code cart}'s train is docked at a loading track (the whole train is then held). */
+	public static boolean docked(AbstractMinecart cart) {
+		for (AbstractMinecart car : consist(cart)) {
+			if (coupled(car).simpleBlock$dock() != null) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	/**
+	 * M06: whether every car of {@code cart}'s train is loaded and in an entity-ticking chunk, and so is
+	 * the track {@code ahead} of each (a move about to be made). A train that is not must not be driven:
+	 * nothing is pulled into, or dragged out of, the unloaded world.
+	 */
+	public static boolean allTicking(ServerLevel level, AbstractMinecart cart, Vec3 ahead) {
+		Set<AbstractMinecart> seen = Collections.newSetFromMap(new IdentityHashMap<>());
+		ArrayDeque<AbstractMinecart> queue = new ArrayDeque<>(List.of(cart));
+		seen.add(cart);
+		while (!queue.isEmpty()) {
+			AbstractMinecart car = queue.poll();
+			if (!level.isPositionEntityTicking(car.blockPosition()) || !level.isPositionEntityTicking(BlockPos.containing(car.position().add(ahead)))) {
+				return false;
+			}
+			for (int slot = 0; slot < 2; slot++) {
+				UUID id = coupled(car).simpleBlock$coupling(slot);
+				if (id == null) {
+					continue;
+				}
+				AbstractMinecart partner = resolve(level, id);
+				if (partner == null) {
+					return false;
+				}
+				if (seen.add(partner)) {
+					queue.add(partner);
+				}
+			}
+		}
+		return true;
 	}
 
 	/** Total mass of the train {@code cart} is part of ({@link TrainPhysics#mass}). */

@@ -5,9 +5,9 @@
 		"C": "simple_block:cable"
 	},
 	"pattern": [
-		"CCC",
-		"C C",
-		"CCC"
+		" C ",
+		" C ",
+		" C "
 	],
 	"result": {
 		"id": "simple_block:cable_coil"

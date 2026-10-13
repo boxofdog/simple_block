@@ -3,6 +3,9 @@
 	"package": "io.github.boxofdog.simpleblock.mixin",
 	"compatibilityLevel": "JAVA_25",
 	"mixins": [
+		"cable.CrafterMenuMixin",
+		"cable.CrafterMixin",
+		"cable.CraftingMenuMixin",
 		"chestcart.AbstractMinecartMixin",
 		"chestcart.HopperBlockEntityMixin",
 		"chestcart.MinecartChestMixin",
