@@ -1,70 +1,138 @@
 {
 	"variants": {
-		"facing=north,hanging=false,wound=false": {
+		"facing=north,hanging=false,powered=false,wound=false": {
 			"model": "simple_block:block/cable_drum_frame"
 		},
-		"facing=north,hanging=true,wound=false": {
+		"facing=north,hanging=false,powered=true,wound=false": {
+			"model": "simple_block:block/cable_drum_frame_powered"
+		},
+		"facing=north,hanging=true,powered=false,wound=false": {
 			"model": "simple_block:block/cable_drum_frame",
 			"x": 180
 		},
-		"facing=north,hanging=false,wound=true": {
+		"facing=north,hanging=true,powered=true,wound=false": {
+			"model": "simple_block:block/cable_drum_frame_powered_hanging",
+			"x": 180
+		},
+		"facing=north,hanging=false,powered=false,wound=true": {
 			"model": "simple_block:block/cable_drum_frame"
 		},
-		"facing=north,hanging=true,wound=true": {
+		"facing=north,hanging=false,powered=true,wound=true": {
+			"model": "simple_block:block/cable_drum_frame_powered"
+		},
+		"facing=north,hanging=true,powered=false,wound=true": {
 			"model": "simple_block:block/cable_drum_frame",
 			"x": 180
 		},
-		"facing=east,hanging=false,wound=false": {
+		"facing=north,hanging=true,powered=true,wound=true": {
+			"model": "simple_block:block/cable_drum_frame_powered_hanging",
+			"x": 180
+		},
+		"facing=east,hanging=false,powered=false,wound=false": {
 			"model": "simple_block:block/cable_drum_frame",
 			"y": 90
 		},
-		"facing=east,hanging=true,wound=false": {
+		"facing=east,hanging=false,powered=true,wound=false": {
+			"model": "simple_block:block/cable_drum_frame_powered",
+			"y": 90
+		},
+		"facing=east,hanging=true,powered=false,wound=false": {
 			"model": "simple_block:block/cable_drum_frame",
 			"x": 180,
 			"y": 90
 		},
-		"facing=east,hanging=false,wound=true": {
-			"model": "simple_block:block/cable_drum_frame",
-			"y": 90
-		},
-		"facing=east,hanging=true,wound=true": {
-			"model": "simple_block:block/cable_drum_frame",
+		"facing=east,hanging=true,powered=true,wound=false": {
+			"model": "simple_block:block/cable_drum_frame_powered_hanging",
 			"x": 180,
 			"y": 90
 		},
-		"facing=south,hanging=false,wound=false": {
+		"facing=east,hanging=false,powered=false,wound=true": {
+			"model": "simple_block:block/cable_drum_frame",
+			"y": 90
+		},
+		"facing=east,hanging=false,powered=true,wound=true": {
+			"model": "simple_block:block/cable_drum_frame_powered",
+			"y": 90
+		},
+		"facing=east,hanging=true,powered=false,wound=true": {
+			"model": "simple_block:block/cable_drum_frame",
+			"x": 180,
+			"y": 90
+		},
+		"facing=east,hanging=true,powered=true,wound=true": {
+			"model": "simple_block:block/cable_drum_frame_powered_hanging",
+			"x": 180,
+			"y": 90
+		},
+		"facing=south,hanging=false,powered=false,wound=false": {
 			"model": "simple_block:block/cable_drum_frame",
 			"y": 180
 		},
-		"facing=south,hanging=true,wound=false": {
+		"facing=south,hanging=false,powered=true,wound=false": {
+			"model": "simple_block:block/cable_drum_frame_powered",
+			"y": 180
+		},
+		"facing=south,hanging=true,powered=false,wound=false": {
 			"model": "simple_block:block/cable_drum_frame",
 			"x": 180,
 			"y": 180
 		},
-		"facing=south,hanging=false,wound=true": {
+		"facing=south,hanging=true,powered=true,wound=false": {
+			"model": "simple_block:block/cable_drum_frame_powered_hanging",
+			"x": 180,
+			"y": 180
+		},
+		"facing=south,hanging=false,powered=false,wound=true": {
 			"model": "simple_block:block/cable_drum_frame",
 			"y": 180
 		},
-		"facing=south,hanging=true,wound=true": {
+		"facing=south,hanging=false,powered=true,wound=true": {
+			"model": "simple_block:block/cable_drum_frame_powered",
+			"y": 180
+		},
+		"facing=south,hanging=true,powered=false,wound=true": {
 			"model": "simple_block:block/cable_drum_frame",
 			"x": 180,
 			"y": 180
 		},
-		"facing=west,hanging=false,wound=false": {
+		"facing=south,hanging=true,powered=true,wound=true": {
+			"model": "simple_block:block/cable_drum_frame_powered_hanging",
+			"x": 180,
+			"y": 180
+		},
+		"facing=west,hanging=false,powered=false,wound=false": {
 			"model": "simple_block:block/cable_drum_frame",
 			"y": 270
 		},
-		"facing=west,hanging=true,wound=false": {
+		"facing=west,hanging=false,powered=true,wound=false": {
+			"model": "simple_block:block/cable_drum_frame_powered",
+			"y": 270
+		},
+		"facing=west,hanging=true,powered=false,wound=false": {
 			"model": "simple_block:block/cable_drum_frame",
 			"x": 180,
 			"y": 270
 		},
-		"facing=west,hanging=false,wound=true": {
+		"facing=west,hanging=true,powered=true,wound=false": {
+			"model": "simple_block:block/cable_drum_frame_powered_hanging",
+			"x": 180,
+			"y": 270
+		},
+		"facing=west,hanging=false,powered=false,wound=true": {
 			"model": "simple_block:block/cable_drum_frame",
 			"y": 270
 		},
-		"facing=west,hanging=true,wound=true": {
+		"facing=west,hanging=false,powered=true,wound=true": {
+			"model": "simple_block:block/cable_drum_frame_powered",
+			"y": 270
+		},
+		"facing=west,hanging=true,powered=false,wound=true": {
 			"model": "simple_block:block/cable_drum_frame",
+			"x": 180,
+			"y": 270
+		},
+		"facing=west,hanging=true,powered=true,wound=true": {
+			"model": "simple_block:block/cable_drum_frame_powered_hanging",
 			"x": 180,
 			"y": 270
 		}

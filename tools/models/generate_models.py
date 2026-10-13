@@ -193,15 +193,34 @@ DRUM_CRANK = [
 ]
 DRUM = DRUM_FRAME + DRUM_SPOOL + DRUM_CRANK
 
-# M06 coal winch: a drum with a furnace fitted on its free (west) side, driving the axle, and the crank
-# replaced by a lever on the east bearing. The lever is drawn tilted about the axle by the renderer:
-# upright for NEUTRAL, back (south) for PULL, forward (north) for FEED.
-DRUM_FURNACE = [
-    Cube('furnace_body', [-7, 0, 3], [-1, 8, 13]),
-    Cube('furnace_door', [-6, 1, 2.5], [-2, 5, 3]),
-    Cube('furnace_chimney', [-5.5, 8, 9], [-2.5, 14, 12]),
-    Cube('furnace_shaft', [-1, 9, 7.5], [-0.5, 10, 8.5]),
+# M07: a coal winch's frame. The furnace motor REPLACES the stand on the motor (west) side: a heavy
+# plinth, a firebox housing with its door on the cable side, a bearing housing joined straight onto the
+# axle (where the west bearing was), a gear plate on the axle and a smokestack. The east stand stays.
+_frame_east = [mirror_x(c, c.name.replace('west', 'east')) for c in _frame_west]
+DRUM_MOTOR = [
+    Cube('motor_plinth', [-6, 0, 1], [2, 3, 15]),
+    Cube('motor_firebox', [-6, 3, 2.5], [1.5, 11, 13.5]),
+    Cube('motor_crown', [-5.5, 11, 3.5], [1, 13, 12.5]),
+    Cube('motor_door', [-4.5, 4, 2], [-1, 8.5, 2.5]),
+    Cube('motor_ash_door', [-4.5, 3.25, 2], [-1, 3.75, 2.5]),
+    Cube('motor_bearing', [-0.5, 8, 6.5], [2.5, 11, 9.5]),
+    Cube('motor_gear', [1.5, 6.5, 5], [2, 12.5, 11]),
+    Cube('motor_stack', [-4.5, 13, 9], [-1.5, 22, 12]),
+    Cube('motor_stack_cap', [-5, 22, 8.5], [-1, 23.5, 12.5]),
 ]
+DRUM_FRAME_POWERED = _frame_east + DRUM_MOTOR
+# Hanging under a beam the block state turns the frame upside down (x 180), so the plinth is bolted to
+# the beam. There the smokestack would point down; instead a short flue leaves the firebox outboard and
+# rises beside the beam (built upside down here; it ends below the top of the block, clear of the beam).
+DRUM_FRAME_POWERED_HANGING = _frame_east + [c for c in DRUM_MOTOR if not c.name.startswith('motor_stack')] + [
+    Cube('motor_flue', [-8, 4.5, 9], [-6, 7, 12]),
+    Cube('motor_flue_riser', [-10, 1, 8.75], [-7.5, 7, 12.25]),
+    Cube('motor_flue_cap', [-10.5, 0, 8.25], [-7, 1, 12.75]),
+]
+
+# M06 coal winch: the crank replaced by a lever on the east bearing (M07: the furnace motor is part of
+# the powered frame, DRUM_FRAME_POWERED). The lever is drawn tilted about the axle by the renderer:
+# upright for NEUTRAL, back (south) for PULL, forward (north) for FEED.
 DRUM_LEVER = [
     Cube('lever_plate', [16, 8, 6.5], [17, 11, 9.5]),
     Cube('lever_bar', [17, 9, 7.5], [18, 17, 8.5]),
@@ -292,37 +311,38 @@ COIL_ITEM = (ring_y('turn_1', 8, 8, 4, 6, 5.5, 2, key='strand')
              + ring_y('turn_2', 8, 8, 6, 8, 5.5, 2, key='strand')
              + ring_y('turn_3', 8, 8, 8, 10, 5.5, 2, key='strand'))
 
-# M05 Cobblestone Engine: a small stone-fired locomotive on a minecart's footprint, drawn in place of
-# the cart body. The cart's length runs along model x (-4 to 20); y 0 is just above the rail. The stack
-# is at the low-x end, the firebox (the furnace) at the high-x end.
-_wheels = []
-for x in (1.5, 14.5):
-    _wheels += prism('wheel_left_' + str(int(x)), 'z', 0.5, 1.5, x, 2.5, 2.5)
-    _wheels += prism('wheel_right_' + str(int(x)), 'z', 14.5, 15.5, x, 2.5, 2.5)
-for c in _wheels:
-    c.uv_key = 'wheel' + c.uv_key[c.uv_key.rindex('_'):]
-ENGINE = _wheels + [
-    Cube('chassis', [-3, 2, 1.5], [19, 4, 14.5]),
-    Cube('buffer_front_left', [-4, 2.5, 3], [-3, 4, 5]),
-    Cube('buffer_front_right', [-4, 2.5, 11], [-3, 4, 13]),
-    Cube('buffer_back_left', [19, 2.5, 3], [20, 4, 5]),
-    Cube('buffer_back_right', [19, 2.5, 11], [20, 4, 13]),
-    Cube('firebox', [8, 4, 2.5], [18, 13, 13.5]),
-    Cube('firebox_door', [18, 5, 5.5], [18.5, 9, 10.5]),
-    Cube('smokestack', [0, 12, 6.5], [3, 17, 9.5]),
-    Cube('smokestack_cap', [-0.5, 17, 6], [3.5, 18, 10]),
-] + prism_x('boiler', -2, 8, 8, 8, 4)
-for c in ENGINE:
-    if c.name.startswith('buffer_'):
-        c.uv_key = 'buffer'
+# Cobblestone Engine (M07 remodel, owner's brief section 5A): a heavy stone-fired furnace engine
+# seated INSIDE the unchanged vanilla minecart, which is drawn as usual underneath it. Model x runs
+# along the cart (the vanilla cart's walls stand at x -2..0 and 16..18), z across it (walls at z 0..2
+# and 14..16); y 0 is the rail. The cart floor's top is at y 3 and its rim at y 11. A cobblestone
+# firebox fills the back of the cart and stands well above the rim, its fire door above the rim; a riveted boiler runs forward from
+# it, with a steam dome, and a tall smokestack with a collar and a flared cap rises from the front.
+ENGINE = [
+    Cube('firebox', [7, 3, 2.5], [15.5, 18, 13.5]),
+    Cube('firebox_crown', [6.5, 18, 2], [16, 19.5, 14]),
+    Cube('firebox_door', [15.5, 12, 5], [16.25, 16.5, 11]),
+    Cube('firebox_latch', [16.25, 14, 7.5], [16.75, 14.5, 8.5]),
+    Cube('firebox_corner_left', [14.5, 3, 2], [16, 18, 3.5], uv_key='firebox_corner'),
+    Cube('firebox_corner_right', [14.5, 3, 12.5], [16, 18, 14], uv_key='firebox_corner'),
+    Cube('boiler_saddle', [1, 3, 4], [7, 9, 12]),
+    Cube('boiler_band_front', [1.5, 8, 3], [2.5, 18.5, 13], uv_key='boiler_band'),
+    Cube('boiler_band_back', [5, 8, 3], [6, 18.5, 13], uv_key='boiler_band'),
+    Cube('steam_dome', [4, 17.5, 6.5], [7, 20.5, 9.5]),
+    Cube('stack_collar', [0.5, 17, 5.5], [5, 19, 10.5]),
+    Cube('smokestack', [1, 19, 6], [4.5, 29, 10]),
+    Cube('stack_band', [0.75, 23, 5.75], [4.75, 24, 10.25]),
+    Cube('stack_cap', [0, 29, 5], [5.5, 31, 11]),
+] + prism_x('boiler', 0.5, 7, 13.5, 8, 4.5)
 
 # Texture groups: models that share one texture (and one UV layout).
 GROUPS = {
     'block/cable_anchor': {'cable_anchor': ANCHOR, 'cable_anchor_guide': ANCHOR_GUIDE, 'cable_anchor_wheel_front': ANCHOR_WHEEL_FRONT,
                            'cable_anchor_wheel_back': ANCHOR_WHEEL_BACK},
-    'block/cable_drum': {'cable_drum': DRUM, 'cable_drum_frame': DRUM_FRAME, 'cable_drum_spool': DRUM_SPOOL,
+    'block/cable_drum': {'cable_drum': DRUM, 'cable_drum_frame': DRUM_FRAME, 'cable_drum_frame_powered': DRUM_FRAME_POWERED,
+                         'cable_drum_frame_powered_hanging': DRUM_FRAME_POWERED_HANGING,
+                         'cable_drum_spool': DRUM_SPOOL,
                          'cable_drum_spool_wound': DRUM_SPOOL_WOUND, 'cable_drum_crank': DRUM_CRANK},
-    'block/cable_winch': {'cable_drum_furnace': DRUM_FURNACE, 'cable_drum_lever': DRUM_LEVER},
+    'block/cable_winch': {'cable_drum_lever': DRUM_LEVER},
     'block/loading_track': {'loading_track': LOADING_TRACK, 'loading_track_raised': LOADING_TRACK_RAISED},
     'block/freight_gate': {'freight_gate_closed': GATE_CLOSED, 'freight_gate_open': GATE_OPEN},
     'block/cable_hook': {'cable_hook': HOOK},
@@ -535,10 +555,12 @@ def main():
     for facing, y in rotations.items():
         for wound in ('false', 'true'):
             for hanging in ('false', 'true'):
-                drum_variants[f'facing={facing},hanging={hanging},wound={wound}'] = m('block/cable_drum_frame', x=180 if hanging == 'true' else 0, y=y)
+                for powered in ('false', 'true'):
+                    frame = 'block/cable_drum_frame' + ('_powered' if powered == 'true' else '') + ('_hanging' if powered == 'true' and hanging == 'true' else '')
+                    drum_variants[f'facing={facing},hanging={hanging},powered={powered},wound={wound}'] = m(frame, x=180 if hanging == 'true' else 0, y=y)
     write_json(os.path.join(ASSETS, 'blockstates', 'cable_drum.json'), {'variants': drum_variants})
     write_json(os.path.join(ASSETS, 'blockstates', 'cable_drum_part.json'), {'variants': {
-        f'part={part}': m(f'block/cable_drum_{part}') for part in ('spool', 'spool_wound', 'crank', 'furnace', 'lever')}})
+        f'part={part}': m(f'block/cable_drum_{part}') for part in ('spool', 'spool_wound', 'crank', 'lever')}})
     write_json(os.path.join(ASSETS, 'blockstates', 'loading_track.json'), {'variants': {
         f'facing={facing},raised={raised}': m('block/loading_track' + ('_raised' if raised == 'true' else ''), y=y)
         for facing, y in rotations.items() for raised in ('false', 'true')}})

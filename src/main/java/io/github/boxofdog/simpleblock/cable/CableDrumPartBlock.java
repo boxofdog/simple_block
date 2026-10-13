@@ -17,8 +17,7 @@ public class CableDrumPartBlock extends Block {
 		SPOOL("spool"),
 		SPOOL_WOUND("spool_wound"),
 		CRANK("crank"),
-		/** M06 coal winch: the furnace on the drum's free side, and the lever where the crank was. */
-		FURNACE("furnace"),
+		/** M06 coal winch: the lever where the crank was (M07: the furnace motor is part of the frame model). */
 		LEVER("lever");
 
 		private final String name;

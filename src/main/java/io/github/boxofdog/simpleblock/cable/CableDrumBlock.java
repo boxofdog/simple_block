@@ -49,18 +49,20 @@ public class CableDrumBlock extends BaseEntityBlock {
 	public static final EnumProperty<Direction> FACING = BlockStateProperties.HORIZONTAL_FACING;
 	public static final BooleanProperty WOUND = BooleanProperty.create("wound");
 	public static final BooleanProperty HANGING = BooleanProperty.create("hanging");
+	/** M07: a coal winch: the frame model's motor-side stand is replaced by the furnace motor. */
+	public static final BooleanProperty POWERED = BooleanProperty.create("powered");
 	/** The crank's reach around the axle, in model pixels, and where the crank side starts. */
 	private static final double CRANK_RADIUS = 6.0;
 	private static final double CRANK_SIDE_X = 14.5;
 
 	public CableDrumBlock(BlockBehaviour.Properties properties) {
 		super(properties);
-		this.registerDefaultState(this.stateDefinition.any().setValue(FACING, Direction.NORTH).setValue(WOUND, false).setValue(HANGING, false));
+		this.registerDefaultState(this.stateDefinition.any().setValue(FACING, Direction.NORTH).setValue(WOUND, false).setValue(HANGING, false).setValue(POWERED, false));
 	}
 
 	@Override
 	protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
-		builder.add(FACING, WOUND, HANGING);
+		builder.add(FACING, WOUND, HANGING, POWERED);
 	}
 
 	@Override

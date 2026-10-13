@@ -12,6 +12,8 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.state.BlockState;
 
 import io.github.boxofdog.simpleblock.tuning.Tuning;
 
@@ -65,6 +67,11 @@ public final class CoalWinch {
 			line.speed = 0.0F;
 			CableLines.get(serverLevel).changed();
 			drum.copyDrive(line);
+			// M07: the frame shows the furnace motor in place of its motor-side stand.
+			BlockState state = level.getBlockState(pos);
+			if (state.hasProperty(CableDrumBlock.POWERED)) {
+				level.setBlock(pos, state.setValue(CableDrumBlock.POWERED, true), Block.UPDATE_ALL);
+			}
 			furnace.consume(1, player);
 			level.playSound(null, pos, SoundEvents.ANVIL_USE, SoundSource.BLOCKS, 0.6F, 1.2F);
 			CableRoutes.tell(player, message("fitted", "Coal winch: put coal in, then right-click the lever to pull or feed"));

@@ -37,10 +37,10 @@ import io.github.boxofdog.simpleblock.cable.CableLoops;
  * <ul>
  *   <li>The spool (bare or wound) and the hand crank ({@code block/cable_drum_spool*},
  *       {@code block/cable_drum_crank}), turned about the axle by the distance the cable has run;
- *       the block model is only the frame. A coal winch (M06) has the furnace on its free side
- *       ({@code block/cable_drum_furnace}) and, instead of the crank, the lever
+ *       the block model is only the frame. A coal winch (M06) has, instead of the crank, the lever
  *       ({@code block/cable_drum_lever}), upright at NEUTRAL, leaning back at PULL and forward at
- *       FEED.</li>
+ *       FEED; its furnace motor (M07) is part of the frame's block model, in place of the motor-side
+ *       stand ({@code block/cable_drum_frame_powered}).</li>
  *   <li>The working strand: straight spans from the drum's exit through each anchor's roller. On a
  *       closed loop (M05) it carries on round the return wheel and back to the drum as the return
  *       strand, and the cable's texture moves along with the cable.</li>
@@ -59,7 +59,6 @@ public class CableDrumRenderer implements BlockEntityRenderer<CableDrumBlockEnti
 		final List<CableGeometry.Piece> pieces = new ArrayList<>();
 		final BlockModelRenderState spool = new BlockModelRenderState();
 		final BlockModelRenderState crank = new BlockModelRenderState();
-		final BlockModelRenderState furnace = new BlockModelRenderState();
 		final BlockModelRenderState lever = new BlockModelRenderState();
 		boolean powered;
 		/** The lever's tilt about the axle, degrees (positive leans it back, away from the cable). */
@@ -101,7 +100,6 @@ public class CableDrumRenderer implements BlockEntityRenderer<CableDrumBlockEnti
 		this.blockModelResolver.update(state.spool, part(wound ? CableDrumPartBlock.Part.SPOOL_WOUND : CableDrumPartBlock.Part.SPOOL),
 			AbstractMinecartRenderer.BLOCK_DISPLAY_CONTEXT);
 		this.blockModelResolver.update(state.crank, part(CableDrumPartBlock.Part.CRANK), AbstractMinecartRenderer.BLOCK_DISPLAY_CONTEXT);
-		this.blockModelResolver.update(state.furnace, part(CableDrumPartBlock.Part.FURNACE), AbstractMinecartRenderer.BLOCK_DISPLAY_CONTEXT);
 		this.blockModelResolver.update(state.lever, part(CableDrumPartBlock.Part.LEVER), AbstractMinecartRenderer.BLOCK_DISPLAY_CONTEXT);
 		state.powered = drum.powered();
 		state.leverAngle = switch (drum.lever()) {
@@ -143,7 +141,6 @@ public class CableDrumRenderer implements BlockEntityRenderer<CableDrumBlockEnti
 		}
 		poseStack.translate(-0.5F, -0.5F, -0.5F);
 		if (state.powered) {
-			state.furnace.submit(poseStack, collector, state.lightCoords, OverlayTexture.NO_OVERLAY, 0);
 			poseStack.pushPose();
 			poseStack.translate(0.0F, AXLE_Y, AXLE_Z);
 			poseStack.rotateDegrees(Axis.XP, state.leverAngle);

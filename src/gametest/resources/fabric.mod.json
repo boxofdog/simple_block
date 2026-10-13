@@ -39,7 +39,8 @@
 			"io.github.boxofdog.simpleblock.gametest.client.CableClientTest",
 			"io.github.boxofdog.simpleblock.gametest.client.HaulageClientTest",
 			"io.github.boxofdog.simpleblock.gametest.client.FreightStationClientTest",
-			"io.github.boxofdog.simpleblock.gametest.client.DedicatedServerClientTest"
+			"io.github.boxofdog.simpleblock.gametest.client.DedicatedServerClientTest",
+			"io.github.boxofdog.simpleblock.gametest.client.MachineryArtClientTest"
 		]
 	},
 	"depends": {

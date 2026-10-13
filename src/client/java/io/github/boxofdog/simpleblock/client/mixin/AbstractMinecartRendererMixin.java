@@ -20,7 +20,8 @@ import io.github.boxofdog.simpleblock.client.train.CouplingChains;
 /**
  * Lets {@link CargoMinecartRenderer} draw a fitted cushion inside the cart (and, M06, the freight
  * cart's front gate), and (M05)
- * {@link CobblestoneEngineRenderer} draw the engine instead of the cart body. The hook sits just before
+ * {@link CobblestoneEngineRenderer} draw the engine (M07: inside the vanilla cart body, which is still
+ * drawn as usual). The hook sits just before
  * the cart body is drawn (the {@code scale(-1, -1, 1)} into model space), where the pose already
  * follows the rails, the slope and the hurt wobble; vanilla only offers a contents hook for a
  * display block. M05 also draws every minecart's coupling chains ({@link CouplingChains}).
@@ -37,10 +38,8 @@ abstract class AbstractMinecartRendererMixin {
 			renderer.submitCushion(state, poseStack, collector);
 			renderer.submitGate(state, poseStack, collector);
 		} else if ((Object) this instanceof CobblestoneEngineRenderer renderer) {
+			// M07: the engine sits inside the cart; vanilla goes on to draw the unchanged cart body.
 			renderer.submitEngine(state, poseStack, collector);
-			// Skip the cart body, closing the pose vanilla opened.
-			poseStack.popPose();
-			ci.cancel();
 		}
 	}
 
