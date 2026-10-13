@@ -1,6 +1,6 @@
-# Simple Block — Milestone 07: Upright Mining Skip, Vertical Hoisting and Freight Transfer (HANDOFF-READY; NOT AUTHORIZED)
+# Simple Block — Milestone 07: Upright Mining Skip, Vertical Hoisting and Freight Transfer (OWNER-AUTHORIZED; NOT IMPLEMENTED)
 
-**Status: OWNER-DESIGNED AND HANDOFF-READY; NOT AUTHORIZED FOR IMPLEMENTATION.** This brief records the agreed design and acceptance criteria for the milestone **after M06**. The owner has **NOT** instructed Claude Code to begin M07. **M06 remains the current owner-authorized implementation milestone.** Preparing or committing this document does not change `CLAUDE.md`'s active milestone, accept M05/M06, or grant implementation authority. To begin M07, the owner must separately authorize it after reviewing the M06 implementation/interface. Until then, leave this as design documentation; do not write gameplay code for M07.
+**Status: OWNER AUTHORIZED FOR IMPLEMENTATION on 2026-10-12.** The owner explicitly authorized this standalone M07 brief. M06 remains in progress, so start M07 implementation when the necessary M06 loading-track, cable and winch interfaces are actually available; verify the as-built interfaces before integration. Do not claim that M06 is finished, nor mark M07 completed/tested/accepted before evidence. M08–M10 remain unauthorized.
 
 **Source of truth when authorized:** this brief, together with the M06 as-built report and functioning loading-track/cable/winch code (not assumptions about unimplemented M06 behavior). Also consult [DECISIONS.md](DECISIONS.md), [ROADMAP.md](ROADMAP.md), [VISION.md](VISION.md), and the previous milestone reports. Existing vanilla minecarts remain the freight carts; a skip is a *new purpose-built vertical carrier*, not another railway cart variant.
 
@@ -94,4 +94,4 @@ When **separately authorized** and once M06's implemented interfaces are availab
 
 **Before implementation, check M06's actual delivered interface and test evidence.** If its deployed loading track/door/cable hook differs from the design scaffold, adapt this M07 brief narrowly or ask for an owner decision on a genuine gameplay conflict; do not overwrite delivered work or silently reinterpret settled physical transfer direction.
 
-**M07 STATUS: HANDOFF-READY, NOT IMPLEMENTATION-AUTHORIZED.** The owner must explicitly say to start M07. Until then, **Claude should work only on currently authorized M06**, and no M07 gameplay code, issue, PR or agent task should be created from this planning artifact alone.
+**M07 STATUS: IMPLEMENTATION AUTHORIZED 2026-10-12; NOT YET IMPLEMENTED.** Once M06's required interfaces are delivered and checked, Claude Code may implement this brief without another permission request. Keep independent M07 report, tests, commits and CI evidence; owner acceptance is a separate later step.
