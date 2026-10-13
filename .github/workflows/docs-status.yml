@@ -2,8 +2,46 @@ name: Milestone Status Sync
 
 on: [push, workflow_dispatch]
 
+permissions:
+  contents: write
+
 jobs:
-  smoke:
+  sync:
     runs-on: ubuntu-latest
+    timeout-minutes: 5
     steps:
-      - run: echo Documentation workflow initialized
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Generate status cells
+        run: python3 tools/docs/sync_milestone_statuses.py --write
+      - name: Test synchronizer
+        run: python3 -m unittest discover -s tools/docs -p 'test_sync_milestone_statuses.py' -v
+      - name: Validate milestone reports and links
+        run: python3 tools/docs/check_reporting.py
+      - name: Push changed status cells on main
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [ "$GITHUB_REF" != "refs/heads/main" ]; then
+            echo "Not main: validation only"
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          for attempt in 1 2 3; do
+            git fetch origin main
+            git reset --hard origin/main
+            python3 tools/docs/sync_milestone_statuses.py --write
+            if git diff --quiet -- docs/ROADMAP.md; then
+              echo "Status cells already synchronized"
+              exit 0
+            fi
+            python3 tools/docs/check_reporting.py
+            git add docs/ROADMAP.md
+            git commit -m "docs: sync roadmap status labels"
+            if git push origin HEAD:main; then
+              exit 0
+            fi
+            echo "Main moved during push; retrying"
+          done
+          exit 1
