@@ -1,18 +1,9 @@
-# Status labels live in each milestone's two-field YAML header.
-# Push to main: update only ROADMAP.md's Status cells, committing only if changed.
-# PRs: validate the generated state without writing back to contributors' branches.
-name: Documentation status sync
+name: Milestone status sync
 
 on:
   push:
-    branches: [main]
-    paths:
-      - 'docs/MILESTONE_??.md'
-      - 'docs/ROADMAP.md'
-      - 'docs/REPORTING_POLICY.json'
-      - 'tools/docs/**'
-      - '.github/workflows/docs-status.yml'
-  pull_request:
+    branches:
+      - main
     paths:
       - 'docs/MILESTONE_??.md'
       - 'docs/ROADMAP.md'
@@ -24,48 +15,26 @@ on:
 permissions:
   contents: write
 
-concurrency:
-  group: milestone-status-sync
-  cancel-in-progress: false
-
 jobs:
-  synchronize:
-    runs-on: ubuntu-24.04
-    timeout-minutes: 5
+  sync:
+    runs-on: ubuntu-latest
     steps:
-      - name: Check out repository
-        uses: actions/checkout@v6
-        with:
-          persist-credentials: true
-      - name: Generate roadmap statuses
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Synchronize roadmap statuses
         run: python3 tools/docs/sync_milestone_statuses.py --write
-      - name: Test the synchronizer
+      - name: Test status synchronization
         run: python3 -m unittest discover -s tools/docs -p 'test_sync_milestone_statuses.py' -v
-      - name: Validate reporting and active links
+      - name: Validate documentation
         run: python3 tools/docs/check_reporting.py
-      - name: Push status-only roadmap correction to main
-        if: github.event_name != 'pull_request'
-        shell: bash
+      - name: Commit and push changed roadmap status cells
         run: |
-          set -euo pipefail
+          if git diff --quiet -- docs/ROADMAP.md; then
+            echo "Roadmap already synchronized"
+            exit 0
+          fi
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          # Re-read current main to avoid committing statuses from an outdated run.
-          for attempt in 1 2 3; do
-            git fetch origin main
-            git reset --hard origin/main
-            python3 tools/docs/sync_milestone_statuses.py --write
-            if git diff --quiet -- docs/ROADMAP.md; then
-              echo "Roadmap statuses are already synchronized."
-              exit 0
-            fi
-            python3 tools/docs/check_reporting.py
-            git add docs/ROADMAP.md
-            git commit -m "docs: synchronize roadmap milestone statuses"
-            if git push origin HEAD:main; then
-              exit 0
-            fi
-            echo "Main advanced during push; retrying ($attempt/3)."
-          done
-          echo "::error::Status synchronization push failed after 3 attempts."
-          exit 1
+          git add docs/ROADMAP.md
+          git commit -m "docs: sync roadmap status labels"
+          git push origin HEAD:main
