@@ -15,15 +15,16 @@ END = "<!-- GENERATED SOURCE INVENTORY END -->"
 
 def write_or_check(path, new, write):
     old = path.read_text(encoding="utf-8") if path.exists() else ""
+    label = path.relative_to(ROOT) if path.is_relative_to(ROOT) else path
     if new == old:
-        print("PASS", path.relative_to(ROOT))
+        print("PASS", label)
         return 0
     if not write:
-        print("OUTDATED", path.relative_to(ROOT), "(use --write)")
+        print("OUTDATED", label, "(use --write)")
         return 1
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(new, encoding="utf-8")
-    print("UPDATED", path.relative_to(ROOT))
+    print("UPDATED", label)
     return 0
 
 def generated_block(content, section):
