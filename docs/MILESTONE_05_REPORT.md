@@ -152,3 +152,9 @@ Playtest builds: the Build workflow publishes `simple-block-mod` on every push t
 ## 10. Next
 
 M05 stops here. The roadmap's next milestone (M06, freight loading track and the coal-powered winch) is a draft and is **not** started.
+
+---
+
+## Owner milestone disposition — 2026-10-13 (roadmap reconsolidation)
+
+**M05: PASSED.** Originally accepted by the owner 2026-10-12 and expressly reaffirmed PASSED 2026-10-13 after independent GitHub/source/CI review. [Build #17](https://github.com/boxofdog/simple_block/actions/runs/38306694723) is green with a published `simple-block-mod` artifact; 114/114 server tests and three real-client tests are documented above. No new human playtest or assistant-run local execution is claimed by this status. Detailed implementation/CI handoff remains in this report, and the current brief status in [ROADMAP.md](ROADMAP.md). M04 and M06 are also PASSED; M07 remains PLAYTESTING.
