@@ -207,3 +207,103 @@ Locked values: the 512 capacity (`SkipCargo.CAPACITY`), the 1×1×3 body plus br
 ## 10. Next
 
 M07 is complete pending ChatGPT's independent review and the owner's playtest. M06's owner acceptance (including BUG-002 and the hinged stop) is also still pending. M08–M10 are not authorized.
+
+---
+
+## 11. Amendment, 2026-10-13: owner playtest patch (§§1–10) and the four-gate cart
+
+Brief: [MILESTONE_07_PLAYTEST_PATCH.md](MILESTONE_07_PLAYTEST_PATCH.md) §§1–10, implemented as one pass as the owner asked, **plus** the owner's later direct instruction that every minecart share one four-gate body. Sections 1–10 above are the **historical** record of Build #22; that build passed the tests of the **old** geometry and does not stand for this one. Choices: [DECISIONS.md §5.5.4](DECISIONS.md). Evidence: [`docs/evidence/milestone-07-patch/`](evidence/milestone-07-patch/), which holds:
+- `server-tests-and-controls.md`: the server results and every negative control;
+- `client-test-log.txt`;
+- the `m07p-*`, `m07c-*` and `m07-server-*` screenshots.
+
+M07 owner acceptance stays **unchecked**. M08–M11 are untouched.
+
+| | |
+|---|---|
+| Implementation commit on `main` | [`49d7add`](https://github.com/boxofdog/simple_block/commit/49d7add4a3793b1ac4bb61e1f7f54156eb4d5cbc) |
+| CI | [Build #23](https://github.com/boxofdog/simple_block/actions/runs/38438092565) on `49d7add`: **success**, `simple-block-mod` artifact id 11834545069 (408,005 bytes) |
+| Server game tests | `./gradlew build`: **152/152** (139 before: +SKIP-09..13, +WIN-07a..h; the SKIP-02/04/06/07/08, CRANK-01 and WIN-01 tests rewritten for the new rules) |
+| Client game tests | all **9** pass (new `MinecartBodyClientTest`; `SkipClientTest` rewritten around a 36-block shaft; `SkipServerClientTest` now hangs and unloads over the network; `FreightStationClientTest` docks with its last support over the rail) |
+| Negative controls | 17, each fails its test (14 server, 1 more server for §10, 2 real-client), sources restored after each |
+
+### 11.1 What changed
+
+- **§1 Unloading place.** Measured from the vanilla models:
+  - the chute's lip sits 1/16 above the skip's bottom;
+  - a cart's rim sits 12/16 above its rail block.
+
+  So the skip unloads when its bottom is at the rail + 11/16, with the cart one level below the chute in the cell in front, kitty-corner. The skip model is unchanged. A cart level with the chute, side by side, never exchanges. Only a hung skip has stations.
+- **§2 Loading.** The cart's gate on the skip's side opens into the intake while the lid opens: 10-tick animated doors, interpolated on the client. Both close afterwards. Nothing transfers without a real station.
+- **§3 Bridle.**
+  - A placed skip is 1×3 with no bridle.
+  - Hooking the cable on adds the bridle as a fourth, colliding block, but only if that space and its side cells are free. If they aren't, the existing "cable would run through" message shows and nothing is used.
+  - Taking it off removes the bridle, and saved worlds keep the state.
+- **§4 Pulley.**
+  - The head anchor turns into a ceiling pulley (`return=pulley`, a new model) only when a skip is hooked on. A free hook never makes a pulley.
+  - It reverts when the skip is taken off or the route changes.
+  - The loose end stays at its paid-out height.
+- **§5A Cable hook.** Carrying the end is measured across the ground:
+  - it goes taut at 12 blocks;
+  - it is put down beyond 16 blocks;
+  - there is no message (the old "slipped" message is removed).
+
+  The span limit stays 12. Before any skip is attached, the crank and the coal winch FEED or PULL the free hook down or up the shaft with no depth cap, with these rules:
+  - the paid-out length is saved with the line;
+  - no coal burns while the hook is still;
+  - nothing moves while its chunk is not ticking.
+
+  In the client test the hook was wound 33 blocks down a 36-block shaft onto the skip, picked up from the floor without scaffolding, and hooked on.
+- **§8 → four-gate cart.**
+  - First pass: the freight gate replaced the cart's real end wall (that wall was left out of the model).
+  - Then the owner asked for one body for every minecart. `GatedMinecartModel` now replaces vanilla's cart model in every minecart renderer:
+    - vanilla's floor and texture;
+    - four corner columns, plus a rim along the top of each long side;
+    - two end gates (12 px wide, no rim over them), hinged at the bottom and folding 112.5° into a ramp;
+    - two side gates (16 px wide), hinged under the rims and swinging 100° up and out.
+  - Its UVs reuse vanilla's wall areas, so a closed cart looks like vanilla's.
+  - Only a freight cart tipping into a skip opens a gate, the one facing the skip. Cushioned carts, the Cobblestone Engine and the rest keep all four shut.
+  - Stations now accept a Loading Rail end-on or side-on in front of the skip. A docked car of a coupled train can tip sideways through its long gate without uncoupling (SKIP-13 and the real-client side-on test).
+  - The M06 `freight_gate` technical block and its models are retired. The editable source is `art/blockbench/gated_minecart.bbmodel` (Modded Entity, on vanilla's 64×32 minecart texture, which is not copied into the repository).
+- **§9 Moving cable.** On a route that doesn't loop, the drum shows its drive speed only on ticks the skip or hook actually moved, and spool and cable texture follow that. The texture phase starts at the drum and carries on from the route's end down the shaft. In the client, 3 ticks of PULL moved it +0.20 and 3 ticks of FEED −0.34, and it stayed exact when stopped at a station.
+- **§10 Far-end stop.** Reproduced first (WIN-07, failing before the fix): with the return wheel at x 23.5, FEED always stopped at x 21.950 with stop `end`.
+  - Cause: `cable.end_clearance` 1.5 (`grip.along` 20.45 of 22.0).
+  - Effect: a Loading Rail under the last support, one block before it, or a terminal rail there was never entered. Rails 2 or 3 blocks before it docked. PULL to a rail 2 blocks from a drum on the ground stopped at x 4.25 on the look-ahead grip check, because the cable dips to the drum.
+  - Fix: if a Loading Rail the cart will dock at lies within 1.5 blocks ahead, the clearance and look-ahead grip checks are waived for that last stretch, and docking stops the cart. Track-end, derailment and unloaded-chunk checks are unchanged.
+  - Without a station the 1.5-block clearance stays. The cart stops at x 21.95 on the rails, still gripping, whether the track goes on or ends under the support.
+
+### 11.2 Test matrix (patch §6)
+
+| Check | Result | Evidence |
+|---|---|---|
+| Unload only below, kitty-corner, lip on rim; same-level never | PASS | SKIP-06/07/12; client `m07p-unload-lip-on-rim-{side,front,east,south,west}` |
+| Load at the bridle with gate ramp and lid | PASS | SKIP-06/12; client gate swing 0.10→0.50→1.00, lid 1.00; `m07p-load-*` |
+| Conditional bridle, refused if obstructed, save/reload | PASS | SKIP-02/09; client box 3.0 → 4.0 → 3.0 |
+| Pulley only while hooked, reverts | PASS | SKIP-09; client NONE → PULLEY → NONE |
+| Free hook wound by crank and coal winch, no coal at rest, unloaded chunk | PASS | SKIP-10; client: 400 blocks away, drop and coal unchanged |
+| Deep shaft (>30) without scaffolding | PASS | client, 36-block shaft |
+| Horizontal leash 12/16, span limit 12 | PASS | SKIP-11 |
+| Four-gate body: shut cart = vanilla look; each gate opens alone; cushioned and engine shut | PASS | `MinecartBodyClientTest`, `m07c-*` |
+| Side-on transfer, coupled train stays coupled | PASS | SKIP-13; client `m07c-side-on-train-*` |
+| Moving hoist cable, both ways, still when stopped | PASS | client phase check and `m07p-hoist-cable-{pull,feed}-frame-{1,2}` |
+| Far-end Loading Rail: under, 1, 2 or 3 blocks before the last support, terminal; no station; near the drum | PASS | WIN-07a..h; client station dock with its last support over the rail |
+| Dedicated server sync (bridle, pulley, unload) | PASS | `SkipServerClientTest` |
+| Regression M01–M07 | PASS | 152/152 server, 9/9 client |
+| §10 on curves and slopes, with a coupled train, after a partial chunk unload | NOT RUN | not covered by a dedicated test |
+| Blockbench opening `gated_minecart.bbmodel` | NOT RUN | generated by script; not opened in Blockbench here |
+| Human playtest, desktop GPU, two players on one skip | NOT RUN | |
+
+### 11.3 Known gaps and open questions
+
+- **Owner instruction supersedes earlier rules:** the four-gate body now covers the Cobblestone Engine and every other minecart. This replaces the earlier rule (CLAUDE.md, patch §8) that the engine sit in an unchanged vanilla minecart and that other cart models stay vanilla.
+- **Working a whole train car by car:** the M06 release rule makes every car of a released train pass over that Loading Rail once. So side-on transfer serves the car that docks, but after a release the next car of the same train does not dock there. Changing that would change settled M06 behaviour, so it is left for the owner to decide.
+- **Near the drum:** a cart docking 2 blocks from a drum on the ground loses the dipping cable just short of the rail and rolls onto it. The winch then stops as `idle` rather than `docked`; the lever still goes to NEUTRAL.
+- **Client test harness:** once, closing the reopened world in `SkipClientTest` hung inside Fabric's client-gametest threading (the render thread waited on the server halt while the server and test threads waited on the test phaser). The same test passed in every other run, including the full suite. The hung run was stopped and the evidence re-run.
+- **Art:** the pulley texture is a template. The cart body uses vanilla's texture, and per the owner's review only touch-ups are wanted (see [Joe's To-Do](Joe's%20To-Do/BLOCKBENCH_PAINTING.md)).
+
+**Suggested playtest:** repeat §9's steps 2–8 with these changes:
+- hang the skip at the bottom of a deep shaft by winching the free hook down;
+- put the lower Loading Rail one level below the chute;
+- try a side-on rail with a coupled train;
+- run a cart to a Loading Rail under the last support;
+- look at closed and open carts of every kind.
