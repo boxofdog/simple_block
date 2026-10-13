@@ -120,6 +120,10 @@ public final class CableLoops {
 			CableRoutes.tell(player, CableRoutes.message("loop_already", "This route is already a loop"));
 			return InteractionResult.SUCCESS;
 		}
+		if (CableHoists.hoisting(serverLevel, drum.getBlockPos())) {
+			CableRoutes.tell(player, CableRoutes.message("loop_hoisting", "A skip hangs on this cable: take it off before closing a loop"));
+			return InteractionResult.SUCCESS;
+		}
 		BlockPos drumPos = drum.getBlockPos();
 		List<BlockPos> route = drum.route();
 		Direction outward = straightDirection(drumPos, route);

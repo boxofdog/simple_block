@@ -287,6 +287,8 @@ public final class CableRoutes {
 	 */
 	static int disconnect(ServerLevel level, CableDrumBlockEntity drum, int index) {
 		CableLoops.open(level, drum, null);
+		// M07: the cable end comes off any skip hung on it.
+		CableHoists.detach(level, drum.getBlockPos());
 		List<BlockPos> cut = drum.cutFrom(index);
 		for (BlockPos anchor : cut) {
 			if (level.isLoaded(anchor) && level.getBlockEntity(anchor) instanceof CableAnchorBlockEntity freed && drum.getBlockPos().equals(freed.drum())) {
@@ -349,7 +351,8 @@ public final class CableRoutes {
 			validate(level, drum);
 		}
 		CableHook hook = hook(level, drum);
-		if (!drum.hasCable() || drum.looped()) {
+		// M07: while a skip hangs on the cable end, the end (and its hook) is made fast to the skip's bridle.
+		if (!drum.hasCable() || drum.looped() || CableHoists.hoisting(level, drum.getBlockPos())) {
 			if (hook != null) {
 				hook.discard();
 			}

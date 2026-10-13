@@ -16,6 +16,7 @@ import io.github.boxofdog.simpleblock.feature.NoElytraFlight;
 import io.github.boxofdog.simpleblock.feature.RemovedRocks;
 import io.github.boxofdog.simpleblock.feature.RetiredItems;
 import io.github.boxofdog.simpleblock.feature.SaturationSync;
+import io.github.boxofdog.simpleblock.skip.SkipContent;
 import io.github.boxofdog.simpleblock.train.TrainContent;
 import io.github.boxofdog.simpleblock.tuning.Tuning;
 import io.github.boxofdog.simpleblock.worldgen.IronWorldgen;
@@ -111,6 +112,19 @@ import io.github.boxofdog.simpleblock.worldgen.IronWorldgen;
  *       advancement overrides</li>
  *   <li>no shoving carts that carry no passenger — {@code feature/CartPushing}, {@code mixin/pushing}</li>
  * </ul>
+ *
+ * <p>Milestone 07, the upright ore skip ({@code skip/}; registrations in {@link SkipContent}):
+ * <ul>
+ *   <li>the skip, its 512-item single slot and screen — {@code skip/OreSkip}, {@code skip/SkipCargo},
+ *       {@code skip/SkipMenu}, client {@code skip/OreSkipRenderer} and {@code skip/SkipScreen}</li>
+ *   <li>hoisting on a drum's cable with the crank or coal winch — {@code cable/CableHoists},
+ *       {@code cable/CableDrive}, {@code cable/CoalWinch}</li>
+ *   <li>cargo exchange at the Loading Rail by height — {@code skip/SkipStations},
+ *       {@code mixin/train/AbstractMinecartMixin} (the cart's ramp), client {@code CargoMinecartRenderer}</li>
+ *   <li>visual remodels: the furnace engine inside the vanilla minecart (client
+ *       {@code CobblestoneEngineRenderer}, {@code mixin/AbstractMinecartRendererMixin}) and the coal winch's
+ *       motor in place of its stand ({@code cable/CableDrumBlock#POWERED})</li>
+ * </ul>
  */
 public class SimpleBlock implements ModInitializer {
 	public static final String MOD_ID = "simple_block";
@@ -121,6 +135,7 @@ public class SimpleBlock implements ModInitializer {
 		Tuning.load();
 		CableContent.register();
 		TrainContent.register();
+		SkipContent.register();
 		NoElytraFlight.register();
 		RemovedRocks.register();
 		IronWorldgen.register();

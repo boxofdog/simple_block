@@ -334,6 +334,60 @@ ENGINE = [
     Cube('stack_cap', [0, 29, 5], [5.5, 31, 11]),
 ] + prism_x('boiler', 0.5, 7, 13.5, 8, 4.5)
 
+# M07 upright ore skip, facing north (its front, with the chute's mouth and the station side, is to
+# the north, z 0). Its body is one block deep and three tall; seen from the front it looks like a
+# minecart turned on its side, wider than its one-block footprint: model x -6..22 (6 px into the cell
+# on each side, which must be clear). Drawn by the skip's renderer in parts, one block model per part:
+# the open bottom chute (block 1), the two-block ore bin (blocks 2-3, y 0..32 here), its sliding
+# discharge gate (closed under the bin, or slid sideways to let ore into the chute), the hinged lid of
+# the top intake (closed, or flipped up at the back) and the triangular bridle (block 4): two legs from
+# lugs on the bin's sides to one apex, where the hoisting cable is made fast.
+_skip_posts = lambda h: [
+    Cube('post_front_left', [-6, 0, 1], [-4, h, 3], uv_key='post'),
+    Cube('post_front_right', [20, 0, 1], [22, h, 3], uv_key='post'),
+    Cube('post_back_left', [-6, 0, 13], [-4, h, 15], uv_key='post'),
+    Cube('post_back_right', [20, 0, 13], [22, h, 15], uv_key='post'),
+]
+SKIP_CHUTE = _skip_posts(16) + [
+    Cube('chute_cheek_left', [-4, 2, 3], [-3, 16, 13], uv_key='chute_cheek'),
+    Cube('chute_cheek_right', [19, 2, 3], [20, 16, 13], uv_key='chute_cheek'),
+    Cube('chute_floor', [-3, 7.5, 0], [19, 9, 17], rot=('x', -22.5, [8, 8.25, 8.5])),
+    Cube('chute_lip', [-3, 1, -1.5], [19, 2.5, 1.5]),
+    Cube('chute_back_bar', [-6, 0, 13], [22, 2, 15]),
+]
+SKIP_BIN = _skip_posts(32) + [
+    Cube('wall_left', [-5.5, 2, 3], [-4, 30, 13]),
+    Cube('wall_right', [20, 2, 3], [21.5, 30, 13]),
+    Cube('wall_front', [-4, 2, 1], [20, 30, 2.5]),
+    Cube('wall_back', [-4, 2, 13.5], [20, 30, 15]),
+    Cube('sill_front', [-4, 0, 1], [20, 2, 3]),
+    Cube('sill_back', [-4, 0, 13], [20, 2, 15]),
+    Cube('band_low', [-6.5, 9, 0.5], [22.5, 10.5, 15.5], uv_key='band'),
+    Cube('band_high', [-6.5, 21, 0.5], [22.5, 22.5, 15.5], uv_key='band'),
+    Cube('rim_front', [-6.5, 30, 0.5], [22.5, 32, 2.5], uv_key='rim_x'),
+    Cube('rim_back', [-6.5, 30, 13.5], [22.5, 32, 15.5], uv_key='rim_x'),
+    Cube('rim_left', [-6.5, 30, 2.5], [-4, 32, 13.5], uv_key='rim_z'),
+    Cube('rim_right', [20, 30, 2.5], [22.5, 32, 13.5], uv_key='rim_z'),
+    Cube('lug_left', [-8, 26, 6.5], [-6, 31, 9.5], uv_key='lug'),
+    Cube('lug_right', [22, 26, 6.5], [24, 31, 9.5], uv_key='lug'),
+]
+SKIP_GATE_CLOSED = [Cube('gate_plate', [-4, 0.5, 3], [20, 1.5, 13]), Cube('gate_handle', [20, 0, 7], [21.5, 2, 9])]
+SKIP_GATE_OPEN = [Cube('gate_plate', [6, 0.5, 3], [30, 1.5, 13]), Cube('gate_handle', [30, 0, 7], [31.5, 2, 9])]
+SKIP_LID_CLOSED = [Cube('lid_plate', [-4, 0, 2.5], [20, 1.5, 13.5]), Cube('lid_hinge', [-4, 0, 13.5], [20, 1.5, 15])]
+SKIP_LID_OPEN = [Cube('lid_plate', [-4, 0, 13.5], [20, 11, 15], uv_key='lid_plate_open'), Cube('lid_hinge', [-4, 0, 13.5], [20, 1.5, 15])]
+SKIP_BRIDLE = [
+    Cube('leg_left', [-0.25, -4.1, 7.25], [1.25, 17.1, 8.75], rot=('z', -45, [0.5, 6.5, 8]), uv_key='leg'),
+    Cube('leg_right', [14.75, -4.1, 7.25], [16.25, 17.1, 8.75], rot=('z', 45, [15.5, 6.5, 8]), uv_key='leg'),
+    Cube('apex', [6, 13, 6.5], [10, 16, 9.5]),
+]
+ORE_SKIP_ITEM = [
+    Cube('bin', [3, 4, 5], [13, 12, 11]),
+    Cube('band', [2.5, 7, 4.5], [13.5, 8, 11.5]),
+    Cube('chute', [4, 1, 5], [12, 4, 10]),
+    Cube('leg_left', [4.5, 10, 7.5], [5.5, 16, 8.5], rot=('z', -22.5, [5, 13, 8])),
+    Cube('leg_right', [10.5, 10, 7.5], [11.5, 16, 8.5], rot=('z', 22.5, [11, 13, 8])),
+]
+
 # Texture groups: models that share one texture (and one UV layout).
 GROUPS = {
     'block/cable_anchor': {'cable_anchor': ANCHOR, 'cable_anchor_guide': ANCHOR_GUIDE, 'cable_anchor_wheel_front': ANCHOR_WHEEL_FRONT,
@@ -356,12 +410,15 @@ GROUPS = {
     'item/cable': {'cable': CABLE_ITEM},
     'item/cable_coil': {'cable_coil': COIL_ITEM},
     'block/cobblestone_engine': {'cobblestone_engine': ENGINE},
+    'block/ore_skip': {'ore_skip_chute': SKIP_CHUTE, 'ore_skip_bin': SKIP_BIN, 'ore_skip_gate_closed': SKIP_GATE_CLOSED,
+                       'ore_skip_gate_open': SKIP_GATE_OPEN, 'ore_skip_lid_closed': SKIP_LID_CLOSED, 'ore_skip_lid_open': SKIP_LID_OPEN,
+                       'ore_skip_bridle': SKIP_BRIDLE, 'ore_skip': ORE_SKIP_ITEM},
 }
 # Where each model's JSON goes (block models are used by blockstates, block items and renderers).
-MODEL_PATHS = {name: ('item/' if name in ('copper_connecting_rod', 'cable', 'cable_coil') else 'block/') + name
+MODEL_PATHS = {name: ('item/' if name in ('copper_connecting_rod', 'cable', 'cable_coil', 'ore_skip') else 'block/') + name
                for models in GROUPS.values() for name in models}
 # Models also shown as items (they get the standard block display transforms).
-ITEM_DISPLAY = {'cable_anchor', 'cable_drum', 'copper_connecting_rod', 'cable', 'cable_coil', 'loading_track'}
+ITEM_DISPLAY = {'cable_anchor', 'cable_drum', 'copper_connecting_rod', 'cable', 'cable_coil', 'loading_track', 'ore_skip'}
 
 # ---- UV layout ----
 
@@ -570,8 +627,10 @@ def main():
     write_json(os.path.join(ASSETS, 'blockstates', 'connecting_rod_part.json'), {'variants': {
         f'part={part}': m(f'block/connecting_rod_{part}') for part in ('base', 'shaft', 'head_open', 'head_closed')}})
     write_json(os.path.join(ASSETS, 'blockstates', 'cobblestone_engine_model.json'), {'variants': {'': m('block/cobblestone_engine')}})
+    write_json(os.path.join(ASSETS, 'blockstates', 'ore_skip_part.json'), {'variants': {
+        f'part={part}': m(f'block/ore_skip_{part}') for part in ('chute', 'bin', 'gate_closed', 'gate_open', 'lid_closed', 'lid_open', 'bridle')}})
     for item, path in (('cable', 'item/cable'), ('cable_coil', 'item/cable_coil'), ('copper_connecting_rod', 'item/copper_connecting_rod'),
-                       ('cable_anchor', 'block/cable_anchor'), ('cable_drum', 'block/cable_drum'), ('loading_track', 'block/loading_track')):
+                       ('cable_anchor', 'block/cable_anchor'), ('cable_drum', 'block/cable_drum'), ('loading_track', 'block/loading_track'), ('ore_skip', 'item/ore_skip')):
         write_json(os.path.join(ASSETS, 'items', item + '.json'), {'model': {'type': 'minecraft:model', 'model': f'{NAMESPACE}:{path}'}})
 
     print('written:', *written, sep='\n  ')

@@ -80,5 +80,8 @@
 	"simple_block.loading_track.empty": "No train is held here",
 	"simple_block.loading_track.released": "Released: start the engine or the winch to move off",
 	"simple_block.engine.docked": "Held at a Loading Rail: use the rail to release it",
-	"simple_block.winch.lever_skipped": "Lever: %s (%s is blocked here)"
+	"simple_block.winch.lever_skipped": "Lever: %s (%s is blocked here)",
+	"item.simple_block.ore_skip": "Ore Skip",
+	"entity.simple_block.ore_skip": "Ore Skip",
+	"container.simple_block.ore_skip": "Ore Skip"
 }

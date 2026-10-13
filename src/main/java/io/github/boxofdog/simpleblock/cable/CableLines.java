@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.UUID;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
@@ -13,6 +14,7 @@ import org.jspecify.annotations.Nullable;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.UUIDUtil;
 import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.StringRepresentable;
@@ -86,6 +88,8 @@ public final class CableLines extends SavedData {
 		int burn;
 		/** Index into the route where an anchor went while the drum was unloaded, or -1. */
 		int cut;
+		/** M07: the ore skip hung on this line's cable end (its entity UUID), or null ({@link CableHoists}). */
+		@Nullable UUID hoist;
 
 		// Not saved: a line loads standing still.
 		float speed;
@@ -116,7 +120,9 @@ public final class CableLines extends SavedData {
 		/** The carts (entity ids) gripping when that way was blocked. */
 		java.util.Set<Integer> blockedCarts = java.util.Set.of();
 
-		Line(List<BlockPos> anchors, List<Vec3> points, boolean looped, Optional<Direction> outward, boolean powered, int coal, int burn, int cut) {
+		Line(List<BlockPos> anchors, List<Vec3> points, boolean looped, Optional<Direction> outward, boolean powered, int coal, int burn, int cut,
+			Optional<UUID> hoist) {
+			this.hoist = hoist.orElse(null);
 			this.anchors = List.copyOf(anchors);
 			this.points = List.copyOf(points);
 			this.looped = looped;
@@ -129,7 +135,7 @@ public final class CableLines extends SavedData {
 		}
 
 		static Line empty() {
-			return new Line(List.of(), List.of(), false, Optional.empty(), false, 0, 0, -1);
+			return new Line(List.of(), List.of(), false, Optional.empty(), false, 0, 0, -1, Optional.empty());
 		}
 
 		public List<Vec3> points() {
@@ -173,6 +179,16 @@ public final class CableLines extends SavedData {
 			return this.blockedSign;
 		}
 
+		/** M07: the skip hung on the cable end, or null. */
+		public @Nullable UUID hoist() {
+			return this.hoist;
+		}
+
+		/** Whether the drive can move anything: a closed loop, or a cable end with a skip hung on it (M07). */
+		public boolean drivable() {
+			return this.looped || this.hoist != null;
+		}
+
 		static final Codec<Line> CODEC = RecordCodecBuilder.create(i -> i.group(
 			BlockPos.CODEC.listOf().optionalFieldOf("anchors", List.of()).forGetter(line -> line.anchors),
 			Vec3.CODEC.listOf().fieldOf("points").forGetter(line -> line.points),
@@ -181,7 +197,8 @@ public final class CableLines extends SavedData {
 			Codec.BOOL.optionalFieldOf("powered", false).forGetter(line -> line.powered),
 			Codec.INT.optionalFieldOf("coal", 0).forGetter(line -> line.coal),
 			Codec.INT.optionalFieldOf("burn", 0).forGetter(line -> line.burn),
-			Codec.INT.optionalFieldOf("cut", -1).forGetter(line -> line.cut)
+			Codec.INT.optionalFieldOf("cut", -1).forGetter(line -> line.cut),
+			UUIDUtil.CODEC.optionalFieldOf("hoist").forGetter(line -> Optional.ofNullable(line.hoist))
 		).apply(i, Line::new));
 	}
 
@@ -310,6 +327,8 @@ public final class CableLines extends SavedData {
 		line.outward = null;
 		line.speed = 0.0F;
 		line.lever = Lever.NEUTRAL;
+		// M07: a skip hung on the cable end is let go (it comes down onto whatever is under it).
+		line.hoist = null;
 		lines.setDirty();
 		CableIndex.update(level, drum, line);
 	}

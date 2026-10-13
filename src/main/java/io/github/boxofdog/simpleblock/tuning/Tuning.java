@@ -176,6 +176,16 @@ public final class Tuning {
 		define("train.rolling_resistance", 0.0005);
 		define("train.brake", 0.02);
 		define("train.max_speed", 0.2);
+
+		// M07 ore skip (provisional). Mass in empty-minecart units: the empty skip, and a full load of 512
+		// on top (scaled by the load). Lifting is slowed like a climb: speed / (1 + lift_load x mass).
+		define("skip.mass", 1.5);
+		define("skip.cargo_mass", 4.0);
+		define("skip.lift_load", 0.5);
+		// Items moved per tick between a skip and a docked freight cart.
+		define("skip.transfer_per_tick", 4);
+		// How fast a skip with no cable comes down onto what is under it, blocks per tick.
+		define("skip.fall_speed", 0.25);
 	}
 
 	private Tuning() {

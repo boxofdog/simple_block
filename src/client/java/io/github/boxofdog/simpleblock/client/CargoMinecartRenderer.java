@@ -48,7 +48,8 @@ import io.github.boxofdog.simpleblock.train.TrainContent;
  *       it grips (or folded down to {@code cable.rod_reach_min} with the head open), and the head. It
  *       stands upright whatever the cart's tilt, with its stem on the side away from the anchors'
  *       hanger arms (east of a north-south track, south of an east-west one).</li>
- *   <li>M06: a freight cart's folding front gate ({@code block/freight_gate_closed}), on the end wall
+ *   <li>M06: a freight cart's folding front gate ({@code block/freight_gate_closed}; M07: folded down as a
+ *       ramp, {@code block/freight_gate_open}, while it tips its load into a skip), on the end wall
  *       at the cart's front ({@link LoadingTracks}): the end that faces the loading track's way while
  *       docked. Always closed in M06.</li>
  * </ul>
@@ -128,7 +129,8 @@ public class CargoMinecartRenderer extends MinecartRenderer {
 		cart.gate = front == null ? 0 : gateEnd(state, front);
 		if (cart.gate != 0) {
 			this.blockModelResolver.update(cart.gateModel,
-				TrainContent.FREIGHT_GATE_MODEL.defaultBlockState().setValue(FreightGatePartBlock.PART, FreightGatePartBlock.Part.CLOSED),
+				TrainContent.FREIGHT_GATE_MODEL.defaultBlockState().setValue(FreightGatePartBlock.PART,
+					LoadingTracks.freight(entity).simpleBlock$gateOpen() ? FreightGatePartBlock.Part.OPEN : FreightGatePartBlock.Part.CLOSED),
 				AbstractMinecartRenderer.BLOCK_DISPLAY_CONTEXT);
 		}
 	}

@@ -90,8 +90,8 @@ public final class CoalWinch {
 				// BUG-002: the load last stopped against something going that way: skip to the next setting.
 				next = next.next();
 			}
-			if (next != CableLines.Lever.NEUTRAL && !line.looped) {
-				CableRoutes.tell(player, CableRoutes.message("crank_locked", "Close the loop to haul"));
+			if (next != CableLines.Lever.NEUTRAL && !line.drivable()) {
+				CableRoutes.tell(player, CableRoutes.message("crank_locked", "Close the loop, or hang a skip on the cable end, to haul"));
 				level.playSound(null, pos, SoundEvents.WOODEN_BUTTON_CLICK_ON, SoundSource.BLOCKS, 0.8F, 0.6F);
 				return InteractionResult.SUCCESS;
 			}

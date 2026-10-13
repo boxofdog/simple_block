@@ -1,0 +1,32 @@
+{
+	"parent": "minecraft:recipes/root",
+	"criteria": {
+		"has_cable": {
+			"conditions": {
+				"items": [
+					{
+						"items": "simple_block:cable"
+					}
+				]
+			},
+			"trigger": "minecraft:inventory_changed"
+		},
+		"has_the_recipe": {
+			"conditions": {
+				"recipes": "simple_block:ore_skip"
+			},
+			"trigger": "minecraft:recipe_unlocked"
+		}
+	},
+	"requirements": [
+		[
+			"has_the_recipe",
+			"has_cable"
+		]
+	],
+	"rewards": {
+		"recipes": [
+			"simple_block:ore_skip"
+		]
+	}
+}

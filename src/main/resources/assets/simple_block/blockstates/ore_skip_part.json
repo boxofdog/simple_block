@@ -1,0 +1,25 @@
+{
+	"variants": {
+		"part=chute": {
+			"model": "simple_block:block/ore_skip_chute"
+		},
+		"part=bin": {
+			"model": "simple_block:block/ore_skip_bin"
+		},
+		"part=gate_closed": {
+			"model": "simple_block:block/ore_skip_gate_closed"
+		},
+		"part=gate_open": {
+			"model": "simple_block:block/ore_skip_gate_open"
+		},
+		"part=lid_closed": {
+			"model": "simple_block:block/ore_skip_lid_closed"
+		},
+		"part=lid_open": {
+			"model": "simple_block:block/ore_skip_lid_open"
+		},
+		"part=bridle": {
+			"model": "simple_block:block/ore_skip_bridle"
+		}
+	}
+}

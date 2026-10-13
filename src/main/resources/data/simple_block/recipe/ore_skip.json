@@ -1,0 +1,18 @@
+{
+	"type": "minecraft:crafting_shaped",
+	"category": "misc",
+	"key": {
+		"C": "simple_block:cable",
+		"T": "minecraft:iron_trapdoor",
+		"I": "minecraft:iron_ingot",
+		"M": "minecraft:minecart"
+	},
+	"pattern": [
+		" C ",
+		" T ",
+		"IMI"
+	],
+	"result": {
+		"id": "simple_block:ore_skip"
+	}
+}

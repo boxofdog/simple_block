@@ -58,6 +58,12 @@ public final class LoadingTracks {
 
 		void simpleBlock$setFront(@Nullable Direction front);
 
+		/** M07: whether the front gate is folded down as a ramp (into a skip). Synced, not saved. */
+		boolean simpleBlock$gateOpen();
+
+		/** M07: folds the gate down for {@code ticks} more ticks (0 closes it now); a skip renews it each tick while it tips the cart. */
+		void simpleBlock$holdGateOpen(int ticks);
+
 		/** The track this cart was last released from (it does not dock there until it has left it), or null. */
 		@Nullable BlockPos simpleBlock$released();
 

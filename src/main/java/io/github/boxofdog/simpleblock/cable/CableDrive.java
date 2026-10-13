@@ -111,9 +111,9 @@ public final class CableDrive {
 			boolean starting = line.crankTicks <= 0;
 			line.crankTicks = CRANK_HOLD;
 			line.crankDirection = direction;
-			if (starting && !drum.looped() && !drum.route().isEmpty()) {
+			if (starting && !line.drivable() && !drum.route().isEmpty()) {
 				serverLevel.playSound(null, pos, SoundEvents.WOODEN_BUTTON_CLICK_ON, SoundSource.BLOCKS, 0.8F, 0.6F);
-				CableRoutes.tell(player, CableRoutes.message("crank_locked", "Close the loop to haul"));
+				CableRoutes.tell(player, CableRoutes.message("crank_locked", "Close the loop, or hang a skip on the cable end, to haul"));
 			}
 		}
 	}
@@ -164,7 +164,8 @@ public final class CableDrive {
 				double step = Tuning.getDouble("winch.acceleration");
 				speed = line.speed + Math.clamp(target - line.speed, -step, step);
 			}
-		} else if (line.looped) {
+		} else if (line.drivable()) {
+			// A loop, or (M07) a skip hung on the cable end: PULL (-1) lifts it, FEED (+1) lowers it.
 			double load = input > 0 ? line.lastLoadForward : line.lastLoadBackward;
 			speed = input == 0 ? 0.0 : input * crankSpeed() / (1.0 + load);
 		} else {
@@ -195,7 +196,7 @@ public final class CableDrive {
 			changed = true;
 		}
 		String stop = null;
-		if (!line.looped) {
+		if (!line.drivable()) {
 			stop = "open";
 		} else if (halt != null) {
 			stop = halt;
