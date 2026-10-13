@@ -4,7 +4,7 @@ import json
 from pathlib import Path
 import tempfile
 import unittest
-from automation import ci_facts, evidence, generated_block, new_milestone, readme, drift
+from automation import ci_facts, evidence, generated_block, new_milestone, readme, drift, server_test_summary
 
 class AutomationTests(unittest.TestCase):
     def setUp(self):
@@ -48,6 +48,14 @@ class AutomationTests(unittest.TestCase):
     def test_duplicate_ledger_id(self):
         (self.root/"docs/BUG_LOG.md").write_text("| BUG-001 | a |\n| BUG-001 | b |\n")
         self.assertEqual(drift(self.root),1)
+    def test_server_log_requires_two_matching_real_markers(self):
+        self.assertEqual(server_test_summary(
+            "152 GAME TESTS COMPLETE IN 42s\nAll 152 required tests passed :)"),
+            {"result":"PASS","passed":152,"total":152})
+        self.assertEqual(server_test_summary(
+            "152 GAME TESTS COMPLETE\nAll 151 required tests passed"),"UNAVAILABLE")
+        self.assertEqual(server_test_summary("152 tests are now running"),"UNAVAILABLE")
+
     def test_ci_no_inferred_counts_and_sha_gate(self):
         sha="a"*40
         def api(url,token):

@@ -164,7 +164,23 @@ def github_api(url, token):
     with urllib.request.urlopen(urllib.request.Request(url,headers=headers),timeout=25) as f:
         return json.load(f)
 
-def ci_facts(repo, run_id=None, latest=False, test_evidence=None, api=github_api):
+def github_log(url, token):
+    """Read a completed GitHub Actions job log (GitHub follows a short-lived redirect)."""
+    headers={"Accept":"application/vnd.github+json","User-Agent":"simple-block-docs"}
+    if token:
+        headers["Authorization"]="Bearer "+token
+    with urllib.request.urlopen(urllib.request.Request(url,headers=headers),timeout=30) as f:
+        return f.read().decode("utf-8",errors="replace")
+
+def server_test_summary(log):
+    """Recognize the specific paired Fabric/Minecraft game-test completion markers."""
+    complete=re.findall(r"\b(\d+) GAME TESTS COMPLETE\b",log)
+    passed=re.findall(r"\bAll (\d+) required tests passed\b",log)
+    if len(complete)!=1 or len(passed)!=1 or complete[0]!=passed[0]:
+        return "UNAVAILABLE"
+    return {"result":"PASS","passed":int(passed[0]),"total":int(complete[0])}
+
+def ci_facts(repo, run_id=None, latest=False, test_evidence=None, api=github_api, log_fetch=github_log):
     if not re.fullmatch(r"[\w.-]+/[\w.-]+",repo):
         raise ValueError("Invalid GitHub repository")
     prefix="https://api.github.com/repos/"+repo
@@ -188,7 +204,20 @@ def ci_facts(repo, run_id=None, latest=False, test_evidence=None, api=github_api
                   "FAIL" if run.get("status")=="completed" else "NOT RUN"),
         "artifacts":[{"name":a["name"],"id":a["id"],
             "available":not a.get("expired",True)} for a in artifacts.get("artifacts",[])],
-        "tests":"UNAVAILABLE"}
+        "tests":"UNAVAILABLE","server_tests":"UNAVAILABLE"}
+    # Build log is the sole machine-readable source for server game-test totals.
+    # If inaccessible/ambiguous, do not infer counts from CI success.
+    try:
+        jobs=api(prefix+"/actions/runs/"+str(run_id)+"/jobs?per_page=100",token)
+        build_jobs=[j for j in jobs.get("jobs",[]) if j.get("name")=="build"]
+        if len(build_jobs)==1:
+            job=build_jobs[0]
+            log=log_fetch(prefix+"/actions/jobs/"+str(job["id"])+"/logs",token)
+            result["server_tests"]=server_test_summary(log)
+            if isinstance(result["server_tests"],dict):
+                result["server_tests"]["job_url"]=job.get("html_url","UNAVAILABLE")
+    except (OSError, ValueError, UnicodeError, KeyError):
+        pass
     if test_evidence:
         evidence=json.loads(Path(test_evidence).read_text(encoding="utf-8"))
         if evidence.get("head_sha")!=result["head_sha"]:
@@ -237,6 +266,7 @@ def main(argv=None):
             print("Source SHA:",facts["head_sha"])
             print("URL:",facts["url"])
             print("Artifacts:",", ".join(x["name"]+" (ID "+str(x["id"])+", "+("available" if x["available"] else "EXPIRED")+")" for x in facts["artifacts"]) or "UNAVAILABLE")
+            print("Server tests:",json.dumps(facts["server_tests"]) if isinstance(facts["server_tests"],dict) else "UNAVAILABLE")
             print("Tests:",json.dumps(facts["tests"]) if isinstance(facts["tests"],dict) else "UNAVAILABLE")
             print("NOTE: Build success alone cannot prove per-category game tests, client, dedicated server, negative controls, or owner playtest.")
             return 0

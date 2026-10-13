@@ -47,8 +47,7 @@ Only use it when the owner explicitly asks to create a new milestone.
 The CI command uses GH_TOKEN or GITHUB_TOKEN when present, otherwise read-only
 GitHub endpoints. It verifies the selected run really belongs to the Build workflow,
 copies its tested commit SHA and result, and checks actual artifact entries for
-expiration. It **does not** convert CI success to client, remote-server, negative
-control or owner playtest PASS. Test counts remain UNAVAILABLE by default.
+expiration. Server game-test counts are extracted only when the exact Build job log contains matching Minecraft completion and success markers; otherwise counts are UNAVAILABLE. It **does not** convert CI success to client, remote-server, negative-control or owner playtest PASS.
 
 For an optional separate test record, use the --test-evidence FILE argument
 with a JSON record using these keys:
