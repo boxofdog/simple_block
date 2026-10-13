@@ -12,6 +12,8 @@ Read `docs/VISION.md`, `docs/DESIGN_REGISTER.md`, `docs/DECISIONS.md`, and `docs
 
 **M06 execution instructions:** inspect/run the M05 baseline first. Then implement the authorized work packages in `docs/MILESTONE_06.md` §8, preserving negative controls and client proof. **Do not change the historical M05 report or overwrite its acceptance receipt** as part of M06 implementation. At M06 completion, commit code first, write `docs/MILESTONE_06_REPORT.md`, link the actual CI Build/artifact, and update the roadmap's new M06 handoff/receipt without overwriting the now-approved M05 owner-acceptance record. Report blockers, skipped tests and recommended playtest steps.
 
+**M06 OWNER PLAYTEST BUG-002 (2026-10-13; BLOCKS OWNER ACCEPTANCE):** See [ROADMAP.md](docs/ROADMAP.md) bug log. A cart at the winch-side end of a track makes PULL physically impossible; the lever auto-NEUTRALs immediately after a PULL attempt, so every subsequent click selects PULL again and FEED cannot be reached without destroying the cart. Fix M06's control/endpoint interaction so the player can deliberately select FEED and move away from the endpoint, while retaining safe stops, coal conservation, no derailment, and normal three-position functionality. Add near- and far-end regression and actual-client checks. Do not mark M06 owner accepted merely because CI #19 passed; address this discovered defect before M07 integration. Keep unrelated M07 changes separate.
+
 ## Priority and scope
 
 1. The user's current direct instructions take priority.
