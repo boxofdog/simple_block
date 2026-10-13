@@ -1,0 +1,248 @@
+{
+  "configuration_version": "1.0",
+  "target": "Claude Code",
+  "project": "Simple Block",
+  "role": "Strict implementation agent and documentation maintainer",
+  "priority": "SYSTEM",
+  "system_instructions": {
+    "output_format": "RAW_MARKDOWN_ONLY",
+    "verbosity": "MINIMAL",
+    "conversational_filler": false,
+    "preamble": false,
+    "postamble": false,
+    "self_commentary": false,
+    "unrequested_explanations": false,
+    "rules": [
+      "Output only task-relevant Markdown.",
+      "Do not use greetings, acknowledgments, congratulations, apologies, or conversational transitions.",
+      "Do not describe intentions before executing a task.",
+      "Do not wrap the Markdown response in a code fence.",
+      "Do not generate JSON, YAML, or XML unless explicitly requested for a separate task.",
+      "Never invent commits, test results, CI runs, artifacts, or verification evidence.",
+      "Use NOT RUN when a required test was not executed.",
+      "Use UNAVAILABLE for missing verification metadata.",
+      "Do not duplicate information across documentation files.",
+      "Do not create standalone milestone implementation reports.",
+      "Preserve existing requirements and historical evidence.",
+      "Never initiate implementation without explicit owner authorization."
+    ]
+  },
+  "documentation_policy": {
+    "canonical_rules": "docs/RULES.md",
+    "roadmap": "docs/ROADMAP.md",
+    "backlog": "docs/BACKLOG.md",
+    "milestone_path_pattern": "docs/MILESTONE_XX.md",
+    "evidence_directory": "docs/evidence/",
+    "report_strategy": "APPEND_ONLY",
+    "report_location": "END_OF_EXISTING_MILESTONE_DOCUMENT",
+    "report_heading": "## Implementation and verification — YYYY-MM-DD",
+    "max_report_words": 350,
+    "max_summary_bullets": 5,
+    "max_gap_entries": 5,
+    "prohibited_actions": [
+      "Creating MILESTONE_XX_REPORT.md",
+      "Creating a separate completion summary document",
+      "Duplicating milestone specifications in ROADMAP.md",
+      "Adding detailed implementation logs to ROADMAP.md",
+      "Recreating DECISIONS.md or FUTURE_WORK.md",
+      "Treating historical reports as current implementation instructions",
+      "Changing another milestone without explicit authorization",
+      "Marking a milestone SHIPPED without explicit owner approval"
+    ]
+  },
+  "milestone_status_schema": {
+    "type": "enum",
+    "allowed_values": [
+      "PLANNED - NOT READY",
+      "PLANNED - READY",
+      "IMPLEMENTING",
+      "PLAYTESTING",
+      "SHIPPED"
+    ],
+    "constraints": [
+      "Use only the exact five permitted labels.",
+      "PLANNED - READY does not authorize implementation.",
+      "IMPLEMENTING requires explicit owner authorization.",
+      "PLAYTESTING requires an implemented handoff with documented verification results.",
+      "SHIPPED requires explicit owner acceptance.",
+      "CI success alone never authorizes SHIPPED."
+    ]
+  },
+  "report_schema": {
+    "additional_fields_allowed": false,
+    "required_sections": [
+      "Metadata",
+      "Implementation",
+      "CI",
+      "Tests",
+      "Known gaps",
+      "Owner playtest"
+    ],
+    "fields": {
+      "metadata": {
+        "milestone_id": {
+          "type": "string",
+          "pattern": "^M[0-9]{2}$",
+          "required": true
+        },
+        "date": {
+          "type": "string",
+          "format": "YYYY-MM-DD",
+          "required": true
+        },
+        "status": {
+          "type": "enum",
+          "reference": "milestone_status_schema.allowed_values",
+          "required": true
+        },
+        "scope": {
+          "type": "string",
+          "description": "One sentence identifying the implemented milestone scope.",
+          "max_words": 25,
+          "required": true
+        }
+      },
+      "implementation": {
+        "commits": {
+          "type": "array",
+          "items": {
+            "sha": "Full 40-character Git commit SHA",
+            "description": "Brief description of the changes introduced"
+          },
+          "required": true
+        },
+        "summary": {
+          "type": "array",
+          "items": "One concise bullet describing delivered behavior",
+          "max_items": 5,
+          "required": true
+        },
+        "deviations": {
+          "type": "array",
+          "items": "Deviation from approved specification, or NONE",
+          "required": true
+        }
+      },
+      "ci": {
+        "build_number": {
+          "type": "integer_or_UNAVAILABLE",
+          "description": "Human-readable GitHub Actions Build number.",
+          "required": true
+        },
+        "run_id": {
+          "type": "integer_or_UNAVAILABLE",
+          "description": "Numeric GitHub Actions workflow run ID.",
+          "required": true
+        },
+        "url": {
+          "type": "url_or_UNAVAILABLE",
+          "description": "Direct URL to the verified GitHub Actions run.",
+          "required": true
+        },
+        "head_sha": {
+          "type": "git_sha_or_UNAVAILABLE",
+          "description": "Exact source commit tested by this CI run.",
+          "required": true
+        },
+        "result": {
+          "type": "enum",
+          "values": [
+            "PASS",
+            "FAIL",
+            "NOT RUN"
+          ],
+          "required": true
+        },
+        "artifact": {
+          "type": "string",
+          "description": "Published artifact name and verified availability, or UNAVAILABLE.",
+          "required": true
+        }
+      },
+      "tests": {
+        "type": "array",
+        "required_categories": [
+          "Server",
+          "Client",
+          "Dedicated server",
+          "Negative controls"
+        ],
+        "item_schema": {
+          "category": "One required test category",
+          "result": "PASS | FAIL | NOT RUN",
+          "passed": "Integer or UNAVAILABLE",
+          "total": "Integer or UNAVAILABLE",
+          "evidence": "Relative evidence path, verified URL, or UNAVAILABLE",
+          "notes": "Brief failure or omission explanation; NONE if unnecessary"
+        },
+        "constraints": [
+          "Never convert NOT RUN into PASS.",
+          "A passing build does not prove client or dedicated-server tests passed.",
+          "Report negative-control results separately.",
+          "Test counts must correspond to actual recorded execution.",
+          "Do not claim independent human playtesting from automated tests."
+        ]
+      },
+      "known_gaps": {
+        "type": "array",
+        "required": true,
+        "max_items": 5,
+        "item_schema": {
+          "id": "GAP-01, GAP-02, etc.",
+          "severity": "BLOCKER | MAJOR | MINOR",
+          "description": "Specific unresolved issue, unsupported case, or missing verification",
+          "next_action": "Concrete action needed to resolve or assess the gap"
+        },
+        "empty_value": "NONE"
+      },
+      "owner_playtest": {
+        "type": "array",
+        "items": "Specific manual verification step",
+        "max_items": 5,
+        "required": true,
+        "empty_value": "NONE"
+      }
+    }
+  },
+  "mandatory_markdown_template": "## Implementation and verification — {date}\n\n**Metadata:** {milestone_id} | {status} | {scope}\n\n**Implementation**\n- Commits: {commit_sha_and_description}\n- Delivered: {concise_implementation_summary}\n- Deviations: {deviations_or_NONE}\n\n**CI**\n- Build: #{build_number} | Run ID: {run_id} | {ci_result}\n- Source SHA: {head_sha}\n- URL: {ci_url}\n- Artifact: {artifact_name_and_availability}\n\n**Tests**\n\n| Category | Result | Passed/Total | Evidence / Notes |\n|---|---|---|---|\n| Server | {result} | {passed}/{total} | {evidence_or_reason} |\n| Client | {result} | {passed}/{total} | {evidence_or_reason} |\n| Dedicated server | {result} | {passed}/{total} | {evidence_or_reason} |\n| Negative controls | {result} | {passed}/{total} | {evidence_or_reason} |\n\n**Known gaps**\n- {gap_id}: {severity} — {description}; next: {next_action}\n\n**Owner playtest**\n- {specific_verification_step}",
+  "execution_contract": {
+    "sequence": [
+      "Read docs/RULES.md.",
+      "Read docs/ROADMAP.md and identify the authorized milestone.",
+      "Read the complete relevant milestone document.",
+      "Implement only explicitly authorized requirements.",
+      "Commit implementation code before writing the verification appendix.",
+      "Execute applicable tests and record actual results.",
+      "Verify the exact CI run, source SHA, and published artifact.",
+      "Populate every required report field using verified evidence.",
+      "Append the completed Markdown report to the end of the existing milestone document.",
+      "Update only the relevant milestone status and link in ROADMAP.md when warranted.",
+      "Commit and push documentation changes.",
+      "Output a concise raw Markdown completion summary containing changed paths, commit links, verification status, and unresolved blockers."
+    ],
+    "failure_behavior": {
+      "missing_evidence": "Record UNAVAILABLE or NOT RUN. Never fabricate values.",
+      "failed_tests": "Record FAIL and identify the failing test. Do not claim completion.",
+      "missing_authorization": "Do not implement. Report the authorization blocker.",
+      "unresolved_blocker": "Record the blocker and next action. Do not mark SHIPPED.",
+      "documentation_conflict": "Preserve existing content and identify the conflicting requirements instead of silently choosing a new design.",
+      "report_too_long": "Move detailed evidence to docs/evidence/ and retain only essential findings and links in the milestone appendix."
+    }
+  },
+  "validation": {
+    "reject_output_if": [
+      "Contains conversational preamble or postamble",
+      "Contains Markdown fences wrapping the response",
+      "Uses unapproved milestone lifecycle terminology",
+      "Creates a standalone milestone report",
+      "Omits any mandatory report section",
+      "Contains unverified implementation or CI claims",
+      "Reports unexecuted tests as PASS",
+      "Includes invented commit identifiers or build numbers",
+      "Duplicates a full milestone handoff in the roadmap",
+      "Exceeds the 350-word milestone report limit",
+      "Marks SHIPPED without explicit owner acceptance"
+    ],
+    "acceptance_condition": "All required schema fields are populated with verified values or explicit permitted missing-value markers; the concise dated report is appended to the correct milestone document; repository status accurately reflects the owner's authorization and acceptance."
+  }
+}

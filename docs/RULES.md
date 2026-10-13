@@ -35,14 +35,16 @@
 
 ## Handoff rules
 
+**Canonical reporting contract: [REPORTING_POLICY.json](REPORTING_POLICY.json).** Its report schema, mandatory Markdown template, 350-word limit, missing-value markers (`UNAVAILABLE`, `NOT RUN`), lifecycle enum and validation rules govern every milestone verification section. Where this file and the JSON differ on reporting, the JSON wins; this section only summarizes it. Mechanically checkable rules are verified by `python3 tools/docs/check_reporting.py`.
+
 **CLAUDE: DO NOT CREATE NEW STANDALONE MILESTONE REPORT FILES.** Following an explicitly owner-authorized implementation, **append a concise, dated `## Implementation and verification — YYYY-MM-DD` section at the very end of that milestone's existing `MILESTONE_XX.md`**. Include only what was implemented, code commit SHA(s), the exact GitHub CI build and published `simple-block-mod` artifact, PASS/FAIL/NOT RUN server/client tests, negative controls where relevant, material deviations, remaining issues and the owner's next playtest. Link fuller logs/screenshots under `docs/evidence/` instead of producing a second lengthy document. Corrective patches also report at the end of the **main milestone file**, with a link to any patch brief. **Do not paste this report into the roadmap.**
 
-Existing `MILESTONE_01_REPORT.md` through `MILESTONE_07_REPORT.md` are **retained as historical evidence**, not templates for future work. No new `MILESTONE_XX_REPORT.md` files. After writing the dated milestone appendix, update only the milestone's single roadmap status/links using an exact [status label](#milestone-status-terminology). Claude must not claim independent ChatGPT verification or owner acceptance. **PLANNED - READY is not implementation authorization; only the owner authorizes starting and marks SHIPPED.**
+The former standalone `MILESTONE_01_REPORT.md` through `MILESTONE_07_REPORT.md` were consolidated on 2026-10-13 into one verification section at the end of each milestone document and moved to [archive/milestone-reports/](archive/milestone-reports/) as historical evidence, not templates for future work. No new `MILESTONE_XX_REPORT.md` files. After writing the dated milestone appendix, update only the milestone's single roadmap status/links using an exact [status label](#milestone-status-terminology). Claude must not claim independent ChatGPT verification or owner acceptance. **PLANNED - READY is not implementation authorization; only the owner authorizes starting and marks SHIPPED.**
 
 ## Documentation maintenance boundaries
 
 - `ROADMAP.md` is a milestone index and current next-decision board. Never paste long scope briefs, code history, CI tables or report narratives into it.
 - `BACKLOG.md` is **the only** unnumbered future-work list. Never recreate `FUTURE_WORK.md` or scatter independent brainstorm ledgers throughout docs.
 - Milestone-specific decisions and detailed plans belong in `MILESTONE_XX.md`. When Claude implements owner-authorized work, it appends its **short dated verification handoff to the end of the SAME milestone document**.
-- The existing standalone M01–M07 reports and archived decisions/roadmap are historical evidence, not an instruction to resume producing separate reports or to implement old superseded proposals.
+- The archived M01–M07 reports ([archive/milestone-reports/](archive/milestone-reports/)) and archived decisions/roadmap are historical evidence, not an instruction to resume producing separate reports or to implement old superseded proposals.
 - Owner-facing painting tasks go in [Joe's To-Do](Joe's%20To-Do/README.md); UX text issues go in [UX_TEXT_LOG.md](UX_TEXT_LOG.md). No document by itself authorizes coding.
