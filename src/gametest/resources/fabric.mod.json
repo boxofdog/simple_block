@@ -31,7 +31,8 @@
 			"io.github.boxofdog.simpleblock.gametest.LongLineGameTests",
 			"io.github.boxofdog.simpleblock.gametest.RecipeGameTests",
 			"io.github.boxofdog.simpleblock.gametest.LoadingTrackGameTests",
-			"io.github.boxofdog.simpleblock.gametest.CoalWinchGameTests"
+			"io.github.boxofdog.simpleblock.gametest.CoalWinchGameTests",
+			"io.github.boxofdog.simpleblock.gametest.RetiredItemsGameTests"
 		],
 		"fabric-client-gametest": [
 			"io.github.boxofdog.simpleblock.gametest.client.SurvivalSmokeClientTest",

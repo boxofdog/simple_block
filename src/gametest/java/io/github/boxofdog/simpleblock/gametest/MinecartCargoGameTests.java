@@ -30,7 +30,6 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.HopperBlock;
-import net.minecraft.world.level.block.PoweredRailBlock;
 import net.minecraft.world.level.block.RailBlock;
 import net.minecraft.world.level.block.entity.HopperBlockEntity;
 import net.minecraft.world.level.block.state.properties.RailShape;
@@ -408,11 +407,14 @@ public class MinecartCargoGameTests {
 		});
 	}
 
-	/** T03: loaded and empty carts run a loop of straight, curved, sloped and powered rail. */
+	/**
+	 * T03: loaded and empty carts run a loop of straight, curved and sloped rail. M06: a test-only
+	 * booster on the west side stands in for the powered rail it used to have (powered rails are retired).
+	 */
 	@GameTest(maxTicks = 700)
 	public void cartsRunALoopOfEveryRailKind(GameTestHelper helper) {
 		ServerLevel level = helper.getLevel();
-		// An 6x6 loop at y=2 on a stone floor; the east side climbs to y=3 and back; the west side is powered.
+		// An 6x6 loop at y=2 on a stone floor; the east side climbs to y=3 and back; the west side is boosted.
 		List<BlockPos> track = new ArrayList<>();
 		List<net.minecraft.world.level.block.state.BlockState> shapes = new ArrayList<>();
 		for (int x = 0; x <= 7; x++) {
@@ -446,11 +448,11 @@ public class MinecartCargoGameTests {
 		shapes.add(rail.defaultBlockState().setValue(RailBlock.SHAPE, RailShape.NORTH_SOUTH));
 		track.add(new BlockPos(6, 2, 5));
 		shapes.add(rail.defaultBlockState().setValue(RailBlock.SHAPE, RailShape.ASCENDING_NORTH));
-		// West side: powered rail on redstone blocks, pushing north-to-south traffic along.
+		// West side: plain rail where the test pushes north-to-south traffic along (M06: standing in for
+		// the retired powered rail).
 		for (int z = 2; z <= 5; z++) {
-			helper.setBlock(new BlockPos(1, 1, z), Blocks.REDSTONE_BLOCK);
 			track.add(new BlockPos(1, 2, z));
-			shapes.add(Blocks.POWERED_RAIL.defaultBlockState().setValue(PoweredRailBlock.SHAPE, RailShape.NORTH_SOUTH).setValue(PoweredRailBlock.POWERED, true));
+			shapes.add(rail.defaultBlockState().setValue(RailBlock.SHAPE, RailShape.NORTH_SOUTH));
 		}
 		// Place, then set every shape again without updates: placing a rail re-shapes it to its neighbours.
 		for (int i = 0; i < track.size(); i++) {
@@ -471,6 +473,15 @@ public class MinecartCargoGameTests {
 				return;
 			}
 			BlockPos at = cart.blockPosition();
+			BlockPos relative = at.subtract(helper.absolutePos(BlockPos.ZERO));
+			if (relative.getX() == 1 && relative.getY() == 2 && relative.getZ() >= 2 && relative.getZ() <= 5) {
+				// Test-only booster doing what a powered rail did: 0.06 a tick more along the way it goes.
+				Vec3 v = cart.getDeltaMovement();
+				double speed = v.horizontalDistance();
+				if (speed > 0.01) {
+					cart.setDeltaMovement(v.add(v.x / speed * 0.06, 0.0, v.z / speed * 0.06));
+				}
+			}
 			for (int i = 0; i < checkpoints.length; i++) {
 				if (at.equals(helper.absolutePos(checkpoints[i]))) {
 					seen[i] = true;

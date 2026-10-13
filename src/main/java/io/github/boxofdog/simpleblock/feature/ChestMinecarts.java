@@ -1,10 +1,8 @@
 package io.github.boxofdog.simpleblock.feature;
 
-import net.fabricmc.fabric.api.creativetab.v1.CreativeModeTabEvents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.Items;
 
 import org.jspecify.annotations.Nullable;
 
@@ -14,7 +12,7 @@ import org.jspecify.annotations.Nullable;
  *
  * <ul>
  *   <li>Acquisition: the recipe and its recipe-book advancement are disabled by data overrides;
- *       removed from the creative tabs. No vanilla loot table or trade contains one.</li>
+ *       kept out of the creative menu by {@link RetiredItems}. No vanilla loot table or trade contains one.</li>
  *   <li>Placement by hand or by dispenser is refused where both create the cart
  *       ({@code mixin/chestcart/AbstractMinecartMixin}).</li>
  *   <li>The chest minecarts mineshafts generate stay as sealed loot: they never open
@@ -28,13 +26,6 @@ import org.jspecify.annotations.Nullable;
  */
 public final class ChestMinecarts {
 	private ChestMinecarts() {
-	}
-
-	public static void register() {
-		CreativeModeTabEvents.MODIFY_OUTPUT_ALL.register((tab, output) -> {
-			output.getDisplayStacks().removeIf(stack -> stack.is(Items.CHEST_MINECART));
-			output.getSearchTabStacks().removeIf(stack -> stack.is(Items.CHEST_MINECART));
-		});
 	}
 
 	/** Tells a player why nothing happened. Server-side only; a no-op for dispensers and clients. */

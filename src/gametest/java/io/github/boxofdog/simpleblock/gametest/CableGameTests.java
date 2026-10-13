@@ -24,7 +24,7 @@ import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.level.GameType;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
-import net.minecraft.world.level.block.PoweredRailBlock;
+import net.minecraft.world.level.block.RailBlock;
 import net.minecraft.world.level.block.SlabBlock;
 import net.minecraft.world.level.block.StairBlock;
 import net.minecraft.world.level.block.state.BlockState;
@@ -679,16 +679,19 @@ public class CableGameTests {
 	 * last, without letting go at the anchors in between, and lets go past the last; it rolls exactly
 	 * as a cart with a rod on a track with no cable (nothing snags).
 	 */
+	/** Speed the test keeps rolling carts at (a powered rail's top speed), now that powered rails are retired. */
+	private static final double BOOST = 0.4;
+
 	@GameTest(structure = YARD, maxTicks = 300)
 	public void rodGripsTheCableAndPassesAnchors(GameTestHelper helper) {
 		ServerPlayer player = TestPlayers.create(helper, GameType.CREATIVE, new BlockPos(1, 1, 7));
 		BlockPos at = new BlockPos(1, 1, 4);
 		helper.setBlock(new BlockPos(1, 0, 4), Blocks.STONE);
+		// M06: powered rails are retired; the carts are kept rolling by the test instead (below).
 		for (int x = 2; x < 30; x++) {
 			for (int z : new int[] {4, 8}) {
-				helper.setBlock(new BlockPos(x, 0, z), Blocks.REDSTONE_BLOCK);
-				helper.setBlock(new BlockPos(x, 1, z), Blocks.POWERED_RAIL.defaultBlockState().setValue(PoweredRailBlock.POWERED, true)
-					.setValue(PoweredRailBlock.SHAPE, RailShape.EAST_WEST));
+				helper.setBlock(new BlockPos(x, 0, z), Blocks.STONE);
+				helper.setBlock(new BlockPos(x, 1, z), Blocks.RAIL.defaultBlockState().setValue(RailBlock.SHAPE, RailShape.EAST_WEST));
 			}
 		}
 		CableDrumBlockEntity drum = windDrum(helper, player, at, 1);
@@ -729,6 +732,9 @@ public class CableGameTests {
 				}
 				Minecart cart = carts[0];
 				Minecart control = carts[1];
+				// Test-only propulsion standing in for the retired powered rail: the same push to both.
+				cart.setDeltaMovement(BOOST, 0.0, 0.0);
+				control.setDeltaMovement(BOOST, 0.0, 0.0);
 				double x = cart.getX() - helper.absoluteVec(Vec3.ZERO).x;
 				float reach = ConnectingRods.fitted(cart).simpleBlock$reach();
 				helper.assertTrue(Math.abs(cart.getX() - control.getX()) < 1.0E-6, "the cart under the cable should roll exactly like the control cart");

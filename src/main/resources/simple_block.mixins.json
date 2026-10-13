@@ -32,6 +32,8 @@
 		"mobs.RandomStrollGoalMixin",
 		"mobs.ZombieMixin",
 		"phantom.PhantomSpawnerMixin",
+		"pushing.AbstractMinecartMixin",
+		"pushing.EntityMixin",
 		"shulker.BlockItemMixin",
 		"shulker.ShulkerBoxBlockEntityMixin",
 		"shulker.ShulkerBoxBlockMixin",

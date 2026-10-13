@@ -14,6 +14,7 @@ import io.github.boxofdog.simpleblock.feature.InventorySort;
 import io.github.boxofdog.simpleblock.feature.MinecartCargo;
 import io.github.boxofdog.simpleblock.feature.NoElytraFlight;
 import io.github.boxofdog.simpleblock.feature.RemovedRocks;
+import io.github.boxofdog.simpleblock.feature.RetiredItems;
 import io.github.boxofdog.simpleblock.feature.SaturationSync;
 import io.github.boxofdog.simpleblock.train.TrainContent;
 import io.github.boxofdog.simpleblock.tuning.Tuning;
@@ -112,7 +113,6 @@ public class SimpleBlock implements ModInitializer {
 		InventorySlots.register();
 		InventorySort.register();
 		SaturationSync.register();
-		EnderChests.register();
-		ChestMinecarts.register();
+		RetiredItems.register();
 	}
 }
