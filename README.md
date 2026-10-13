@@ -174,7 +174,7 @@ Counts reflect source files only, not proof of implemented or tested behavior.
 | main | (root) | 1 |
 | main | cable | 17 |
 | main | feature | 20 |
-| main | metallurgy | 9 |
+| main | metallurgy | 12 |
 | main | mixin | 40 |
 | main | network | 3 |
 | main | skip | 7 |
