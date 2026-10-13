@@ -25,11 +25,11 @@ import io.github.boxofdog.simpleblock.SimpleBlock;
  * no drops, no collision.
  *
  * <p>M06: the Loading Track ({@link LoadingTrackBlock}, {@link LoadingTracks}), crafted from a rail and a
- * cable anchor, and {@link #FREIGHT_GATE_MODEL}, which carries the freight cart's front gate models.
+ * cable anchor. (The freight cart's gates are part of every minecart's body model since the M07 cart
+ * redesign, drawn by the client.)
  */
 public final class TrainContent {
 	public static final Block ENGINE_MODEL = technical("cobblestone_engine_model", Block::new);
-	public static final Block FREIGHT_GATE_MODEL = technical("freight_gate", FreightGatePartBlock::new);
 	public static final Block LOADING_TRACK = block("loading_track", LoadingTrackBlock::new,
 		BlockBehaviour.Properties.of().noCollision().noOcclusion().strength(0.7F).sound(SoundType.METAL));
 	public static final Item LOADING_TRACK_ITEM = item("loading_track", LOADING_TRACK);

@@ -23,6 +23,7 @@ import net.minecraft.world.phys.Vec3;
 
 import io.github.boxofdog.simpleblock.network.CrankPayload;
 import io.github.boxofdog.simpleblock.train.Couplings;
+import io.github.boxofdog.simpleblock.train.LoadingTracks;
 import io.github.boxofdog.simpleblock.train.TrainPhysics;
 import io.github.boxofdog.simpleblock.tuning.Tuning;
 
@@ -51,7 +52,9 @@ import io.github.boxofdog.simpleblock.tuning.Tuning;
  * moves out or back and never piles up on the spool. Each cart whose rod grips the working strand
  * (only that strand) moves with it, with the carts coupled to it; when the drive stops they are held.
  * A cart stops short of either end: within {@code cable.end_clearance} blocks of the drum's exit or the
- * return wheel, or where the cable would leave its rod's reach. Hauling uphill is slower the heavier
+ * return wheel, or where the cable would leave its rod's reach; except that a cart with a Loading Rail
+ * it will dock at no more than {@value #STATION_APPROACH} blocks ahead goes on onto it (M07 playtest
+ * patch §10), so a station under or just before the last support is reached without cable past it. Hauling uphill is slower the heavier
  * the train: the speed is divided by {@code 1 + cable.grade_load x} the mass of the gripping trains on
  * a climbing rail (masses in {@link TrainPhysics}).
  *
@@ -69,6 +72,8 @@ public final class CableDrive {
 	static final int IDLE_LIMIT = 40;
 	/** A coal winch whose carts are driven but do not move for this long stops: they are blocked. */
 	static final int STALL_LIMIT = 10;
+	/** How far ahead a Loading Rail lets a cart on past the end checks for its last stretch (M07 patch §10). */
+	static final double STATION_APPROACH = 1.5;
 
 	private CableDrive() {
 	}
@@ -136,6 +141,7 @@ public final class CableDrive {
 			line.crankTicks--;
 		}
 		boolean moved = line.moved;
+		line.lastMoved = moved;
 		boolean gripped = line.gripped;
 		String halt = line.halt;
 		line.moved = false;
@@ -281,6 +287,21 @@ public final class CableDrive {
 		return BaseRailBlock.isRail(level, pos) || BaseRailBlock.isRail(level, pos.below()) || BaseRailBlock.isRail(level, pos.above());
 	}
 
+	/**
+	 * Whether a Loading Rail this cart would dock at is within {@value #STATION_APPROACH} blocks ahead
+	 * ({@code forward}: a unit step in its direction of travel), on its own level of track.
+	 */
+	private static boolean stationAhead(ServerLevel level, Minecart cart, Vec3 forward) {
+		BlockPos here = cart.getCurrentBlockPosOrRailBelow();
+		for (double step = 0.5; step <= STATION_APPROACH + 1.0E-6; step += 0.5) {
+			BlockPos pos = BlockPos.containing(cart.position().add(forward.scale(step))).atY(here.getY());
+			if (!pos.equals(here) && LoadingTracks.willDockAt(level, cart, pos)) {
+				return true;
+			}
+		}
+		return false;
+	}
+
 	private static @Nullable String stop(ServerLevel level, Minecart cart, CableIndex.Grip grip, double speed) {
 		if (Couplings.docked(cart)) {
 			return "docked";
@@ -288,10 +309,13 @@ public final class CableDrive {
 		if (!TrainPhysics.onRail(cart)) {
 			return "derailed";
 		}
+		// M07 playtest patch §10: the last stretch onto a Loading Rail it will dock at is allowed even
+		// inside an end zone; docking (on entering the rail) stops it there.
+		boolean station = stationAhead(level, cart, grip.direction().scale(Math.signum(speed)));
 		double clearance = Tuning.getDouble("cable.end_clearance");
 		double next = grip.along() + speed;
 		// Never further into an end zone; a cart already in one may always move out of it.
-		if (next < clearance && speed < 0.0 || next > grip.length() - clearance && speed > 0.0) {
+		if (!station && (next < clearance && speed < 0.0 || next > grip.length() - clearance && speed > 0.0)) {
 			return "end";
 		}
 		Vec3 ahead = cart.position().add(grip.direction().scale(speed + Math.signum(speed) * 0.5));
@@ -299,7 +323,7 @@ public final class CableDrive {
 			return "track_end";
 		}
 		CableIndex.Grip still = CableIndex.grip(level, ahead, ConnectingRods.TOLERANCE, ConnectingRods.reachMin(), ConnectingRods.reachMax());
-		if (still == null || !still.drum().equals(grip.drum())) {
+		if (!station && (still == null || !still.drum().equals(grip.drum()))) {
 			return "end";
 		}
 		if (!Couplings.allTicking(level, cart, grip.direction().scale(speed + Math.signum(speed) * 1.0))) {

@@ -90,6 +90,11 @@ public final class CableLines extends SavedData {
 		int cut;
 		/** M07: the ore skip hung on this line's cable end (its entity UUID), or null ({@link CableHoists}). */
 		@Nullable UUID hoist;
+		/**
+		 * M07 playtest patch §5A: cable paid out below the last anchor's roller to the free hook's eye,
+		 * blocks (0 = the hook's ordinary place just under the anchor). The drive winds it in and out.
+		 */
+		double drop;
 
 		// Not saved: a line loads standing still.
 		float speed;
@@ -104,6 +109,8 @@ public final class CableLines extends SavedData {
 		Map<Integer, Double> alongs = new HashMap<>();
 		/** This tick, reported by gripping carts: one moved, one stopped against something (a physical stop). */
 		boolean moved;
+		/** Whether the hoisted load (skip or free hook) moved last tick: an open route's cable is shown moving only then. */
+		boolean lastMoved;
 		boolean gripped;
 		@Nullable String halt;
 		int idleTicks;
@@ -121,8 +128,9 @@ public final class CableLines extends SavedData {
 		java.util.Set<Integer> blockedCarts = java.util.Set.of();
 
 		Line(List<BlockPos> anchors, List<Vec3> points, boolean looped, Optional<Direction> outward, boolean powered, int coal, int burn, int cut,
-			Optional<UUID> hoist) {
+			Optional<UUID> hoist, double drop) {
 			this.hoist = hoist.orElse(null);
+			this.drop = Math.max(0.0, drop);
 			this.anchors = List.copyOf(anchors);
 			this.points = List.copyOf(points);
 			this.looped = looped;
@@ -135,7 +143,7 @@ public final class CableLines extends SavedData {
 		}
 
 		static Line empty() {
-			return new Line(List.of(), List.of(), false, Optional.empty(), false, 0, 0, -1, Optional.empty());
+			return new Line(List.of(), List.of(), false, Optional.empty(), false, 0, 0, -1, Optional.empty(), 0.0);
 		}
 
 		public List<Vec3> points() {
@@ -171,6 +179,15 @@ public final class CableLines extends SavedData {
 			return this.speed;
 		}
 
+		/**
+		 * The speed the drum shows (spool and cable texture, M07 patch §9): the drive's, except that a
+		 * skip or free hook on an open route that did not move (at a station, blocked, at an end, not
+		 * ticking) shows its cable still.
+		 */
+		public float shownSpeed() {
+			return this.looped || this.points.size() < 2 || this.lastMoved ? this.speed : 0.0F;
+		}
+
 		public @Nullable String lastStop() {
 			return this.lastStop;
 		}
@@ -184,9 +201,17 @@ public final class CableLines extends SavedData {
 			return this.hoist;
 		}
 
-		/** Whether the drive can move anything: a closed loop, or a cable end with a skip hung on it (M07). */
+		/**
+		 * Whether the drive can move anything: a closed loop, a cable end with a skip hung on it (M07), or
+		 * the free hook hanging under the route's last anchor (M07 playtest patch §5A).
+		 */
 		public boolean drivable() {
-			return this.looped || this.hoist != null;
+			return this.looped || this.hoist != null || !this.anchors.isEmpty();
+		}
+
+		/** Cable paid out below the last anchor to the free hook (0 = its ordinary place). */
+		public double drop() {
+			return this.drop;
 		}
 
 		static final Codec<Line> CODEC = RecordCodecBuilder.create(i -> i.group(
@@ -198,7 +223,8 @@ public final class CableLines extends SavedData {
 			Codec.INT.optionalFieldOf("coal", 0).forGetter(line -> line.coal),
 			Codec.INT.optionalFieldOf("burn", 0).forGetter(line -> line.burn),
 			Codec.INT.optionalFieldOf("cut", -1).forGetter(line -> line.cut),
-			UUIDUtil.CODEC.optionalFieldOf("hoist").forGetter(line -> Optional.ofNullable(line.hoist))
+			UUIDUtil.CODEC.optionalFieldOf("hoist").forGetter(line -> Optional.ofNullable(line.hoist)),
+			Codec.DOUBLE.optionalFieldOf("drop", 0.0).forGetter(line -> line.drop)
 		).apply(i, Line::new));
 	}
 
@@ -254,7 +280,12 @@ public final class CableLines extends SavedData {
 	static void mirror(ServerLevel level, CableDrumBlockEntity drum) {
 		CableLines lines = get(level);
 		Line line = lines.getOrCreate(drum.getBlockPos());
-		line.anchors = drum.route();
+		List<BlockPos> route = drum.route();
+		if (line.anchors.isEmpty() || route.isEmpty() || !line.anchors.getLast().equals(route.getLast())) {
+			// A new last support: its free hook starts in its ordinary place under it.
+			line.drop = 0.0;
+		}
+		line.anchors = route;
 		line.points = drum.hasCoil() ? List.copyOf(drum.points()) : List.of();
 		line.looped = drum.looped();
 		line.outward = drum.looped() ? CableLoops.outward(drum) : null;

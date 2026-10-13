@@ -175,7 +175,7 @@ public class CableDrumBlockEntity extends BlockEntity {
 		if (visible && this.level instanceof ServerLevel serverLevel) {
 			serverLevel.sendBlockUpdated(this.getBlockPos(), this.getBlockState(), this.getBlockState(), Block.UPDATE_CLIENTS);
 		}
-		this.setSpeed(line.speed);
+		this.setSpeed(line.shownSpeed());
 	}
 
 	private void setSpeed(float speed) {

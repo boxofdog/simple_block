@@ -20,7 +20,10 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.phys.Vec3;
 
+import io.github.boxofdog.simpleblock.cable.CableAnchorBlock;
+import io.github.boxofdog.simpleblock.cable.CableHoists;
 import io.github.boxofdog.simpleblock.cable.CableRoutes;
+import io.github.boxofdog.simpleblock.client.cable.CableDrumRenderer;
 import io.github.boxofdog.simpleblock.client.cable.CableGeometry;
 import io.github.boxofdog.simpleblock.skip.OreSkip;
 import io.github.boxofdog.simpleblock.skip.SkipContent;
@@ -35,6 +38,11 @@ import io.github.boxofdog.simpleblock.skip.SkipPartBlock;
 public class OreSkipRenderer extends EntityRenderer<OreSkip, OreSkipRenderer.State> {
 	/** The bridle's apex, where the cable is made fast, above the skip's bottom. */
 	private static final double APEX = OreSkip.HEIGHT - 1.0 / 16.0;
+	/** The discharge gate slides this far sideways to open (as {@code block/ore_skip_gate_open}). */
+	private static final float GATE_SLIDE = 10.0F / 16.0F;
+	private static final float LID_HINGE_Y = 0.75F / 16.0F;
+	private static final float LID_HINGE_Z = 14.25F / 16.0F;
+	private static final float LID_OPEN_DEGREES = 100.0F;
 
 	public static class State extends EntityRenderState {
 		final BlockModelRenderState chute = new BlockModelRenderState();
@@ -43,6 +51,10 @@ public class OreSkipRenderer extends EntityRenderer<OreSkip, OreSkipRenderer.Sta
 		final BlockModelRenderState lid = new BlockModelRenderState();
 		final BlockModelRenderState bridle = new BlockModelRenderState();
 		Direction facing = Direction.NORTH;
+		boolean bridled;
+		/** Door positions, 0 shut to 1 open (interpolated between ticks). */
+		float lidOpen;
+		float gateOpen;
 		final List<CableGeometry.Piece> pieces = new ArrayList<>();
 	}
 
@@ -79,16 +91,34 @@ public class OreSkipRenderer extends EntityRenderer<OreSkip, OreSkipRenderer.Sta
 		super.extractRenderState(skip, state, partialTicks);
 		this.part(state.chute, SkipPartBlock.Part.CHUTE);
 		this.part(state.bin, SkipPartBlock.Part.BIN);
-		this.part(state.gate, skip.gateOpen() ? SkipPartBlock.Part.GATE_OPEN : SkipPartBlock.Part.GATE_CLOSED);
-		this.part(state.lid, skip.lidOpen() ? SkipPartBlock.Part.LID_OPEN : SkipPartBlock.Part.LID_CLOSED);
+		// The closed models, moved by the animation: the gate slides sideways, the lid swings up on its hinge.
+		this.part(state.gate, SkipPartBlock.Part.GATE_CLOSED);
+		this.part(state.lid, SkipPartBlock.Part.LID_CLOSED);
+		state.lidOpen = net.minecraft.util.Mth.lerp(partialTicks, skip.lidAnimO, skip.lidAnim);
+		state.gateOpen = net.minecraft.util.Mth.lerp(partialTicks, skip.gateAnimO, skip.gateAnim);
+		state.bridled = skip.bridled();
 		this.part(state.bridle, SkipPartBlock.Part.BRIDLE);
 		state.facing = skip.facing();
 		state.pieces.clear();
 		BlockPos anchor = skip.anchor();
 		if (anchor != null) {
 			Vec3 origin = new Vec3(state.x, state.y, state.z);
-			CableGeometry.addRun(state.pieces, skip.level(), origin, CableRoutes.point(anchor, false), origin.add(0.0, APEX, 0.0));
+			Vec3 drop = dropPoint(skip.level().getBlockState(anchor), anchor);
+			// The texture carries on from the routed cable's, so the whole line moves together (M07 patch §9).
+			BlockPos drumPos = skip.drum();
+			CableDrumRenderer.RouteEnd end = drumPos == null ? null : CableDrumRenderer.routeEnd(skip.level(), drumPos, partialTicks);
+			CableGeometry.addRun(state.pieces, skip.level(), origin, drop, origin.add(0.0, APEX, 0.0), end == null ? 0.0 : end.vAt(drop));
 		}
+	}
+
+	/** Where the hoisting cable leaves the head anchor: the pulley's far side at its axle (or the roller, before the block state arrives). */
+	private static Vec3 dropPoint(net.minecraft.world.level.block.state.BlockState state, BlockPos anchor) {
+		if (state.hasProperty(CableAnchorBlock.RETURN) && state.getValue(CableAnchorBlock.RETURN) == CableAnchorBlock.Return.PULLEY) {
+			Direction facing = state.getValue(CableAnchorBlock.FACING);
+			return new Vec3(anchor.getX() + 0.5 + facing.getStepX() * CableHoists.PULLEY_DROP, anchor.getY() + CableHoists.PULLEY_AXLE_Y,
+				anchor.getZ() + 0.5 + facing.getStepZ() * CableHoists.PULLEY_DROP);
+		}
+		return CableRoutes.point(anchor, false);
 	}
 
 	@Override
@@ -102,10 +132,22 @@ public class OreSkipRenderer extends EntityRenderer<OreSkip, OreSkipRenderer.Sta
 		state.chute.submit(poseStack, collector, light, OverlayTexture.NO_OVERLAY, state.outlineColor);
 		poseStack.translate(0.0F, 1.0F, 0.0F);
 		state.bin.submit(poseStack, collector, light, OverlayTexture.NO_OVERLAY, state.outlineColor);
+		poseStack.pushPose();
+		poseStack.translate(state.gateOpen * GATE_SLIDE, 0.0F, 0.0F);
 		state.gate.submit(poseStack, collector, light, OverlayTexture.NO_OVERLAY, state.outlineColor);
+		poseStack.popPose();
 		poseStack.translate(0.0F, 2.0F, 0.0F);
+		poseStack.pushPose();
+		// The lid's hinge runs across the back of the intake (model y 0.75, z 14.25).
+		poseStack.translate(0.0F, LID_HINGE_Y, LID_HINGE_Z);
+		poseStack.rotateDegrees(Axis.XP, state.lidOpen * LID_OPEN_DEGREES);
+		poseStack.translate(0.0F, -LID_HINGE_Y, -LID_HINGE_Z);
 		state.lid.submit(poseStack, collector, light, OverlayTexture.NO_OVERLAY, state.outlineColor);
-		state.bridle.submit(poseStack, collector, light, OverlayTexture.NO_OVERLAY, state.outlineColor);
+		poseStack.popPose();
+		if (state.bridled) {
+			// Owner's playtest patch §3: the bridle exists only while the skip hangs on its cable.
+			state.bridle.submit(poseStack, collector, light, OverlayTexture.NO_OVERLAY, state.outlineColor);
+		}
 		poseStack.popPose();
 		super.submit(state, poseStack, collector, camera);
 	}

@@ -98,7 +98,7 @@ public class CoalWinchGameTests {
 
 	/**
 	 * WIN-01: a furnace used on a drum with a route fits it as a coal winch, keeping the route and the
-	 * coil; the lever will not run an open route; on the loop, right-clicks on the lever go NEUTRAL,
+	 * coil; on an open route the lever winds the free hook (M07 patch §5A); on the loop, right-clicks on the lever go NEUTRAL,
 	 * PULL, FEED, NEUTRAL; coal used on the body goes in one at a time (charcoal does not); an empty hand
 	 * on the body only reports, never moving the lever; the old crank gestures do nothing. Broken, the
 	 * drum gives back the furnace and its coal.
@@ -125,9 +125,13 @@ public class CoalWinchGameTests {
 				helper.assertValueEqual(player.getMainHandItem().getCount(), 1, "a second furnace is not taken");
 				log.add("furnace fitted on a routed drum: route of 3 anchors, " + laid + " blocks and the coil kept");
 
+				// M07 playtest patch §5A: on an open route the lever drives the free hook (here, back to NEUTRAL in the same tick).
 				lever(helper, player);
-				helper.assertValueEqual(line(helper).lever(), CableLines.Lever.NEUTRAL, "lever on an open route");
-				log.add("open route: lever stays NEUTRAL");
+				helper.assertValueEqual(line(helper).lever(), CableLines.Lever.PULL, "lever on an open route");
+				lever(helper, player);
+				lever(helper, player);
+				helper.assertValueEqual(line(helper).lever(), CableLines.Lever.NEUTRAL, "lever back to NEUTRAL");
+				log.add("open route: the lever works (it winds the free hook)");
 
 				CableLoopGameTests.close(helper, player, CableLoopGameTests.ANCHORS[2]);
 				player.getInventory().clearContent();
@@ -545,4 +549,128 @@ public class CoalWinchGameTests {
 	private static CableLines.Line loadedLine(CableLines lines, BlockPos drum) {
 		return lines.lineAt(drum);
 	}
+
+	// ---- WIN-07: the ends of the line (M07 playtest patch §10) ----
+
+	/**
+	 * Runs a rod cart from x 15.5 towards one end of the yard line with the coal winch (FEED towards the
+	 * return wheel at x 23, PULL towards the drum at x 1), with a Loading Rail at {@code station} (or none)
+	 * and the track cut after {@code lastRail} (or not), and logs where and why it stopped: the cart, the
+	 * end of the cable, the rail, the look-ahead point, the grip and the lever's stop reason.
+	 */
+	private static void endApproach(GameTestHelper helper, String name, CableLines.Lever way, @org.jspecify.annotations.Nullable BlockPos station,
+		int lastRail, java.util.function.BiConsumer<Minecart, String> check) {
+		ServerPlayer player = TestPlayers.create(helper, GameType.SURVIVAL, new BlockPos(3, 1, 6));
+		CableLoopGameTests.line(helper, player, 1);
+		Minecart[] cart = new Minecart[1];
+		boolean[] failed = {false};
+		helper.startSequence()
+			.thenIdle(2)
+			.thenExecute(CableGameTests.step(failed, () -> {
+				winch(helper, player, 4);
+				for (int x = lastRail + 1; x < 30; x++) {
+					helper.setBlock(new BlockPos(x, 1, 4), Blocks.AIR);
+				}
+				if (station != null) {
+					LoadingTrackGameTests.loadingTrack(helper, station, way == CableLines.Lever.FEED ? Direction.EAST : Direction.WEST);
+				}
+				cart[0] = CableLoopGameTests.rodCart(helper, 15.5);
+			}))
+			.thenIdle(5)
+			.thenExecute(CableGameTests.step(failed, () -> {
+				lever(helper, player);
+				if (way == CableLines.Lever.FEED) {
+					lever(helper, player);
+				}
+				helper.assertValueEqual(line(helper).lever(), way, "lever");
+			}))
+			.thenWaitUntil(() -> helper.assertValueEqual(line(helper).lever(), CableLines.Lever.NEUTRAL, "stopped"))
+			.thenIdle(10)
+			.thenExecute(CableGameTests.step(failed, () -> {
+				ServerLevel level = level(helper);
+				var grip = io.github.boxofdog.simpleblock.cable.CableIndex.grip(level, cart[0].position(), ConnectingRods.TOLERANCE, ConnectingRods.reachMin(),
+					ConnectingRods.reachMax());
+				String report = String.format("%s: cart x %.3f (block %d), stop '%s', docked %s, grip along %s of %s, cable end (return wheel) x %.2f, rail %s, "
+					+ "track to x %d", name, CableLoopGameTests.x(helper, cart[0]), cart[0].getBlockX() - helper.absolutePos(BlockPos.ZERO).getX(),
+					line(helper).lastStop(), Couplings.coupled(cart[0]).simpleBlock$dock() != null,
+					grip == null ? "-" : String.format("%.3f", grip.along()), grip == null ? "-" : String.format("%.3f", grip.length()),
+					CableLoopGameTests.ANCHORS[2].getX() + 0.5, station == null ? "none" : "x " + station.getX(), lastRail);
+				SimpleBlockTestLog.info("WIN-07 {}", report);
+				check.accept(cart[0], report);
+				TestPlayers.remove(player);
+			}))
+			.thenSucceed();
+	}
+
+	private static void assertDocked(GameTestHelper helper, Minecart cart, BlockPos station, String report) {
+		helper.assertTrue(LoadingTrackGameTests.docked(cart, helper, station) && "docked".equals(line(helper).lastStop())
+			&& Math.abs(CableLoopGameTests.x(helper, cart) - (station.getX() + 0.5)) < 1.0E-6, "docked on the Loading Rail, centred: " + report);
+	}
+
+	/** WIN-07a: a Loading Rail straight under the return wheel (the last support): FEED docks the cart on it, no cable past it. */
+	@GameTest(structure = YARD, maxTicks = 1200)
+	public void feedDocksUnderTheLastSupport(GameTestHelper helper) {
+		BlockPos station = new BlockPos(23, 1, 4);
+		endApproach(helper, "Loading Rail under the last support", CableLines.Lever.FEED, station, 29, (cart, report) -> assertDocked(helper, cart, station, report));
+	}
+
+	/** WIN-07b: a Loading Rail 1 block before the last support. */
+	@GameTest(structure = YARD, maxTicks = 1200)
+	public void feedDocksOneBeforeTheLastSupport(GameTestHelper helper) {
+		BlockPos station = new BlockPos(22, 1, 4);
+		endApproach(helper, "Loading Rail 1 before the last support", CableLines.Lever.FEED, station, 29, (cart, report) -> assertDocked(helper, cart, station, report));
+	}
+
+	/** WIN-07c: a Loading Rail 2 blocks before the last support. */
+	@GameTest(structure = YARD, maxTicks = 1200)
+	public void feedDocksTwoBeforeTheLastSupport(GameTestHelper helper) {
+		BlockPos station = new BlockPos(21, 1, 4);
+		endApproach(helper, "Loading Rail 2 before the last support", CableLines.Lever.FEED, station, 29, (cart, report) -> assertDocked(helper, cart, station, report));
+	}
+
+	/** WIN-07d: a Loading Rail 3 blocks before the last support. */
+	@GameTest(structure = YARD, maxTicks = 1200)
+	public void feedDocksThreeBeforeTheLastSupport(GameTestHelper helper) {
+		BlockPos station = new BlockPos(20, 1, 4);
+		endApproach(helper, "Loading Rail 3 before the last support", CableLines.Lever.FEED, station, 29, (cart, report) -> assertDocked(helper, cart, station, report));
+	}
+
+	/** WIN-07e: a terminal Loading Rail, the track ending on it, under the last support. */
+	@GameTest(structure = YARD, maxTicks = 1200)
+	public void feedDocksOnATerminalLoadingRail(GameTestHelper helper) {
+		BlockPos station = new BlockPos(23, 1, 4);
+		endApproach(helper, "terminal Loading Rail under the last support", CableLines.Lever.FEED, station, 23,
+			(cart, report) -> assertDocked(helper, cart, station, report));
+	}
+
+	/**
+	 * WIN-07f: no Loading Rail, the track going on past the last support: the cart stops at the wheel's
+	 * clearance ({@code cable.end_clearance}, the line's design end stop), on the rails, still gripping.
+	 */
+	@GameTest(structure = YARD, maxTicks = 1200)
+	public void feedWithoutAStationStopsAtTheLastSupport(GameTestHelper helper) {
+		endApproach(helper, "no Loading Rail, track past the support", CableLines.Lever.FEED, null, 29, (cart, report) -> helper.assertTrue(
+			"end".equals(line(helper).lastStop()) && CableLoopGameTests.x(helper, cart) > 21.9 && io.github.boxofdog.simpleblock.cable.CableIndex.grip(level(helper), cart.position(), ConnectingRods.TOLERANCE, ConnectingRods.reachMin(), ConnectingRods.reachMax()) != null, "stopped near the support: " + report));
+	}
+
+	/** WIN-07g: no Loading Rail, the track ending under the last support: stopped at the same place, on the rails. */
+	@GameTest(structure = YARD, maxTicks = 1200)
+	public void feedWithoutAStationStopsAtTheTrackEnd(GameTestHelper helper) {
+		endApproach(helper, "no Loading Rail, track ending under the support", CableLines.Lever.FEED, null, 23, (cart, report) -> helper.assertTrue(
+			"end".equals(line(helper).lastStop()) && CableLoopGameTests.x(helper, cart) > 21.9 && CableLoopGameTests.x(helper, cart) < 24.0 && io.github.boxofdog.simpleblock.train.TrainPhysics.onRail(cart), "stopped on the rails: " + report));
+	}
+
+	/**
+	 * WIN-07h: PULL to a Loading Rail two blocks from a drum on the ground. The cable dips to the drum, so
+	 * the rod lets go of it just short of the rail and the cart runs on onto it and docks; the winch,
+	 * gripping nothing, stops ("idle").
+	 */
+	@GameTest(structure = YARD, maxTicks = 1200)
+	public void pullDocksNextToTheDrum(GameTestHelper helper) {
+		BlockPos station = new BlockPos(3, 1, 4);
+		endApproach(helper, "Loading Rail 2 from the drum", CableLines.Lever.PULL, station, 29, (cart, report) -> helper.assertTrue(
+			LoadingTrackGameTests.docked(cart, helper, station) && Math.abs(CableLoopGameTests.x(helper, cart) - 3.5) < 1.0E-6
+			&& line(helper).lever() == CableLines.Lever.NEUTRAL, "docked next to the drum: " + report));
+	}
+
 }

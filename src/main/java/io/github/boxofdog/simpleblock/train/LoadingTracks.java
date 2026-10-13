@@ -58,11 +58,28 @@ public final class LoadingTracks {
 
 		void simpleBlock$setFront(@Nullable Direction front);
 
-		/** M07: whether the front gate is folded down as a ramp (into a skip). Synced, not saved. */
-		boolean simpleBlock$gateOpen();
+		/**
+		 * M07 (owner's cart redesign): the way (in the world) of the gate that is open, or null when all
+		 * four are shut. Synced, not saved.
+		 */
+		@Nullable Direction simpleBlock$gateSide();
 
-		/** M07: folds the gate down for {@code ticks} more ticks (0 closes it now); a skip renews it each tick while it tips the cart. */
-		void simpleBlock$holdGateOpen(int ticks);
+		/** Whether a gate is open (into a skip). */
+		default boolean simpleBlock$gateOpen() {
+			return this.simpleBlock$gateSide() != null;
+		}
+
+		/**
+		 * Opens the gate on the {@code side} of the cart (a world direction) for {@code ticks} more ticks
+		 * (0 closes it now); a skip renews it each tick while it is tipped into.
+		 */
+		void simpleBlock$holdGateOpen(@Nullable Direction side, int ticks);
+
+		/** Client: how far the opening (or closing) gate has swung, 0 shut to 1 open, between ticks. */
+		float simpleBlock$gateSwing(float partialTicks);
+
+		/** Client: the way of the gate that is swinging (open, opening or closing), or null when all are shut. */
+		@Nullable Direction simpleBlock$swingSide();
 
 		/** The track this cart was last released from (it does not dock there until it has left it), or null. */
 		@Nullable BlockPos simpleBlock$released();
@@ -137,6 +154,18 @@ public final class LoadingTracks {
 		if (front != null) {
 			dock(level, cart, pos, front);
 		}
+	}
+
+	/**
+	 * Whether {@code cart} would dock at the Loading Rail at {@code pos} on arriving there now: a freight
+	 * cart, not docked, and not just released from that rail.
+	 */
+	public static boolean willDockAt(ServerLevel level, AbstractMinecart cart, BlockPos pos) {
+		if (!isFreight(cart) || LoadingTrackBlock.front(level.getBlockState(pos)) == null || Couplings.coupled(cart).simpleBlock$dock() != null) {
+			return false;
+		}
+		BlockPos released = freight(cart).simpleBlock$released();
+		return released == null || !released.equals(pos) && released.distSqr(pos) >= RELEASE_CLEAR * RELEASE_CLEAR;
 	}
 
 	private static void dock(ServerLevel level, AbstractMinecart cart, BlockPos pos, Direction front) {

@@ -35,9 +35,9 @@ import io.github.boxofdog.simpleblock.train.LoadingTracks;
  *
  * <p>M06: the loading-track state ({@link LoadingTracks.Freight}): the track a cart is docked at
  * ({@code simple_block:dock}), the track it was released from ({@code simple_block:released}) and the
- * way its front points ({@code simple_block:front}, synced for drawing its gate). M07: whether its
- * front gate is folded down as a ramp into a skip (synced, not saved: the skip keeps it down while it
- * tips the cart, and it closes by itself a few ticks after the skip stops).
+ * way its front points ({@code simple_block:front}, synced). M07: which of its four gates is open into a
+ * skip (synced, not saved: the skip keeps it open while it tips the cart, and it closes by itself a few
+ * ticks after the skip stops).
  */
 @Mixin(AbstractMinecart.class)
 abstract class AbstractMinecartMixin extends VehicleEntity implements Couplings.Coupled, LoadingTracks.Freight {
@@ -49,9 +49,16 @@ abstract class AbstractMinecartMixin extends VehicleEntity implements Couplings.
 	@Unique
 	private static final EntityDataAccessor<Byte> SIMPLE_BLOCK_FRONT = SynchedEntityData.defineId(AbstractMinecart.class, EntityDataSerializers.BYTE);
 	@Unique
-	private static final EntityDataAccessor<Boolean> SIMPLE_BLOCK_GATE_OPEN = SynchedEntityData.defineId(AbstractMinecart.class, EntityDataSerializers.BOOLEAN);
+	private static final EntityDataAccessor<Byte> SIMPLE_BLOCK_GATE_SIDE = SynchedEntityData.defineId(AbstractMinecart.class, EntityDataSerializers.BYTE);
 	@Unique
 	private int simpleBlock$gateHold;
+	/** Client: the gate's swing, 0 shut to 1 open, now and last tick (over 10 ticks, as the skip's doors), and which gate it is. */
+	@Unique
+	private float simpleBlock$gateSwing;
+	@Unique
+	private @Nullable Direction simpleBlock$swingSide;
+	@Unique
+	private float simpleBlock$gateSwingO;
 
 	@Unique
 	private final @Nullable UUID[] simpleBlock$couplings = new UUID[2];
@@ -141,16 +148,28 @@ abstract class AbstractMinecartMixin extends VehicleEntity implements Couplings.
 	}
 
 	@Override
-	public boolean simpleBlock$gateOpen() {
-		return this.entityData.get(SIMPLE_BLOCK_GATE_OPEN);
+	public @Nullable Direction simpleBlock$gateSide() {
+		byte side = this.entityData.get(SIMPLE_BLOCK_GATE_SIDE);
+		return side < 0 ? null : Direction.from2DDataValue(side);
 	}
 
 	@Override
-	public void simpleBlock$holdGateOpen(int ticks) {
-		this.simpleBlock$gateHold = ticks;
-		if (ticks > 0 != this.simpleBlock$gateOpen()) {
-			this.entityData.set(SIMPLE_BLOCK_GATE_OPEN, ticks > 0);
+	public void simpleBlock$holdGateOpen(@Nullable Direction side, int ticks) {
+		Direction open = ticks > 0 ? side : null;
+		this.simpleBlock$gateHold = open == null ? 0 : ticks;
+		if (open != this.simpleBlock$gateSide()) {
+			this.entityData.set(SIMPLE_BLOCK_GATE_SIDE, open == null ? (byte) -1 : (byte) open.get2DDataValue());
 		}
+	}
+
+	@Override
+	public @Nullable Direction simpleBlock$swingSide() {
+		return this.simpleBlock$gateSwing > 0.0F || this.simpleBlock$gateSwingO > 0.0F ? this.simpleBlock$swingSide : null;
+	}
+
+	@Override
+	public float simpleBlock$gateSwing(float partialTicks) {
+		return this.simpleBlock$gateSwingO + (this.simpleBlock$gateSwing - this.simpleBlock$gateSwingO) * partialTicks;
 	}
 
 	@Override
@@ -194,15 +213,26 @@ abstract class AbstractMinecartMixin extends VehicleEntity implements Couplings.
 		entityData.define(SIMPLE_BLOCK_COUPLED_0, -1);
 		entityData.define(SIMPLE_BLOCK_COUPLED_1, -1);
 		entityData.define(SIMPLE_BLOCK_FRONT, (byte) -1);
-		entityData.define(SIMPLE_BLOCK_GATE_OPEN, false);
+		entityData.define(SIMPLE_BLOCK_GATE_SIDE, (byte) -1);
 	}
 
 	@Inject(method = "tick", at = @At("TAIL"))
 	private void simpleBlock$noteTrain(CallbackInfo ci) {
+		if (this.level().isClientSide()) {
+			// One gate at a time: a different gate opens only once the last one has shut.
+			Direction side = this.simpleBlock$gateSide();
+			this.simpleBlock$gateSwingO = this.simpleBlock$gateSwing;
+			if (side != null && (side == this.simpleBlock$swingSide || this.simpleBlock$gateSwing <= 0.0F)) {
+				this.simpleBlock$swingSide = side;
+				this.simpleBlock$gateSwing = Math.min(1.0F, this.simpleBlock$gateSwing + 0.1F);
+			} else {
+				this.simpleBlock$gateSwing = Math.max(0.0F, this.simpleBlock$gateSwing - 0.1F);
+			}
+		}
 		if (!this.level().isClientSide()) {
 			LoadingTracks.tick((AbstractMinecart) (Object) this);
 			if (this.simpleBlock$gateHold > 0 && --this.simpleBlock$gateHold == 0) {
-				this.entityData.set(SIMPLE_BLOCK_GATE_OPEN, false);
+				this.entityData.set(SIMPLE_BLOCK_GATE_SIDE, (byte) -1);
 			}
 		}
 		if (!this.level().isClientSide() && (this.simpleBlock$couplings[0] != null || this.simpleBlock$couplings[1] != null

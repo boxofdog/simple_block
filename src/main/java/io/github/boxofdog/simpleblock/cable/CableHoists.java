@@ -29,7 +29,10 @@ import io.github.boxofdog.simpleblock.tuning.Tuning;
  */
 public final class CableHoists {
 	/** The skip's apex stops this far under the anchor's roller. */
-	public static final double APEX_GAP = 0.3;
+	public static final double APEX_GAP = 0.55;
+	/** Where the cable leaves the pulley for the skip: this far from the anchor's middle towards its facing, at the axle's height. */
+	public static final double PULLEY_DROP = 4.0 / 16.0;
+	public static final double PULLEY_AXLE_Y = 8.0 / 16.0;
 
 	/** What a hung skip needs from its line each tick. */
 	public record Hoist(BlockPos drum, Vec3 roller, float speed, boolean powered) {
@@ -83,6 +86,7 @@ public final class CableHoists {
 		}
 		line.hoist = skip;
 		line.speed = 0.0F;
+		setPulley(level, drum, anchor, true);
 		line.lever = CableLines.Lever.NEUTRAL;
 		lines.changed();
 		drum.copyDrive(line);
@@ -93,6 +97,20 @@ public final class CableHoists {
 		return new Attach(true, CableRoutes.message("hoist_hung", "Skip hung on the cable: pull to lift it, feed to lower it"));
 	}
 
+	/**
+	 * A skip taken off (or broken) with its bridle's apex at {@code apexY}: its cable end stays hanging
+	 * there, under the head anchor, as the free hook (M07 playtest patch §4/§5A).
+	 */
+	public static void detach(ServerLevel level, BlockPos drum, double apexY) {
+		CableLines.Line line = CableLines.get(level).lineAt(drum);
+		boolean hung = line != null && line.hoist != null;
+		detach(level, drum);
+		if (hung && line.points.size() >= 2) {
+			line.drop = Math.max(CableHook.HANG, line.points.getLast().y - apexY);
+			CableLines.get(level).changed();
+		}
+	}
+
 	/** Lets go of the skip hung on this drum's cable, if any; the cable end hangs at the anchor again. */
 	public static void detach(ServerLevel level, BlockPos drum) {
 		CableLines lines = CableLines.get(level);
@@ -100,11 +118,45 @@ public final class CableHoists {
 		if (line != null && line.hoist != null) {
 			line.hoist = null;
 			line.speed = 0.0F;
+			if (!line.anchors.isEmpty()) {
+				setPulley(level, null, line.anchors.getLast(), false);
+			}
 			if (line.powered && line.lever != CableLines.Lever.NEUTRAL) {
 				CoalWinch.toNeutral(level, drum, line, "open");
 			}
 			lines.changed();
 		}
+	}
+
+	/**
+	 * Shows the head anchor as a pulley while a skip hangs from it, or as the ordinary anchor again. The
+	 * wheel faces the way the cable comes in (from the support before it) and drops it on that side.
+	 */
+	static void setPulley(ServerLevel level, @Nullable CableDrumBlockEntity drum, BlockPos anchor, boolean pulley) {
+		if (!level.isLoaded(anchor)) {
+			return;
+		}
+		net.minecraft.world.level.block.state.BlockState state = level.getBlockState(anchor);
+		if (!state.is(CableContent.CABLE_ANCHOR)) {
+			return;
+		}
+		CableAnchorBlock.Return value = pulley ? CableAnchorBlock.Return.PULLEY : CableAnchorBlock.Return.NONE;
+		if (!pulley && state.getValue(CableAnchorBlock.RETURN) != CableAnchorBlock.Return.PULLEY) {
+			return;
+		}
+		net.minecraft.core.Direction facing = state.getValue(CableAnchorBlock.FACING);
+		if (pulley && drum != null) {
+			java.util.List<BlockPos> route = drum.route();
+			BlockPos before = route.size() >= 2 ? route.get(route.size() - 2) : drum.getBlockPos();
+			int dx = anchor.getX() - before.getX();
+			int dz = anchor.getZ() - before.getZ();
+			if (dx != 0 || dz != 0) {
+				facing = Math.abs(dx) >= Math.abs(dz) ? (dx > 0 ? net.minecraft.core.Direction.EAST : net.minecraft.core.Direction.WEST)
+					: (dz > 0 ? net.minecraft.core.Direction.SOUTH : net.minecraft.core.Direction.NORTH);
+			}
+		}
+		level.setBlock(anchor, state.setValue(CableAnchorBlock.RETURN, value).setValue(CableAnchorBlock.FACING, facing),
+			net.minecraft.world.level.block.Block.UPDATE_ALL);
 	}
 
 	/** The line of the skip {@code skip} hung from {@code drum}, or null if it is not (any more). */

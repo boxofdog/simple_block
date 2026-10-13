@@ -36,8 +36,15 @@ public class CableHook extends Entity {
 	private static final EntityDataAccessor<BlockPos> DATA_END = SynchedEntityData.defineId(CableHook.class, EntityDataSerializers.BLOCK_POS);
 	/** The holding player's entity id, or -1. */
 	private static final EntityDataAccessor<Integer> DATA_HOLDER = SynchedEntityData.defineId(CableHook.class, EntityDataSerializers.INT);
-	/** Cable between the support and the top of a hanging hook. */
-	private static final double HANG = 0.5;
+	/** Cable between the support and the top of a hanging hook in its ordinary place. */
+	static final double HANG = 0.5;
+	/**
+	 * M07 playtest patch §5A: carried by hand, the end goes taut this far from its support, measured
+	 * across the ground only (a free end hanging down a shaft is measured from straight under its anchor)...
+	 */
+	static final double TAUT = 12.0;
+	/** ...and is put down at its support (hanging where it was) beyond this. No message: the cable says it. */
+	static final double PUT_DOWN = 16.0;
 
 	public CableHook(EntityType<? extends CableHook> type, Level level) {
 		super(type, level);
@@ -48,7 +55,13 @@ public class CableHook extends Entity {
 		this(CableContent.CABLE_HOOK, level);
 		this.entityData.set(DATA_DRUM, drum.getBlockPos());
 		this.entityData.set(DATA_END, drum.routeEnd());
-		this.setPos(restPosition(drum.getBlockPos(), drum.getBlockState(), drum.routeEnd()));
+		this.setPos(restPosition(drum.getBlockPos(), drum.getBlockState(), drum.routeEnd(), drop(level, drum.getBlockPos())));
+	}
+
+	/** The cable paid out to this drum's free hook (0 = its ordinary place). */
+	static double drop(ServerLevel level, BlockPos drum) {
+		CableLines.Line line = CableLines.line(level, drum);
+		return line == null ? 0.0 : line.drop;
 	}
 
 	@Override
@@ -107,13 +120,18 @@ public class CableHook extends Entity {
 	 * hanging just below the front of a drum hung under a beam.
 	 */
 	static Vec3 restPosition(BlockPos drum, BlockState drumState, BlockPos end) {
+		return restPosition(drum, drumState, end, 0.0);
+	}
+
+	/** As {@link #restPosition(BlockPos, BlockState, BlockPos)}, with {@code drop} of cable paid out below the last anchor (M07 patch §5A). */
+	static Vec3 restPosition(BlockPos drum, BlockState drumState, BlockPos end, double drop) {
 		if (end.equals(drum)) {
 			Direction facing = drumState.hasProperty(CableDrumBlock.FACING) ? drumState.getValue(CableDrumBlock.FACING) : Direction.NORTH;
 			boolean hanging = drumState.hasProperty(CableDrumBlock.HANGING) && drumState.getValue(CableDrumBlock.HANGING);
 			return new Vec3(drum.getX() + 0.5 + facing.getStepX() * 0.62, drum.getY() + (hanging ? -0.3 : 0.02),
 				drum.getZ() + 0.5 + facing.getStepZ() * 0.62);
 		}
-		return CableRoutes.point(end, false).subtract(0.0, HANG + CableContent.CABLE_HOOK.getHeight(), 0.0);
+		return CableRoutes.point(end, false).subtract(0.0, Math.max(HANG, drop) + CableContent.CABLE_HOOK.getHeight(), 0.0);
 	}
 
 	/** Where a held hook is: in the hand, eye up. */
@@ -139,21 +157,73 @@ public class CableHook extends Entity {
 			holder = null;
 		}
 		Vec3 target;
+		Vec3 rest = restPosition(drum.getBlockPos(), drum.getBlockState(), end, drop(level, drum.getBlockPos()));
 		if (holder != null) {
 			target = this.heldPosition(holder, 1.0F);
-			double reach = CableRoutes.maxSpan();
-			if (this.eyePoint(target).distanceTo(this.endPoint()) > reach + CableRoutes.HOLD_SLACK) {
+			// Measured across the ground from the support (for a free end down a shaft: from under its anchor).
+			Vec3 support = this.endPoint();
+			double dx = target.x - support.x;
+			double dz = target.z - support.z;
+			double across = Math.sqrt(dx * dx + dz * dz);
+			if (across > PUT_DOWN) {
 				this.release();
-				CableRoutes.tell(holder, CableRoutes.message("slipped", "The cable end slipped from your hand: it only reaches %s blocks from the last support",
-					(int) reach));
-				target = restPosition(drum.getBlockPos(), drum.getBlockState(), end);
+				target = rest;
+			} else if (across > TAUT) {
+				// Taut: the end stays where the cable reaches, towards the hand.
+				target = new Vec3(support.x + dx * TAUT / across, target.y, support.z + dz * TAUT / across);
 			}
 		} else {
-			target = restPosition(drum.getBlockPos(), drum.getBlockState(), end);
+			target = this.wind(level, drum, rest);
 		}
 		if (!target.equals(this.position())) {
 			this.setPos(target);
 		}
+	}
+
+	/**
+	 * M07 playtest patch §5A: a free hook hanging under the route's last anchor (no skip on it, not a
+	 * loop) is paid out and wound in by the drum's drive, crank or coal winch: FEED lowers it, PULL raises
+	 * it, straight down its shaft. It stops in its ordinary place under the anchor ({@code end}) and on
+	 * anything under it ({@code blocked}); it moves only in its own tick, so never while its chunk is not
+	 * entity-ticking. It reports to the line as a gripping cart does (coal burns only while it moves).
+	 * Returns where it hangs now.
+	 */
+	private Vec3 wind(ServerLevel level, CableDrumBlockEntity drum, Vec3 rest) {
+		CableLines.Line line = CableLines.line(level, drum.getBlockPos());
+		if (line == null || line.looped || line.hoist != null || line.anchors.isEmpty()) {
+			return rest;
+		}
+		double speed = line.speed;
+		String halt = null;
+		if (Math.abs(speed) > 1.0E-6) {
+			double from = Math.max(HANG, line.drop);
+			double to = from + speed;
+			if (to < HANG) {
+				to = HANG;
+				halt = "end";
+			}
+			double reached = from;
+			double step = Math.signum(to - from) / 16.0;
+			while (Math.abs(to - reached) > 1.0E-9) {
+				double next = Math.abs(to - reached) < Math.abs(step) ? to : reached + step;
+				Vec3 at = rest.subtract(0.0, next - from, 0.0);
+				if (!level.noCollision(this, this.getDimensions(this.getPose()).makeBoundingBox(at).deflate(1.0E-4))) {
+					halt = "blocked";
+					break;
+				}
+				reached = next;
+			}
+			if (reached == from && halt == null) {
+				halt = "blocked";
+			}
+			if (reached != from) {
+				line.drop = reached;
+				CableLines.get(level).changed();
+				rest = rest.subtract(0.0, reached - from, 0.0);
+			}
+		}
+		CableHoists.report(level, drum.getBlockPos(), this.getId(), rest.y, 0.0, halt);
+		return rest;
 	}
 
 	/** Picking up the end. Client and server agree on the result; only the server changes anything. */

@@ -9,6 +9,9 @@
 		"facing=north,return=wheel": {
 			"model": "simple_block:block/cable_anchor_wheel_front"
 		},
+		"facing=north,return=pulley": {
+			"model": "simple_block:block/cable_anchor_pulley"
+		},
 		"facing=south,return=none": {
 			"model": "simple_block:block/cable_anchor"
 		},
@@ -17,6 +20,10 @@
 		},
 		"facing=south,return=wheel": {
 			"model": "simple_block:block/cable_anchor_wheel_back"
+		},
+		"facing=south,return=pulley": {
+			"model": "simple_block:block/cable_anchor_pulley",
+			"y": 180
 		},
 		"facing=east,return=none": {
 			"model": "simple_block:block/cable_anchor",
@@ -30,6 +37,10 @@
 			"model": "simple_block:block/cable_anchor_wheel_front",
 			"y": 90
 		},
+		"facing=east,return=pulley": {
+			"model": "simple_block:block/cable_anchor_pulley",
+			"y": 90
+		},
 		"facing=west,return=none": {
 			"model": "simple_block:block/cable_anchor",
 			"y": 90
@@ -41,6 +52,10 @@
 		"facing=west,return=wheel": {
 			"model": "simple_block:block/cable_anchor_wheel_back",
 			"y": 90
+		},
+		"facing=west,return=pulley": {
+			"model": "simple_block:block/cable_anchor_pulley",
+			"y": 270
 		}
 	}
 }

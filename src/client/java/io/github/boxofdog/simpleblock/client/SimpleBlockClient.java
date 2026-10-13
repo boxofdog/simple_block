@@ -1,11 +1,13 @@
 package io.github.boxofdog.simpleblock.client;
 
 import net.fabricmc.api.ClientModInitializer;
+import net.fabricmc.fabric.api.client.rendering.v1.ModelLayerRegistry;
 
 import io.github.boxofdog.simpleblock.client.cable.CableDrumRenderer;
 import io.github.boxofdog.simpleblock.client.cable.CableHookRenderer;
 import io.github.boxofdog.simpleblock.client.skip.OreSkipRenderer;
 import io.github.boxofdog.simpleblock.client.train.CobblestoneEngineRenderer;
+import io.github.boxofdog.simpleblock.client.train.GatedMinecartModel;
 
 /** Client-only display parts of Simple Block. Every rule is enforced by the server. */
 public class SimpleBlockClient implements ClientModInitializer {
@@ -13,6 +15,8 @@ public class SimpleBlockClient implements ClientModInitializer {
 	public void onInitializeClient() {
 		InventoryScreenAddons.register();
 		SaturationHud.register();
+		// The owner's M07 cart redesign: every minecart's body (AbstractMinecartRendererModelMixin).
+		ModelLayerRegistry.registerModelLayer(GatedMinecartModel.LAYER, GatedMinecartModel::createBodyLayer);
 		CargoMinecartRenderer.register();
 		CableDrumRenderer.register();
 		CableHookRenderer.register();

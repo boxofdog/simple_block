@@ -20,6 +20,7 @@ import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.util.Mth;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
 
@@ -117,16 +118,41 @@ public class CableDrumRenderer implements BlockEntityRenderer<CableDrumBlockEnti
 		Vec3 origin = Vec3.atLowerCornerOf(drum.getBlockPos());
 		List<Vec3> path = new ArrayList<>(drum.points());
 		Direction outward = drum.looped() ? CableLoops.outward(drum) : null;
-		double v = 0.0;
+		// The texture moves with the cable's travel, on a loop and (M07 patch §9) on an open route too.
+		double v = -travel;
 		if (outward != null) {
 			List<Vec3> wheel = CableLoops.wheelPath(path.getLast(), outward);
 			path.addAll(wheel.subList(1, wheel.size()));
 			List<Vec3> back = new ArrayList<>(CableLoops.returnPoints(drum, outward));
 			path.addAll(back.reversed().subList(1, back.size()));
-			v = -travel;
 		}
 		for (int i = 1; i < path.size(); i++) {
 			v = CableGeometry.addRun(state.pieces, drum.getLevel(), origin, path.get(i - 1), path.get(i), v);
+		}
+	}
+
+	/**
+	 * Where an open route's working strand ends (the last anchor's roller, or the drum's exit) and the
+	 * texture row there, so a cable hanging on from it (to a skip or the free hook) carries on with the
+	 * same moving texture (M07 patch §9). Null if the drum is not loaded here.
+	 */
+	public static @Nullable RouteEnd routeEnd(Level level, BlockPos drumPos, float partialTicks) {
+		if (!(level.getBlockEntity(drumPos) instanceof CableDrumBlockEntity drum)) {
+			return null;
+		}
+		List<Vec3> path = drum.points();
+		double v = -Mth.lerp(partialTicks, drum.previousTravel, drum.travel);
+		for (int i = 1; i < path.size(); i++) {
+			v += path.get(i - 1).distanceTo(path.get(i));
+		}
+		return new RouteEnd(path.getLast(), v);
+	}
+
+	/** See {@link #routeEnd}. */
+	public record RouteEnd(Vec3 point, double v) {
+		/** The texture row at {@code start}, a short way on from the end (round a pulley). */
+		public double vAt(Vec3 start) {
+			return this.v + this.point.distanceTo(start);
 		}
 	}
 

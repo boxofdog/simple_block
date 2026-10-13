@@ -169,6 +169,20 @@ for c in ANCHOR_WHEEL_FRONT:
         c.uv_key = c.uv_key.replace('_low', '').replace('_high', '')
 ANCHOR_WHEEL_BACK = ANCHOR + [mirror_z(c) for c in ANCHOR_WHEEL_FRONT[len(ANCHOR):]]
 
+# M07 playtest patch §4: the head anchor of a shaft while a skip hangs on its cable, drawn as a pulley
+# wheel under its ceiling plate (block state return=pulley). Facing north: the cable comes in from the
+# south over the top of the wheel (x 8, y 12, the anchor's roller point) and drops on the north side
+# (z 4) straight down to the skip's bridle; the wheel turns on an axle across the cable (x).
+PULLEY = [
+    Cube('mount_plate', [4, 15, 4], [12, 16, 12]),
+    Cube('cheek_west', [5, 7, 6.5], [6, 15, 9.5], uv_key='cheek'),
+    Cube('cheek_east', [10, 7, 6.5], [11, 15, 9.5], uv_key='cheek'),
+    Cube('axle', [4.5, 7.5, 7.5], [11.5, 8.5, 8.5]),
+] + prism_x('wheel', 7, 9, 8, 8, 4) + prism_x('flange_west', 6.25, 7, 8, 8, 4.5) + prism_x('flange_east', 9, 9.75, 8, 8, 4.5)
+for c in PULLEY:
+    if c.name.startswith('flange_'):
+        c.uv_key = 'flange' + c.uv_key[c.uv_key.rindex('_'):]
+
 # Cable drum, facing north (the cable pays out to the north): timber side frames (the block model),
 # and, drawn turning by the block entity renderer about the axle (x, at y 9.5, z 8), the spool (flanges
 # and the barrel, bare or wound with cable up to y 14) and the hand crank on the east side.
@@ -251,24 +265,6 @@ LOADING_TRACK_RAISED = _rail_bed + [
     Cube('stop_face', [4, 2, 17], [6.5, 10, 18.5], uv_key='stop_face'),
     Cube('stop_step_1', [4, 2, 18.5], [6.5, 7.5, 19.5], uv_key='stop_step_1'),
     Cube('stop_step_2', [4, 2, 19.5], [6.5, 5, 20.5], uv_key='stop_step_2'),
-]
-
-# M06 freight cart front gate, drawn by the cart renderer at the cart's front end wall, hinged at the
-# cart floor (x 0 is the outside of the wall, y 0 the underside of the floor): closed, standing over
-# the wall; open, folded down outwards as a ramp (M07 uses it; M06 only draws it closed).
-GATE_CLOSED = [
-    Cube('gate_plate', [0, 0, 1], [1, 10, 15]),
-    Cube('gate_strap_left', [1, 1, 2], [1.5, 9, 3.5], uv_key='gate_strap'),
-    Cube('gate_strap_right', [1, 1, 12.5], [1.5, 9, 14], uv_key='gate_strap'),
-    Cube('gate_latch', [1, 7.5, 6], [1.75, 8.5, 10]),
-    Cube('gate_hinge', [-0.25, -0.5, 0.5], [1.25, 0.5, 15.5]),
-]
-GATE_OPEN = [
-    Cube('gate_plate', [0, 0, 1], [10, 1, 15], uv_key='gate_plate_open'),
-    Cube('gate_strap_left', [1, 1, 2], [9, 1.5, 3.5], uv_key='gate_strap_open'),
-    Cube('gate_strap_right', [1, 1, 12.5], [9, 1.5, 14], uv_key='gate_strap_open'),
-    Cube('gate_latch', [8, 1, 6], [9, 1.75, 10], uv_key='gate_latch_open'),
-    Cube('gate_hinge', [-0.25, -0.5, 0.5], [1.25, 0.5, 15.5]),
 ]
 
 # The loose end's hook, 8 px tall, standing on the model's floor at the centre (the entity's position).
@@ -392,13 +388,13 @@ ORE_SKIP_ITEM = [
 GROUPS = {
     'block/cable_anchor': {'cable_anchor': ANCHOR, 'cable_anchor_guide': ANCHOR_GUIDE, 'cable_anchor_wheel_front': ANCHOR_WHEEL_FRONT,
                            'cable_anchor_wheel_back': ANCHOR_WHEEL_BACK},
+    'block/cable_pulley': {'cable_anchor_pulley': PULLEY},
     'block/cable_drum': {'cable_drum': DRUM, 'cable_drum_frame': DRUM_FRAME, 'cable_drum_frame_powered': DRUM_FRAME_POWERED,
                          'cable_drum_frame_powered_hanging': DRUM_FRAME_POWERED_HANGING,
                          'cable_drum_spool': DRUM_SPOOL,
                          'cable_drum_spool_wound': DRUM_SPOOL_WOUND, 'cable_drum_crank': DRUM_CRANK},
     'block/cable_winch': {'cable_drum_lever': DRUM_LEVER},
     'block/loading_track': {'loading_track': LOADING_TRACK, 'loading_track_raised': LOADING_TRACK_RAISED},
-    'block/freight_gate': {'freight_gate_closed': GATE_CLOSED, 'freight_gate_open': GATE_OPEN},
     'block/cable_hook': {'cable_hook': HOOK},
     'block/connecting_rod': {
         'connecting_rod_base': ROD_BASE,
@@ -604,6 +600,7 @@ def main():
         anchor[f'facing={facing},return=none'] = m('block/cable_anchor', y=y)
         anchor[f'facing={facing},return=guide'] = m('block/cable_anchor_guide', y=y)
         anchor[f'facing={facing},return=wheel'] = m('block/cable_anchor_wheel_' + ('front' if facing in ('north', 'east') else 'back'), y=y)
+        anchor[f'facing={facing},return=pulley'] = m('block/cable_anchor_pulley', y={'north': 0, 'east': 90, 'south': 180, 'west': 270}[facing])
     write_json(os.path.join(ASSETS, 'blockstates', 'cable_anchor.json'), {'variants': anchor})
     # Drums: the block model is the frame; the spool and crank are drawn turning by the renderer. A drum
     # hung under a beam is the same frame upside down.
@@ -621,8 +618,6 @@ def main():
     write_json(os.path.join(ASSETS, 'blockstates', 'loading_track.json'), {'variants': {
         f'facing={facing},raised={raised}': m('block/loading_track' + ('_raised' if raised == 'true' else ''), y=y)
         for facing, y in rotations.items() for raised in ('false', 'true')}})
-    write_json(os.path.join(ASSETS, 'blockstates', 'freight_gate.json'), {'variants': {
-        f'part={part}': m(f'block/freight_gate_{part}') for part in ('closed', 'open')}})
     write_json(os.path.join(ASSETS, 'blockstates', 'cable_hook.json'), {'variants': {'': m('block/cable_hook')}})
     write_json(os.path.join(ASSETS, 'blockstates', 'connecting_rod_part.json'), {'variants': {
         f'part={part}': m(f'block/connecting_rod_{part}') for part in ('base', 'shaft', 'head_open', 'head_closed')}})

@@ -32,6 +32,7 @@ import net.minecraft.world.phys.Vec3;
 
 import net.fabricmc.fabric.api.gametest.v1.GameTest;
 
+import io.github.boxofdog.simpleblock.cable.CableAnchorBlock;
 import io.github.boxofdog.simpleblock.cable.CableContent;
 import io.github.boxofdog.simpleblock.cable.CableDrumBlock;
 import io.github.boxofdog.simpleblock.cable.CableDrumBlockEntity;
@@ -229,9 +230,10 @@ public class SkipGameTests {
 
 	/**
 	 * SKIP-02: placed from its item on the top of a block, the skip stands in that column facing the
-	 * player's way back, its hitbox exactly one block wide and deep and four high (body and bridle), and
-	 * solid to other entities. It is refused (and the item kept) where a block is in its column's four
-	 * cells (including the bridle's) or in a side cell; a block in front or behind is fine.
+	 * player's way back. Owner's playtest patch §3: placed, it is only its body, a hitbox one block wide
+	 * and deep and three high, with no bridle (a block in the fourth cell does not stop it), solid to
+	 * other entities. It is refused (and the item kept) where a block is in its body's cells or in a side
+	 * cell beside them; a block in front or behind is fine.
 	 */
 	@GameTest(structure = SHAFT)
 	public void skipNeedsItsColumnAndSideCells(GameTestHelper helper) {
@@ -239,8 +241,7 @@ public class SkipGameTests {
 		ServerPlayer player = TestPlayers.create(helper, GameType.SURVIVAL, new BlockPos(12, 1, 2));
 		player.setYRot(0.0F);
 		List<String> log = new ArrayList<>();
-		// Placed where something is in the way: in a side cell, at the bridle, then fine with blocks in front and behind.
-		BlockPos[] obstacles = {new BlockPos(13, 2, 5), new BlockPos(11, 4, 5), new BlockPos(12, 4, 5)};
+		BlockPos[] obstacles = {new BlockPos(13, 2, 5), new BlockPos(11, 3, 5), new BlockPos(12, 3, 5)};
 		for (BlockPos obstacle : obstacles) {
 			helper.setBlock(obstacle, Blocks.STONE);
 			player.setItemInHand(InteractionHand.MAIN_HAND, new ItemStack(SkipContent.ORE_SKIP_ITEM));
@@ -253,20 +254,24 @@ public class SkipGameTests {
 		}
 		helper.setBlock(COLUMN.north(), Blocks.STONE);
 		helper.setBlock(COLUMN.south().above(2), Blocks.STONE);
+		// The fourth cell (where a bridle would be) and beside it: no bridle yet, so no matter.
+		helper.setBlock(COLUMN.above(3), Blocks.STONE);
+		helper.setBlock(COLUMN.above(3).east(), Blocks.STONE);
 		CableGameTests.useBlock(helper, player, COLUMN.below(), Direction.UP);
 		List<OreSkip> skips = helper.getLevel().getEntitiesOfClass(OreSkip.class, new AABB(helper.absolutePos(COLUMN)).inflate(3.0));
-		helper.assertValueEqual(skips.size(), 1, "skips placed with only front and back blocks");
+		helper.assertValueEqual(skips.size(), 1, "skips placed with blocks in front, behind and over the body");
 		OreSkip skip = skips.getFirst();
 		AABB box = skip.getBoundingBox();
 		helper.assertValueEqual(skip.facing(), Direction.NORTH, "facing (front towards the player, who faced south)");
-		helper.assertTrue(Math.abs(box.getXsize() - 1.0) < 1.0E-6 && Math.abs(box.getZsize() - 1.0) < 1.0E-6 && Math.abs(box.getYsize() - 4.0) < 1.0E-6,
-			"hitbox 1 x 4 x 1: " + box);
+		helper.assertTrue(Math.abs(box.getXsize() - 1.0) < 1.0E-6 && Math.abs(box.getZsize() - 1.0) < 1.0E-6 && Math.abs(box.getYsize() - 3.0) < 1.0E-6,
+			"hitbox 1 x 3 x 1 (no bridle): " + box);
+		helper.assertFalse(skip.bridled(), "placed without a bridle");
 		helper.assertTrue(Math.abs(box.minY - helper.absolutePos(COLUMN).getY()) < 1.0E-6, "standing on the block it was placed on: " + box);
 		helper.assertTrue(skip.canBeCollidedWith(player), "solid to other entities");
 		helper.assertTrue(player.getMainHandItem().isEmpty(), "the item used up");
 		helper.assertValueEqual(skip.lateral().getAxis(), Direction.Axis.X, "side cells along x (across its front)");
-		SimpleBlockTestLog.info("SKIP-02: {}; placed with blocks in front and behind: box {}, facing {}, side cells along {}", log, box, skip.facing(),
-			skip.lateral().getAxis());
+		SimpleBlockTestLog.info("SKIP-02: {}; placed with blocks in front, behind and over the body: box {} (no bridle), facing {}, side cells along {}", log,
+			box, skip.facing(), skip.lateral().getAxis());
 		skip.discard();
 		TestPlayers.remove(player);
 		helper.succeed();
@@ -447,7 +452,8 @@ public class SkipGameTests {
 				double top = y(helper, skip);
 				double roller = HEAD_ANCHOR.getY() + 0.75;
 				helper.assertValueEqual(line(helper).lastStop(), "end", "why the winch stopped at the top");
-				helper.assertTrue(Math.abs(top + OreSkip.HEIGHT - (roller - 0.3)) < 0.07, "apex just under the anchor's roller: skip at " + top);
+				helper.assertTrue(Math.abs(top + OreSkip.HEIGHT - (roller - io.github.boxofdog.simpleblock.cable.CableHoists.APEX_GAP)) < 0.07,
+					"apex just under the head anchor's pulley wheel: skip at " + top);
 				burn[0] = line(helper).burn() + line(helper).coal() * 1600;
 				log.add("coal winch PULL: stopped at the head (y " + String.format("%.2f", top) + ", apex " + String.format("%.2f", top + 4)
 					+ " under the roller at " + roller + "), lever NEUTRAL (" + line(helper).lastStop() + ")");
@@ -570,9 +576,11 @@ public class SkipGameTests {
 	 * with its bridle, the skip stops there exactly (lever to NEUTRAL, "docked") and the cart tips its
 	 * load into it through its ramp (the gate folded down, the skip's lid open), as much as the skip has
 	 * room for: a skip already holding 400 raw iron takes 112 of the cart's 200 (direction by height,
-	 * not by who has cargo). The doors close, the cart stays held, nothing restarts. Lowered to the floor,
-	 * where an empty cart is docked level with its chute, it fills that cart (256 of its 512; the cart's
-	 * front stays shut, the skip's discharge gate opens). Totals are kept throughout.
+	 * not by who has cargo). The doors close, the cart stays held, nothing restarts. Lowered towards the
+	 * floor, where an empty cart is docked one level below its chute (owner's playtest patch §1), it stops
+	 * with the chute's lip on the cart's rim ({@link SkipStations#UNLOAD_OFFSET} above the rail) and fills
+	 * that cart (256 of its 512; the cart's front stays shut, the skip's discharge gate opens). Totals are
+	 * kept throughout.
 	 */
 	@GameTest(structure = SHAFT, maxTicks = 1600)
 	public void skipExchangesByHeightAtTheLoadingRail(GameTestHelper helper) {
@@ -641,12 +649,13 @@ public class SkipGameTests {
 				}
 			})
 			.thenExecute(CableGameTests.step(failed, () -> {
-				helper.assertTrue(Math.abs(y(helper, skip) - 1.0) < 1.0E-6, "at the bottom: " + y(helper, skip));
+				// Patch §1: it stops with its chute's lip on the cart's rim, the cart one level lower, kitty-corner.
+				helper.assertTrue(Math.abs(y(helper, skip) - (1.0 + SkipStations.UNLOAD_OFFSET)) < 1.0E-6, "at the unloading station: " + y(helper, skip));
 				helper.assertValueEqual(cartCount(carts[1]), MinecartCargo.CAPACITY, "bottom cart filled");
 				helper.assertValueEqual(skip.count(), SkipCargo.CAPACITY - MinecartCargo.CAPACITY, "skip after unloading");
 				helper.assertTrue(!seen[0] && !seen[1] && seen[2], "cart front shut " + !seen[0] + ", lid shut " + !seen[1] + ", discharge gate opened " + seen[2]);
 				helper.assertValueEqual(cartCount(carts[0]) + skip.count() + cartCount(carts[1]), 600, "total raw iron");
-				log.add("FEED: down to the floor, skip 512 -> 256 into the empty bottom cart (front shut, discharge gate open); total 600 kept");
+				log.add("FEED: down to the unloading station (bottom 1 + 11/16, lip on the rim), skip 512 -> 256 into the empty bottom cart (front shut, discharge gate open); total 600 kept");
 				SimpleBlockTestLog.info("SKIP-06: {}", log);
 				for (Minecart cart : carts) {
 					cart.discard();
@@ -657,103 +666,527 @@ public class SkipGameTests {
 			.thenSucceed();
 	}
 
+	/** A hung skip in the shaft (route, cable end used on it), held still at {@code bottom} (relative), with the given cargo. */
+	private static void holdAt(GameTestHelper helper, OreSkip skip, double bottom, Item item, int count) {
+		Vec3 at = helper.absoluteVec(new Vec3(COLUMN.getX() + 0.5, bottom, COLUMN.getZ() + 0.5));
+		skip.setPos(at.x, at.y, at.z);
+		skip.setCargo(item, count);
+	}
+
+	private static void clearRail(GameTestHelper helper, BlockPos rail) {
+		helper.setBlock(rail, Blocks.AIR);
+		if (rail.getY() > 1) {
+			helper.setBlock(rail.below(), Blocks.AIR);
+		}
+	}
+
+	/** One negative case of SKIP-07: what is set up, and the rail it used. */
+	private record Case(String name, double bottom, BlockPos rail, Direction railFacing, Item skipItem, int skipCount, Item cartItem, int cartCount,
+		BlockPos solid) {
+	}
+
 	/**
-	 * SKIP-07, direction negative controls: a skip standing at a station height never exchanges the
-	 * wrong way. An empty skip with a loaded cart beside its chute takes nothing from it; a full skip
-	 * with an empty cart beside its bridle gives it nothing. A loaded cart beside the skip's body (not
-	 * its bridle or chute), a rail facing the wrong way and a cart of
-	 * another commodity at the bridle all leave everything where it was.
+	 * SKIP-07, direction and geometry negative controls, with a hung skip (its bridle on) held still at
+	 * each height. Nothing moves, whatever either holds:
+	 * <ol>
+	 *   <li>the M07 build's old unloading place, a cart beside the skip's bottom block at the same level
+	 *       (owner's playtest patch §1: the chute cannot reach it), with a full skip and an empty cart;</li>
+	 *   <li>an empty skip at the unloading place with a loaded cart below its chute: it never takes;</li>
+	 *   <li>a full skip with an empty cart level with its bridle: it never gives;</li>
+	 *   <li>a loaded cart beside the skip's body;</li>
+	 *   <li>a rail level with the bridle beside the skip instead of in front of it (any rail in front
+	 *       works, end-on or side-on, since every cart has a gate on each side: owner's cart redesign);</li>
+	 *   <li>a coal cart beside the bridle of a skip holding raw iron;</li>
+	 *   <li>a solid block over the cart in the chute's way at the unloading place.</li>
+	 * </ol>
+	 * And an unhung skip (no bridle) standing exactly at the unloading place has no station at all
+	 * (patch §1: only a hung skip unloads), while the same skip hung does.
 	 */
-	@GameTest(structure = SHAFT, maxTicks = 300)
+	@GameTest(structure = SHAFT, maxTicks = 1200)
 	public void skipNeverExchangesTheWrongWay(GameTestHelper helper) {
-		floor(helper);
-		loadingRail(helper, BOTTOM_RAIL);
-		OreSkip low = spawnSkip(helper, COLUMN);
-		Minecart lowCart = cartOn(helper, BOTTOM_RAIL, Items.RAW_COPPER, 100);
-		// A second shaft along x 18: a full skip standing at y 1 with an empty cart beside its bridle (y 4).
-		BlockPos column2 = new BlockPos(18, 1, 5);
-		loadingRail(helper, column2.north().above(3));
-		OreSkip full = spawnSkip(helper, column2);
-		full.setCargo(Items.RAW_IRON, SkipCargo.CAPACITY);
-		Minecart bridleCart = cartOn(helper, column2.north().above(3), Items.AIR, 0);
-		// A third at x 6: a cart beside the body (y 2), not the bridle or the chute.
-		BlockPos column3 = new BlockPos(6, 1, 5);
-		loadingRail(helper, column3.north().above(1));
-		OreSkip body = spawnSkip(helper, column3);
-		Minecart bodyCart = cartOn(helper, column3.north().above(1), Items.RAW_IRON, 100);
-		// A fourth at x 2: a rail at the bridle facing away from the skip, and a fifth at x 22 with coal at the bridle of an iron skip.
-		BlockPos column4 = new BlockPos(2, 1, 9);
-		BlockPos rail4 = column4.north().above(3);
-		helper.setBlock(rail4.below(), Blocks.STONE);
-		helper.setBlock(rail4, TrainContent.LOADING_TRACK.defaultBlockState().setValue(LoadingTrackBlock.FACING, Direction.NORTH)
-			.setValue(LoadingTrackBlock.SHAPE, RailShape.NORTH_SOUTH));
-		OreSkip away = spawnSkip(helper, column4);
-		Minecart awayCart = cartOn(helper, rail4, Items.RAW_IRON, 100);
-		BlockPos column5 = new BlockPos(22, 1, 9);
-		loadingRail(helper, column5.north().above(3));
-		OreSkip mixed = spawnSkip(helper, column5);
-		mixed.setCargo(Items.RAW_IRON, 10);
-		Minecart coalCart = cartOn(helper, column5.north().above(3), Items.COAL, 100);
-		helper.startSequence()
-			.thenIdle(80)
-			.thenExecute(() -> {
-				helper.assertTrue(Couplings.coupled(lowCart).simpleBlock$dock() != null && Couplings.coupled(bridleCart).simpleBlock$dock() != null,
-					"carts docked");
-				helper.assertValueEqual(low.count(), 0, "empty skip beside a loaded cart at its chute");
-				helper.assertValueEqual(cartCount(lowCart), 100, "the loaded cart at the chute");
-				helper.assertValueEqual(full.count(), SkipCargo.CAPACITY, "full skip beside an empty cart at its bridle");
-				helper.assertValueEqual(cartCount(bridleCart), 0, "the empty cart at the bridle");
-				helper.assertTrue(body.count() == 0 && cartCount(bodyCart) == 100, "cart beside the body: skip " + body.count() + ", cart " + cartCount(bodyCart));
-				helper.assertTrue(away.count() == 0 && cartCount(awayCart) == 100, "rail facing away: skip " + away.count() + ", cart " + cartCount(awayCart));
-				helper.assertTrue(mixed.count() == 10 && cartCount(coalCart) == 100, "coal at an iron skip: skip " + mixed + ", cart " + cartCount(coalCart));
-				helper.assertFalse(SkipStations.busy(low) || SkipStations.busy(full) || SkipStations.busy(body) || SkipStations.busy(away)
-					|| SkipStations.busy(mixed), "no exchange running");
-				SimpleBlockTestLog.info("SKIP-07: 80 ticks: empty skip/loaded cart at the chute 0/100; full skip/empty cart at the bridle 512/0; "
-					+ "cart at the body 0/100; rail facing away 0/100; coal cart at an iron skip 10/100");
-				for (var entity : List.of(lowCart, bridleCart, bodyCart, awayCart, coalCart, low, full, body, away, mixed)) {
-					entity.discard();
-				}
-			})
-			.thenSucceed();
+		ServerPlayer player = TestPlayers.create(helper, GameType.SURVIVAL, new BlockPos(8, 1, 6));
+		layShaft(helper, player);
+		OreSkip skip = spawnSkip(helper, COLUMN);
+		double unload2 = 2.0 + SkipStations.UNLOAD_OFFSET;
+		double unload1 = 1.0 + SkipStations.UNLOAD_OFFSET;
+		List<Case> cases = List.of(
+			new Case("same level as the chute", 1.0, new BlockPos(12, 1, 4), Direction.SOUTH, Items.RAW_IRON, 300, Items.AIR, 0, null),
+			new Case("empty skip, loaded cart below the chute", unload2, new BlockPos(12, 2, 4), Direction.SOUTH, Items.AIR, 0, Items.RAW_IRON, 100, null),
+			new Case("full skip, empty cart at the bridle", 1.0, new BlockPos(12, 4, 4), Direction.SOUTH, Items.RAW_IRON, 512, Items.AIR, 0, null),
+			new Case("loaded cart beside the body", 1.0, new BlockPos(12, 2, 4), Direction.SOUTH, Items.AIR, 0, Items.RAW_IRON, 100, null),
+			new Case("rail at the bridle beside the skip, not in front", 1.0, new BlockPos(13, 4, 5), Direction.SOUTH, Items.AIR, 0, Items.RAW_IRON, 100, null),
+			new Case("coal cart at an iron skip's bridle", 1.0, new BlockPos(12, 4, 4), Direction.SOUTH, Items.RAW_IRON, 10, Items.COAL, 100, null),
+			new Case("a block over the cart in the chute's way", unload1, new BlockPos(12, 1, 4), Direction.SOUTH, Items.RAW_IRON, 300, Items.AIR, 0,
+				new BlockPos(12, 2, 4)));
+		List<String> log = new ArrayList<>();
+		boolean[] failed = {false};
+		Minecart[] cart = new Minecart[1];
+		var sequence = helper.startSequence()
+			.thenIdle(2)
+			.thenExecute(CableGameTests.step(failed, () -> {
+				route(helper, player);
+				CableGameTests.teleport(helper, player, new BlockPos(12, 1, 8));
+				hang(helper, player, skip);
+				helper.assertTrue(skip.bridled(), "hung");
+				// Unhung versus hung at the unloading place, by the station rule itself.
+				loadingRail(helper, BOTTOM_RAIL);
+				cart[0] = cartOn(helper, BOTTOM_RAIL, Items.AIR, 0);
+			}))
+			.thenIdle(2)
+			.thenExecute(CableGameTests.step(failed, () -> {
+				OreSkip loose = spawnSkip(helper, new BlockPos(18, 1, 5));
+				Vec3 at = helper.absoluteVec(new Vec3(12.5, 1.0 + SkipStations.UNLOAD_OFFSET, 5.5));
+				loose.setPos(at.x, at.y, at.z);
+				boolean looseStation = SkipStations.station(helper.getLevel(), loose, loose.getY()) != null;
+				loose.discard();
+				holdAt(helper, skip, 1.0 + SkipStations.UNLOAD_OFFSET, Items.AIR, 0);
+				boolean hungStation = SkipStations.station(helper.getLevel(), skip, skip.getY()) != null;
+				helper.assertTrue(!looseStation && hungStation, "unloading place: unhung skip station " + looseStation + ", hung " + hungStation);
+				log.add("unloading place: no station for an unhung skip, a station for the hung one");
+				cart[0].discard();
+				clearRail(helper, BOTTOM_RAIL);
+				helper.setBlock(BOTTOM_RAIL.below(), Blocks.STONE);
+			}));
+		for (Case c : cases) {
+			sequence = sequence
+				.thenExecute(CableGameTests.step(failed, () -> {
+					helper.setBlock(c.rail().below(), Blocks.STONE);
+					helper.setBlock(c.rail(), TrainContent.LOADING_TRACK.defaultBlockState().setValue(LoadingTrackBlock.FACING, c.railFacing())
+						.setValue(LoadingTrackBlock.SHAPE, RailShape.NORTH_SOUTH));
+					if (c.solid() != null) {
+						helper.setBlock(c.solid(), Blocks.STONE);
+					}
+					cart[0] = cartOn(helper, c.rail(), c.cartItem(), c.cartCount());
+					holdAt(helper, skip, c.bottom(), c.skipItem(), c.skipCount());
+				}))
+				.thenIdle(40)
+				.thenExecute(CableGameTests.step(failed, () -> {
+					helper.assertTrue(Couplings.coupled(cart[0]).simpleBlock$dock() != null, c.name() + ": the cart docked");
+					helper.assertTrue(skip.count() == c.skipCount() && cartCount(cart[0]) == c.cartCount(), c.name() + ": skip " + skip.count() + ", cart "
+						+ cartCount(cart[0]));
+					helper.assertFalse(SkipStations.busy(skip) || skip.lidOpen() || skip.gateOpen() || LoadingTracks.freight(cart[0]).simpleBlock$gateOpen(),
+						c.name() + ": no door opened");
+					log.add(c.name() + ": skip " + skip.count() + ", cart " + cartCount(cart[0]));
+					cart[0].discard();
+					if (c.solid() != null) {
+						helper.setBlock(c.solid(), Blocks.AIR);
+					}
+					clearRail(helper, c.rail());
+					helper.setBlock(new BlockPos(12, 0, 4), Blocks.STONE);
+				}));
+		}
+		sequence.thenExecute(CableGameTests.step(failed, () -> {
+			SimpleBlockTestLog.info("SKIP-07: {}", log);
+			skip.discard();
+			TestPlayers.remove(player);
+		})).thenSucceed();
 	}
 
 	/**
 	 * SKIP-08: an exchange cut short is lossless. The cart at the bridle is released half way through:
-	 * the exchange stops, the doors close, and cart + skip still hold what they held together. A cart
-	 * with no room for the skip's commodity takes only what fits (partial), and the rest stays in the
-	 * skip.
+	 * the exchange stops, the doors close, and cart + skip still hold what they held together. At the
+	 * unloading place a cart with room for only part of the skip's load takes what fits (partial), and the
+	 * rest stays in the skip.
 	 */
-	@GameTest(structure = SHAFT, maxTicks = 400)
+	@GameTest(structure = SHAFT, maxTicks = 800)
 	public void skipExchangeCutShortLosesNothing(GameTestHelper helper) {
-		floor(helper);
-		BlockPos rail = COLUMN.north().above(3);
-		loadingRail(helper, rail);
+		ServerPlayer player = TestPlayers.create(helper, GameType.SURVIVAL, new BlockPos(8, 1, 6));
+		layShaft(helper, player);
+		loadingRail(helper, TOP_RAIL);
 		OreSkip skip = spawnSkip(helper, COLUMN);
-		Minecart cart = cartOn(helper, rail, Items.RAW_GOLD, 256);
-		BlockPos column2 = new BlockPos(18, 1, 5);
-		loadingRail(helper, column2.north());
-		OreSkip giver = spawnSkip(helper, column2);
-		giver.setCargo(Items.RAW_GOLD, 300);
-		Minecart partial = cartOn(helper, column2.north(), Items.RAW_GOLD, 200);
+		Minecart[] carts = new Minecart[2];
 		int[] moved = new int[1];
+		boolean[] failed = {false};
 		helper.startSequence()
+			.thenIdle(2)
+			.thenExecute(CableGameTests.step(failed, () -> {
+				route(helper, player);
+				CableGameTests.teleport(helper, player, new BlockPos(12, 1, 8));
+				hang(helper, player, skip);
+				holdAt(helper, skip, TOP_STATION, Items.AIR, 0);
+				carts[0] = cartOn(helper, TOP_RAIL, Items.RAW_GOLD, 256);
+			}))
 			.thenWaitUntil(() -> helper.assertTrue(skip.count() > 20, "loading under way: " + skip.count()))
 			.thenExecute(() -> {
-				LoadingTracks.releaseTrain(cart, helper.absolutePos(rail));
+				LoadingTracks.releaseTrain(carts[0], helper.absolutePos(TOP_RAIL));
 				moved[0] = skip.count();
 			})
-			.thenExecuteAfter(30, () -> {
-				helper.assertValueEqual(skip.count() + cartCount(cart), 256, "gold in the skip and the released cart");
+			.thenExecuteAfter(30, CableGameTests.step(failed, () -> {
+				helper.assertValueEqual(skip.count() + cartCount(carts[0]), 256, "gold in the skip and the released cart");
 				helper.assertTrue(skip.count() <= moved[0] + 4, "nothing more moved after the release: " + moved[0] + " -> " + skip.count());
-				helper.assertFalse(SkipStations.busy(skip) || skip.lidOpen() || LoadingTracks.freight(cart).simpleBlock$gateOpen(), "doors closed");
-				helper.assertValueEqual(cartCount(partial), MinecartCargo.CAPACITY, "the partial cart filled to 256");
-				helper.assertValueEqual(giver.count(), 300 - 56, "the rest stays in the skip");
-				SimpleBlockTestLog.info("SKIP-08: released after {} of 256: skip {} + cart {}; partial: cart 200 -> 256, skip 300 -> {}", moved[0],
-					skip.count(), cartCount(cart), giver.count());
-				for (var entity : List.of(cart, partial, skip, giver)) {
-					entity.discard();
-				}
-			})
+				helper.assertFalse(SkipStations.busy(skip) || skip.lidOpen() || LoadingTracks.freight(carts[0]).simpleBlock$gateOpen(), "doors closed");
+				moved[0] = skip.count();
+				carts[0].discard();
+				// Partial: at the unloading place, a cart with 200 takes 56 of the skip's 300.
+				loadingRail(helper, BOTTOM_RAIL);
+				carts[1] = cartOn(helper, BOTTOM_RAIL, Items.RAW_GOLD, 200);
+				holdAt(helper, skip, 1.0 + SkipStations.UNLOAD_OFFSET, Items.RAW_GOLD, 300);
+			}))
+			.thenExecuteAfter(120, CableGameTests.step(failed, () -> {
+				helper.assertValueEqual(cartCount(carts[1]), MinecartCargo.CAPACITY, "the partial cart filled to 256");
+				helper.assertValueEqual(skip.count(), 300 - 56, "the rest stays in the skip");
+				SimpleBlockTestLog.info("SKIP-08: released mid-way: skip {} + cart {} = 256, nothing more moved, doors closed; partial at the unloading place: "
+					+ "cart 200 -> 256, skip 300 -> {}", moved[0], 256 - moved[0], skip.count());
+				carts[1].discard();
+				skip.discard();
+				TestPlayers.remove(player);
+			}))
 			.thenSucceed();
 	}
+
+	// ---- SKIP-09..11 owner's playtest patch ----
+
+	private static BlockState headAnchor(GameTestHelper helper) {
+		return helper.getLevel().getBlockState(helper.absolutePos(HEAD_ANCHOR));
+	}
+
+	private static CableAnchorBlock.Return headReturn(GameTestHelper helper) {
+		return headAnchor(helper).getValue(CableAnchorBlock.RETURN);
+	}
+
+	/** The free hook's eye (where the cable meets it), relative y. */
+	private static double hookEye(GameTestHelper helper) {
+		var hook = CableGameTests.hook(helper, DRUM);
+		return hook.getY() + hook.getBbHeight() - helper.absoluteVec(Vec3.ZERO).y;
+	}
+
+	/**
+	 * SKIP-09 (patch §3, §4): the bridle and the pulley come with the cable. A placed skip has no bridle
+	 * (1 x 3). Hooking the cable on with a block in the fourth cell is refused: no bridle, the end stays in
+	 * the hand, nothing used, the head anchor stays an ordinary anchor. Without the block, hooking on adds
+	 * the bridle (1 x 4, collidable) and turns the head anchor into a pulley facing the way the cable comes
+	 * in; saved and loaded, the skip still has its bridle. Taken off on the floor: no bridle, the anchor
+	 * an anchor again, and the end hangs where the bridle's apex was (not back at the top). Disconnecting
+	 * the route at the anchor before it does the same, and lets the skip go.
+	 */
+	@GameTest(structure = SHAFT, maxTicks = 400)
+	public void skipBridleAndPulleyComeWithTheCable(GameTestHelper helper) {
+		ServerPlayer player = TestPlayers.create(helper, GameType.SURVIVAL, new BlockPos(8, 1, 6));
+		layShaft(helper, player);
+		OreSkip skip = spawnSkip(helper, COLUMN);
+		List<String> log = new ArrayList<>();
+		boolean[] failed = {false};
+		helper.startSequence()
+			.thenIdle(2)
+			.thenExecute(CableGameTests.step(failed, () -> {
+				route(helper, player);
+				CableGameTests.teleport(helper, player, new BlockPos(12, 1, 8));
+				helper.assertTrue(!skip.bridled() && Math.abs(skip.getBoundingBox().getYsize() - 3.0) < 1.0E-6, "placed: no bridle, 1 x 3");
+				helper.assertValueEqual(headReturn(helper), CableAnchorBlock.Return.NONE, "head anchor before hooking on");
+				helper.setBlock(COLUMN.above(3), Blocks.STONE);
+				hang(helper, player, skip);
+				var hook = CableGameTests.hook(helper, DRUM);
+				helper.assertFalse(skip.bridled(), "no bridle with a block in the fourth cell");
+				helper.assertTrue(hook.isHeld() && line(helper).hoist() == null, "the end still in the hand, nothing hung");
+				helper.assertValueEqual(headReturn(helper), CableAnchorBlock.Return.NONE, "head anchor after the refused hook-on");
+				log.add("block in the fourth cell: refused, end still held, anchor ordinary");
+				helper.setBlock(COLUMN.above(3), Blocks.AIR);
+				hang(helper, player, skip);
+				helper.assertTrue(skip.bridled() && Math.abs(skip.getBoundingBox().getYsize() - 4.0) < 1.0E-6, "hooked on: bridle, 1 x 4");
+				helper.assertValueEqual(headReturn(helper), CableAnchorBlock.Return.PULLEY, "head anchor once a skip hangs from it");
+				helper.assertValueEqual(headAnchor(helper).getValue(CableAnchorBlock.FACING), Direction.EAST, "pulley facing the way the cable comes in");
+				helper.assertValueEqual(CableGameTests.hooks(helper, DRUM).size(), 0, "no loose end while it hangs");
+				ServerLevel level = helper.getLevel();
+				TagValueOutput output = TagValueOutput.createWithContext(ProblemReporter.DISCARDING, level.registryAccess());
+				skip.saveWithoutId(output);
+				OreSkip copy = SkipContent.ORE_SKIP.create(level, EntitySpawnReason.LOAD);
+				copy.load(TagValueInput.create(ProblemReporter.DISCARDING, level.registryAccess(), output.buildResult()));
+				helper.assertTrue(copy.bridled() && Math.abs(copy.getBoundingBox().getYsize() - 4.0) < 1.0E-6, "loaded copy keeps its bridle");
+				log.add("hooked on: bridle (1 x 4), head anchor a pulley facing east; a saved copy loads with its bridle");
+				// Taken off on the floor.
+				player.setShiftKeyDown(true);
+				player.setItemInHand(InteractionHand.MAIN_HAND, ItemStack.EMPTY);
+				player.interactOn(skip, InteractionHand.MAIN_HAND, skip.position());
+				player.setShiftKeyDown(false);
+				helper.assertTrue(!skip.bridled() && Math.abs(skip.getBoundingBox().getYsize() - 3.0) < 1.0E-6, "taken off: no bridle");
+				helper.assertValueEqual(headReturn(helper), CableAnchorBlock.Return.NONE, "head anchor after taking the skip off");
+			}))
+			.thenIdle(2)
+			.thenExecute(CableGameTests.step(failed, () -> {
+				double eye = hookEye(helper);
+				helper.assertTrue(Math.abs(eye - (1.0 + OreSkip.HEIGHT)) < 0.01, "the end hangs where the bridle's apex was (y 5): " + eye);
+				log.add("taken off: no bridle, anchor ordinary, end hanging at y " + String.format("%.2f", eye) + " (the apex), not at the top");
+				// Hooked on again, then the route disconnected at the mid anchor: the head anchor is freed as an ordinary anchor.
+				CableGameTests.teleport(helper, player, new BlockPos(12, 1, 8));
+				hang(helper, player, skip);
+				helper.assertTrue(skip.bridled(), "hooked on again");
+				player.setItemInHand(InteractionHand.MAIN_HAND, ItemStack.EMPTY);
+				CableGameTests.useBlock(helper, player, MID_ANCHOR, true);
+				helper.assertValueEqual(headReturn(helper), CableAnchorBlock.Return.NONE, "head anchor after the route was cut before it");
+			}))
+			.thenIdle(2)
+			.thenExecute(CableGameTests.step(failed, () -> {
+				helper.assertFalse(skip.bridled(), "let go: no bridle");
+				log.add("route cut before the head anchor: skip let go without its bridle, anchor ordinary");
+				SimpleBlockTestLog.info("SKIP-09: {}", log);
+				skip.discard();
+				TestPlayers.remove(player);
+			}))
+			.thenSucceed();
+	}
+
+	/**
+	 * SKIP-10 (patch §5A B): before any skip, the free hook hanging under the head anchor is paid out and
+	 * wound in by the drum. The crank's left-click (feed) lowers it, right-click (pull) raises it. The coal
+	 * winch's FEED takes it down to the floor (stops, `blocked`, lever NEUTRAL), PULL back to its place
+	 * under the anchor (`end`); coal burns only while it moves. The head anchor stays an ordinary anchor
+	 * throughout, and no item is made or used.
+	 */
+	@GameTest(structure = SHAFT, maxTicks = 1200)
+	public void freeHookIsWoundUpAndDown(GameTestHelper helper) {
+		ServerPlayer player = TestPlayers.create(helper, GameType.SURVIVAL, new BlockPos(8, 1, 6));
+		layShaft(helper, player);
+		List<String> log = new ArrayList<>();
+		boolean[] failed = {false};
+		double[] mark = new double[2];
+		int[] burn = new int[1];
+		helper.startSequence()
+			.thenIdle(2)
+			.thenExecute(CableGameTests.step(failed, () -> {
+				route(helper, player);
+				player.getInventory().clearContent();
+			}))
+			.thenIdle(2)
+			.thenExecute(CableGameTests.step(failed, () -> {
+				mark[0] = hookEye(helper);
+				helper.assertTrue(Math.abs(mark[0] - (HEAD_ANCHOR.getY() + 0.75 - 0.5)) < 0.01, "the free hook in its place under the anchor: " + mark[0]);
+				CableGameTests.teleport(helper, player, new BlockPos(3, 1, 6));
+			}))
+			.thenExecuteFor(40, CableGameTests.step(failed, () -> {
+				if (helper.getTick() % 4 == 0) {
+					CableLoopGameTests.crank(helper, player, DRUM, false);
+				}
+			}))
+			.thenExecuteAfter(10, CableGameTests.step(failed, () -> {
+				mark[1] = hookEye(helper);
+				helper.assertTrue(mark[1] < mark[0] - 1.0, "the crank's feed lowers the free hook: " + mark[0] + " -> " + mark[1]);
+				helper.assertValueEqual(headReturn(helper), CableAnchorBlock.Return.NONE, "anchor while the free hook hangs lower");
+				log.add("crank feed 40 ticks: hook " + String.format("%.2f -> %.2f", mark[0], mark[1]) + ", anchor ordinary");
+			}))
+			.thenExecuteFor(20, CableGameTests.step(failed, () -> {
+				if (helper.getTick() % 4 == 0) {
+					CableLoopGameTests.crank(helper, player, DRUM, true);
+				}
+			}))
+			.thenExecuteAfter(10, CableGameTests.step(failed, () -> {
+				double eye = hookEye(helper);
+				helper.assertTrue(eye > mark[1] + 0.3, "the crank's pull raises it: " + mark[1] + " -> " + eye);
+				log.add("crank pull 20 ticks: up to " + String.format("%.2f", eye));
+				coalWinch(helper, player, 1);
+				setLever(helper, player, CableLines.Lever.FEED);
+			}))
+			.thenWaitUntil(() -> helper.assertValueEqual(line(helper).lever(), CableLines.Lever.NEUTRAL, "lever after lowering the hook"))
+			.thenExecuteAfter(5, CableGameTests.step(failed, () -> {
+				double eye = hookEye(helper);
+				var hook = CableGameTests.hook(helper, DRUM);
+				double bottom = hook.getY() - helper.absoluteVec(Vec3.ZERO).y;
+				helper.assertValueEqual(line(helper).lastStop(), "blocked", "why the winch stopped");
+				helper.assertTrue(Math.abs(bottom - 1.0) < 0.01, "the hook down on the floor: its bottom at " + bottom);
+				helper.assertValueEqual(headReturn(helper), CableAnchorBlock.Return.NONE, "anchor with the hook on the floor");
+				burn[0] = line(helper).burn() + line(helper).coal() * 1600;
+				log.add("coal winch FEED: hook down on the floor (eye " + String.format("%.2f", eye) + ", " + line(helper).lastStop() + ")");
+			}))
+			.thenExecuteAfter(20, CableGameTests.step(failed, () -> {
+				helper.assertValueEqual(line(helper).burn() + line(helper).coal() * 1600, burn[0], "coal burnt while stopped");
+				lever(helper, player);
+				helper.assertValueEqual(line(helper).lever(), CableLines.Lever.PULL, "after a stop going down, the next click");
+			}))
+			.thenWaitUntil(() -> helper.assertValueEqual(line(helper).lever(), CableLines.Lever.NEUTRAL, "lever after raising the hook"))
+			.thenExecute(CableGameTests.step(failed, () -> {
+				double eye = hookEye(helper);
+				helper.assertValueEqual(line(helper).lastStop(), "end", "why the winch stopped at the top");
+				helper.assertTrue(Math.abs(eye - mark[0]) < 0.01, "back in its place under the anchor: " + eye);
+				helper.assertTrue(line(helper).burn() + line(helper).coal() * 1600 < burn[0], "coal burnt while it moved");
+				helper.assertValueEqual(headReturn(helper), CableAnchorBlock.Return.NONE, "anchor at the end");
+				helper.assertTrue(player.getInventory().countItem(CableContent.CABLE) == 0 && player.getInventory().countItem(CableContent.CABLE_COIL) == 0
+					&& CableGameTests.drum(helper, DRUM).hasCoil(), "no cable made; the one coil on the drum");
+				log.add("coal winch PULL: back under the anchor (" + line(helper).lastStop() + "); coal only while moving; anchor ordinary throughout");
+				SimpleBlockTestLog.info("SKIP-10: {}", log);
+				TestPlayers.remove(player);
+			}))
+			.thenSucceed();
+	}
+
+	/**
+	 * SKIP-11 (patch §5A A): carried by hand, the end is measured across the ground from its support. 14
+	 * blocks out it goes taut (the hook stays 12 blocks out, towards the hand, still held); 17 blocks out
+	 * it is put down and hangs at its support again. Straight under its anchor, far below, it stays in
+	 * the hand (height does not count). A span of more than 12 blocks to a new anchor is still refused.
+	 */
+	@GameTest(structure = SHAFT, maxTicks = 300)
+	public void cableEndLeashIsMeasuredAcrossTheGround(GameTestHelper helper) {
+		ServerPlayer player = TestPlayers.create(helper, GameType.SURVIVAL, new BlockPos(3, 1, 6));
+		layShaft(helper, player);
+		List<String> log = new ArrayList<>();
+		boolean[] failed = {false};
+		helper.startSequence()
+			.thenIdle(2)
+			.thenExecute(CableGameTests.step(failed, () -> {
+				route(helper, player);
+				var hook = CableGameTests.hook(helper, DRUM);
+				player.interactOn(hook, InteractionHand.MAIN_HAND, hook.position());
+				Vec3 support = helper.absoluteVec(new Vec3(12.5, 1.0, 5.5));
+				// Straight under the anchor, 10 blocks below it: held.
+				player.teleportTo(support.x, support.y, support.z);
+				hook.tick();
+				helper.assertTrue(hook.isHeld(), "held straight under the anchor");
+				// 14 across: taut, the hook 12 out.
+				player.teleportTo(support.x - 14.0, support.y, support.z);
+				hook.tick();
+				double across = Math.abs(hook.getX() - support.x);
+				helper.assertTrue(hook.isHeld() && Math.abs(across - 12.0) < 0.05, "14 out: taut, held, hook " + across + " out");
+				log.add("14 blocks across: taut, the hook " + String.format("%.2f", across) + " out, still held");
+				// 17 across: put down, back under its support.
+				player.teleportTo(support.x - 17.0, support.y, support.z);
+				hook.tick();
+				helper.assertFalse(hook.isHeld(), "17 out: put down");
+				hook.tick();
+				helper.assertTrue(Math.abs(hook.getX() - support.x) < 0.01 && Math.abs(hook.getZ() - support.z) < 0.01, "put down: back under its support "
+					+ hook.position());
+				log.add("17 blocks across: put down, hanging under its support again");
+				// Picked up again; a new anchor 13 blocks on is refused (spans stay at most 12).
+				player.teleportTo(support.x - 1.0, support.y, support.z);
+				player.interactOn(hook, InteractionHand.MAIN_HAND, hook.position());
+				hook.tick();
+				BlockPos far = CableGameTests.hangAnchor(helper, player, new BlockPos(12, 12, 18).above()).immutable();
+				player.interactOn(hook, InteractionHand.MAIN_HAND, hook.position());
+				CableGameTests.useBlock(helper, player, far, false);
+				helper.assertValueEqual(CableGameTests.drum(helper, DRUM).route().size(), 2, "route after offering a 13-block span");
+				log.add("picked up again; a 13-block span to a new anchor refused");
+				SimpleBlockTestLog.info("SKIP-11: {}", log);
+				TestPlayers.remove(player);
+			}))
+			.thenSucceed();
+	}
+
+	/**
+	 * SKIP-12: both exchanges work the same whichever way the skip faces. A hung skip turned to each of the
+	 * four directions, with the Loading Rails on that side: lifted to the cart at its bridle it is loaded
+	 * (ramp and lid), then held with its chute's lip on a lower cart's rim it fills it (discharge gate).
+	 */
+	@GameTest(structure = SHAFT, maxTicks = 1600)
+	public void skipExchangesFacingEveryWay(GameTestHelper helper) {
+		ServerPlayer player = TestPlayers.create(helper, GameType.SURVIVAL, new BlockPos(8, 1, 6));
+		layShaft(helper, player);
+		OreSkip skip = spawnSkip(helper, COLUMN);
+		List<String> log = new ArrayList<>();
+		boolean[] failed = {false};
+		Minecart[] carts = new Minecart[2];
+		BlockPos[] rails = new BlockPos[2];
+		var sequence = helper.startSequence()
+			.thenIdle(2)
+			.thenExecute(CableGameTests.step(failed, () -> {
+				route(helper, player);
+				CableGameTests.teleport(helper, player, new BlockPos(12, 1, 8));
+				hang(helper, player, skip);
+				CableGameTests.teleport(helper, player, new BlockPos(3, 1, 9));
+			}));
+		for (Direction facing : List.of(Direction.NORTH, Direction.EAST, Direction.SOUTH, Direction.WEST)) {
+			sequence = sequence
+				.thenExecute(CableGameTests.step(failed, () -> {
+					skip.setFacing(facing);
+					rails[0] = COLUMN.above(4).relative(facing);
+					rails[1] = COLUMN.relative(facing);
+					for (BlockPos rail : rails) {
+						helper.setBlock(rail.below(), Blocks.STONE);
+						helper.setBlock(rail, TrainContent.LOADING_TRACK.defaultBlockState().setValue(LoadingTrackBlock.FACING, facing.getOpposite())
+							.setValue(LoadingTrackBlock.SHAPE, facing.getAxis() == Direction.Axis.Z ? RailShape.NORTH_SOUTH : RailShape.EAST_WEST));
+					}
+					carts[0] = cartOn(helper, rails[0], Items.RAW_COPPER, 100);
+					holdAt(helper, skip, 2.0, Items.AIR, 0);
+				}))
+				.thenExecuteAfter(60, CableGameTests.step(failed, () -> {
+					helper.assertTrue(skip.count() == 100 && cartCount(carts[0]) == 0, facing + ": loaded at the bridle: skip " + skip.count() + ", cart "
+						+ cartCount(carts[0]));
+					carts[1] = cartOn(helper, rails[1], Items.AIR, 0);
+					holdAt(helper, skip, 1.0 + SkipStations.UNLOAD_OFFSET, Items.RAW_COPPER, 100);
+				}))
+				.thenExecuteAfter(60, CableGameTests.step(failed, () -> {
+					helper.assertTrue(skip.count() == 0 && cartCount(carts[1]) == 100, facing + ": unloaded below the chute: skip " + skip.count() + ", cart "
+						+ cartCount(carts[1]));
+					log.add(facing + ": 100 in at the bridle, 100 out through the chute");
+					carts[0].discard();
+					carts[1].discard();
+					for (BlockPos rail : rails) {
+						helper.setBlock(rail, Blocks.AIR);
+						helper.setBlock(rail.below(), rail.getY() == 1 ? Blocks.STONE : Blocks.AIR);
+					}
+				}));
+		}
+		sequence.thenExecute(CableGameTests.step(failed, () -> {
+			SimpleBlockTestLog.info("SKIP-12: {}", log);
+			skip.discard();
+			TestPlayers.remove(player);
+		})).thenSucceed();
+	}
+
+	/**
+	 * SKIP-13 (owner's cart redesign): side-on to the skip. A Loading Rail running across the skip's front,
+	 * the docked car of a coupled two-car train standing on it: at the bridle it tips its load sideways
+	 * into the skip through its long side gate (the one facing the skip opens, never an end gate), and below
+	 * the chute it is filled through its rim; the other car is not touched and the train stays coupled.
+	 */
+	@GameTest(structure = SHAFT, maxTicks = 600)
+	public void skipExchangesSideOnWithACoupledTrain(GameTestHelper helper) {
+		ServerPlayer player = TestPlayers.create(helper, GameType.SURVIVAL, new BlockPos(8, 1, 6));
+		layShaft(helper, player);
+		OreSkip skip = spawnSkip(helper, COLUMN);
+		List<String> log = new ArrayList<>();
+		boolean[] failed = {false};
+		Minecart[] train = new Minecart[2];
+		java.util.function.IntConsumer lay = y -> {
+			for (int x = 10; x <= 14; x++) {
+				helper.setBlock(new BlockPos(x, y - 1, 4), Blocks.STONE);
+				helper.setBlock(new BlockPos(x, y, 4), x == 12
+					? TrainContent.LOADING_TRACK.defaultBlockState().setValue(LoadingTrackBlock.FACING, Direction.EAST).setValue(LoadingTrackBlock.SHAPE, RailShape.EAST_WEST)
+					: Blocks.RAIL.defaultBlockState().setValue(net.minecraft.world.level.block.RailBlock.SHAPE, RailShape.EAST_WEST));
+			}
+		};
+		Direction[] seen = new Direction[2];
+		helper.startSequence()
+			.thenIdle(2)
+			.thenExecute(CableGameTests.step(failed, () -> {
+				route(helper, player);
+				CableGameTests.teleport(helper, player, new BlockPos(12, 1, 8));
+				hang(helper, player, skip);
+				lay.accept(5);
+				train[0] = cartOn(helper, new BlockPos(12, 5, 4), Items.RAW_COPPER, 100);
+				train[1] = cartOn(helper, new BlockPos(14, 5, 4), Items.RAW_COPPER, 50);
+				TrainGameTests.couple(player, train[0], train[1]);
+				holdAt(helper, skip, 2.0, Items.AIR, 0);
+			}))
+			.thenExecuteAfter(20, CableGameTests.step(failed, () -> seen[0] = LoadingTracks.freight(train[0]).simpleBlock$gateSide()))
+			.thenExecuteAfter(60, CableGameTests.step(failed, () -> {
+				helper.assertTrue(skip.count() == 100 && cartCount(train[0]) == 0 && cartCount(train[1]) == 50, "side-on at the bridle: skip " + skip.count()
+					+ ", docked car " + cartCount(train[0]) + ", other car " + cartCount(train[1]));
+				helper.assertValueEqual(seen[0], Direction.SOUTH, "the gate that opened (the side towards the skip)");
+				helper.assertTrue(TrainGameTests.coupled(train[0], train[1]) && !LoadingTracks.freight(train[0]).simpleBlock$gateOpen(), "still coupled, gate shut");
+				log.add("bridle, side-on: docked car 100 -> 0 through its south side gate (" + seen[0] + "), other car 50 untouched, still coupled");
+				train[0].discard();
+				train[1].discard();
+				for (int x = 10; x <= 14; x++) {
+					helper.setBlock(new BlockPos(x, 5, 4), Blocks.AIR);
+					helper.setBlock(new BlockPos(x, 4, 4), Blocks.AIR);
+				}
+				lay.accept(1);
+				train[0] = cartOn(helper, new BlockPos(12, 1, 4), Items.AIR, 0);
+				train[1] = cartOn(helper, new BlockPos(14, 1, 4), Items.AIR, 0);
+				TrainGameTests.couple(player, train[0], train[1]);
+				holdAt(helper, skip, 1.0 + SkipStations.UNLOAD_OFFSET, Items.RAW_COPPER, 100);
+			}))
+			.thenExecuteAfter(20, CableGameTests.step(failed, () -> seen[1] = LoadingTracks.freight(train[0]).simpleBlock$gateSide()))
+			.thenExecuteAfter(60, CableGameTests.step(failed, () -> {
+				helper.assertTrue(skip.count() == 0 && cartCount(train[0]) == 100 && cartCount(train[1]) == 0, "side-on below the chute: skip " + skip.count()
+					+ ", docked car " + cartCount(train[0]) + ", other car " + cartCount(train[1]));
+				helper.assertTrue(seen[1] == null && TrainGameTests.coupled(train[0], train[1]), "filled through the rim, gates shut, still coupled: " + seen[1]);
+				log.add("below the chute, side-on: docked car 0 -> 100 through its rim, gates shut, other car untouched, still coupled");
+				SimpleBlockTestLog.info("SKIP-13: {}", log);
+				train[0].discard();
+				train[1].discard();
+				skip.discard();
+				TestPlayers.remove(player);
+			}))
+			.thenSucceed();
+	}
+
 }

@@ -58,7 +58,13 @@ public class CableAnchorBlock extends BaseEntityBlock {
 		/** A small guide roller for the return strand, beside the main roller on the arm side. */
 		GUIDE("guide"),
 		/** The return wheel at the end of a loop, on the side {@link #FACING} points to. */
-		WHEEL("wheel");
+		WHEEL("wheel"),
+		/**
+		 * M07 playtest patch §4: the head anchor of a shaft while a skip hangs on its cable, drawn as a
+		 * pulley wheel under the ceiling plate; the cable comes in towards {@link #FACING} over the wheel
+		 * and drops on that side ({@link CableHoists}). Only while a skip is hooked on.
+		 */
+		PULLEY("pulley");
 
 		private final String name;
 

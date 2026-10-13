@@ -117,6 +117,11 @@ public class CableAnchorBlockEntity extends BlockEntity {
 		}
 		BlockState state = level.getBlockState(pos);
 		boolean looped = routed && line.looped;
+		// M07 playtest patch §4: the head anchor stays a pulley only while a skip hangs from it.
+		boolean pulleyHere = routed && line.hoist != null && line.anchors.getLast().equals(pos);
+		if (pulleyHere && state.hasProperty(CableAnchorBlock.RETURN) && state.getValue(CableAnchorBlock.RETURN) == CableAnchorBlock.Return.PULLEY) {
+			return;
+		}
 		if (!looped && state.hasProperty(CableAnchorBlock.RETURN) && state.getValue(CableAnchorBlock.RETURN) != CableAnchorBlock.Return.NONE) {
 			level.setBlock(pos, state.setValue(CableAnchorBlock.RETURN, CableAnchorBlock.Return.NONE), Block.UPDATE_ALL);
 		}

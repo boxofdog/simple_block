@@ -72,14 +72,15 @@ import io.github.boxofdog.simpleblock.train.LoadingTracks;
  * Screenshots go to {@code build/run/clientGameTest/screenshots} ({@code m06-*}).
  *
  * <p>The yard, at ground level {@code g}: stone x 18..52, z -4..14. The winch line runs along z 6: the
- * drum at x 20 facing east, rails x 22..50, anchors under planks at x 28, 36 and 44, a loading track at
- * x 40. The train track runs along z 0, x 22..50, a loading track at x 44. The long line runs along
+ * drum at x 20 facing east, rails x 22..50, anchors under planks at x 28, 34 and 40 (M07 playtest patch
+ * §10: the last support straight over the loading track at x 40, no cable past it; in M06 it was at x
+ * 44). The train track runs along z 0, x 22..50, a loading track at x 44. The long line runs along
  * z 30 from a drum at x 0 to x 390.
  */
 public class FreightStationClientTest implements FabricClientGameTest {
 	private static final int Z = 6;
 	private static final int TRACK_Z = 0;
-	private static final int[] ANCHOR_X = {28, 36, 44};
+	private static final int[] ANCHOR_X = {28, 34, 40};
 	private static final int LONG_Z = 30;
 	private static final int LONG_END = 390;
 
@@ -168,7 +169,7 @@ public class FreightStationClientTest implements FabricClientGameTest {
 		}
 		use(context);
 		hold(server, context, "simple_block:cable_anchor");
-		context.getInput().lookAt(new BlockPos(44, g + 2, Z));
+		context.getInput().lookAt(new BlockPos(ANCHOR_X[2], g + 2, Z));
 		use(context);
 		boolean looped = server.computeOnServer(s -> drumOf(s.overworld(), drumPos).looped());
 		assertTrue(looped, "the winch line's loop should be closed");
@@ -284,8 +285,11 @@ public class FreightStationClientTest implements FabricClientGameTest {
 		server.runCommand("tp @a 20.5 " + (g + 1) + " " + (Z + 2.5) + " 180 30");
 		context.waitTicks(10);
 		context.takeScreenshot("m06-winch-lever-back-to-neutral");
+		List<BlockPos> route = server.computeOnServer(s -> drumOf(s.overworld(), drumPos).route());
 		SimpleBlockTestLog.info("CLIENT STATION: loading track placed facing east ({}); FEED: docked after {} ticks at x {}, lever {} (client {}) "
-			+ "because '{}', client sees the cart's front {}", track, waited, x, lever, clientLever, stop, clientFront);
+			+ "because '{}', client sees the cart's front {}; the cable's last support at x {} (patch §10: none past the track)", track, waited, x, lever,
+			clientLever, stop, clientFront, route.getLast().getX());
+		assertTrue(route.getLast().getX() == station.getX(), "the last support should be over the track: " + route);
 		assertTrue("docked".equals(stop) && lever == CableLines.Lever.NEUTRAL && clientLever == CableLines.Lever.NEUTRAL, "lever after docking: " + lever + " (" + stop + ")");
 		assertTrue(Math.abs(x - 40.5) < 1.0E-3 && clientFront == Direction.EAST, "docked at x " + x + ", client front " + clientFront);
 

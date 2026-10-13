@@ -233,7 +233,11 @@ public class CableLoopGameTests {
 
 	// ---- The crank ----
 
-	/** CRANK-01: the crank never loads a coil or dismantles; a drum with an open route does not haul; an empty one spins. */
+	/**
+	 * CRANK-01: the crank never loads a coil or dismantles; an empty drum spins. M07 playtest patch §5A
+	 * (supersedes M05's lock): on an open route the crank winds the free hook hanging under the last
+	 * anchor, so it drives (pulling here: the hook is already in its place, so it stays there).
+	 */
 	@GameTest(structure = YARD)
 	public void crankLeavesTheOtherGesturesAlone(GameTestHelper helper) {
 		ServerPlayer player = TestPlayers.create(helper, GameType.SURVIVAL, new BlockPos(3, 1, 6));
@@ -257,8 +261,8 @@ public class CableLoopGameTests {
 			}))
 			.thenIdle(1)
 			.thenExecute(CableGameTests.step(failed, () -> {
-				helper.assertValueEqual(lineSpeed(helper, DRUM), 0.0F, "an open route's drum speed while cranked");
-				log.add("coil in hand, right-click on the crank: crank only; sneak on the crank: no dismantling; open route: locked");
+				helper.assertTrue(lineSpeed(helper, DRUM) < 0.0F, "an open route's drum turns with the crank (it winds the free hook): " + lineSpeed(helper, DRUM));
+				log.add("coil in hand, right-click on the crank: crank only; sneak on the crank: no dismantling; open route: winds the free hook");
 				CableGameTests.useBlock(helper, player, DRUM, true);
 				CableGameTests.useBlock(helper, player, DRUM, true);
 				helper.assertFalse(drum.hasCable(), "sneak-use of the drum body should still dismantle");

@@ -68,7 +68,10 @@ public class CableHookRenderer extends EntityRenderer<CableHook, CableHookRender
 		state.hookOffset = at.subtract(origin);
 		state.hookLight = LightCoordsUtil.getLightCoords(hook.level(), BlockPos.containing(at.add(0.0, 0.25, 0.0)));
 		state.pieces.clear();
-		CableGeometry.addRun(state.pieces, hook.level(), origin, hook.endPoint(), hook.eyePoint(at));
+		// The texture carries on from the routed cable's: a free hook winched up or down moves its cable (M07 patch §9).
+		CableDrumRenderer.RouteEnd end = CableDrumRenderer.routeEnd(hook.level(), hook.drumPos(), partialTicks);
+		Vec3 from = hook.endPoint();
+		CableGeometry.addRun(state.pieces, hook.level(), origin, from, hook.eyePoint(at), end == null ? 0.0 : end.vAt(from));
 	}
 
 	@Override

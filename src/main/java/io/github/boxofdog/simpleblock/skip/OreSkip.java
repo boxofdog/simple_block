@@ -19,8 +19,10 @@ import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.SimpleMenuProvider;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityDimensions;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.Pose;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.vehicle.VehicleEntity;
 import net.minecraft.world.entity.vehicle.minecart.AbstractMinecart;
@@ -65,8 +67,17 @@ import io.github.boxofdog.simpleblock.tuning.Tuning;
  * </ul>
  */
 public class OreSkip extends VehicleEntity implements SkipCargo.Store {
-	/** Body and bridle. */
+	/** Body and bridle (the bridle is there only while the skip hangs on a cable: owner's playtest patch §3). */
 	public static final double HEIGHT = 4.0;
+	/** The body alone: chute and bin. */
+	public static final double BODY_HEIGHT = 3.0;
+	/** Client: door animation progress, 0 shut to 1 open, now and last tick. */
+	public float lidAnim;
+	public float lidAnimO;
+	public float gateAnim;
+	public float gateAnimO;
+	/** Ticks a door takes to open or close (as {@link SkipStations#DOOR_TICKS}). */
+	private static final float DOOR_STEP = 0.1F;
 	/** Collision checks are made on a box this much smaller than the cell, so touching is not colliding. */
 	private static final double SKIN = 1.0E-4;
 
@@ -144,6 +155,30 @@ public class OreSkip extends VehicleEntity implements SkipCargo.Store {
 	void setDrum(@Nullable BlockPos drum, @Nullable BlockPos anchor) {
 		this.entityData.set(DATA_DRUM, Optional.ofNullable(drum));
 		this.entityData.set(DATA_ANCHOR, Optional.ofNullable(anchor));
+		this.refreshDimensions();
+	}
+
+	/** Whether it hangs on a cable, and so has its bridle (and the fourth, collidable block). */
+	public boolean bridled() {
+		return this.drum() != null;
+	}
+
+	/** Its height: the body, and the bridle while it hangs. */
+	public double height() {
+		return this.bridled() ? HEIGHT : BODY_HEIGHT;
+	}
+
+	@Override
+	public EntityDimensions getDimensions(Pose pose) {
+		return EntityDimensions.fixed(1.0F, (float) this.height());
+	}
+
+	@Override
+	public void onSyncedDataUpdated(EntityDataAccessor<?> accessor) {
+		super.onSyncedDataUpdated(accessor);
+		if (DATA_DRUM.equals(accessor)) {
+			this.refreshDimensions();
+		}
 	}
 
 	/** The anchor at the head of the shaft its cable runs over, or null (for drawing the cable). */
@@ -184,7 +219,12 @@ public class OreSkip extends VehicleEntity implements SkipCargo.Store {
 
 	/** The skip's box (body and bridle) standing with its bottom at {@code y}, a hair inside its cell. */
 	AABB boxAt(double y) {
-		return new AABB(this.getX() - 0.5, y, this.getZ() - 0.5, this.getX() + 0.5, y + HEIGHT, this.getZ() + 0.5).deflate(SKIN);
+		return this.boxAt(y, this.height());
+	}
+
+	/** The skip's box {@code height} tall with its bottom at {@code y}, a hair inside its cell. */
+	AABB boxAt(double y, double height) {
+		return new AABB(this.getX() - 0.5, y, this.getZ() - 0.5, this.getX() + 0.5, y + height, this.getZ() + 0.5).deflate(SKIN);
 	}
 
 	/** Why the skip cannot stand with its bottom at {@code y}, or null if it can. */
@@ -227,6 +267,11 @@ public class OreSkip extends VehicleEntity implements SkipCargo.Store {
 	public void tick() {
 		super.tick();
 		if (!(this.level() instanceof ServerLevel level)) {
+			// The doors move over DOOR_TICKS ticks towards what the server says (a hinge and a slide, drawn by the renderer).
+			this.lidAnimO = this.lidAnim;
+			this.gateAnimO = this.gateAnim;
+			this.lidAnim = step(this.lidAnim, this.lidOpen());
+			this.gateAnim = step(this.gateAnim, this.gateOpen());
 			return;
 		}
 		if (this.getHurtTime() > 0) {
@@ -260,6 +305,10 @@ public class OreSkip extends VehicleEntity implements SkipCargo.Store {
 		}
 	}
 
+	private static float step(float anim, boolean open) {
+		return open ? Math.min(1.0F, anim + DOOR_STEP) : Math.max(0.0F, anim - DOOR_STEP);
+	}
+
 	/**
 	 * One tick of being wound {@code dy} (up positive) by the cable: moves as far as it can, stopping
 	 * at a station on the way. Returns why it stopped short, or null if it moved freely.
@@ -269,20 +318,21 @@ public class OreSkip extends VehicleEntity implements SkipCargo.Store {
 		double target = y + dy;
 		String halt = null;
 		if (dy > 0.0 && target + HEIGHT > apexLimit) {
-			// Up to the head of the shaft: the apex stops just under the anchor's roller.
+			// Up to the head of the shaft: the apex stops just under the anchor's pulley.
 			target = Math.max(y, apexLimit - HEIGHT);
 			halt = "end";
 		}
-		// A station on the way: stop exactly there.
-		int from = (int) Math.floor(Math.min(y, target));
-		int to = (int) Math.ceil(Math.max(y, target));
-		for (int h = dy > 0.0 ? from : to; dy > 0.0 ? h <= to : h >= from; h += dy > 0.0 ? 1 : -1) {
-			boolean between = dy > 0.0 ? h > y + 1.0E-6 && h <= target + 1.0E-6 : h < y - 1.0E-6 && h >= target - 1.0E-6;
-			if (between && h != this.passingY && SkipStations.station(this.level(), this, h) != null) {
-				target = h;
-				halt = "docked";
-				break;
+		// A station on the way: stop exactly there (the nearest one in the direction of travel).
+		Double station = null;
+		for (double h : SkipStations.heightsBetween(y, target)) {
+			if ((Double.isNaN(this.passingY) || Math.abs(h - this.passingY) > 1.0E-6) && SkipStations.station(this.level(), this, h) != null
+				&& (station == null || Math.abs(h - y) < Math.abs(station - y))) {
+				station = h;
 			}
+		}
+		if (station != null) {
+			target = station;
+			halt = "docked";
 		}
 		double reached = this.reach(y, target);
 		if (Math.abs(reached - target) > 1.0E-9) {
@@ -348,8 +398,13 @@ public class OreSkip extends VehicleEntity implements SkipCargo.Store {
 		ItemStack held = player.getMainHandItem();
 		CableHook hook = CableRoutes.heldHook(level, player);
 		if (hook != null) {
+			BlockPos bridle = BlockPos.containing(this.getX(), this.getY() + BODY_HEIGHT + 0.5, this.getZ());
 			if (this.drum() != null) {
 				serverPlayer.sendOverlayMessage(SkipCargo.message("already_hung", "This skip already hangs on a cable"));
+			} else if (obstruction(level, this, this.boxAt(this.getY(), HEIGHT), this.lateral()) != null) {
+				// No room for the bridle (the fourth block, or beside it): nothing is hung, nothing used.
+				serverPlayer.sendOverlayMessage(Component.translatableWithFallback("simple_block.cable.blocked", "The cable would run through %s at %s",
+					level.getBlockState(bridle).getBlock().getName(), bridle.toShortString()));
 			} else {
 				CableHoists.Attach attach = CableHoists.attach(level, hook, this.getUUID(), this.column(), this.getY() + HEIGHT);
 				if (attach.hung()) {
@@ -378,7 +433,7 @@ public class OreSkip extends VehicleEntity implements SkipCargo.Store {
 		if (!this.supported()) {
 			return SkipCargo.message("unhang_unsupported", "Lower the skip onto something before taking it off the cable");
 		}
-		CableHoists.detach(level, drum);
+		CableHoists.detach(level, drum, this.getY() + HEIGHT);
 		this.setDrum(null, null);
 		level.playSound(null, this.column(), SoundEvents.CHAIN_PLACE, SoundSource.NEUTRAL, 1.0F, 0.7F);
 		return SkipCargo.message("unhung", "Skip taken off the cable");
@@ -397,7 +452,7 @@ public class OreSkip extends VehicleEntity implements SkipCargo.Store {
 		if (reason.shouldDestroy() && this.level() instanceof ServerLevel level && !this.isRemoved()) {
 			BlockPos drum = this.drum();
 			if (drum != null) {
-				CableHoists.detach(level, drum);
+				CableHoists.detach(level, drum, this.getY() + HEIGHT);
 			}
 			Item item = this.cargo();
 			int left = this.count();

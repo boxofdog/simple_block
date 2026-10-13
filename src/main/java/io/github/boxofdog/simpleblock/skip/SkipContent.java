@@ -30,11 +30,11 @@ public final class SkipContent {
 	public static final Block SKIP_PART_MODEL = block("ore_skip_part", SkipPartBlock::new);
 
 	public static final ResourceKey<EntityType<?>> ORE_SKIP_KEY = ResourceKey.create(Registries.ENTITY_TYPE, id("ore_skip"));
-	/** One block wide and deep; four tall: the three-block body and the bridle above it. */
+	/** One block wide and deep; three tall (the body), four once its bridle is on (it hangs on a cable): {@link OreSkip#getDimensions}. */
 	public static final EntityType<OreSkip> ORE_SKIP = Registry.register(BuiltInRegistries.ENTITY_TYPE, ORE_SKIP_KEY,
 		EntityType.Builder.<OreSkip>of(OreSkip::new, MobCategory.MISC)
 			.noLootTable()
-			.sized(1.0F, (float) OreSkip.HEIGHT)
+			.sized(1.0F, (float) OreSkip.BODY_HEIGHT)
 			.clientTrackingRange(10)
 			.updateInterval(1)
 			.build(ORE_SKIP_KEY));
