@@ -49,6 +49,9 @@ import net.minecraft.world.phys.Vec3;
  *
  * <p>Couplings are saved on both carts by entity UUID; their entity ids are synced so clients can draw
  * the chains. The state lives on {@link Coupled}, implemented by {@code mixin/train/AbstractMinecartMixin}.
+ *
+ * <p>M06: a train with a car docked at a loading track ({@link LoadingTracks}) is held, whatever
+ * drives it, until the track releases it.
  */
 public final class Couplings {
 	/** Centre-to-centre distance of coupled carts. */
@@ -373,6 +376,11 @@ public final class Couplings {
 			}
 			Train train = Train.of(level, start);
 			done.addAll(train.cars);
+			if (train.docked()) {
+				// M06: a train docked at a loading track stays put, whatever drives it.
+				train.hold();
+				continue;
+			}
 			// The driver: one ordering it to move if there is one (a cable hauling a parked engine's train), else one holding it.
 			AbstractMinecart root = null;
 			for (AbstractMinecart car : train.cars) {
@@ -442,6 +450,15 @@ public final class Couplings {
 				}
 			}
 			return train;
+		}
+
+		boolean docked() {
+			for (AbstractMinecart car : this.cars) {
+				if (coupled(car).simpleBlock$dock() != null) {
+					return true;
+				}
+			}
+			return false;
 		}
 
 		private static void unlinkOneSide(AbstractMinecart car, int slot) {

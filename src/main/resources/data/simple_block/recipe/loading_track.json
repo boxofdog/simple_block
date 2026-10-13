@@ -1,0 +1,12 @@
+{
+	"type": "minecraft:crafting_shapeless",
+	"category": "misc",
+	"ingredients": [
+		"minecraft:rail",
+		"simple_block:cable_anchor"
+	],
+	"result": {
+		"count": 1,
+		"id": "simple_block:loading_track"
+	}
+}

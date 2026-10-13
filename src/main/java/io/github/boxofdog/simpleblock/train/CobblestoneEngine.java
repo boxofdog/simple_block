@@ -147,6 +147,8 @@ public final class CobblestoneEngine {
 		if (player instanceof ServerPlayer serverPlayer) {
 			if (state.simpleBlock$running()) {
 				state.simpleBlock$setRunning(false);
+			} else if (Couplings.docked(engine)) {
+				serverPlayer.sendOverlayMessage(message("docked", "Held at a loading track: use the track to release it"));
 			} else if (state.simpleBlock$fuel() <= 0) {
 				serverPlayer.sendOverlayMessage(message("no_fuel", "Needs coal"));
 			} else {
@@ -187,6 +189,14 @@ public final class CobblestoneEngine {
 			return;
 		}
 		Engine state = engine(engine);
+		if (Couplings.docked(engine)) {
+			// M06: docked at a loading track: switched off and held until released and started again.
+			state.simpleBlock$setRunning(false);
+			state.simpleBlock$setSpeed(0.0);
+			state.simpleBlock$setBurning(false);
+			Couplings.commandHold(engine);
+			return;
+		}
 		List<AbstractMinecart> train = Couplings.consist(engine);
 
 		// A rider in the train overrides the ground setting while they hold forward or back.

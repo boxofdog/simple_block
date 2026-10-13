@@ -1,5 +1,6 @@
 {
 	"values": [
-		"simple_block:cable_anchor"
+		"simple_block:cable_anchor",
+		"simple_block:loading_track"
 	]
 }

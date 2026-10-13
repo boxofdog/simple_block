@@ -478,6 +478,10 @@ public class TrainGameTests {
 			.thenSucceed();
 	}
 
+	static void assertSpacingPublic(GameTestHelper helper, List<AbstractMinecart> train, String when) {
+		assertSpacing(helper, train, when);
+	}
+
 	private static void assertSpacing(GameTestHelper helper, List<AbstractMinecart> train, String when) {
 		for (int i = 1; i < train.size(); i++) {
 			double gap = train.get(i).distanceTo(train.get(i - 1));

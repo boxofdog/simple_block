@@ -75,5 +75,9 @@
 	"simple_block.winch.lever.feed": "feed",
 	"simple_block.winch.full": "The winch holds %s coal",
 	"simple_block.winch.coal": "Coal: %s",
-	"simple_block.winch.status": "Coal winch: %s coal, %s s alight, lever %s"
+	"simple_block.winch.status": "Coal winch: %s coal, %s s alight, lever %s",
+	"block.simple_block.loading_track": "Loading Track",
+	"simple_block.loading_track.empty": "No train is held here",
+	"simple_block.loading_track.released": "Released: start the engine or the winch to move off",
+	"simple_block.engine.docked": "Held at a loading track: use the track to release it"
 }

@@ -240,10 +240,12 @@ public class CableDrumBlockEntity extends BlockEntity {
 			output.putBoolean("loop", true);
 		}
 		if (this.powered) {
+			// The line's coal and burn time are exact; this drum's copy may be a tick behind.
+			CableLines.Line line = this.level instanceof ServerLevel serverLevel ? CableLines.line(serverLevel, this.getBlockPos()) : null;
 			output.putBoolean("powered", true);
 			output.store("lever", CableLines.Lever.CODEC, this.lever);
-			output.putInt("coal", this.coal);
-			output.putInt("burn", this.burn);
+			output.putInt("coal", line != null ? line.coal() : this.coal);
+			output.putInt("burn", line != null ? line.burn() : this.burn);
 		}
 	}
 
@@ -252,8 +254,7 @@ public class CableDrumBlockEntity extends BlockEntity {
 		super.loadAdditional(input);
 		this.route.clear();
 		this.route.addAll(input.read("route", BlockPos.CODEC.listOf()).orElse(List.of()));
-		// A drum saved before M06 held cable by length ("cable"): any cable or route means a coil.
-		this.coil = input.getBooleanOr("coil", input.getIntOr("cable", 0) > 0 || !this.route.isEmpty());
+		this.coil = input.getBooleanOr("coil", false);
 		this.looped = input.getBooleanOr("loop", false);
 		this.powered = input.getBooleanOr("powered", false);
 		this.lever = input.read("lever", CableLines.Lever.CODEC).orElse(CableLines.Lever.NEUTRAL);

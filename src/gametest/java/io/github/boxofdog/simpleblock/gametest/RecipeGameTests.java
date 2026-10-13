@@ -31,7 +31,7 @@ public class RecipeGameTests {
 	private static final Item A = Items.AIR;
 
 	/** What the crafting table's result slot shows for {@code grid} (row by row). */
-	private static ItemStack craft(GameTestHelper helper, ServerPlayer player, Item... grid) {
+	static ItemStack craft(GameTestHelper helper, ServerPlayer player, Item... grid) {
 		BlockPos table = new BlockPos(1, 1, 1);
 		helper.setBlock(table, Blocks.CRAFTING_TABLE);
 		CraftingMenu menu = new CraftingMenu(1, player.getInventory(), ContainerLevelAccess.create(helper.getLevel(), helper.absolutePos(table)));

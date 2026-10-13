@@ -22,6 +22,8 @@ import net.minecraft.world.entity.EntityTypes;
 import net.minecraft.world.entity.vehicle.minecart.AbstractMinecart;
 import net.minecraft.world.entity.vehicle.minecart.Minecart;
 import net.minecraft.world.item.DyeColor;
+import net.minecraft.world.phys.Vec3;
+import net.minecraft.core.Direction;
 
 import org.jspecify.annotations.Nullable;
 
@@ -30,6 +32,9 @@ import io.github.boxofdog.simpleblock.cable.ConnectingRodPartBlock;
 import io.github.boxofdog.simpleblock.cable.ConnectingRods;
 import io.github.boxofdog.simpleblock.feature.MinecartCargo;
 import io.github.boxofdog.simpleblock.feature.MinecartCushions;
+import io.github.boxofdog.simpleblock.train.FreightGatePartBlock;
+import io.github.boxofdog.simpleblock.train.LoadingTracks;
+import io.github.boxofdog.simpleblock.train.TrainContent;
 
 /**
  * The vanilla minecart renderer plus:
@@ -43,6 +48,9 @@ import io.github.boxofdog.simpleblock.feature.MinecartCushions;
  *       it grips (or folded down to {@code cable.rod_reach_min} with the head open), and the head. It
  *       stands upright whatever the cart's tilt, with its stem on the side away from the anchors'
  *       hanger arms (east of a north-south track, south of an east-west one).</li>
+ *   <li>M06: a freight cart's folding front gate ({@code block/freight_gate_closed}), on the end wall
+ *       at the cart's front ({@link LoadingTracks}): the end that faces the loading track's way while
+ *       docked. Always closed in M06.</li>
  * </ul>
  * The cart's model is unchanged; M04 owns the visible cargo.
  */
@@ -56,6 +64,11 @@ public class CargoMinecartRenderer extends MinecartRenderer {
 	/** Height of the rod's base above the cart's position on the rail, and of the base model. */
 	private static final float ROD_BASE_Y = 6.0F / 16.0F;
 	private static final float ROD_BASE_HEIGHT = 5.0F / 16.0F;
+	/** The gate's hinge: outside the end wall, at the underside of the cart floor, one side of the cart. */
+	private static final float GATE_X = 10.0F / 16.0F;
+	private static final float GATE_Y = -5.0F / 16.0F;
+	private static final float GATE_Z = -8.0F / 16.0F;
+
 	/** Height of the gripped cable's centre in the head model. */
 	private static final float ROD_HEAD_GRIP_Y = 4.0F / 16.0F;
 
@@ -85,6 +98,9 @@ public class CargoMinecartRenderer extends MinecartRenderer {
 		final BlockModelRenderState rodBase = new BlockModelRenderState();
 		final BlockModelRenderState rodShaft = new BlockModelRenderState();
 		final BlockModelRenderState rodHead = new BlockModelRenderState();
+		/** Which end the front gate is on, along the cart's own x axis: +1, -1, or 0 for none. */
+		int gate;
+		final BlockModelRenderState gateModel = new BlockModelRenderState();
 	}
 
 	@Override
@@ -108,6 +124,38 @@ public class CargoMinecartRenderer extends MinecartRenderer {
 			this.rodPart(cart.rodShaft, ConnectingRodPartBlock.Part.SHAFT);
 			this.rodPart(cart.rodHead, gripping ? ConnectingRodPartBlock.Part.HEAD_CLOSED : ConnectingRodPartBlock.Part.HEAD_OPEN);
 		}
+		Direction front = LoadingTracks.isFreight(entity) ? LoadingTracks.freight(entity).simpleBlock$front() : null;
+		cart.gate = front == null ? 0 : gateEnd(state, front);
+		if (cart.gate != 0) {
+			this.blockModelResolver.update(cart.gateModel,
+				TrainContent.FREIGHT_GATE_MODEL.defaultBlockState().setValue(FreightGatePartBlock.PART, FreightGatePartBlock.Part.CLOSED),
+				AbstractMinecartRenderer.BLOCK_DISPLAY_CONTEXT);
+		}
+	}
+
+	/**
+	 * Which end of the cart's own x axis points to {@code front} in the world: the cart is turned about
+	 * y the way {@link AbstractMinecartRenderer} turns it (new behaviour: its y rotation; old: from the
+	 * rail under it).
+	 */
+	private static int gateEnd(MinecartRenderState state, Direction front) {
+		float turn;
+		if (state.isNewRender) {
+			turn = state.yRot;
+		} else {
+			float rotation = state.yRot;
+			if (state.posOnRail != null && state.frontPos != null && state.backPos != null) {
+				Vec3 direction = state.backPos.subtract(state.frontPos);
+				if (direction.length() != 0.0) {
+					rotation = (float) Math.toDegrees(Math.atan2(direction.z, direction.x));
+				}
+			}
+			turn = 180.0F - rotation;
+		}
+		double radians = Math.toRadians(turn);
+		// The cart's +x in the world after turning by "turn" about y.
+		double along = Math.cos(radians) * front.getStepX() - Math.sin(radians) * front.getStepZ();
+		return along >= 0.0 ? 1 : -1;
 	}
 
 	private void rodPart(BlockModelRenderState model, ConnectingRodPartBlock.Part part) {
@@ -144,6 +192,20 @@ public class CargoMinecartRenderer extends MinecartRenderer {
 		poseStack.popPose();
 		poseStack.translate(0.0F, headY, 0.0F);
 		cart.rodHead.submit(poseStack, collector, cart.lightCoords, OverlayTexture.NO_OVERLAY, cart.outlineColor);
+		poseStack.popPose();
+	}
+
+	/** M06: the front gate, with the cart's pose (as {@link #submitCushion}). */
+	public void submitGate(MinecartRenderState state, PoseStack poseStack, SubmitNodeCollector collector) {
+		if (!(state instanceof State cart) || cart.gate == 0) {
+			return;
+		}
+		poseStack.pushPose();
+		if (cart.gate < 0) {
+			poseStack.rotateDegrees(Axis.YP, 180.0F);
+		}
+		poseStack.translate(GATE_X, GATE_Y, GATE_Z);
+		cart.gateModel.submit(poseStack, collector, state.lightCoords, OverlayTexture.NO_OVERLAY, state.outlineColor);
 		poseStack.popPose();
 	}
 

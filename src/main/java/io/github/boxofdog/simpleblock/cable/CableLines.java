@@ -95,6 +95,9 @@ public final class CableLines extends SavedData {
 		double loadBackward;
 		double lastLoadForward;
 		double lastLoadBackward;
+		/** Where along the strand each gripping cart (by entity id) was last tick, and this tick so far. */
+		Map<Integer, Double> lastAlongs = new HashMap<>();
+		Map<Integer, Double> alongs = new HashMap<>();
 		/** This tick, reported by gripping carts: one moved, one stopped against something (a physical stop). */
 		boolean moved;
 		boolean gripped;
@@ -179,7 +182,7 @@ public final class CableLines extends SavedData {
 	private static final Codec<CableLines> CODEC = Entry.CODEC.listOf().xmap(CableLines::new,
 		lines -> lines.lines.entrySet().stream().map(entry -> new Entry(entry.getKey(), entry.getValue())).toList());
 
-	static final SavedDataType<CableLines> TYPE = new SavedDataType<>(Identifier.fromNamespaceAndPath(SimpleBlock.MOD_ID, "cable_lines"),
+	public static final SavedDataType<CableLines> TYPE = new SavedDataType<>(Identifier.fromNamespaceAndPath(SimpleBlock.MOD_ID, "cable_lines"),
 		CableLines::new, CODEC, DataFixTypes.SAVED_DATA_COMMAND_STORAGE);
 
 	private final Map<BlockPos, Line> lines = new HashMap<>();
@@ -199,6 +202,11 @@ public final class CableLines extends SavedData {
 
 	public static @Nullable Line line(ServerLevel level, BlockPos drum) {
 		return get(level).lines.get(drum);
+	}
+
+	/** The line of the drum at {@code drum} in this set of lines, or null. */
+	public @Nullable Line lineAt(BlockPos drum) {
+		return this.lines.get(drum);
 	}
 
 	/** Every line in the level, by drum. Do not modify. */

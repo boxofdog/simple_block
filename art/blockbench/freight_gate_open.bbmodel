@@ -1,0 +1,509 @@
+{
+	"meta": {
+		"format_version": "4.10",
+		"model_format": "java_block",
+		"box_uv": false
+	},
+	"name": "freight_gate_open",
+	"model_identifier": "",
+	"parent": "",
+	"ambientocclusion": true,
+	"front_gui_light": false,
+	"visible_box": [
+		1,
+		1,
+		0
+	],
+	"variable_placeholders": "",
+	"variable_placeholder_buttons": [],
+	"export_path": "../../src/main/resources/assets/simple_block/models/block/freight_gate_open.json",
+	"unhandled_root_fields": {},
+	"resolution": {
+		"width": 64,
+		"height": 64
+	},
+	"elements": [
+		{
+			"name": "gate_plate",
+			"box_uv": false,
+			"rescale": false,
+			"locked": false,
+			"light_emission": 0,
+			"render_order": "default",
+			"allow_mirror_modeling": true,
+			"from": [
+				0.0,
+				0.0,
+				1.0
+			],
+			"to": [
+				10.0,
+				1.0,
+				15.0
+			],
+			"autouv": 0,
+			"color": 0,
+			"origin": [
+				8,
+				8,
+				8
+			],
+			"rotation": [
+				0,
+				0,
+				0
+			],
+			"faces": {
+				"north": {
+					"uv": [
+						14,
+						38,
+						24.0,
+						39.0
+					],
+					"texture": 0
+				},
+				"east": {
+					"uv": [
+						0,
+						38,
+						14.0,
+						39.0
+					],
+					"texture": 0
+				},
+				"south": {
+					"uv": [
+						38,
+						38,
+						48.0,
+						39.0
+					],
+					"texture": 0
+				},
+				"west": {
+					"uv": [
+						24,
+						38,
+						38.0,
+						39.0
+					],
+					"texture": 0
+				},
+				"up": {
+					"uv": [
+						14,
+						24,
+						24.0,
+						38.0
+					],
+					"texture": 0
+				},
+				"down": {
+					"uv": [
+						24,
+						24,
+						34.0,
+						38.0
+					],
+					"texture": 0
+				}
+			},
+			"type": "cube",
+			"uuid": "e2cf77bf-bfa1-504d-9894-33e12f13ce10"
+		},
+		{
+			"name": "gate_strap_left",
+			"box_uv": false,
+			"rescale": false,
+			"locked": false,
+			"light_emission": 0,
+			"render_order": "default",
+			"allow_mirror_modeling": true,
+			"from": [
+				1.0,
+				1.0,
+				2.0
+			],
+			"to": [
+				9.0,
+				1.5,
+				3.5
+			],
+			"autouv": 0,
+			"color": 1,
+			"origin": [
+				8,
+				8,
+				8
+			],
+			"rotation": [
+				0,
+				0,
+				0
+			],
+			"faces": {
+				"north": {
+					"uv": [
+						12,
+						41,
+						20.0,
+						41.5
+					],
+					"texture": 0
+				},
+				"east": {
+					"uv": [
+						10,
+						41,
+						11.5,
+						41.5
+					],
+					"texture": 0
+				},
+				"south": {
+					"uv": [
+						22,
+						41,
+						30.0,
+						41.5
+					],
+					"texture": 0
+				},
+				"west": {
+					"uv": [
+						20,
+						41,
+						21.5,
+						41.5
+					],
+					"texture": 0
+				},
+				"up": {
+					"uv": [
+						12,
+						39,
+						20.0,
+						40.5
+					],
+					"texture": 0
+				},
+				"down": {
+					"uv": [
+						20,
+						39,
+						28.0,
+						40.5
+					],
+					"texture": 0
+				}
+			},
+			"type": "cube",
+			"uuid": "3c9f3e76-dda3-52cb-868c-9624095d4917"
+		},
+		{
+			"name": "gate_strap_right",
+			"box_uv": false,
+			"rescale": false,
+			"locked": false,
+			"light_emission": 0,
+			"render_order": "default",
+			"allow_mirror_modeling": true,
+			"from": [
+				1.0,
+				1.0,
+				12.5
+			],
+			"to": [
+				9.0,
+				1.5,
+				14.0
+			],
+			"autouv": 0,
+			"color": 2,
+			"origin": [
+				8,
+				8,
+				8
+			],
+			"rotation": [
+				0,
+				0,
+				0
+			],
+			"faces": {
+				"north": {
+					"uv": [
+						12,
+						41,
+						20.0,
+						41.5
+					],
+					"texture": 0
+				},
+				"east": {
+					"uv": [
+						10,
+						41,
+						11.5,
+						41.5
+					],
+					"texture": 0
+				},
+				"south": {
+					"uv": [
+						22,
+						41,
+						30.0,
+						41.5
+					],
+					"texture": 0
+				},
+				"west": {
+					"uv": [
+						20,
+						41,
+						21.5,
+						41.5
+					],
+					"texture": 0
+				},
+				"up": {
+					"uv": [
+						12,
+						39,
+						20.0,
+						40.5
+					],
+					"texture": 0
+				},
+				"down": {
+					"uv": [
+						20,
+						39,
+						28.0,
+						40.5
+					],
+					"texture": 0
+				}
+			},
+			"type": "cube",
+			"uuid": "d0f4dc90-2a5c-5728-a4e7-940f13e2cb45"
+		},
+		{
+			"name": "gate_latch",
+			"box_uv": false,
+			"rescale": false,
+			"locked": false,
+			"light_emission": 0,
+			"render_order": "default",
+			"allow_mirror_modeling": true,
+			"from": [
+				8.0,
+				1.0,
+				6.0
+			],
+			"to": [
+				9.0,
+				1.75,
+				10.0
+			],
+			"autouv": 0,
+			"color": 3,
+			"origin": [
+				8,
+				8,
+				8
+			],
+			"rotation": [
+				0,
+				0,
+				0
+			],
+			"faces": {
+				"north": {
+					"uv": [
+						4,
+						43,
+						5.0,
+						43.75
+					],
+					"texture": 0
+				},
+				"east": {
+					"uv": [
+						0,
+						43,
+						4.0,
+						43.75
+					],
+					"texture": 0
+				},
+				"south": {
+					"uv": [
+						9,
+						43,
+						10.0,
+						43.75
+					],
+					"texture": 0
+				},
+				"west": {
+					"uv": [
+						5,
+						43,
+						9.0,
+						43.75
+					],
+					"texture": 0
+				},
+				"up": {
+					"uv": [
+						4,
+						39,
+						5.0,
+						43.0
+					],
+					"texture": 0
+				},
+				"down": {
+					"uv": [
+						5,
+						39,
+						6.0,
+						43.0
+					],
+					"texture": 0
+				}
+			},
+			"type": "cube",
+			"uuid": "3b6b019b-73ba-5833-9983-154b64d7039e"
+		},
+		{
+			"name": "gate_hinge",
+			"box_uv": false,
+			"rescale": false,
+			"locked": false,
+			"light_emission": 0,
+			"render_order": "default",
+			"allow_mirror_modeling": true,
+			"from": [
+				-0.25,
+				-0.5,
+				0.5
+			],
+			"to": [
+				1.25,
+				0.5,
+				15.5
+			],
+			"autouv": 0,
+			"color": 4,
+			"origin": [
+				8,
+				8,
+				8
+			],
+			"rotation": [
+				0,
+				0,
+				0
+			],
+			"faces": {
+				"north": {
+					"uv": [
+						45,
+						15,
+						46.5,
+						16.0
+					],
+					"texture": 0
+				},
+				"east": {
+					"uv": [
+						30,
+						15,
+						45.0,
+						16.0
+					],
+					"texture": 0
+				},
+				"south": {
+					"uv": [
+						62,
+						15,
+						63.5,
+						16.0
+					],
+					"texture": 0
+				},
+				"west": {
+					"uv": [
+						47,
+						15,
+						62.0,
+						16.0
+					],
+					"texture": 0
+				},
+				"up": {
+					"uv": [
+						45,
+						0,
+						46.5,
+						15.0
+					],
+					"texture": 0
+				},
+				"down": {
+					"uv": [
+						47,
+						0,
+						48.5,
+						15.0
+					],
+					"texture": 0
+				}
+			},
+			"type": "cube",
+			"uuid": "e9c70aa0-48cd-54c3-a909-83aa67bddfdc"
+		}
+	],
+	"outliner": [
+		"e2cf77bf-bfa1-504d-9894-33e12f13ce10",
+		"3c9f3e76-dda3-52cb-868c-9624095d4917",
+		"d0f4dc90-2a5c-5728-a4e7-940f13e2cb45",
+		"3b6b019b-73ba-5833-9983-154b64d7039e",
+		"e9c70aa0-48cd-54c3-a909-83aa67bddfdc"
+	],
+	"textures": [
+		{
+			"path": "",
+			"name": "freight_gate.png",
+			"folder": "block",
+			"namespace": "simple_block",
+			"id": "0",
+			"group": "",
+			"width": 64,
+			"height": 64,
+			"uv_width": 64,
+			"uv_height": 64,
+			"particle": true,
+			"use_as_default": false,
+			"layers_enabled": false,
+			"sync_to_project": "",
+			"render_mode": "default",
+			"render_sides": "auto",
+			"frame_time": 1,
+			"frame_order_type": "loop",
+			"frame_order": "",
+			"frame_interpolate": false,
+			"visible": true,
+			"internal": false,
+			"saved": true,
+			"uuid": "cc0cfec7-d73a-5dac-bcfe-4495b06d0784",
+			"relative_path": "../../src/main/resources/assets/simple_block/textures/block/freight_gate.png",
+			"source": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAYAAACqaXHeAAACJ0lEQVR4nO2YTyhEURTGv9EsGUOYiWkWFmxkY2MhWY6yUZKmqJm1jI38aRYWFkRpSrIQpTBJMYWRZDVJiUESJfEaRcQk+2uDGqbnuW84j3d+q9d995z39XXvueddCyQ5GWkSCzsX6F/ct8jmkOU85hcAEI6cAgCCw9vSGrIypOnPwgZQC6CGDaAWQA0bQC2AGjaAWgA1bAC1AGrYAGoB1Fj9dWVCJlC5f4Zy/wyZ+ObqUngG13/9LzIdVgCoKXd+Kyh2dvP+LBs7E/JIGQ8AV4knAIDbZZPOVeLIBvBqAAVtAWOsANPXADaAWgA1bAC1AGpMb4AVSD3Xv4ueWCMgfRZ3NQY1NR+Hl/ua8m3E13T1BX3hExHfXEB0sj9tnvGdHhFbPsDchw5UVyNUX9Wg+j66twIAqHBXqs47Vo70yNAFWSeYKbzBKQEADzcK8pxueINTwlZQjIlOj6YVxUWQWsBPERhrSalRd4lHFLrsKeP5ztz/a0CoPcxbQAtsALUAakxvwJ8vgnMDfl0dpOlXgOkN0LUF3nr9r6Ds9b/CMuIbk7qedti1XYffJuV+l7Xmbx1t0lUDPgUrfQNiNr6L3mgkbeKO2IaqYceRVdUPbg2HDHEd/gbXAK0TG0NDAgCSiWvVebmuYgBAjqMo7fu28LQAgJkWnyFWgmYDlgLdhhCcaSzzXl/Kni6x2XH9lMTHsdqJ0X9pAMMwDMMwDMMwDMMwDMMw5uIFI+uKAauBeGEAAAAASUVORK5CYII="
+		}
+	]
+}

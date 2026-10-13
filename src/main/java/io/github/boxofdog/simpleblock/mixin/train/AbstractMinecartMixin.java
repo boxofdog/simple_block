@@ -3,6 +3,7 @@ package io.github.boxofdog.simpleblock.mixin.train;
 import java.util.UUID;
 
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.core.UUIDUtil;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
@@ -11,6 +12,7 @@ import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.vehicle.VehicleEntity;
 import net.minecraft.world.entity.vehicle.minecart.AbstractMinecart;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.state.properties.RailShape;
 import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
 import net.minecraft.world.phys.Vec3;
@@ -23,19 +25,27 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import io.github.boxofdog.simpleblock.train.Couplings;
+import io.github.boxofdog.simpleblock.train.LoadingTracks;
 
 /**
  * M05 train coupling state on every minecart ({@link Couplings}): the two coupled partners (saved by
  * UUID as {@code simple_block:coupling_0/1}, synced to clients as entity ids for drawing the chains),
  * and the train controls' transient state (a held cart's pin position, whether a driver had it last
  * tick). Each server tick reports a cart with any of these to {@link Couplings#noteActive}.
+ *
+ * <p>M06: the loading-track state ({@link LoadingTracks.Freight}): the track a cart is docked at
+ * ({@code simple_block:dock}), the track it was released from ({@code simple_block:released}) and the
+ * way its front points ({@code simple_block:front}, synced for drawing its gate).
  */
 @Mixin(AbstractMinecart.class)
-abstract class AbstractMinecartMixin extends VehicleEntity implements Couplings.Coupled {
+abstract class AbstractMinecartMixin extends VehicleEntity implements Couplings.Coupled, LoadingTracks.Freight {
 	@Unique
 	private static final EntityDataAccessor<Integer> SIMPLE_BLOCK_COUPLED_0 = SynchedEntityData.defineId(AbstractMinecart.class, EntityDataSerializers.INT);
 	@Unique
 	private static final EntityDataAccessor<Integer> SIMPLE_BLOCK_COUPLED_1 = SynchedEntityData.defineId(AbstractMinecart.class, EntityDataSerializers.INT);
+
+	@Unique
+	private static final EntityDataAccessor<Byte> SIMPLE_BLOCK_FRONT = SynchedEntityData.defineId(AbstractMinecart.class, EntityDataSerializers.BYTE);
 
 	@Unique
 	private final @Nullable UUID[] simpleBlock$couplings = new UUID[2];
@@ -45,6 +55,14 @@ abstract class AbstractMinecartMixin extends VehicleEntity implements Couplings.
 	private boolean simpleBlock$controlled;
 	@Unique
 	private @Nullable BlockPos simpleBlock$dock;
+	@Unique
+	private @Nullable BlockPos simpleBlock$released;
+	@Unique
+	private boolean simpleBlock$onReleased;
+	@Unique
+	private @Nullable BlockPos simpleBlock$lastRail;
+	@Unique
+	private @Nullable RailShape simpleBlock$lastShape;
 
 	private AbstractMinecartMixin(EntityType<?> type, Level level) {
 		super(type, level);
@@ -105,14 +123,65 @@ abstract class AbstractMinecartMixin extends VehicleEntity implements Couplings.
 		this.simpleBlock$dock = dock;
 	}
 
+	@Override
+	public @Nullable Direction simpleBlock$front() {
+		byte front = this.entityData.get(SIMPLE_BLOCK_FRONT);
+		return front < 0 ? null : Direction.from2DDataValue(front);
+	}
+
+	@Override
+	public void simpleBlock$setFront(@Nullable Direction front) {
+		this.entityData.set(SIMPLE_BLOCK_FRONT, front == null ? (byte) -1 : (byte) front.get2DDataValue());
+	}
+
+	@Override
+	public @Nullable BlockPos simpleBlock$released() {
+		return this.simpleBlock$released;
+	}
+
+	@Override
+	public void simpleBlock$setReleased(@Nullable BlockPos released) {
+		this.simpleBlock$released = released;
+	}
+
+	@Override
+	public boolean simpleBlock$onReleased() {
+		return this.simpleBlock$onReleased;
+	}
+
+	@Override
+	public void simpleBlock$setOnReleased(boolean on) {
+		this.simpleBlock$onReleased = on;
+	}
+
+	@Override
+	public @Nullable BlockPos simpleBlock$lastRail() {
+		return this.simpleBlock$lastRail;
+	}
+
+	@Override
+	public @Nullable RailShape simpleBlock$lastShape() {
+		return this.simpleBlock$lastShape;
+	}
+
+	@Override
+	public void simpleBlock$setLastRail(@Nullable BlockPos pos, @Nullable RailShape shape) {
+		this.simpleBlock$lastRail = pos;
+		this.simpleBlock$lastShape = shape;
+	}
+
 	@Inject(method = "defineSynchedData", at = @At("TAIL"))
 	private void simpleBlock$defineCouplings(SynchedEntityData.Builder entityData, CallbackInfo ci) {
 		entityData.define(SIMPLE_BLOCK_COUPLED_0, -1);
 		entityData.define(SIMPLE_BLOCK_COUPLED_1, -1);
+		entityData.define(SIMPLE_BLOCK_FRONT, (byte) -1);
 	}
 
 	@Inject(method = "tick", at = @At("TAIL"))
 	private void simpleBlock$noteTrain(CallbackInfo ci) {
+		if (!this.level().isClientSide()) {
+			LoadingTracks.tick((AbstractMinecart) (Object) this);
+		}
 		if (!this.level().isClientSide() && (this.simpleBlock$couplings[0] != null || this.simpleBlock$couplings[1] != null
 			|| this.simpleBlock$holdPos != null || this.simpleBlock$controlled || this.simpleBlock$dock != null)) {
 			Couplings.noteActive((AbstractMinecart) (Object) this);
@@ -125,6 +194,8 @@ abstract class AbstractMinecartMixin extends VehicleEntity implements Couplings.
 			output.storeNullable("simple_block:coupling_" + slot, UUIDUtil.CODEC, this.simpleBlock$couplings[slot]);
 		}
 		output.storeNullable("simple_block:dock", BlockPos.CODEC, this.simpleBlock$dock);
+		output.storeNullable("simple_block:released", BlockPos.CODEC, this.simpleBlock$released);
+		output.storeNullable("simple_block:front", Direction.CODEC, this.simpleBlock$front());
 	}
 
 	@Inject(method = "readAdditionalSaveData", at = @At("TAIL"))
@@ -133,5 +204,7 @@ abstract class AbstractMinecartMixin extends VehicleEntity implements Couplings.
 			this.simpleBlock$couplings[slot] = input.read("simple_block:coupling_" + slot, UUIDUtil.CODEC).orElse(null);
 		}
 		this.simpleBlock$dock = input.read("simple_block:dock", BlockPos.CODEC).orElse(null);
+		this.simpleBlock$released = input.read("simple_block:released", BlockPos.CODEC).orElse(null);
+		this.simpleBlock$setFront(input.read("simple_block:front", Direction.CODEC).orElse(null));
 	}
 }

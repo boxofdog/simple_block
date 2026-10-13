@@ -1,5 +1,6 @@
 package io.github.boxofdog.simpleblock.cable;
 
+import java.util.HashMap;
 import java.util.Map;
 
 import org.jspecify.annotations.Nullable;
@@ -16,6 +17,7 @@ import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.vehicle.minecart.Minecart;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.BaseRailBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
 
@@ -139,6 +141,8 @@ public final class CableDrive {
 		line.moved = false;
 		line.gripped = false;
 		line.halt = null;
+		line.lastAlongs = line.alongs;
+		line.alongs = new HashMap<>();
 		line.lastLoadForward = line.loadForward;
 		line.lastLoadBackward = line.loadBackward;
 		line.loadForward = 0.0;
@@ -236,8 +240,12 @@ public final class CableDrive {
 		} else if (grade < 0) {
 			line.loadBackward += gradeLoad;
 		}
-		// Did the cart move this tick (on the velocity it was given last tick)?
-		if (cart.position().subtract(cart.xo, cart.yo, cart.zo).horizontalDistanceSqr() > 1.0E-5) {
+		// Has the cart got on along the strand since last tick, on the speed it was given? A cart pressed
+		// against something in its way (moving a little and pushed back) has not: at least a quarter of
+		// the way.
+		Double before = line.lastAlongs.get(cart.getId());
+		line.alongs.put(cart.getId(), grip.along());
+		if (before != null && Math.abs(grip.along() - before) > Math.max(0.003, 0.25 * Math.abs(line.speed))) {
 			line.moved = true;
 		}
 		double speed = line.speed;
@@ -257,9 +265,14 @@ public final class CableDrive {
 
 	/**
 	 * Why moving {@code speed} along the strand must not happen now, or null if it may: the train is
-	 * docked, off the rails, at an end of the line, about to leave its rod's reach, or not all in (or
-	 * about to run out of) entity-ticking chunks.
+	 * docked, off the rails, at the end of its track (M06), at an end of the line, about to leave its
+	 * rod's reach, or not all in (or about to run out of) entity-ticking chunks.
 	 */
+	/** Whether there is rail at {@code pos}, or just below or above it (a slope). */
+	private static boolean railAt(ServerLevel level, BlockPos pos) {
+		return BaseRailBlock.isRail(level, pos) || BaseRailBlock.isRail(level, pos.below()) || BaseRailBlock.isRail(level, pos.above());
+	}
+
 	private static @Nullable String stop(ServerLevel level, Minecart cart, CableIndex.Grip grip, double speed) {
 		if (Couplings.docked(cart)) {
 			return "docked";
@@ -274,6 +287,9 @@ public final class CableDrive {
 			return "end";
 		}
 		Vec3 ahead = cart.position().add(grip.direction().scale(speed + Math.signum(speed) * 0.5));
+		if (!railAt(level, BlockPos.containing(ahead))) {
+			return "track_end";
+		}
 		CableIndex.Grip still = CableIndex.grip(level, ahead, ConnectingRods.TOLERANCE, ConnectingRods.reachMin(), ConnectingRods.reachMax());
 		if (still == null || !still.drum().equals(grip.drum())) {
 			return "end";

@@ -208,6 +208,40 @@ DRUM_LEVER = [
     Cube('lever_knob', [16.75, 16.5, 7.25], [18.25, 18, 8.75]),
 ]
 
+# M06 Loading Track, facing north (a docked cart's front points north): a straight rail on sleepers,
+# and the station post on the left (west), standing above a docked cart's sides, with a pointer arm
+# showing the front.
+LOADING_TRACK = [
+    Cube('sleeper_1', [1, 0, 1], [15, 1, 3], uv_key='sleeper'),
+    Cube('sleeper_2', [1, 0, 5], [15, 1, 7], uv_key='sleeper'),
+    Cube('sleeper_3', [1, 0, 9], [15, 1, 11], uv_key='sleeper'),
+    Cube('sleeper_4', [1, 0, 13], [15, 1, 15], uv_key='sleeper'),
+    Cube('rail_west', [3, 1, 0], [4, 2, 16], uv_key='rail'),
+    Cube('rail_east', [12, 1, 0], [13, 2, 16], uv_key='rail'),
+    Cube('post', [0, 0, 6.5], [3, 15, 9.5]),
+    Cube('post_cap', [-0.5, 15, 6], [3.5, 16, 10]),
+    Cube('pointer_arm', [0.75, 13, 2], [2.25, 14.5, 6.5]),
+    Cube('pointer_head', [0.5, 12.5, 1], [2.5, 15, 2]),
+]
+
+# M06 freight cart front gate, drawn by the cart renderer at the cart's front end wall, hinged at the
+# cart floor (x 0 is the outside of the wall, y 0 the underside of the floor): closed, standing over
+# the wall; open, folded down outwards as a ramp (M07 uses it; M06 only draws it closed).
+GATE_CLOSED = [
+    Cube('gate_plate', [0, 0, 1], [1, 10, 15]),
+    Cube('gate_strap_left', [1, 1, 2], [1.5, 9, 3.5], uv_key='gate_strap'),
+    Cube('gate_strap_right', [1, 1, 12.5], [1.5, 9, 14], uv_key='gate_strap'),
+    Cube('gate_latch', [1, 7.5, 6], [1.75, 8.5, 10]),
+    Cube('gate_hinge', [-0.25, -0.5, 0.5], [1.25, 0.5, 15.5]),
+]
+GATE_OPEN = [
+    Cube('gate_plate', [0, 0, 1], [10, 1, 15], uv_key='gate_plate_open'),
+    Cube('gate_strap_left', [1, 1, 2], [9, 1.5, 3.5], uv_key='gate_strap_open'),
+    Cube('gate_strap_right', [1, 1, 12.5], [9, 1.5, 14], uv_key='gate_strap_open'),
+    Cube('gate_latch', [8, 1, 6], [9, 1.75, 10], uv_key='gate_latch_open'),
+    Cube('gate_hinge', [-0.25, -0.5, 0.5], [1.25, 0.5, 15.5]),
+]
+
 # The loose end's hook, 8 px tall, standing on the model's floor at the centre (the entity's position).
 HOOK = [
     Cube('socket', [7, 6, 7], [9, 8, 9]),
@@ -279,6 +313,8 @@ GROUPS = {
     'block/cable_drum': {'cable_drum': DRUM, 'cable_drum_frame': DRUM_FRAME, 'cable_drum_spool': DRUM_SPOOL,
                          'cable_drum_spool_wound': DRUM_SPOOL_WOUND, 'cable_drum_crank': DRUM_CRANK},
     'block/cable_winch': {'cable_drum_furnace': DRUM_FURNACE, 'cable_drum_lever': DRUM_LEVER},
+    'block/loading_track': {'loading_track': LOADING_TRACK},
+    'block/freight_gate': {'freight_gate_closed': GATE_CLOSED, 'freight_gate_open': GATE_OPEN},
     'block/cable_hook': {'cable_hook': HOOK},
     'block/connecting_rod': {
         'connecting_rod_base': ROD_BASE,
@@ -295,7 +331,7 @@ GROUPS = {
 MODEL_PATHS = {name: ('item/' if name in ('copper_connecting_rod', 'cable', 'cable_coil') else 'block/') + name
                for models in GROUPS.values() for name in models}
 # Models also shown as items (they get the standard block display transforms).
-ITEM_DISPLAY = {'cable_anchor', 'cable_drum', 'copper_connecting_rod', 'cable', 'cable_coil'}
+ITEM_DISPLAY = {'cable_anchor', 'cable_drum', 'copper_connecting_rod', 'cable', 'cable_coil', 'loading_track'}
 
 # ---- UV layout ----
 
@@ -493,12 +529,16 @@ def main():
     write_json(os.path.join(ASSETS, 'blockstates', 'cable_drum.json'), {'variants': drum_variants})
     write_json(os.path.join(ASSETS, 'blockstates', 'cable_drum_part.json'), {'variants': {
         f'part={part}': m(f'block/cable_drum_{part}') for part in ('spool', 'spool_wound', 'crank', 'furnace', 'lever')}})
+    write_json(os.path.join(ASSETS, 'blockstates', 'loading_track.json'), {'variants': {
+        f'facing={facing}': m('block/loading_track', y=y) for facing, y in rotations.items()}})
+    write_json(os.path.join(ASSETS, 'blockstates', 'freight_gate.json'), {'variants': {
+        f'part={part}': m(f'block/freight_gate_{part}') for part in ('closed', 'open')}})
     write_json(os.path.join(ASSETS, 'blockstates', 'cable_hook.json'), {'variants': {'': m('block/cable_hook')}})
     write_json(os.path.join(ASSETS, 'blockstates', 'connecting_rod_part.json'), {'variants': {
         f'part={part}': m(f'block/connecting_rod_{part}') for part in ('base', 'shaft', 'head_open', 'head_closed')}})
     write_json(os.path.join(ASSETS, 'blockstates', 'cobblestone_engine_model.json'), {'variants': {'': m('block/cobblestone_engine')}})
     for item, path in (('cable', 'item/cable'), ('cable_coil', 'item/cable_coil'), ('copper_connecting_rod', 'item/copper_connecting_rod'),
-                       ('cable_anchor', 'block/cable_anchor'), ('cable_drum', 'block/cable_drum')):
+                       ('cable_anchor', 'block/cable_anchor'), ('cable_drum', 'block/cable_drum'), ('loading_track', 'block/loading_track')):
         write_json(os.path.join(ASSETS, 'items', item + '.json'), {'model': {'type': 'minecraft:model', 'model': f'{NAMESPACE}:{path}'}})
 
     print('written:', *written, sep='\n  ')
