@@ -67,7 +67,7 @@
 
 | ID | Status | Requirement or direction |
 |---|---|---|
-| A-01 | DECIDED | User will paint/refine asset textures; Claude Code must create functioning models, UV layouts, placeholders, exports, and required animations. |
+| A-01 | DECIDED | Joe paints/refines final art; Claude Code builds functioning models, UV layouts, placeholders, exports, animations and renderer mapping. Central owner painting queue: [Joe's To-Do](Joe's%20To-Do/README.md); future commodity fill visuals: [M11](MILESTONE_11.md). |
 | A-02 | DECIDED | Keep editable Blockbench `.bbmodel` files for custom assets, plus replaceable PNG textures. |
 | A-03 | DECIDED | Do not overwrite user-painted art or destroy editable source files during later code work. |
 | A-04 | OPEN | Loader-specific model export approach/animation libraries; choose only when needed for an actual custom asset milestone. |

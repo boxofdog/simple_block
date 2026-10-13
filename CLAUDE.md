@@ -46,7 +46,7 @@ Before changing code:
 - This overhaul targets **newly created worlds only**. Do not implement existing-world migration, legacy-data recovery, or compatibility layers.
 - Keep vanilla block, item, and entity registrations where the game/loader requires them; disable targeted gameplay behavior through appropriate hooks, recipes, and acquisition paths instead. This is a technical constraint, not an old-save compatibility promise.
 - Avoid adding broad dependencies or unrelated code cleanup.
-- Do not overwrite user-authored art. When an approved milestone calls for custom models, provide editable Blockbench `.bbmodel` source and UV templates with replaceable textures, not unsolicited finished textures.
+- Do not overwrite user-authored art. When an approved milestone calls for custom models, provide editable Blockbench `.bbmodel` source and UV templates with replaceable textures, not unsolicited finished textures. **All owner-facing painting tasks and asset approval checkboxes belong in [docs/Joe's To-Do/](docs/Joe's%20To-Do/README.md)**; add ready-to-paint file paths there, not as separate owner to-do lists in milestone reports. **Planned M11** ([docs/MILESTONE_11.md](docs/MILESTONE_11.md)) requires Claude-written material/form/quantity-based freight fill rendering, editable silhouettes and UV templates when separately authorized; Joe paints final assets. **Do not implement M11 during current M07 patches** without explicit owner authorization.
 - Record any platform/version-specific limitations rather than pretending a behavior is implemented.
 
 ## Verification

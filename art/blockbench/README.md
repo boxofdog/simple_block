@@ -23,17 +23,9 @@ Paths are under `src/main/resources/assets/simple_block/`. Each `.bbmodel` links
 relative path to that file, so **saving the texture in Blockbench writes the game's texture
 directly**; each also carries a copy of the template inside it in case the link breaks.
 
-## Painting
+## Owner painting checklist
 
-1. Open the `.bbmodel`, paint in Blockbench's paint mode (or in any image editor on the PNG).
-2. Save the texture (Ctrl+S on the texture, or File > Save Texture). Models that share a texture share
-   its layout: the drum models use the same frame, spool and crank areas, the anchor models the same
-   plate, arm and roller areas, and the five rod models the same areas for the same parts.
-3. Run the game (`./gradlew runClient`) or rebuild the jar to see it.
-
-The texture can be made larger (for example 64 x 64 for the anchor) as long as the UVs are scaled
-with it: in Blockbench, change the texture size and let it rescale the UVs, then export the model
-(below).
+The **actionable painting instructions, all owner art checkboxes and safe texture-saving workflow** have moved to [docs/Joe's To-Do/BLOCKBENCH_PAINTING.md](../../docs/Joe's%20To-Do/BLOCKBENCH_PAINTING.md). The table above and the technical geometry/pivot guidelines below stay here as a **reference** for Claude and Blockbench editing. Add new templates and final art paths to the owner's centralized queue.
 
 ## Changing the shape
 
