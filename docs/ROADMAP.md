@@ -17,10 +17,10 @@
 | M07 | Vertical ore skip, conditional bridle/pulley, four-gate minecart, visual and station fixes | **PLAYTESTING** | [Unified M07 handoff](MILESTONE_07.md) | [Verification](MILESTONE_07.md#implementation-and-verification--2026-10-13) · [CI #24](https://github.com/boxofdog/simple_block/actions/runs/38443850502) |
 | M08 | Pre-industrial bulk blast furnace + commodity-only carrying cap | **PLAYTESTING** | [M08 package](MILESTONE_08.md) | Not implemented |
 | M09 | Hostile loitering, opportunistic doors, creeper retaliation, rare jockeys | **PLANNED - READY** | [M09 package](MILESTONE_09.md) | Not implemented |
-| M10 | Modular headlamp/overalls/boots, workwear bonuses, armor retirement | **PLANNED - READY** | [M10 package](MILESTONE_10.md) | Not implemented |
+| M10 | Headlamp/Overalls/boots, workwear bonuses, Spelunker's Rope, armor retirement | **PLANNED - READY** | [M10 package](MILESTONE_10.md) | Not implemented |
 | M11 | Material-/shape-specific cart fills, progressive hopper transfer, cart text removal | **PLANNED - READY** | [M11 package](MILESTONE_11.md) | Not implemented |
 
-**Post-M10 and unnumbered plans:** ordinary 3D rails, Spelunker's Rope, revised villages, extreme-grade railway behavior, the Witch's Tome/discovered enchanting, and separate iron/diamond/netherite armor set bonuses live in [BACKLOG.md](BACKLOG.md). They are not an authorization or an extension of M08–M11.
+**Post-M10 and unnumbered plans:** ordinary 3D rails, revised villages, extreme-grade railway behavior, the Witch's Tome/discovered enchanting, and separate iron/diamond/netherite armor set bonuses live in [BACKLOG.md](BACKLOG.md). They are not an authorization or an extension of M08–M11.
 
 ## Current handoff and next decisions
 

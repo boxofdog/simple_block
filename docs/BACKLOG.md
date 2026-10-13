@@ -10,7 +10,7 @@
 | I-002 | Durable, effectively permanent anvils | Concept; tune cost and connect with I-001 |
 | I-003 | Broader block/inventory-content cleanup | Parked; identify exact additions to the removed families |
 | I-004 | Copper Headlamp, dual-slot Overalls, Spiked/Mining Boots, full workwear bonuses | **Assigned to [M10](MILESTONE_10.md)**; recipes and exact behavior belong there |
-| I-005 | Rope and hanging Spelunker's Rope | Owner-directed, unnumbered; design/recipe details below |
+| I-005 | Rope and hanging Spelunker's Rope | **Assigned to [M10](MILESTONE_10.md)**; settled recipes, behavior and implementation handoff now live there |
 | I-006 | Faster normal ladders | Unnumbered balance question; consider I-005/M10 interactions |
 | I-007 | Alluvial iron sand and iron gravel at riverbanks | Owner-directed concept; finite deposits, extraction, textures, iron scarcity |
 | I-008 | Steel with a purposeful manufacturing chain | Owner-directed concept; decide role, production and smithy/anvil relationship |
@@ -28,31 +28,7 @@
 
 ## I-019 — Deferred industrial iron gate
 
-Owner deferred the large iron gate from M09 on 2026-10-13. Earlier concept: a substantial winch-operated gate with **two sections, each three blocks wide**, building on existing cable/winch mechanisms. No recipe, final dimensions, operation, durability or relationship with hostile behavior is settled. Do not implement or reconnect it to creeper retaliation merely because the older M09 text mentioned both.
-
-## I-005 — Spelunker's Rope
-
-- **Rope shaped recipe:** three string items vertically in the center crafting column. Result quantity remains unspecified; do not assume a multiple-item yield.
-
-  ```text
-  [empty] [string] [empty]
-  [empty] [string] [empty]
-  [empty] [string] [empty]
-  ```
-
-- **Spelunker's Rope shaped recipe:** one existing **copper cable anchor** above one rope in the center column (reuses the current anchor item, not a new kind of anchor).
-
-  ```text
-  [empty] [empty]         [empty]
-  [empty] [copper anchor] [empty]
-  [empty] [rope]          [empty]
-  ```
-
-- Place the Spelunker's Rope on the **bottom or side face of a block**. Its anchor fixes at that block; the climbing rope **hangs vertically downward through open air** without needing intermediate attachments, support posts or guides.
-- **Hold right-click with Rope in hand** to extend the anchored line downward in **12-block increments**, using the supplied rope resource for each increment. Once it reaches solid ground, any extra length **coils visibly into a bundle on the lowest block** rather than extending through the terrain. Details of quantity spent, coil retrieval and support removal are for the future rope milestone; avoid silently providing unlimited free rope.
-- This is a **temporary spelunking/access tool**, not a moving mechanical winch cable. Preserve M04/M05 copper cable, anchors and hauling logic; climbing and retrieval controls and the speed of ordinary ladders remain separately tunable.
-
-**Still open:** recipe yield, resource cost per 12-block extension, line retrieval, support breakage, climb controls and obstruction checks. This is not M04–M07's moving hoisting cable.
+Owner deferred the large iron gate from M09 on 2026-10-13. Earlier concept: a substantial winch-operated gate with **two sections, each three blocks wide**, building on existing cable/winch mechanisms. No recipe, final dimensions, operation, durability or relationship with hostile behavior is settled. Do not implement or reconnect it to creeper retaliationecks. This is not M04–M07's moving hoisting cable.
 
 ## I-010 — Post-M10 combat armor identities
 
