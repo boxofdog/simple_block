@@ -1,6 +1,8 @@
 # Milestone 06 report: Freight station, coal winch, cable simplification and clean-up
 
-Brief: [MILESTONE_06.md](MILESTONE_06.md). Choices where the brief left room: [DECISIONS.md §5.5.1](DECISIONS.md). Evidence: [`docs/evidence/milestone-06/`](evidence/milestone-06/).
+**HISTORICAL REPORT (M01–M07 format).** This record is preserved for its original implementation and tests. References to the retired decisions ledger now point to the dated archive, **not active implementation authority**. Under the current [roadmap rule](ROADMAP.md), new authorized work appends only a **concise dated implementation/verification note at the bottom of the main milestone document**, not a new standalone report.
+
+Brief: [MILESTONE_06.md](MILESTONE_06.md). Choices where the brief left room: [DECISIONS.md §5.5.1](archive/DECISIONS_PRE_RETIREMENT_2026-10-13.md). Evidence: [`docs/evidence/milestone-06/`](evidence/milestone-06/).
 
 **Summary.** Everything in the brief's work packages is implemented and tested on the server (129/129 game tests), in the real client by key presses (five client tests, two new), and over a real connection to a dedicated server. The long-route problem (§7) is solved with level-saved cable lines that are driven wherever the cart is loaded, without force-loading. One limitation is recorded: the winch's controls are on the drum, so starting or stopping a haul needs the drum loaded. No human playtest has been done. Skips, transfers, the smelter, armor and the cargo-fill visuals are not touched. M07's engine remodel is not part of this milestone.
 
@@ -52,7 +54,7 @@ All numbers are starting values in `tuning/Tuning.java` (section 7). The owner-s
 | No shoving | `feature/CartPushing` (new), `mixin/pushing/{AbstractMinecartMixin,EntityMixin}` |
 | Lang | `assets/simple_block/lang/en_us.json`: winch, station and new cable messages |
 | Tests | New: `RecipeGameTests`, `LongLineGameTests`, `LoadingTrackGameTests`, `CoalWinchGameTests`, `RetiredItemsGameTests`, client `FreightStationClientTest`, `DedicatedServerClientTest`; test environment `long_line.json`. Adapted: `CableGameTests`, `CableLoopGameTests` (one coil), `CableGameTests` CAB-15/16 and `MinecartCargoGameTests` T03 (test-only propulsion instead of powered rails), `TrainGameTests` ENG-01 (counts its own structure only), `CableClientTest`, `HaulageClientTest` |
-| Docs | README (M06 table), `SimpleBlock` Javadoc, `art/blockbench/README.md`, DECISIONS §5.5.1, this report |
+| Docs | README (M06 table), `SimpleBlock` Javadoc, `art/blockbench/README.md`, archived decisions §5.5.1 (historical), this report |
 
 ## 4. Long routes and unloaded chunks (§7)
 

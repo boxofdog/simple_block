@@ -1,5 +1,7 @@
 # Milestone 05 report: Working haulage and the Cobblestone Engine
 
+**HISTORICAL REPORT (M01–M07 format).** This record is preserved for its original implementation and tests. References to the retired decisions ledger now point to the dated archive, **not active implementation authority**. Under the current [roadmap rule](ROADMAP.md), new authorized work appends only a **concise dated implementation/verification note at the bottom of the main milestone document**, not a new standalone report.
+
 Scope: the owner's brief, `docs/MILESTONE_05.md`, including the owner's mid-milestone clarification of the crank controls (left-click feeds, right-click pulls) and the two owner decisions taken during M05 (coupling by iron chain; engine driven from a seat plus a ground toggle). Implemented and tested on a server and in a real client; **not playtested by a person yet**.
 
 - **Implementation commits on `main`:** `e662ec2` (work packages A-D) and `16b1098` (crank controls per the owner's clarification). CI [Build #17](https://github.com/boxofdog/simple_block/actions/runs/38306694723) on `16b1098`: **success**, `simple-block-mod` artifact published.
@@ -62,7 +64,7 @@ Evidence is in `docs/evidence/milestone-05/`:
 | Client | `client/cable/CableDrumRenderer` (spool, crank, loop), `CableGeometry` (moving texture); `client/train/CobblestoneEngineRenderer`, `CouplingChains`; `mixin/AbstractMinecartRendererMixin`, `MinecartRenderStateMixin` |
 | Assets | `tools/models/generate_models.py` (new parts, BUG-001 fix) and everything it writes: `art/blockbench/*.bbmodel`, models, blockstates, UV templates |
 | Tests | `CableLoopGameTests` (11), `TrainGameTests` (8), `client/HaulageClientTest`; BUG-001 close-ups in `client/CableClientTest` |
-| Docs | this report and its evidence; `docs/DECISIONS.md` section 5.0; README (M05 table); `art/blockbench/README.md`; `docs/UX_TEXT_LOG.md` (UX-005..008); `SimpleBlock` Javadoc |
+| Docs | this report and its evidence; `docs/archive/DECISIONS_PRE_RETIREMENT_2026-10-13.md` section 5.0; README (M05 table); `art/blockbench/README.md`; `docs/UX_TEXT_LOG.md` (UX-005..008); `SimpleBlock` Javadoc |
 
 ## 4. Models and textures (for painting)
 

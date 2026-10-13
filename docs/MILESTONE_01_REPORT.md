@@ -1,11 +1,13 @@
 # Milestone 01 report: Survival Foundation
 
+**HISTORICAL REPORT (M01–M07 format).** This record is preserved for its original implementation and tests. References to the retired decisions ledger now point to the dated archive, **not active implementation authority**. Under the current [roadmap rule](ROADMAP.md), new authorized work appends only a **concise dated implementation/verification note at the bottom of the main milestone document**, not a new standalone report.
+
 Completed 2026-10-11. Test status: 22 PASS / 0 FAIL / 1 NOT RUN (see [`TEST_CHECKLIST_01.md`](TEST_CHECKLIST_01.md)).
 
 ## 1. Baseline findings
 
 - The repository was empty apart from `README.md` and an MIT `LICENSE`: one commit, clean tree, no build, loader, version or source. There was nothing to build as a baseline.
-- So a toolchain was selected rather than discovered: **Minecraft 26.3, Fabric Loader 0.19.5, Fabric API 0.162.0+26.3, Loom 1.18.4, Gradle 9.7.1, JDK 25**. Reasons are in [`DECISIONS.md`](DECISIONS.md#milestone-01-implementation-decisions-2026-10-11).
+- So a toolchain was selected rather than discovered: **Minecraft 26.3, Fabric Loader 0.19.5, Fabric API 0.162.0+26.3, Loom 1.18.4, Gradle 9.7.1, JDK 25**. Reasons are in [`docs/archive/DECISIONS_PRE_RETIREMENT_2026-10-13.md` (historical)](archive/DECISIONS_PRE_RETIREMENT_2026-10-13.md).
 - First build of the unmodified scaffold: success.
 
 ## 2. Files and why
@@ -55,7 +57,7 @@ See the [README](../README.md#commands). In short:
 
 ## 6. Remaining issues
 
-- **Side effects to decide on** (listed in `DECISIONS.md`): Slow Falling potions, two phantom advancements and "Sky's the Limit" become unobtainable, and shulker shells become useless.
+- **Side effects to decide on** (listed in `docs/archive/DECISIONS_PRE_RETIREMENT_2026-10-13.md` (historical)): Slow Falling potions, two phantom advancements and "Sky's the Limit" become unobtainable, and shulker shells become useless.
 - **Bed UX:** a player who lies down sees the dimmed sleep screen until they press Leave Bed or morning comes (vanilla's behaviour in this mode). The no-lie-down alternative is a small change.
 - **Gliding:** blocking applies to every glider, including any a future mod adds.
 - **Vanilla clients:** a vanilla client on a modded server may briefly see a "ghost" shulker box before the server removes it. Untested, since ENV-04 was not run.
@@ -64,7 +66,7 @@ See the [README](../README.md#commands). In short:
 
 ## 7. Recommended next milestone
 
-Keep the same small-and-isolated workflow for one more round before the first custom content (the freight cart, per `DECISIONS.md`). Candidates are **DECIDED** entries that need no assets:
+Keep the same small-and-isolated workflow for one more round before the first custom content (the freight cart, per `docs/archive/DECISIONS_PRE_RETIREMENT_2026-10-13.md` (historical)). Candidates are **DECIDED** entries that need no assets:
 
 - **S-06:** creepers vanish in direct sunlight.
 - **G-02:** deepslate needs an iron pickaxe or better.

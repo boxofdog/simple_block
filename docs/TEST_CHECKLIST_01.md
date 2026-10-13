@@ -10,7 +10,7 @@ Methods: **GT** = automated server game test (`./gradlew runGameTest`, also part
 
 | Test | Expected behavior | Status | Evidence / notes |
 |---|---|---|---|
-| ENV-01 | Baseline repo audited; versions and Git status recorded | PASS | Repo had only `README.md` and `LICENSE` (MIT), one commit, clean tree. No existing loader, version or build, so a toolchain was selected (see `DECISIONS.md`). |
+| ENV-01 | Baseline repo audited; versions and Git status recorded | PASS | Repo had only `README.md` and `LICENSE` (MIT), one commit, clean tree. No existing loader, version or build, so a toolchain was selected (see `docs/archive/DECISIONS_PRE_RETIREMENT_2026-10-13.md` (historical)). |
 | ENV-02 | Gradle build completes on documented JDK | PASS | `./gradlew clean build` on Temurin 25.0.4.1: BUILD SUCCESSFUL, `simple_block-0.1.0.jar` (22 KB). The build also runs the 22 server game tests. |
 | ENV-03 | Dev client launches with mod enabled | PASS | CT: client started with `simple_block 0.1.0` loaded, created a fresh survival world and rendered it. Run headless under Xvfb with Mesa's software Vulkan driver; not tried on a desktop GPU. |
 | ENV-04 | Dedicated server starts with mod; remote client joins (if available) | NOT RUN | Skipped by agreement. Partial evidence: the GT suite runs in the server environment (`Env=SERVER`, server jar, no client classes) with the mod loaded. To run: `./gradlew runServer` (set `eula=true` in `run/eula.txt`), then `./gradlew runClient` → Multiplayer → `localhost`. |

@@ -1,5 +1,7 @@
 # Milestone 04 report: Cable infrastructure
 
+**HISTORICAL REPORT (M01–M07 format).** This record is preserved for its original implementation and tests. References to the retired decisions ledger now point to the dated archive, **not active implementation authority**. Under the current [roadmap rule](ROADMAP.md), new authorized work appends only a **concise dated implementation/verification note at the bottom of the main milestone document**, not a new standalone report.
+
 Scope: the owner's brief, recorded verbatim in `docs/MILESTONE_04.md`. Implemented and tested in a server and in a real client; not playtested by a person yet.
 
 - **Tests:** 95 required server game tests pass in `./gradlew build` and in CI (Build #16): the 85 from Milestones 01-03 plus 10 new ones in `CableGameTests`, which also passed three extra filtered runs.
@@ -8,7 +10,7 @@ Scope: the owner's brief, recorded verbatim in `docs/MILESTONE_04.md`. Implement
 - **Real client:** a new client test, `CableClientTest`, builds a short line in a fresh world and drives every component with real key presses: drum, coil, anchors, picking up and dragging the end, routing, a rod on a rolling minecart, save and reopen, disconnecting and dismantling. It passes, and the earlier `SurvivalSmokeClientTest` still passes alongside it.
 - **Assets:** editable Blockbench sources for every model, with UV-template textures, in `art/blockbench/` (section 4).
 - **Not built (by the brief):** engines, counterweights, inclined-lift automation, skips, locomotives. **Also not built:** anything that moves the cable or pulls a cart (section 2).
-- **Open design questions** for you are in section 7 and in `docs/DECISIONS.md`.
+- **Open design questions** for you are in section 7 and in `docs/archive/DECISIONS_PRE_RETIREMENT_2026-10-13.md`.
 
 Evidence is in `docs/evidence/milestone-04/`:
 - [`gametest-evidence.md`](evidence/milestone-04/gametest-evidence.md): the numbers each test logged, server and client.
@@ -26,7 +28,7 @@ Evidence is in `docs/evidence/milestone-04/`:
 
 The brief asks for placement, routing, anchors, "the winch structure" and "minecart cable engagement", and rules out engines, counterweights, lifts, skips and locomotives. I read that as: **nothing moves**. The drum is a winch in structure (it holds and pays out cable), but nothing turns it; the cable never runs; a rod that grips the cable does not pull or brake the cart. Engagement is a real state, computed by the server every tick and shown on the cart, so the next milestone can make a moving cable pull the carts that grip it. If you meant M04 to include hand-cranking the winch or carts being pulled, that is the first thing to tell me.
 
-Where the brief left rules open, I chose the narrowest workable rule and recorded it in `docs/DECISIONS.md` ("Milestone 04 implementation choices"). The main ones:
+Where the brief left rules open, I chose the narrowest workable rule and recorded it in `docs/archive/DECISIONS_PRE_RETIREMENT_2026-10-13.md` ("Milestone 04 implementation choices"). The main ones:
 
 | Brief | Implemented |
 |---|---|
@@ -54,7 +56,7 @@ Where the brief left rules open, I chose the narrowest workable rule and recorde
 | Client | `client/cable/CableDrumRenderer` (spans), `client/cable/CableHookRenderer` (hook and loose cable), `client/cable/CableGeometry` (the cable tube), `client/CargoMinecartRenderer` (the rod), `SimpleBlockClient` |
 | Assets | `art/blockbench/*.bbmodel` and its README; `assets/simple_block/{models,textures,blockstates,items}`; `tools/models/generate_models.py` (one-off scaffold, never overwrites) |
 | Tests | `CableGameTests` (10 tests), `gametest/structure/cable_yard.snbt` (a 30 x 10 x 10 empty test structure), `client/CableClientTest` |
-| Docs | this report, `docs/MILESTONE_04.md` (the brief), `docs/DECISIONS.md` (M04 sections), README (M04 table), `CLAUDE.md` (points at M04), `SimpleBlock` Javadoc |
+| Docs | this report, `docs/MILESTONE_04.md` (the brief), `docs/archive/DECISIONS_PRE_RETIREMENT_2026-10-13.md` (M04 sections), README (M04 table), `CLAUDE.md` (points at M04), `SimpleBlock` Javadoc |
 
 ## 4. Models and textures (for painting)
 
@@ -109,7 +111,7 @@ The other cable tests pass in both controls, so each failure is specific to the 
 
 ## 7. Decisions that need you
 
-All are in `docs/DECISIONS.md` ("Milestone 04 design questions left open"):
+All are in `docs/archive/DECISIONS_PRE_RETIREMENT_2026-10-13.md` ("Milestone 04 design questions left open"):
 
 1. **Does M04 stop short of movement?** (Section 2.) I assumed yes.
 2. **How the grip holds the cable past a roller.** The head grips from above, because a jaw closed under the cable would hit each roller. A real grip needs a jaw that opens at supports, or supports shaped around the grip.

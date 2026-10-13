@@ -1,6 +1,8 @@
 # Milestone 07 report: Upright ore skip, vertical hoisting, freight transfer and machinery remodels
 
-Brief: [MILESTONE_07.md](MILESTONE_07.md). Choices where the brief left room: [DECISIONS.md §5.5.3](DECISIONS.md). Evidence: [`docs/evidence/milestone-07/`](evidence/milestone-07/) (server results and negative controls in `server-tests-and-controls.md`).
+**HISTORICAL REPORT (M01–M07 format).** This record is preserved for its original implementation and tests. References to the retired decisions ledger now point to the dated archive, **not active implementation authority**. Under the current [roadmap rule](ROADMAP.md), new authorized work appends only a **concise dated implementation/verification note at the bottom of the main milestone document**, not a new standalone report.
+
+Brief: [MILESTONE_07.md](MILESTONE_07.md). Choices where the brief left room: [DECISIONS.md §5.5.3](archive/DECISIONS_PRE_RETIREMENT_2026-10-13.md). Evidence: [`docs/evidence/milestone-07/`](evidence/milestone-07/) (server results and negative controls in `server-tests-and-controls.md`).
 
 **Summary.** Everything in the brief is implemented and tested:
 
@@ -212,7 +214,7 @@ M07 is complete pending ChatGPT's independent review and the owner's playtest. M
 
 ## 11. Amendment, 2026-10-13: owner playtest patch (§§1–10) and the four-gate cart
 
-Brief: [MILESTONE_07_PLAYTEST_PATCH.md](MILESTONE_07_PLAYTEST_PATCH.md) §§1–10, implemented as one pass as the owner asked, **plus** the owner's later direct instruction that every minecart share one four-gate body. Sections 1–10 above are the **historical** record of Build #22; that build passed the tests of the **old** geometry and does not stand for this one. Choices: [DECISIONS.md §5.5.4](DECISIONS.md). Evidence: [`docs/evidence/milestone-07-patch/`](evidence/milestone-07-patch/), which holds:
+Brief: [MILESTONE_07_PLAYTEST_PATCH.md](MILESTONE_07_PLAYTEST_PATCH.md) §§1–10, implemented as one pass as the owner asked, **plus** the owner's later direct instruction that every minecart share one four-gate body. Sections 1–10 above are the **historical** record of Build #22; that build passed the tests of the **old** geometry and does not stand for this one. Choices: [DECISIONS.md §5.5.4](archive/DECISIONS_PRE_RETIREMENT_2026-10-13.md). Evidence: [`docs/evidence/milestone-07-patch/`](evidence/milestone-07-patch/), which holds:
 - `server-tests-and-controls.md`: the server results and every negative control;
 - `client-test-log.txt`;
 - the `m07p-*`, `m07c-*` and `m07-server-*` screenshots.

@@ -1,5 +1,7 @@
 # Milestone 03 report: Minecart cargo and storage-bypass closure
 
+**HISTORICAL REPORT (M01–M07 format).** This record is preserved for its original implementation and tests. References to the retired decisions ledger now point to the dated archive, **not active implementation authority**. Under the current [roadmap rule](ROADMAP.md), new authorized work appends only a **concise dated implementation/verification note at the bottom of the main milestone document**, not a new standalone report.
+
 Scope: the original M03 handoff and test plan, **as clarified by the owner during the session** (section 2). Implemented and tested; not playtested by a person yet. This is the retained closeout record; the superseded original handoff and test plan are preserved in Git history, not the active docs tree.
 
 - **Tests:** 80 required server game tests pass in `./gradlew build`. That is 65 from Milestones 01 and 02 (including vanilla's built-in one) plus 15 new ones in `MinecartCargoGameTests` and `StorageBypassGameTests`. Three extra repeats of the cargo tests passed.
@@ -31,7 +33,7 @@ This replaces these parts of the spec:
 - FRT-06, which planned that the separate cart would not be rideable
 - T23, "ordinary cart still works": placing it and rolling it still work; riding it no longer does.
 
-It's recorded in `docs/DECISIONS.md`. The other spec rules carry over to the minecart unchanged:
+It's recorded in `docs/archive/DECISIONS_PRE_RETIREMENT_2026-10-13.md`. The other spec rules carry over to the minecart unchanged:
 - 256 items of one kind;
 - loading and unloading through the M02 heavy-load cap;
 - cargo saved with the cart;
@@ -56,7 +58,7 @@ It's recorded in `docs/DECISIONS.md`. The other spec rules carry over to the min
 | Ender chests (FRT-10) | `feature/EnderChests`, `mixin/enderchest/{BlockItemMixin, EnderChestBlockMixin}`; `data/minecraft/recipe/ender_chest.json`, `advancement/recipes/decorations/ender_chest.json` (disabled), `loot_table/blocks/ender_chest.json` (always obsidian) |
 | Chest minecarts (FRT-11) | `feature/ChestMinecarts`, `mixin/chestcart/{AbstractMinecartMixin, MinecartChestMixin, HopperBlockEntityMixin, VehicleEntityMixin}`; `data/minecraft/recipe/chest_minecart.json`, `advancement/recipes/transportation/chest_minecart.json` (disabled) |
 | Tests | `MinecartCargoGameTests`, `StorageBypassGameTests`, new client steps in `SurvivalSmokeClientTest` |
-| Docs | this report, `docs/DECISIONS.md` (M03 sections), README (M03 table and status), `CLAUDE.md` (points at the M03 documents), `SimpleBlock` Javadoc, `en_us.json` (messages) |
+| Docs | this report, `docs/archive/DECISIONS_PRE_RETIREMENT_2026-10-13.md` (M03 sections), README (M03 table and status), `CLAUDE.md` (points at the M03 documents), `SimpleBlock` Javadoc, `en_us.json` (messages) |
 | Test fix | `MobGameTests.lightBehindWallsStillAttracts`, the walled light test from the earlier light-attraction work, failed twice here on runs that clearly attracted (once its 2.5 ratio, once a margin over its control phase: the control's own lit-box share varies 9-25% between runs). It now asserts what doesn't depend on random-walk noise: wander decisions are steered towards the light behind the walls (never on vanilla), the lit-box share beats the dark box's by 10 points, and no zombie gets in. Test-only. |
 
 There are no new blocks, items, entities, textures or models. The vanilla minecart, chest minecart, ender chest and their entity types all stay registered.
