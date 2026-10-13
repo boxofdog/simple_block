@@ -32,21 +32,25 @@ import io.github.boxofdog.simpleblock.cable.ConnectingRods;
  * M06 section 7: a long cable line, well beyond the old 128-block cable budget, on one coil, with its
  * drum and its far end out of entity-ticking chunks while the carts being hauled are in them.
  *
- * <p>The line runs east along z -8, just outside the test structure ({@code cable_yard}; a test area is
- * walled with barriers, which a cable may not pass), at anchor height y 3 (planks at y 4), anchors every
- * 10 blocks. Its drum stands about 200 blocks west of the structure and its far end about 190 blocks
- * east of it, so with the stand-in player at the structure (simulation distance 10) both
- * are outside entity-ticking chunks: the drum's block entity does not tick at all. The test runs in
- * its own environment ({@code long_line}), so in a batch of its own, with no other test's area near
- * the line. Test ids refer to the matrix in {@code docs/MILESTONE_06_REPORT.md}.
+ * <p>The line runs east along z -2000 from the test's origin, far from its structure ({@code cable_yard})
+ * and from every other test's area, at anchor height y 3 (planks at y 4), anchors every 10 blocks.
+ * Its drum stands 200 blocks west of the section where the carts run, its far end about 190 blocks
+ * east; only that section's chunks are kept loaded, so the drum's block entity does not tick at all
+ * and the far end is not entity-ticking. The test runs in its own environment ({@code long_line}),
+ * so in a batch of its own, and takes everything it built down again at the end. Test ids refer to the matrix in {@code docs/MILESTONE_06_REPORT.md}.
  */
 public class LongLineGameTests {
 	private static final String YARD = "simple_block-gametest:cable_yard";
 	private static final String ENVIRONMENT = "simple_block-gametest:long_line";
-	private static final BlockPos DRUM = new BlockPos(-200, 1, -8);
+	/**
+	 * The line runs along z -2000 from the test's origin, well clear of every other test (the mob tests'
+	 * arenas reach 512 blocks out): it is built far outside its structure, and other tests running at
+	 * the same time must not meet it.
+	 */
+	private static final int Z = -2000;
+	private static final BlockPos DRUM = new BlockPos(-200, 1, Z);
 	private static final int FIRST_ANCHOR_X = -194;
 	private static final int LAST_ANCHOR_X = 186;
-	private static final int Z = -8;
 
 	private static List<BlockPos> anchors() {
 		List<BlockPos> anchors = new ArrayList<>();
@@ -105,10 +109,11 @@ public class LongLineGameTests {
 	 * second cart at the edge of the loaded world, each time putting the lever back to NEUTRAL and
 	 * burning coal only while a cart moved; nothing restarts by itself. Dismantling gives back the one coil.
 	 */
-	@GameTest(structure = YARD, environment = ENVIRONMENT, maxTicks = 1600)
+	// The test server ticks as fast as it can while chunks load in their own time: a generous budget.
+	@GameTest(structure = YARD, environment = ENVIRONMENT, maxTicks = 20000)
 	public void longLineWorksWhereItIsLoaded(GameTestHelper helper) {
 		ServerLevel level = helper.getLevel();
-		ServerPlayer player = TestPlayers.create(helper, GameType.SURVIVAL, new BlockPos(3, 1, -6));
+		ServerPlayer player = TestPlayers.create(helper, GameType.SURVIVAL, new BlockPos(3, 1, Z + 2));
 		List<BlockPos> anchors = anchors();
 		Minecart[] carts = new Minecart[2];
 		int[] marks = new int[4];
@@ -161,7 +166,7 @@ public class LongLineGameTests {
 				loadSection(helper, true);
 				BlockPos drumAt = helper.absolutePos(DRUM);
 				level.setChunkForced(drumAt.getX() >> 4, drumAt.getZ() >> 4, false);
-				CableGameTests.teleport(helper, player, new BlockPos(3, 1, -6));
+				CableGameTests.teleport(helper, player, new BlockPos(3, 1, Z + 2));
 			}))
 			.thenIdle(40)
 			.thenWaitUntil(() -> {
@@ -271,6 +276,20 @@ public class LongLineGameTests {
 					helper.assertValueEqual(level.getBlockState(at).getValue(CableAnchorBlock.RETURN), CableAnchorBlock.Return.NONE, "return parts on " + anchor);
 				}
 				log.add("dismantled: 1 coil, 0 cable, the wheel's anchor; anchors freed near and far");
+				// Take down everything built outside the test's structure (up to 200 blocks out), so no other
+				// test placed there later meets stray anchors, planks or rails.
+				for (BlockPos anchor : anchors) {
+					helper.setBlock(anchor, Blocks.AIR);
+					helper.setBlock(anchor.above(), Blocks.AIR);
+				}
+				helper.setBlock(DRUM, Blocks.AIR);
+				helper.setBlock(DRUM.below(), Blocks.AIR);
+				for (int[] range : new int[][] {{2, 28}, {boundary[0] - 16, boundary[0] + 4}}) {
+					for (int x = range[0]; x <= range[1]; x++) {
+						helper.setBlock(new BlockPos(x, 1, Z), Blocks.AIR);
+						helper.setBlock(new BlockPos(x, 0, Z), Blocks.AIR);
+					}
+				}
 				loadSection(helper, false);
 				SimpleBlockTestLog.info("LONG-01..05: {}", log);
 				TestPlayers.remove(player);
