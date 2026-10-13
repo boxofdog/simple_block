@@ -85,3 +85,18 @@
 ## When blocked
 
 Report the smallest concrete blocker, explain any required deviation, and keep already-working changes intact. Do not claim untested behavior is working. Ask approval before destructive changes or a wholesale loader/version migration.
+
+---
+
+## Known M01 side-effects / deferred decisions (consolidated 2026-10-13)
+
+### M01 consequences still awaiting a separate decision
+
+- Phantom membranes and related advancements/potions may become unavailable or harder to obtain without naturally spawning phantoms; the cat-gift route has not been verified here.
+- Shulker shells lose their normal survival purpose.
+- The elytra advancement becomes inaccessible through ordinary survival.
+- Some vanilla sleep/phantom game rules no longer affect the behaviors changed by Simple Block.
+
+These are **known side effects**, not permission to add replacement recipes or alter advancements.
+
+**Source:** These consequences were previously recorded in the retired central decisions ledger. This section does not authorize new recipes, advancements or drop changes.
