@@ -1,3 +1,8 @@
+---
+milestone: M02
+status: SHIPPED
+---
+
 # M02 — Geology, survival pressure and personal inventory (historical handoff)
 
 **Lifecycle: SHIPPED.** This restores a **compact owner decision and scope reference** because the original M02 handoff was removed after delivery. It does not reopen completed work or supersede code as shipped. The full implementation, measurements, final tuning and test evidence are in [MILESTONE_02_REPORT.md](archive/milestone-reports/MILESTONE_02_REPORT.md). Old [DECISIONS.md](archive/DECISIONS_PRE_RETIREMENT_2026-10-13.md) is archive-only.

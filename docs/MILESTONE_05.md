@@ -1,3 +1,8 @@
+---
+milestone: M05
+status: SHIPPED
+---
+
 # Simple Block — Milestone 05: Working Haulage and Cobblestone Engine
 
 **Status:** Owner-requested implementation handoff; **not implemented**. Read the [M04 historical report](archive/milestone-reports/MILESTONE_04_REPORT.md), [M05 brief](MILESTONE_05.md) and [current roadmap](ROADMAP.md) first. The former decisions ledger is archived.

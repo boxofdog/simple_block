@@ -1,3 +1,8 @@
+---
+milestone: M01
+status: SHIPPED
+---
+
 # Milestone 01 — Survival Foundation
 
 **Goal:** Implement a minimal, buildable, testable mod that removes four vanilla conveniences/distractions. Establish a reliable code/build/test workflow. **Do not implement** any future mechanics from the design register.

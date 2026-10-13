@@ -1,3 +1,8 @@
+---
+milestone: M06
+status: SHIPPED
+---
+
 # Simple Block — Milestone 06: Freight Handling, Coal-Powered Winch, Recipe Simplification and Creative Cleanup (AUTHORIZED)
 
 **OWNER STATUS UPDATE — 2026-10-12:** M05 is owner-accepted by explicit instruction (no separate personal playtest result asserted here). M06 is authorized and IN PROGRESS, not completed or owner-accepted. M07 is NOW EXPLICITLY AUTHORIZED for implementation under its existing brief; implement it against the real M06 interfaces as they become available, ideally after M06 code handoff and verification. Do not treat authorization as M06 completion, and do not mark M07 implemented or verified prematurely. M08–M10 remain unauthorized.

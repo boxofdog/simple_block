@@ -1,3 +1,8 @@
+---
+milestone: M07
+status: PLAYTESTING
+---
+
 # M07 — Vertical Ore Skip, Freight Transfer and Four-Gate Minecart
 
 **Status: PLAYTESTING (2026-10-13).** M07 is **implemented and handed to the owner for playtesting**, not owner-accepted or SHIPPED. The latest M07-relevant implementation is code `49d7add` (Build #23), followed by winch-lever adjustment `ded41b3` (Build #24). The dated [verification appendix](#implementation-and-verification--2026-10-13) below holds code SHAs, CI, test evidence and remaining gaps. **This consolidation is documentation-only and authorizes no new gameplay work.**

@@ -1,3 +1,8 @@
+---
+milestone: M10
+status: PLANNED - NOT READY
+---
+
 # M10 — Modular workwear, armor retirement and set effects
 
 **Status: PLANNED - NOT READY (2026-10-13).** Not implementation-authorized. This document relocates the exact workwear design from the former sprawling roadmap. The exact recipe grids and remaining implementation questions are specified **in this M10 package**, not in a separate decisions ledger. A future executable brief and test matrix will be required; do not begin M10 on the basis of this draft.

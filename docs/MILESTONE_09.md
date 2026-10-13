@@ -1,3 +1,8 @@
+---
+milestone: M09
+status: PLANNED - NOT READY
+---
+
 # M09 — Hostile mobs and defended settlements
 
 **Status: PLANNED - NOT READY (2026-10-13).** Not implementation-authorized. This is the milestone-specific home for the formerly inlined roadmap concept, **not** a finalized executable brief. Its behavior/rates and test matrix still require owner approval. M07 is playtesting; M08–M11 are not implementation-authorized.

@@ -1,3 +1,8 @@
+---
+milestone: M08
+status: PLANNED - NOT READY
+---
+
 # M08 — Standalone blast furnace + more forgiving heavy-load intake
 
 **Owner scoped:** 2026-10-13. **Status: PLANNED - NOT READY.** Not implementation-authorized. This is a design addendum / handoff note, not a claim that M08 has begun or that its remaining furnace design decisions are finished. M07 corrections remain separate. No gameplay code changed by this document.

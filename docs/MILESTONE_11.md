@@ -1,3 +1,8 @@
+---
+milestone: M11
+status: PLANNED - READY
+---
+
 # M11 — Type-aware minecart cargo fill states, hopper freight transfer and text cleanup
 
 **Owner-scoped 2026-10-13. Status: PLANNED - READY. NOT YET IMPLEMENTATION-AUTHORIZED.** A standalone **freight-cart rendering, progressive transfer and hopper integration** milestone, separate from the active M07 corrections and planned M08–M10. Number is for tracking and **does not require** completing M08–M10 first. Claude starts only upon specific owner authorization.

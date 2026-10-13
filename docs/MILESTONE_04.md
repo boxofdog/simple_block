@@ -1,3 +1,8 @@
+---
+milestone: M04
+status: SHIPPED
+---
+
 # Simple Block — Milestone 04: Cable Infrastructure
 
 **Source:** the owner's handoff in the Claude Code session of 2026-10-12, recorded here verbatim (headings added) so later sessions have it. Historical as-built implementation and tests are in `docs/archive/milestone-reports/MILESTONE_04_REPORT.md` (summary: the verification section at the end of this file). For future authorized patches, append a short dated implementation/verification note at the end of THIS milestone document; do not create a new report.

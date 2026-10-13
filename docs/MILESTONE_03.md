@@ -1,3 +1,8 @@
+---
+milestone: M03
+status: SHIPPED
+---
+
 # M03 — Vanilla minecart cargo and storage-bypass closure (historical handoff)
 
 **Lifecycle: SHIPPED.** The original M03 draft was superseded by the owner's decision to modify **vanilla minecarts**, not add a separate freight-cart entity. This concise decision baseline replaces the earlier central decision-ledger dependency; implementation and deviations are in [MILESTONE_03_REPORT.md](archive/milestone-reports/MILESTONE_03_REPORT.md).
