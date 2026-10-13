@@ -21,8 +21,8 @@ import io.github.boxofdog.simpleblock.feature.HeavyLoad;
 import io.github.boxofdog.simpleblock.feature.InventorySlots;
 
 /**
- * INV-01: insertions never choose the disabled row. INV-04: insertions take only the heavy items
- * that fit; what does not fit stays in the source stack (an item on the ground stays there) or, for
+ * INV-01: insertions never choose the disabled row. INV-04: insertions take only the commodities
+ * that fit (equipment always fits the allowance, M08); what does not fit stays in the source stack (an item on the ground stays there) or, for
  * items being handed back with nowhere else to go, is dropped at the player's feet.
  */
 @Mixin(Inventory.class)

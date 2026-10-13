@@ -13,14 +13,14 @@ import net.minecraft.world.item.ItemStack;
 
 import io.github.boxofdog.simpleblock.feature.HeavyLoad;
 
-/** INV-04: taking armor or an item off an armor stand puts it straight into the hand; respect the allowance. */
+/** INV-04: taking armor or an item off an armor stand puts it straight into the hand; a commodity (an ingot in its hand) must fit the allowance. */
 @Mixin(ArmorStand.class)
 abstract class ArmorStandMixin {
 	@Inject(method = "swapItem", at = @At("HEAD"), cancellable = true)
 	private void simpleBlock$refuseOverloadingTake(Player player, EquipmentSlot slot, ItemStack playerItemStack, InteractionHand hand,
 		CallbackInfoReturnable<Boolean> cir) {
 		ItemStack onStand = ((ArmorStand) (Object) this).getItemBySlot(slot);
-		if (playerItemStack.getCount() <= 1 && !HeavyLoad.canTakeIn(player, HeavyLoad.weight(onStand) - HeavyLoad.weight(playerItemStack))) {
+		if (playerItemStack.getCount() <= 1 && !HeavyLoad.canTakeIn(player, HeavyLoad.restrictedWeight(onStand) - HeavyLoad.restrictedWeight(playerItemStack))) {
 			cir.setReturnValue(false);
 		}
 	}

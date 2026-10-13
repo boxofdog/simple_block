@@ -193,11 +193,12 @@ public class HeavyLoadGameTests {
 		helper.assertValueEqual(offer(helper, player, new ItemStack(item("copper_block"))), 1, "copper block picked up at 55");
 		helper.assertValueEqual(HeavyLoad.carried(player), 64 * INGOT, "55 + 9 = exactly 64");
 		helper.assertValueEqual(offer(helper, player, new ItemStack(Items.COPPER_NUGGET)), 0, "one more nugget");
-		// Rails are 3/8 each: 8 rails = 3 ingots exactly, 61 + 8 rails = 64.
+		// Rails are 3/8 each: 16 rails = 6 ingots exactly. Since M08 they are equipment and all fit, taking 61 to 67.
 		inventory.clearContent();
 		inventory.setItem(18, new ItemStack(Items.IRON_INGOT, 61));
-		helper.assertValueEqual(offer(helper, player, new ItemStack(Items.RAIL, 16)), 8, "rails picked up at 61 (3 ingots of room)");
-		SimpleBlockTestLog.info("HVY-03/04: 63+block refused, 63+10 nuggets took 9, 55+block filled to exactly 64, 61+16 rails took 8; carried {}",
+		helper.assertValueEqual(offer(helper, player, new ItemStack(Items.RAIL, 16)), 16, "rails picked up at 61 (equipment always fits)");
+		helper.assertValueEqual(HeavyLoad.carried(player), 67 * INGOT, "61 + 16 rails = exactly 67");
+		SimpleBlockTestLog.info("HVY-03/04: 63+block refused, 63+10 nuggets took 9, 55+block filled to exactly 64, 61+16 rails took all 16; carried {}",
 			HeavyLoad.describe(HeavyLoad.carried(player)));
 		clearDrops(helper, player);
 		TestPlayers.remove(player);
@@ -295,7 +296,10 @@ public class HeavyLoadGameTests {
 		helper.succeed();
 	}
 
-	/** QA 7, 8: offhand and cursor count; worn armor does not, and can't be unequipped into overload. */
+	/**
+	 * QA 7, 8: offhand and cursor count; worn armor does not. Since M08 armor is equipment, so it can
+	 * be unequipped into the carried load even at the cap.
+	 */
 	@GameTest
 	public void offhandCursorCountWornArmorDoesNot(GameTestHelper helper) {
 		ServerPlayer player = survivor(helper);
@@ -308,14 +312,24 @@ public class HeavyLoadGameTests {
 		player.setItemSlot(EquipmentSlot.CHEST, new ItemStack(Items.IRON_CHESTPLATE));
 		helper.assertValueEqual(HeavyLoad.carried(player), 60 * INGOT, "worn chestplate is exempt");
 
-		// Shift-clicking the worn chestplate into the inventory would add 8: refused, it stays on.
-		player.inventoryMenu.clicked(6, 0, ContainerInput.QUICK_MOVE, player);
-		helper.assertTrue(player.getItemBySlot(EquipmentSlot.CHEST).is(Items.IRON_CHESTPLATE), "chestplate should stay worn");
-		// Right-click equipping a leather chestplate would put the iron one in the hand: refused.
+		// At 64 carried, right-click equipping a leather chestplate puts the iron one (8) in the hand: allowed since M08.
+		inventory.setItem(18, new ItemStack(Items.IRON_INGOT, 64));
 		player.setItemInHand(InteractionHand.MAIN_HAND, new ItemStack(Items.LEATHER_CHESTPLATE));
-		player.getItemInHand(InteractionHand.MAIN_HAND).use(player.level(), player, InteractionHand.MAIN_HAND);
-		helper.assertTrue(player.getItemBySlot(EquipmentSlot.CHEST).is(Items.IRON_CHESTPLATE), "equip swap should be refused");
-		helper.assertTrue(player.getMainHandItem().is(Items.LEATHER_CHESTPLATE), "leather chestplate stays in hand");
+		// The game applies the hand change from the use result, as ServerPlayerGameMode does.
+		if (player.getItemInHand(InteractionHand.MAIN_HAND).use(player.level(), player, InteractionHand.MAIN_HAND)
+			instanceof net.minecraft.world.InteractionResult.Success success && success.itemContext().heldItemTransformedTo() != null) {
+			player.setItemInHand(InteractionHand.MAIN_HAND, success.itemContext().heldItemTransformedTo());
+		}
+		helper.assertTrue(player.getItemBySlot(EquipmentSlot.CHEST).is(Items.LEATHER_CHESTPLATE), "equip swap allowed at the cap");
+		helper.assertTrue(player.getMainHandItem().is(Items.IRON_CHESTPLATE), "iron chestplate now carried in the hand");
+		helper.assertValueEqual(HeavyLoad.carried(player), 72 * INGOT, "64 ingots + carried iron chestplate");
+		// Shift-clicking a worn iron chestplate into the inventory over the cap is allowed too.
+		player.setItemInHand(InteractionHand.MAIN_HAND, ItemStack.EMPTY);
+		player.setItemSlot(EquipmentSlot.CHEST, new ItemStack(Items.IRON_CHESTPLATE));
+		player.inventoryMenu.clicked(6, 0, ContainerInput.QUICK_MOVE, player);
+		helper.assertTrue(player.getItemBySlot(EquipmentSlot.CHEST).isEmpty(), "chestplate unequipped at the cap");
+		helper.assertValueEqual(inventory.countItem(Items.IRON_CHESTPLATE), 1, "chestplate in the inventory");
+		inventory.clearContent();
 
 		// The cursor counts too: 54 in the inventory + 10 on the cursor is full.
 		SimpleContainer chest = new SimpleContainer(27);
@@ -329,7 +343,7 @@ public class HeavyLoadGameTests {
 		helper.assertValueEqual(chest.getItem(1).getCount(), 5, "shift-click refused while the cursor holds the rest of the allowance");
 		menu.clicked(0, 0, ContainerInput.PICKUP, player);
 		player.closeContainer();
-		SimpleBlockTestLog.info("HVY-06: offhand and cursor counted; worn chestplate exempt, but shift-click unequip and equip-swap into overload refused");
+		SimpleBlockTestLog.info("HVY-06: offhand and cursor counted; worn chestplate exempt; M08: shift-click unequip and equip-swap allowed at the cap");
 		TestPlayers.remove(player);
 		helper.succeed();
 	}

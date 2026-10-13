@@ -34,8 +34,10 @@ import io.github.boxofdog.simpleblock.network.SortInventoryPayload;
  * <p>The load bar has no text. Its length is the 64-ingot allowance, and it fills with one colour
  * per material (iron, copper, gold, diamond, netherite, in that order), so it shows both how full
  * the player is and what the weight is made of. Any material that is carried gets at least one
- * pixel, so even a nugget shows. The frame turns red at the cap. Hovering over the bar shows the
- * numbers: the total out of 64 and what each material contributes, carried equipment included.
+ * pixel, so even a nugget shows. The frame turns red at the cap. Carried equipment can take the
+ * load past 64 (M08): the bar then rescales to the whole load and a white tick marks where 64 is.
+ * Hovering over the bar shows the numbers: the total out of 64 and what each material contributes,
+ * carried equipment included, and at the cap that only commodities are refused.
  */
 public final class InventoryScreenAddons {
 	private static final int PANEL = 0xFFC6C6C6;
@@ -57,6 +59,7 @@ public final class InventoryScreenAddons {
 	private static final int BUTTON_HEIGHT = BAR_HEIGHT + 2;
 	private static final int ICON = 0xFFD8D8D8;
 	private static final int HIGHLIGHT = 0xFFFFFFFF;
+	private static final int CAP_TICK = 0xFFFFFFFF;
 
 	private InventoryScreenAddons() {
 	}
@@ -157,12 +160,24 @@ public final class InventoryScreenAddons {
 				left += width;
 			}
 		}
+		int tick = capTick(load);
+		if (tick >= 0) {
+			graphics.fill(bar[0] + 1 + tick, top - 1, bar[0] + 2 + tick, top + BAR_HEIGHT + 1, CAP_TICK);
+		}
+	}
+
+	/** Pixel offset of the 64-ingot mark inside the bar when the load is over the cap, else -1. */
+	static int capTick(long load) {
+		if (load <= HeavyLoad.CAPACITY) {
+			return -1;
+		}
+		return (int) Math.min(BAR_WIDTH - 1, Math.round((double) BAR_WIDTH * HeavyLoad.CAPACITY / load));
 	}
 
 	/**
 	 * Pixel width of each material's segment (indexed by ordinal): its share of the 64-ingot
-	 * allowance, at least one pixel if any is carried, and never more than the bar in total (a
-	 * creative overload kept in survival just fills the bar).
+	 * allowance, at least one pixel if any is carried, and never more than the bar in total (over
+	 * the cap the bar rescales to the whole load).
 	 */
 	private static volatile List<Component> shownTooltip;
 
@@ -212,6 +227,9 @@ public final class InventoryScreenAddons {
 					Component.translatable("simple_block.inventory.load." + ORDER[i].key()), ingots(amount, RoundingMode.HALF_UP))
 					.withColor(0xFFAAAAAA)));
 			}
+		}
+		if (total >= HeavyLoad.CAPACITY) {
+			lines.add(Component.translatable("simple_block.inventory.load.full").withColor(0xFFAAAAAA));
 		}
 		return lines;
 	}

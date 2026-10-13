@@ -96,8 +96,8 @@ public final class HeavyTransfers {
 	}
 
 	/**
-	 * Weight that taking one crafting result removes from the carried load: the ingredients it
-	 * consumes from the player's own 2x2 grid, less the remainders left behind (e.g. a bucket).
+	 * Commodity weight that taking one crafting result removes from the carried load: the
+	 * ingredients it consumes from the player's own 2x2 grid, less the remainders left behind.
 	 */
 	public static int consumedCarriedWeight(Player player, Slot resultSlot) {
 		// Only the result slot of the player's own inventory menu crafts from the carried 2x2 grid.
@@ -109,19 +109,33 @@ public final class HeavyTransfers {
 		for (int i = 0; i < grid.getContainerSize(); i++) {
 			ItemStack ingredient = grid.getItem(i);
 			if (!ingredient.isEmpty()) {
-				consumed += HeavyLoad.unitWeight(ingredient);
+				consumed += HeavyLoad.restrictedUnitWeight(ingredient.copyWithCount(1));
 				ItemStackTemplate remainder = ingredient.getItem().getCraftingRemainder();
 				if (remainder != null) {
-					consumed -= HeavyLoad.weight(remainder.create());
+					consumed -= HeavyLoad.restrictedWeight(remainder.create());
 				}
 			}
 		}
 		return consumed;
 	}
 
-	/** Weight a click would add by taking {@code stack} out of {@code slot}. */
+	/** Commodity weight a click would add by taking {@code stack} out of {@code slot}. */
 	public static int intakeFrom(Player player, Slot slot, ItemStack stack) {
-		return HeavyLoad.weight(stack) - consumedCarriedWeight(player, slot);
+		return HeavyLoad.restrictedWeight(stack) - consumedCarriedWeight(player, slot);
+	}
+
+	/**
+	 * Whether a click that moved the load from {@code before} to {@code after} (commodities from
+	 * {@code commoditiesBefore} to {@code commoditiesAfter}) broke the cap: it took in commodities
+	 * that did not fit. Equipment the same click took in does not count against them, so taking a
+	 * rail never makes an ingot fail; equipment it gave up does make room.
+	 */
+	public static boolean brokeCap(int before, int commoditiesBefore, int after, int commoditiesAfter) {
+		if (commoditiesAfter <= commoditiesBefore) {
+			return false;
+		}
+		int equipmentAdded = (after - commoditiesAfter) - (before - commoditiesBefore);
+		return after - Math.max(0, equipmentAdded) > HeavyLoad.CAPACITY;
 	}
 
 	/** Copies of everything a click can change, to put back if the click broke the cap. */

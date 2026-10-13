@@ -16,7 +16,9 @@ import com.google.gson.JsonParser;
 
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.Identifier;
+import net.minecraft.tags.TagKey;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.CraftingContainer;
@@ -43,6 +45,12 @@ import io.github.boxofdog.simpleblock.SimpleBlock;
  * limited, and their excess is kept, not deleted, when they switch to survival: they just cannot
  * take in more heavy items until they are back under the cap.
  *
+ * <p>M08: weight and admission are separate. Everything weighted counts toward the load, but only
+ * {@linkplain #COMMODITIES commodities} (ore, raw metal, ingots, nuggets, diamonds and metal
+ * blocks) are refused once the load reaches the cap. Tools, rails, buckets, lanterns, minecarts and
+ * other equipment can always be taken, raising the load past 64 and leaving less room for
+ * commodities, never more.
+ *
  * <p>Enforcement (all on the server) is in {@code mixin/inventory}: {@code Inventory.add} and
  * {@code placeItemBackInInventory} (pickups, commands, returning items when a screen closes),
  * shift-click transfers, cursor pickups, armor swaps, armor stands, and a safety net around every
@@ -52,6 +60,8 @@ public final class HeavyLoad {
 	public static final int UNITS_PER_INGOT = 216;
 	public static final int CAPACITY_INGOTS = 64;
 	public static final int CAPACITY = CAPACITY_INGOTS * UNITS_PER_INGOT;
+	/** M08: the weighted items whose intake the cap limits; everything else weighted is equipment, counted but always admitted. */
+	public static final TagKey<Item> COMMODITIES = TagKey.create(Registries.ITEM, Identifier.fromNamespaceAndPath(SimpleBlock.MOD_ID, "heavy_commodities"));
 
 	/** What carried weight is made of; the client's load bar shows one colour per material. */
 	public enum Material {
@@ -193,6 +203,38 @@ public final class HeavyLoad {
 		return unitWeight(stack) > 0;
 	}
 
+	public static boolean isCommodity(ItemStack stack) {
+		return stack.is(COMMODITIES);
+	}
+
+	/**
+	 * The part of one item's weight that the cap restricts: all of it for a commodity, none for
+	 * equipment, plus the commodities a bundle holds.
+	 */
+	public static int restrictedUnitWeight(ItemStack stack) {
+		if (stack.isEmpty()) {
+			return 0;
+		}
+		load();
+		int weight = isCommodity(stack) ? WEIGHTS.getOrDefault(stack.getItem(), 0) : 0;
+		BundleContents contents = stack.get(DataComponents.BUNDLE_CONTENTS);
+		if (contents != null) {
+			for (ItemStack inside : (Iterable<ItemStack>) contents.itemCopies()::iterator) {
+				weight += restrictedWeight(inside);
+			}
+		}
+		return weight;
+	}
+
+	public static int restrictedWeight(ItemStack stack) {
+		return stack.isEmpty() ? 0 : restrictedUnitWeight(stack) * stack.getCount();
+	}
+
+	/** Whether taking this stack in is limited by the cap at all. */
+	public static boolean isRestricted(ItemStack stack) {
+		return restrictedUnitWeight(stack) > 0;
+	}
+
 	/** Creative and spectator players carry anything (QA). */
 	public static boolean bypasses(Player player) {
 		return player.isCreative() || player.isSpectator();
@@ -203,6 +245,15 @@ public final class HeavyLoad {
 		long total = 0;
 		for (ItemStack stack : carriedStacks(player)) {
 			total += weight(stack);
+		}
+		return (int) Math.min(Integer.MAX_VALUE, total);
+	}
+
+	/** The commodity part of {@link #carried}. */
+	public static int carriedCommodities(Player player) {
+		long total = 0;
+		for (ItemStack stack : carriedStacks(player)) {
+			total += restrictedWeight(stack);
 		}
 		return (int) Math.min(Integer.MAX_VALUE, total);
 	}
@@ -241,14 +292,16 @@ public final class HeavyLoad {
 	}
 
 	/**
-	 * How many items of {@code stack} the player may take in now. Exempt transfers (moving
-	 * something that is already carried) and players who bypass the limit get the whole stack.
+	 * How many items of {@code stack} the player may take in now. Equipment always fits (its weight
+	 * still counts); commodities fit only into the room the whole load leaves under the cap. Exempt
+	 * transfers (moving something that is already carried) and players who bypass the limit get the
+	 * whole stack.
 	 */
 	public static int allowedCount(Player player, ItemStack stack) {
 		if (stack.isEmpty() || isExempt() || bypasses(player)) {
 			return stack.getCount();
 		}
-		int unit = unitWeight(stack);
+		int unit = restrictedUnitWeight(stack);
 		if (unit == 0) {
 			return stack.getCount();
 		}
@@ -256,9 +309,12 @@ public final class HeavyLoad {
 		return room <= 0 ? 0 : Math.min(stack.getCount(), room / unit);
 	}
 
-	/** Whether taking in {@code addedWeight} more is allowed (always, if it does not add weight). */
-	public static boolean canTakeIn(Player player, int addedWeight) {
-		return addedWeight <= 0 || isExempt() || bypasses(player) || addedWeight <= remaining(player);
+	/**
+	 * Whether taking in {@code addedCommodities} more commodity weight is allowed (always, if it
+	 * adds none). Pass {@link #restrictedWeight}, not the full weight: equipment is never refused.
+	 */
+	public static boolean canTakeIn(Player player, int addedCommodities) {
+		return addedCommodities <= 0 || isExempt() || bypasses(player) || addedCommodities <= remaining(player);
 	}
 
 	/** Runs {@code action} as a transfer of items that are already carried (no limit applies). */

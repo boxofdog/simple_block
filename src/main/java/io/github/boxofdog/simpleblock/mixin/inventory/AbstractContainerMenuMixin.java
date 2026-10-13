@@ -26,7 +26,8 @@ import io.github.boxofdog.simpleblock.feature.HeavyTransfers;
 
 /**
  * Container-menu side of INV-03 (shift-clicks fill empty hotbar slots from the left) and INV-04
- * (heavy items move only as far as the carrying allowance reaches). Runs on both sides, so the
+ * (commodities move only as far as the carrying allowance reaches; since M08 equipment always moves,
+ * adding its weight). Runs on both sides, so the
  * client's prediction matches what the server does.
  */
 @Mixin(AbstractContainerMenu.class)
@@ -47,14 +48,14 @@ abstract class AbstractContainerMenuMixin {
 	}
 
 	/**
-	 * INV-04 for shift-click transfers into the player's inventory: only as many heavy items as fit
+	 * INV-04 for shift-click transfers into the player's inventory: only as many commodities as fit
 	 * move; the rest stays in the source slot. Crafting and other results move whole or not at all.
 	 * Moving items the player already carries (inventory, offhand, own crafting grid) is free.
 	 */
 	@WrapMethod(method = "moveItemStackTo")
 	private boolean simpleBlock$moveOnlyWhatFits(ItemStack stack, int start, int end, boolean backwards, Operation<Boolean> original) {
 		Player player = HeavyTransfers.inventoryOwner(this.slots, start, end);
-		if (player == null || HeavyLoad.bypasses(player) || !HeavyLoad.isHeavy(stack)) {
+		if (player == null || HeavyLoad.bypasses(player) || !HeavyLoad.isRestricted(stack)) {
 			return original.call(stack, start, end, backwards);
 		}
 		Slot source = HeavyTransfers.quickMoveSource();
@@ -110,13 +111,13 @@ abstract class AbstractContainerMenuMixin {
 		return list.get(first + 8 - slot.getContainerSlot());
 	}
 
-	/** INV-04: picking a stack up onto the cursor takes only the heavy items that fit. */
+	/** INV-04: picking a stack up onto the cursor takes only the commodities that fit. */
 	@WrapOperation(method = "doClick", at = @At(value = "INVOKE",
 		target = "Lnet/minecraft/world/inventory/Slot;tryRemove(IILnet/minecraft/world/entity/player/Player;)Ljava/util/Optional;"))
 	private Optional<ItemStack> simpleBlock$pickUpOnlyWhatFits(Slot slot, int amount, int maxAmount, Player player,
 		Operation<Optional<ItemStack>> original) {
 		ItemStack inSlot = slot.getItem();
-		if (HeavyLoad.bypasses(player) || !HeavyLoad.isHeavy(inSlot) || HeavyTransfers.isCarriedSlot(player, slot)) {
+		if (HeavyLoad.bypasses(player) || !HeavyLoad.isRestricted(inSlot) || HeavyTransfers.isCarriedSlot(player, slot)) {
 			return original.call(slot, amount, maxAmount, player);
 		}
 		if (HeavyTransfers.isResultSlot(slot)) {
@@ -133,9 +134,9 @@ abstract class AbstractContainerMenuMixin {
 
 	/**
 	 * INV-04 safety net for every other click (number-key swaps, double-click collecting, swapping
-	 * the cursor with a slot, bundles, ...): if a click leaves the player over the allowance and
-	 * heavier than before, the whole click is undone. Nothing is lost or duplicated, because the
-	 * exact pre-click contents are restored.
+	 * the cursor with a slot, bundles, ...): if a click takes in commodities that do not fit under
+	 * the allowance, the whole click is undone (see {@link HeavyTransfers#brokeCap}). Equipment never
+	 * triggers it. Nothing is lost or duplicated, because the exact pre-click contents are restored.
 	 */
 	@WrapMethod(method = "clicked")
 	private void simpleBlock$undoClicksOverTheCap(int slotIndex, int buttonNum, ContainerInput input, Player player, Operation<Void> original) {
@@ -144,10 +145,11 @@ abstract class AbstractContainerMenuMixin {
 			return;
 		}
 		int before = HeavyLoad.carried(player);
+		int commoditiesBefore = HeavyLoad.carriedCommodities(player);
 		HeavyTransfers.Snapshot snapshot = new HeavyTransfers.Snapshot((AbstractContainerMenu) (Object) this, player);
 		original.call(slotIndex, buttonNum, input, player);
 		int after = HeavyLoad.carried(player);
-		if (after > HeavyLoad.CAPACITY && after > before) {
+		if (HeavyTransfers.brokeCap(before, commoditiesBefore, after, HeavyLoad.carriedCommodities(player))) {
 			snapshot.restore();
 			SimpleBlock.LOGGER.debug("Undid {} click on slot {}: heavy load would go from {} to {} (cap {})", input, slotIndex, before, after,
 				HeavyLoad.CAPACITY);

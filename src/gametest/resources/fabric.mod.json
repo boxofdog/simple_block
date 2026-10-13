@@ -20,6 +20,7 @@
 			"io.github.boxofdog.simpleblock.gametest.WorldgenGameTests",
 			"io.github.boxofdog.simpleblock.gametest.InventoryGameTests",
 			"io.github.boxofdog.simpleblock.gametest.HeavyLoadGameTests",
+			"io.github.boxofdog.simpleblock.gametest.CommodityCapGameTests",
 			"io.github.boxofdog.simpleblock.gametest.MobGameTests",
 			"io.github.boxofdog.simpleblock.gametest.FoodGameTests",
 			"io.github.boxofdog.simpleblock.gametest.MinecartCargoGameTests",
