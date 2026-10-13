@@ -10,7 +10,7 @@ Complete the physical **mine → vertical skip → freight railway** link: an up
 
 **M07 delivers:** skip craftable item/entity and editable model, collidable hoisted body/bridle, hanging-cable connection, working manual and furnace-powered vertical motion, single-slot 512-item inventory screen, height-based loading and unloading at the M06 track, safe stopping/doors/transfer and tested save-load/multiplayer behavior.
 
-**Explicit exclusions:** M08 industrial smelter and its blast-furnace retirement, M10 workwear/armor, steelmaking, new conveyors/refineries, generalized auto-shuttle/automatic return travel, counterweights, pendulum/swing physics, mandatory shaft guides or timber-lined guide rails, custom extreme-slope rails, new freight-cart item types, and unrelated cargo-fill rendering overhaul. Do not re-implement M06 Loading Track, manual winch or powered drum as competing machinery; extend their existing interfaces only as needed. **M06's Creative cleanup, long-cable chunk behavior and acceptance status are not rewritten by this brief.**
+**Explicit exclusions:** M08 industrial blast furnace and its blast-furnace retirement, M10 workwear/armor, steelmaking, new conveyors/refineries, generalized auto-shuttle/automatic return travel, counterweights, pendulum/swing physics, mandatory shaft guides or timber-lined guide rails, custom extreme-slope rails, new freight-cart item types, and unrelated cargo-fill rendering overhaul. Do not re-implement M06 Loading Track, manual winch or powered drum as competing machinery; extend their existing interfaces only as needed. **M06's Creative cleanup, long-cable chunk behavior and acceptance status are not rewritten by this brief.**
 
 ## 1. Skip physical form, collision and visual clearance
 
