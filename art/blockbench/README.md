@@ -1,4 +1,4 @@
-# Blockbench sources (Milestone 04 cable models, Milestone 05 haulage and engine models)
+# Blockbench sources (Milestone 04 cable models, Milestone 05 haulage and engine models, Milestone 06 winch and station models)
 
 These are the editable sources of the cable and engine models. Open them in Blockbench (Java Block/Item format).
 The textures are **UV templates, not artwork**: every cube's faces are flat colour blocks, shaded by
@@ -10,6 +10,9 @@ lands on which face. Paint over them.
 | `cable_anchor.bbmodel`, `cable_anchor_guide`, `cable_anchor_wheel_front`, `cable_anchor_wheel_back` | `models/block/cable_anchor*.json`: the anchor (block and item); M05: with a return guide (anchors along a loop); with the return wheel (the loop's last anchor; front and back are mirror images, so the wheel is always beyond the roller) | `textures/block/cable_anchor.png` (64 x 64) |
 | `cable_drum.bbmodel`, `cable_drum_frame`, `cable_drum_spool`, `cable_drum_spool_wound`, `cable_drum_crank` | M05: `models/block/cable_drum_frame.json` is the placed block (the frame only); the spool (bare or wound) and the crank are drawn turning by the drum's renderer; `cable_drum.json` is all three together, for the item | `textures/block/cable_drum.png` (128 x 128) |
 | `cobblestone_engine.bbmodel` | M05: `models/block/cobblestone_engine.json`, drawn in place of the furnace minecart | `textures/block/cobblestone_engine.png` (128 x 128) |
+| `cable_drum_furnace`, `cable_drum_lever` | M06: the coal winch's furnace (on the drum's free side, west of a north-facing drum) and its lever (where the crank was), drawn by the drum's renderer in place of the crank | `textures/block/cable_winch.png` (32 x 32) |
+| `loading_track.bbmodel` | M06: `models/block/loading_track.json`, the Loading Track (block and item): rails on sleepers and the station post with its pointer arm | `textures/block/loading_track.png` (64 x 64) |
+| `freight_gate_closed`, `freight_gate_open` | M06: the freight cart's folding front gate, drawn by the cart renderer on the cart's front end wall; M06 draws only the closed one, the open one (folded down as a ramp) is for M07 | `textures/block/freight_gate.png` (64 x 64) |
 | `cable_hook.bbmodel` | `models/block/cable_hook.json` (drawn at the cable's loose end) | `textures/block/cable_hook.png` (16 x 16) |
 | `connecting_rod_base`, `_shaft`, `_head_open`, `_head_closed`, `copper_connecting_rod` | `models/block/connecting_rod_*.json` (drawn on a minecart), `models/item/copper_connecting_rod.json` (the item) | `textures/block/connecting_rod.png` (32 x 32) |
 | `cable.bbmodel` | `models/item/cable.json` | `textures/item/cable.png` (16 x 16) |
@@ -53,6 +56,15 @@ listed above (each project remembers its export path). Keep these in mind:
     roller (`CableLoops.WHEEL_OFFSET`);
   - M05, the engine: its wheels stand on y 0, the rail, and its length runs along x (the direction
     the cart travels), 22 pixels from x -3 to 19 (`CobblestoneEngineRenderer`).
+  - M06, the coal winch: the lever turns about the drum's axle (y 9.5, z 8), 35 degrees back for
+    PULL and forward for FEED (`CableDrumRenderer.LEVER_TILT`); a use on the lever counts where it
+    counted on the crank. The furnace is not turned.
+  - M06, the Loading Track faces north (a docked cart's front points north); the post stands on the
+    left (west), x 0 to 3, z 6.5 to 9.5, up to y 16: that is also the block's outline for clicking
+    (`LoadingTrackBlock`).
+  - M06, the freight gate: x 0 is the outside of the cart's end wall, y 0 the underside of the cart
+    floor, z 0 to 16 across the cart (`CargoMinecartRenderer.GATE_*`). Closed it stands up over the
+    wall; open it lies flat outwards.
 - **Orientation:** the anchor and the drum are modelled facing north. The anchor's cable runs
   north-south with the hanger arm on the west; the drum pays out to the north. The game turns them
   by the block's facing. The rod's stem is on the east side of the cable, the side away from the

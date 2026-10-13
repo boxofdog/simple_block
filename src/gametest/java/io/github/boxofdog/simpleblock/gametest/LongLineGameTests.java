@@ -164,7 +164,13 @@ public class LongLineGameTests {
 				CableGameTests.teleport(helper, player, new BlockPos(3, 1, -6));
 			}))
 			.thenIdle(40)
-			.thenWaitUntil(() -> helper.assertTrue(ticking(helper, new BlockPos(8, 1, Z)) && ticking(helper, new BlockPos(28, 1, Z)), "section loading"))
+			.thenWaitUntil(() -> {
+				// Forcing again is harmless and keeps the section loaded should anything else release its chunks.
+				loadSection(helper, true);
+				helper.assertTrue(ticking(helper, new BlockPos(8, 1, Z)) && ticking(helper, new BlockPos(28, 1, Z)), "section loading: x 8 "
+				+ level.isLoaded(helper.absolutePos(new BlockPos(8, 1, Z))) + "/" + ticking(helper, new BlockPos(8, 1, Z)) + ", x 28 "
+				+ level.isLoaded(helper.absolutePos(new BlockPos(28, 1, Z))) + "/" + ticking(helper, new BlockPos(28, 1, Z)));
+			})
 			.thenExecute(CableGameTests.step(failed, () -> {
 				helper.assertFalse(ticking(helper, DRUM), "the drum's chunk should not be entity-ticking with the player 200 blocks away");
 				helper.assertFalse(ticking(helper, anchors.getLast()), "the far end should not be entity-ticking");

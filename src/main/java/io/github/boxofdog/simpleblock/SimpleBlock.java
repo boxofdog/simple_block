@@ -96,6 +96,21 @@ import io.github.boxofdog.simpleblock.worldgen.IronWorldgen;
  *   <li>iron-chain couplings — {@code train/Couplings}, {@code mixin/train/AbstractMinecartMixin}, client
  *       {@code CouplingChains}; rail mass and grade — {@code train/TrainPhysics}</li>
  * </ul>
+ *
+ * <p>Milestone 06, freight station, coal winch and clean-up:
+ * <ul>
+ *   <li>cable recipes in the middle column and one coil for any length — {@code cable/CenterColumnRecipes},
+ *       {@code mixin/cable}, {@code cable/CableRoutes}; long lines kept with the level and driven where
+ *       they are loaded — {@code cable/CableLines}, {@code cable/CableDrive}, {@code cable/CableIndex}</li>
+ *   <li>the coal winch (a furnace on a drum, a three-position lever) — {@code cable/CoalWinch},
+ *       {@code cable/CableDrive}, client {@code CableDrumRenderer}</li>
+ *   <li>the Loading Track (docking, holding the train, release, the cart's front and gate) —
+ *       {@code train/LoadingTrackBlock}, {@code train/LoadingTracks}, {@code mixin/train/AbstractMinecartMixin},
+ *       client {@code CargoMinecartRenderer}</li>
+ *   <li>retired redstone rails and no retired items in the creative menu — {@link RetiredItems}, recipe and
+ *       advancement overrides</li>
+ *   <li>no shoving carts that carry no passenger — {@code feature/CartPushing}, {@code mixin/pushing}</li>
+ * </ul>
  */
 public class SimpleBlock implements ModInitializer {
 	public static final String MOD_ID = "simple_block";

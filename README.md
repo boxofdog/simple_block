@@ -53,7 +53,7 @@ Each feature is self-contained. To revert one, remove its mixin entries from `sr
 
 ## What Milestone 04 adds
 
-See [`docs/MILESTONE_04.md`](docs/MILESTONE_04.md) and, for the choices made where the brief left room, [`docs/DECISIONS.md`](docs/DECISIONS.md). In M04 nothing moves: M05 (below) makes the cable haul carts.
+See [`docs/MILESTONE_04.md`](docs/MILESTONE_04.md) and, for the choices made where the brief left room, [`docs/DECISIONS.md`](docs/DECISIONS.md). In M04 nothing moves: M05 (below) makes the cable haul carts. M06 (below) changes how much cable a drum holds and the cable recipes; the rows here describe M04 as built.
 
 | Component | What it does | Where |
 |---|---|---|
@@ -76,6 +76,21 @@ See [`docs/MILESTONE_05.md`](docs/MILESTONE_05.md), and section 5.0 of [`docs/DE
 | Cobblestone Engine | Use a furnace on an empty minecart: it becomes a Cobblestone Engine. Coal or charcoal fuels it; with an empty hand, use it to start it away from you or to stop it. A player sitting in a cushioned cart coupled to it drives: forward powers it towards where you look along the track, back brakes. It pushes and pulls its train both ways; weight and climbs slow it, and a sustained climb stalls a train. Breaking it gives back the minecart and the furnace. The furnace-minecart recipe is gone. | `train/CobblestoneEngine`, `mixin/train/MinecartFurnaceMixin`, `mixin/train/VehicleEntityMixin`, recipe/advancement overrides, client `train/CobblestoneEngineRenderer` |
 | Couplings | Use an iron chain on a cart, then on the next (within 3 blocks): they are coupled. Shears take a coupling off and give the chain back; a broken cart drops its chains. | `train/Couplings`, `mixin/train/AbstractMinecartMixin`, client `train/CouplingChains` |
 | Models | New editable sources: anchor return guide and wheel, the drum's frame, spool and crank, the engine. The drum's side ghosting (BUG-001) is fixed in the model generator. | `art/blockbench/`, `tools/models/generate_models.py` |
+
+## What Milestone 06 adds
+
+See [`docs/MILESTONE_06.md`](docs/MILESTONE_06.md) and [`docs/MILESTONE_06_REPORT.md`](docs/MILESTONE_06_REPORT.md). M01–M05 work as before except where this table says otherwise.
+
+| Component | What it does | Where |
+|---|---|---|
+| Cable recipes and length | Shaped, middle column only: three iron nuggets make 2 cable; three cable make a coil; a coil goes back into 3 cable. One coil on a drum lays any length of route (spans still at most 12 blocks); closing a loop costs nothing more; taking it down gives back exactly the one coil. | `data/simple_block/recipe/cable*.json`, `cable/CenterColumnRecipes` and `mixin/cable/*` (the middle column), `cable/CableRoutes`, `simple_block/heavy_weights.json` |
+| Long lines | Every installed line is kept with the level, not in its drum, and driven every tick: a cart hauled where it is loaded moves even when the drum or the far anchors are not. A train stops (and a coal winch's lever goes to NEUTRAL) at the edge of the entity-ticking world; nothing loads chunks or moves unloaded carts. An anchor broken while its drum is unloaded cuts the line at once. | `cable/CableLines`, `cable/CableDrive`, `cable/CableIndex`, `cable/CableAnchorBlockEntity` |
+| Coal winch | Use a furnace on a drum: it mounts on the drum's free side and the crank becomes a lever (cable and route kept). Right-click the lever: NEUTRAL, PULL (leans back, hauls towards the drum), FEED (leans forward), NEUTRAL; it stays where set and the winch runs without you. Use coal on the drum to put one in (regular coal only); an empty hand on the drum tells you the coal, the burn time left and the lever. Faster than the crank; coal burns only while the load moves. Docking, the end of the line or track, a derailment, a blocked cart, the edge of the loaded world or running out of coal put the lever back to NEUTRAL. Partly burnt coal is kept exactly; a loaded world never resumes hauling. Breaking the drum gives back the furnace and the coal. | `cable/CoalWinch`, `cable/CableDrive`, `cable/CableDrumBlock`, `winch.*` in `tuning/Tuning`, client `cable/CableDrumRenderer` |
+| Loading Track | One rail + one cable anchor, shapeless. A straight rail with a station post on its left; it faces the way you face when placing it. A freight cart (a plain minecart without a cushion) rolling onto it docks in the middle with its front (its folding gate) the track's way, and its whole train is held: an engine in it is switched off, a hauling winch goes to NEUTRAL. Use the track (its post) with an empty hand to release; nothing starts by itself, and the released cars pass over it once before it catches them again. The gate stays closed: opening it onto a skip is M07. | `train/LoadingTrackBlock`, `train/LoadingTracks`, `train/Couplings`, `mixin/train/AbstractMinecartMixin`, client `CargoMinecartRenderer` |
+| Redstone rails retired | Powered, detector and activator rails can't be crafted and no longer come in mineshaft chests (no structure places them). Placed ones still work; ordinary rails are unchanged. | `feature/RetiredItems`, recipe/advancement overrides |
+| Creative menu | No retired item shows in a creative tab or the creative search: elytra, shulker boxes, the granite/diorite/andesite/tuff families, ender chest, chest minecart, furnace minecart, the three redstone rails. They stay registered. | `feature/RetiredItems` |
+| No shoving | Walking into a minecart that can't carry a passenger (freight carts, engines, other vanilla carts) doesn't move it; cushioned carts are pushed as before. Engines, cables, couplings and slopes move carts as before. | `feature/CartPushing`, `mixin/pushing/*` |
+| Models | New editable sources: the drum's furnace and lever, the Loading Track, the freight gate (closed and open). | `art/blockbench/`, `tools/models/generate_models.py` |
 
 ## Toolchain
 

@@ -37,7 +37,9 @@
 		"fabric-client-gametest": [
 			"io.github.boxofdog.simpleblock.gametest.client.SurvivalSmokeClientTest",
 			"io.github.boxofdog.simpleblock.gametest.client.CableClientTest",
-			"io.github.boxofdog.simpleblock.gametest.client.HaulageClientTest"
+			"io.github.boxofdog.simpleblock.gametest.client.HaulageClientTest",
+			"io.github.boxofdog.simpleblock.gametest.client.FreightStationClientTest",
+			"io.github.boxofdog.simpleblock.gametest.client.DedicatedServerClientTest"
 		]
 	},
 	"depends": {

@@ -106,7 +106,8 @@ public class TrainGameTests {
 	}
 
 	static List<MinecartFurnace> engines(GameTestHelper helper) {
-		return helper.getLevel().getEntitiesOfClass(MinecartFurnace.class, new AABB(helper.absolutePos(BlockPos.ZERO)).inflate(40.0));
+		// This test's structure only: tests in the same batch stand side by side, and others have engines too.
+		return helper.getLevel().getEntitiesOfClass(MinecartFurnace.class, helper.getBounds());
 	}
 
 	// ---- Making and breaking an engine ----
