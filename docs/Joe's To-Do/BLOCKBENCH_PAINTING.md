@@ -18,6 +18,8 @@ All asset paths below are inside src/main/resources/assets/simple_block/, with e
 - [ ] **Loading Rail** — textures/block/loading_track.png (64x64); loading_track*.bbmodel; hinged stop up/down.
 - [ ] **Cable item** — textures/item/cable.png (16x16); cable.bbmodel.
 - [ ] **Cable coil item** — textures/item/cable_coil.png (16x16); cable_coil.bbmodel.
+- [ ] **M08 Pre-Industrial Blast Furnace** — one shared atlas, textures/block/pre_industrial_blast_furnace.png; pre_industrial_blast_furnace.bbmodel (brick body, stone footing and string course, iron front: posts, cornice, bands, two firebox doors with grilles, tap housing), _fire (glowing grilles and tap), _crown (brick crown, stone coping), _hopper (iron charging funnel, back middle of the top), _channel and _channel_pour (iron trough on a trestle, running metal), _mold and _mold_molten (iron flask with corner clamps, molten fill). The cast block in the mold already uses vanilla's iron/copper/gold block textures. The template is already coloured by material; paint brick courses, iron plate and rivets, and glow over it. Check unlit, lit, pouring and with a cast block, from the front and from above.
+- [ ] **M08 Block of Charcoal** — textures/block/charcoal_block.png (64x64); charcoal_block.bbmodel. Should read as charcoal next to vanilla's Block of Coal.
 
 ## Touch-up only — already visually excellent
 

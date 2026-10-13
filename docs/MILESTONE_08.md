@@ -1,11 +1,11 @@
 ---
 milestone: M08
-status: IMPLEMENTING
+status: PLAYTESTING
 ---
 
 # M08 — Standalone blast furnace + more forgiving heavy-load intake
 
-**Owner-scoped and handoff-ready:** 2026-10-13. The exact Bricks-block furnace recipe and its horizontal mirror are now settled below, completing the M08 design handoff. **Implementation authorized by the owner on 2026-10-13** ("M08 is ready for you to begin work"); status IMPLEMENTING. The "not authorized" gates below are kept as the handoff's history. M07 corrections remain separate; no gameplay code changed by this document.
+**Owner-scoped and handoff-ready:** 2026-10-13. The exact Bricks-block furnace recipe and its horizontal mirror are now settled below, completing the M08 design handoff. **Implementation authorized by the owner on 2026-10-13** ("M08 is ready for you to begin work"); implemented and handed off for owner playtesting (status PLAYTESTING; see the verification section at the end). The "not authorized" gates below are kept as the handoff's history. M07 corrections remain separate; no gameplay code changed by this document.
 
 M08 contains **two scoped jobs** when eventually authorized:
 
@@ -104,3 +104,40 @@ Full historical design context is archived in [ROADMAP_PRE_CONSOLIDATION_2026-10
 **OWNER AMENDMENT (2026-10-13):** Alongside the existing blast furnace, **M08 changes M02's heavy-load admission rule, NOT its weight accounting**. Lanterns, rails, buckets, minecarts, tools and other mining equipment still contribute their existing recipe-derived material weight. But **equipment can be picked up/crafted/transferred irrespective of reaching/exceeding 64 ingot-equivalents**, if ordinary inventory room exists. **Only taking in additional ingots, resource/storage blocks and ore is capacity-gated** by the remaining allowance, including the weight of all that equipment. This is not a new separate materials allowance: 20 weighted equipment units leave 44 for restricted raw materials; 64 ingots + a rail remains in inventory but prevents taking further ore. No automatic item dropping or global suppression of carry weights. Nuggets, loose diamonds, mined raw ore pieces and Silk Touch ore blocks are cap-restricted commodities; audit remaining material conversions to prevent category bypasses. Preserve a truthful inventory load display above the cap and server-side checks across pickups/crafting/containers/bundles.
 
 **M10 COMPATIBILITY:** Mining Boots/Mule, **introduced in M10 rather than M08**, let the wearer carry **more of the cap-restricted ingots/blocks/ore** in exchange for **progressively slower walking** as weighted overload increases; equipment still counts toward burden. Full-set Old Pro keeps Mule's overload benefit without stacking it twice. M08 supplies a compatible classification/eligibility rule but **does not preemptively add the boots, recipe or movement modifier**. No change to freight carts/skips or M08's furnace design. [Detailed M08 design note and future test matrix](MILESTONE_08.md).
+
+## Implementation and verification — 2026-10-13
+
+**Metadata:** M08 | PLAYTESTING | Commodity-only carrying cap; pre-industrial blast furnace with cart and skip intake; charcoal block; vanilla blast furnace retired.
+
+**Implementation**
+- Commits: `ab06d1ab592006fbaa988c4435373a3c2376cfb8` commodity-only cap; `0851cf63f17cf52db3b9cde7b4dcec095284cae8` furnace, charcoal block, retirement, freight; `e68fd414de69cbedaad2ea4039641c5882fe8221` sketch remodel; `ee291ea18a225082fe8578ba6866bb82f4205f98` owner's iron-front redesign
+- Delivered: equipment always admitted but still weighted; ore, ingots, nuggets, diamonds and metal blocks capped; bar shows >64. Furnace: 516 single-metal reservoir, coal/charcoal/kelp-block fuel, 64-block mold, nine raw to one block; docked carts and hung skips tip into its hopper with safe refusal; raw ore smelts 2x slower in furnaces; new villages build furnaces.
+- Deviations: Owner redesign: hopper only in the back-middle top block; channel and whole-block mold stand outside the 3x3 (38 blocks; item used where the mold goes). Trail ruins also lose blast furnaces. Cut/chiseled copper counted as commodities.
+
+**CI**
+- Build: #36 | Run ID: 38471351760 | PASS
+- Source SHA: `ee291ea18a225082fe8578ba6866bb82f4205f98`
+- URL: https://github.com/boxofdog/simple_block/actions/runs/38471351760
+- Artifact: `simple-block-mod` id 11851219363, available. Build #36 log: all 170 required server tests passed.
+
+**Tests**
+
+| Category | Result | Passed/Total | Evidence / Notes |
+|---|---|---|---|
+| Server | PASS | 170/170 | local and Build #36 on `ee291ea`; [log](evidence/milestone-08/server-test-log.txt) |
+| Client | PASS | 10/10 | full suite on `ee291ea`; [log](evidence/milestone-08/client-test-log.txt), [screenshots](evidence/milestone-08/screenshots/) |
+| Dedicated server | PASS | 1/1 | furnace placed, lit, poured, screen opened over a dedicated connection |
+| Negative controls | PASS | 13/13 | [cap 8](evidence/milestone-08/negative-control-commodity-cap.txt), [furnace 5](evidence/milestone-08/negative-control-furnace.txt) |
+
+**Known gaps**
+- GAP-01: MINOR — `pursuing_zombie_breaks_oak_door` flakes (Build #33, twice locally), `long_line_works_where_it_is_loaded` once; next: stabilize timing.
+- GAP-02: MINOR — rates provisional (cast 300 ticks, coal/charcoal block 3600, kelp block 900, furnace raw ore x2); next: playtest.
+- GAP-03: MINOR — textures are material-coloured UV templates; next: Joe paints.
+- GAP-04: MINOR — Mining Boots/Mule overload is M10; no test here.
+
+**Owner playtest**
+- Carry 64 ingots, then pick up rails, buckets and a pickaxe; confirm more ore is refused.
+- Place the furnace; check the iron front, back-middle hopper, channel and mold.
+- Tip a cart from a rail behind the hopper; try a copper cart into iron.
+- Hoist a skip beside the hopper and empty it.
+- Fuel it, watch metal run and the mold show the cast block.

@@ -1,0 +1,7 @@
+Full client suite on ee291ea18a225082fe8578ba6866bb82f4205f98 (xvfb, Vulkan fallback): BUILD SUCCESSFUL, 10/10 client test classes passed.
+
+CLIENT M08 FURNACE (m08-furnace): use-key placement made 38 structure blocks on the server, 38 seen by the client, controller Block{simple_block:pre_industrial_blast_furnace}[facing=north,lit=false,pouring=false]; lit true, pouring true, 1 blocks cast at cast_ticks 40; the mold then shows iron
+CLIENT M08 SCREEN (m08-furnace): a use-key press opened the furnace screen showing 300 / 516 raw iron
+CLIENT M08 LOAD BAR: 64 iron ingots + an anvil: client 95 / 64 / server 95 / 64; tooltip [Heavy load: 95 / 64, ■ Iron: 95, No room for more ore, ingots or metal blocks; tools and supplies still fit]
+CLIENT M08 FURNACE (m08-server-furnace): use-key placement made 38 structure blocks on the server, 38 seen by the client, controller Block{simple_block:pre_industrial_blast_furnace}[facing=north,lit=false,pouring=false]; lit true, pouring true, 1 blocks cast at cast_ticks 40; the mold then shows iron
+CLIENT M08 SCREEN (m08-server-furnace): a use-key press opened the furnace screen showing 300 / 516 raw iron

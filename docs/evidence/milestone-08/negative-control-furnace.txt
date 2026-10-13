@@ -1,0 +1,9 @@
+M08 furnace negative control on ee291ea18a225082fe8578ba6866bb82f4205f98 (final design), 2026-10-13: VillageFurnaces.appliesTo returned false, the raw-ore cook multiplier mixin returned vanilla time, BlastFurnaceFreight.tick returned at once, SkipStations.furnaceStation returned null, and the reservoir's one-metal check was removed, all at once; ./gradlew build then reported the 5 expected failures (the zombie-door failure is the known unrelated flake):
+
+simple_block-gametest:blast_furnace_game_tests_reservoir_takes516of_one_raw_metal failed: Expected no copper while iron is in to be 0: was 506 on tick 0
+simple_block-gametest:blast_furnace_game_tests_new_villages_build_furnaces_not_blast_furnaces failed: village/desert/houses/desert_armorer_1: furnace facing west expected at BlockPos{x=-9796222, y=67, z=-9697622}, found Block{minecraft:blast_furnace}[facing=west,lit=false] on tick 0
+simple_block-gametest:blast_furnace_game_tests_ordinary_furnace_smelts_raw_ore_slowly failed: raw iron not smelted after 399 ticks on tick 0
+simple_block-gametest:blast_furnace_game_tests_skip_empties_its_chute_into_the_hopper failed: furnace station: null on tick 2
+simple_block-gametest:blast_furnace_game_tests_carts_tip_into_the_hopper failed: side gate open towards the hopper on tick 8
+simple_block-gametest:mob_game_tests_pursuing_zombie_breaks_oak_door failed: waiting for the oak_door to be broken on tick 6902
+6 required tests failed :(
