@@ -147,3 +147,25 @@ Every push to `main` is built and tested by GitHub Actions (`.github/workflows/b
 - **Client smoke test** (`client/SurvivalSmokeClientTest.java`) drives the real game in a fresh survival world with simulated input: bed at midnight, shulker box, walking/jumping/falling, elytra jump.
 
 Each test was also run once against a build with the restrictions removed, to show the tests detect vanilla behaviour. Results are in [`docs/evidence/milestone-01/`](docs/evidence/milestone-01/).
+
+<!-- GENERATED SOURCE INVENTORY START -->
+## Generated Java source inventory
+
+Counts reflect source files only, not proof of implemented or tested behavior.
+
+| Source set | First-level package | Java files |
+|---|---|---:|
+| client | client | 18 |
+| gametest | gametest | 39 |
+| main | (root) | 1 |
+| main | cable | 17 |
+| main | feature | 20 |
+| main | mixin | 38 |
+| main | network | 3 |
+| main | skip | 7 |
+| main | train | 6 |
+| main | tuning | 1 |
+| main | worldgen | 7 |
+
+Regenerate using tools/docs/automation.py readme --write
+<!-- GENERATED SOURCE INVENTORY END -->
