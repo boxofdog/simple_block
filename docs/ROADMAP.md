@@ -2,7 +2,7 @@
 
 **Purpose:** A compact **milestone status and priority index**. This is **not** a specification, implementation handoff, historical conversation log, or bug tracker. For functional requirements, open the milestone brief; for shipped M01–M07 code/CI evidence, open their historical reports. For future work, the implementation/verification summary goes at the END of its milestone document; settled requirements live there too. See the [project vision](VISION.md).
 
-**Current lifecycle vocabulary:** [STATUS_KEY.md](STATUS_KEY.md) defines the **only five milestone states**. M04–M06 were expressly signed off by the owner and are now labeled **SHIPPED** (formerly PASSED). M07 remains **PLAYTESTING**, with owner signoff outstanding. No new human tests are implied by this terminology change.
+**Current lifecycle vocabulary:** [RULES.md](RULES.md) defines the **only five milestone states**. M04–M06 were expressly signed off by the owner and are now labeled **SHIPPED** (formerly PASSED). M07 remains **PLAYTESTING**, with owner signoff outstanding. No new human tests are implied by this terminology change.
 
 ## Milestone status
 
@@ -20,7 +20,7 @@
 | M10 | Modular headlamp/overalls/boots, workwear bonuses, armor retirement | **PLANNED - NOT READY** | [M10 package](MILESTONE_10.md) | Not implemented |
 | M11 | Material-/shape-specific cart fills, progressive hopper transfer, cart text removal | **PLANNED - READY** | [M11 package](MILESTONE_11.md) | Not implemented |
 
-**Post-M10 and unnumbered plans:** ordinary 3D rails, Spelunker's Rope, revised villages, extreme-grade railway behavior, the Witch's Tome/discovered enchanting, and separate iron/diamond/netherite armor set bonuses live in [FUTURE_WORK.md](FUTURE_WORK.md) and the [backlog](BACKLOG.md). They are not an authorization or an extension of M08–M11.
+**Post-M10 and unnumbered plans:** ordinary 3D rails, Spelunker's Rope, revised villages, extreme-grade railway behavior, the Witch's Tome/discovered enchanting, and separate iron/diamond/netherite armor set bonuses live in [BACKLOG.md](BACKLOG.md). They are not an authorization or an extension of M08–M11.
 
 ## Current handoff and next decisions
 
@@ -34,27 +34,6 @@
 
 **M09–M11:** packages are indexed above. M09–M10 still require design work; M11's implementation handoff is ready, but **none has been authorized to start**. Mining Boots/Mule/Old Pro remain **M10**, not M08; the heavy-freight fill rendering and hopper mechanics remain **M11**, not M07.
 
-## Where documentation belongs
-
-| Question | Canonical document |
-|---|---|
-| What is next? What is shipped? | **This roadmap**, exact five-state status plus next decision only |
-| What do the five states mean? | [STATUS_KEY.md](STATUS_KEY.md), the canonical cross-LLM lifecycle key |
-| What exactly must Claude build? | **[MILESTONE_XX.md](MILESTONE_08.md)** or scoped corrective patch, owner-authorized before coding |
-| Where do implementation commits, CI, tests and gaps go? | A **concise dated section at the end of the same `MILESTONE_XX.md`** for all new work. M01–M07 existing reports remain historical records. |
-| Where do design decisions live? | The appropriate [milestone handoff](MILESTONE_08.md), or [DESIGN_REGISTER.md](DESIGN_REGISTER.md) for unnumbered ideas. [Retired decision archive](archive/DECISIONS_PRE_RETIREMENT_2026-10-13.md) is historical only. |
-| What bug was seen, reproduced and fixed? | [BUG_LOG.md](BUG_LOG.md) (not an automatic task authorization) |
-| What's an idea without a milestone? | [FUTURE_WORK.md](FUTURE_WORK.md) and [BACKLOG.md](BACKLOG.md) |
-| What does Joe need to paint? | [Joe's To-Do](Joe's%20To-Do/README.md) |
-| Which messages/labels need cleanup? | [UX_TEXT_LOG.md](UX_TEXT_LOG.md) |
-| How do I install a test build? | [PLAYTESTING_SETUP.md](PLAYTESTING_SETUP.md) |
-
-## Rules for future handoffs
-
-**CLAUDE: DO NOT CREATE NEW STANDALONE MILESTONE REPORT FILES.** Following an explicitly owner-authorized implementation, **append a concise, dated `## Implementation and verification — YYYY-MM-DD` section at the very end of that milestone's existing `MILESTONE_XX.md`**. Include only what was implemented, code commit SHA(s), the exact GitHub CI build and published `simple-block-mod` artifact, PASS/FAIL/NOT RUN server/client tests, negative controls where relevant, material deviations, remaining issues and the owner's next playtest. Link fuller logs/screenshots under `docs/evidence/` instead of producing a second lengthy document. Corrective patches also report at the end of the **main milestone file**, with a link to any patch brief. **Do not paste this report into the roadmap.**
-
-Existing `MILESTONE_01_REPORT.md` through `MILESTONE_07_REPORT.md` are **retained as historical evidence**, not templates for future work. No new `MILESTONE_XX_REPORT.md` files. After writing the dated milestone appendix, update only the milestone's single roadmap status/links using an exact [status-key label](STATUS_KEY.md). Claude must not claim independent ChatGPT verification or owner acceptance. **PLANNED - READY is not implementation authorization; only the owner authorizes starting and marks SHIPPED.**
-
-**Working principles:** addition by subtraction; useful permanent infrastructure rather than chores; preserve editable art and original material; no unauthorized scope expansion.
+Documentation and handoff conventions (including the five canonical statuses): [RULES.md](RULES.md).
 
 **Provenance:** [Retired decisions ledger](archive/DECISIONS_PRE_RETIREMENT_2026-10-13.md) and [archived pre-consolidation roadmap (2026-10-13)](archive/ROADMAP_PRE_CONSOLIDATION_2026-10-13.md) preserves every original line, including older and now-superseded handoff instructions and acceptance snapshots. It is **not** authoritative for current status or implementation.

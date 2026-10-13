@@ -16,7 +16,7 @@
 
 ## Related milestone boundary
 
-M08 makes weighted mining supplies obtainable even above 64 ingot-equivalents, but only metal/raw-resource intake remains capped; **M10** adds Mining Boots, their **Mule** over-limit carrying/slowdown effect, and full-outfit **Old Pro**. Do not move this equipment implementation into M08 without explicit owner approval. The separate iron/diamond/netherite combat armor bonuses remain **post-M10 only**, in [FUTURE_WORK.md](FUTURE_WORK.md), not M10.
+M08 makes weighted mining supplies obtainable even above 64 ingot-equivalents, but only metal/raw-resource intake remains capped; **M10** adds Mining Boots, their **Mule** over-limit carrying/slowdown effect, and full-outfit **Old Pro**. Do not move this equipment implementation into M08 without explicit owner approval. The separate iron/diamond/netherite combat armor bonuses remain **post-M10 only**, in [BACKLOG.md](BACKLOG.md), not M10.
 
 ---
 

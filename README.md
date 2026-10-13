@@ -2,7 +2,7 @@
 
 A stripped-down Minecraft Java Edition overhaul built around hostile nights, territory, mining and physical transport infrastructure. See [`docs/VISION.md`](docs/VISION.md) for the design and [`CLAUDE.md`](CLAUDE.md) for the working rules.
 
-**Milestone status (2026-10-13): M01–M06 SHIPPED; M07 PLAYTESTING; M08–M10 PLANNED - NOT READY; M11 PLANNED - READY.** Current status and milestone handoff links: [`docs/ROADMAP.md`](docs/ROADMAP.md). Canonical cross-LLM terminology: [`docs/STATUS_KEY.md`](docs/STATUS_KEY.md). **PLANNED - READY is not implementation authorization.**
+**Milestone status (2026-10-13): M01–M06 SHIPPED; M07 PLAYTESTING; M08–M10 PLANNED - NOT READY; M11 PLANNED - READY.** Current status and milestone handoff links: [`docs/ROADMAP.md`](docs/ROADMAP.md). Canonical cross-LLM terminology: [`docs/RULES.md`](docs/STATUS_KEY.md). **PLANNED - READY is not implementation authorization.**
 
 **Fresh worlds only.** The mod is not meant to be added to existing saves.
 
