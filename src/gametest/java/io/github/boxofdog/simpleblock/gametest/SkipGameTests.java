@@ -148,13 +148,37 @@ public class SkipGameTests {
 	}
 
 	/** A right-click on the coal winch's lever. */
+	/**
+	 * The lever's next setting in the old M06 cycle, NEUTRAL, PULL, FEED, NEUTRAL, made with the owner's
+	 * clicks (2026-10-13): from NEUTRAL a right-click (PULL); from PULL a left-click (FEED); from FEED a
+	 * left-click again (NEUTRAL).
+	 */
 	private static void lever(GameTestHelper helper, ServerPlayer player) {
+		if (line(helper).lever() == CableLines.Lever.NEUTRAL) {
+			pullClick(helper, player);
+		} else {
+			feedClick(helper, player);
+		}
+	}
+
+	/** A right-click on the coal winch's lever: PULL, or NEUTRAL if it was at PULL. */
+	private static void pullClick(GameTestHelper helper, ServerPlayer player) {
 		BlockPos pos = helper.absolutePos(DRUM);
 		BlockState state = helper.getLevel().getBlockState(pos);
 		Direction side = CableDrumBlock.crankSide(state);
 		Vec3 hit = Vec3.atLowerCornerOf(pos).add(0.5 + side.getStepX() * 0.55, 9.5 / 16.0, 0.5 + side.getStepZ() * 0.55);
 		player.setItemInHand(InteractionHand.MAIN_HAND, ItemStack.EMPTY);
 		player.gameMode.useItemOn(player, helper.getLevel(), ItemStack.EMPTY, InteractionHand.MAIN_HAND, new BlockHitResult(hit, side, pos, false));
+	}
+
+	/** A left-click on the coal winch's lever (as the client sends it): FEED, or NEUTRAL if it was at FEED. */
+	private static void feedClick(GameTestHelper helper, ServerPlayer player) {
+		BlockPos pos = helper.absolutePos(DRUM);
+		BlockState state = helper.getLevel().getBlockState(pos);
+		Direction side = CableDrumBlock.crankSide(state);
+		Vec3 hit = Vec3.atLowerCornerOf(pos).add(0.5 + side.getStepX() * 0.55, 9.5 / 16.0, 0.5 + side.getStepZ() * 0.55);
+		player.setItemInHand(InteractionHand.MAIN_HAND, ItemStack.EMPTY);
+		CoalWinchGameTests.leftClickLever(helper.getLevel(), pos, player);
 	}
 
 	/** Fits a furnace and {@code coal} coal. */
@@ -165,10 +189,15 @@ public class SkipGameTests {
 		}
 	}
 
-	/** Sets the lever to {@code lever} by clicking it (at most three clicks). */
+	/** Sets the lever to {@code lever} with the owner's clicks: right for PULL, left for FEED, the same click again for NEUTRAL. */
 	private static void setLever(GameTestHelper helper, ServerPlayer player, CableLines.Lever lever) {
-		for (int i = 0; i < 3 && line(helper).lever() != lever; i++) {
-			lever(helper, player);
+		CableLines.Lever now = line(helper).lever();
+		if (now != lever) {
+			if (lever == CableLines.Lever.PULL || lever == CableLines.Lever.NEUTRAL && now == CableLines.Lever.PULL) {
+				pullClick(helper, player);
+			} else {
+				feedClick(helper, player);
+			}
 		}
 		helper.assertValueEqual(line(helper).lever(), lever, "lever");
 	}
@@ -466,8 +495,8 @@ public class SkipGameTests {
 				player.interactOn(skip, InteractionHand.MAIN_HAND, skip.position());
 				player.setShiftKeyDown(false);
 				helper.assertTrue(skip.drum() != null, "not taken off the cable while it hangs");
-				lever(helper, player);
-				helper.assertValueEqual(line(helper).lever(), CableLines.Lever.FEED, "after the stop at the top, the next click skips PULL");
+				feedClick(helper, player);
+				helper.assertValueEqual(line(helper).lever(), CableLines.Lever.FEED, "after the stop at the top, a left-click");
 				// A block in a side cell half way down.
 				helper.setBlock(new BlockPos(13, 3, 5), Blocks.STONE);
 			}))
@@ -480,7 +509,7 @@ public class SkipGameTests {
 				helper.assertTrue(now < burn[0], "coal burnt while it moved: " + burn[0] + " -> " + now);
 				log.add("FEED: stopped by a block in a side cell, bottom at " + String.format("%.3f", y) + " (" + line(helper).lastStop() + "); coal burnt "
 					+ (burn[0] - now) + " ticks");
-				// The block taken away: FEED stays skipped (BUG-002) until the load moves; PULL it up a little first.
+				// The block taken away: PULL it up a little, then FEED again.
 				helper.setBlock(new BlockPos(13, 3, 5), Blocks.AIR);
 				lever(helper, player);
 				helper.assertValueEqual(line(helper).lever(), CableLines.Lever.PULL, "after the stop going down, the next click");
@@ -534,18 +563,17 @@ public class SkipGameTests {
 				helper.assertTrue(y(helper, skip) > 2.0, "lifted: " + y(helper, skip));
 				// Stopped (PULL, FEED, NEUTRAL); then a short PULL of 3 ticks clicked straight to FEED: the drive runs down
 				// through zero (where a float speed can be left a few billionths off zero) and the skip keeps going.
-				lever(helper, player);
-				lever(helper, player);
+				setLever(helper, player, CableLines.Lever.NEUTRAL);
 				helper.assertValueEqual(line(helper).lever(), CableLines.Lever.NEUTRAL, "stopped");
 			}))
 			.thenExecuteAfter(2, CableGameTests.step(failed, () -> {
 				mark[0] = y(helper, skip);
-				lever(helper, player);
+				pullClick(helper, player);
 				helper.assertValueEqual(line(helper).lever(), CableLines.Lever.PULL, "PULL again");
 			}))
 			.thenExecuteAfter(3, CableGameTests.step(failed, () -> {
-				lever(helper, player);
-				helper.assertValueEqual(line(helper).lever(), CableLines.Lever.FEED, "PULL, clicked: FEED");
+				feedClick(helper, player);
+				helper.assertValueEqual(line(helper).lever(), CableLines.Lever.FEED, "PULL, left-clicked: FEED");
 			}))
 			.thenExecuteAfter(20, CableGameTests.step(failed, () -> {
 				helper.assertValueEqual(line(helper).lever(), CableLines.Lever.FEED, "the lever after reversing through zero (" + line(helper).lastStop()

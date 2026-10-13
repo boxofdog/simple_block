@@ -53,13 +53,54 @@ public class CoalWinchGameTests {
 	}
 
 	/** A right-click on the drum's lever (where the crank was), with an empty hand. */
+	/**
+	 * The lever's next setting in the old M06 cycle, NEUTRAL, PULL, FEED, NEUTRAL, made with the owner's
+	 * clicks (2026-10-13): from NEUTRAL a right-click (PULL); from PULL a left-click (FEED); from FEED a
+	 * left-click again (NEUTRAL).
+	 */
 	static void lever(GameTestHelper helper, ServerPlayer player) {
+		if (line(helper).lever() == CableLines.Lever.NEUTRAL) {
+			pullClick(helper, player);
+		} else {
+			feedClick(helper, player);
+		}
+	}
+
+	/** A right-click on the coal winch's lever: PULL, or NEUTRAL if it was at PULL. */
+	static void pullClick(GameTestHelper helper, ServerPlayer player) {
 		BlockPos pos = helper.absolutePos(DRUM);
 		BlockState state = helper.getLevel().getBlockState(pos);
 		Direction side = CableDrumBlock.crankSide(state);
 		Vec3 hit = Vec3.atLowerCornerOf(pos).add(0.5 + side.getStepX() * 0.55, 9.5 / 16.0, 0.5 + side.getStepZ() * 0.55);
 		player.setItemInHand(InteractionHand.MAIN_HAND, ItemStack.EMPTY);
 		player.gameMode.useItemOn(player, helper.getLevel(), ItemStack.EMPTY, InteractionHand.MAIN_HAND, new BlockHitResult(hit, side, pos, false));
+	}
+
+	/**
+	 * What a left-click on a coal winch's lever does once the server has checked it (CableDrive.feed:
+	 * the player in reach, the hit on the lever): CoalWinch.setLever(FEED). Called directly so that tests
+	 * can set the lever from wherever their player stands, as their right-clicks can; the reach check is
+	 * covered by the real-client tests.
+	 */
+	static void leftClickLever(net.minecraft.server.level.ServerLevel level, BlockPos pos, ServerPlayer player) {
+		try {
+			var set = Class.forName("io.github.boxofdog.simpleblock.cable.CoalWinch").getDeclaredMethod("setLever", net.minecraft.world.level.Level.class,
+				BlockPos.class, net.minecraft.world.entity.player.Player.class, CableLines.Lever.class);
+			set.setAccessible(true);
+			set.invoke(null, level, pos, player, CableLines.Lever.FEED);
+		} catch (ReflectiveOperationException e) {
+			throw new IllegalStateException(e);
+		}
+	}
+
+	/** A left-click on the coal winch's lever: FEED, or NEUTRAL if it was at FEED. */
+	static void feedClick(GameTestHelper helper, ServerPlayer player) {
+		BlockPos pos = helper.absolutePos(DRUM);
+		BlockState state = helper.getLevel().getBlockState(pos);
+		Direction side = CableDrumBlock.crankSide(state);
+		Vec3 hit = Vec3.atLowerCornerOf(pos).add(0.5 + side.getStepX() * 0.55, 9.5 / 16.0, 0.5 + side.getStepZ() * 0.55);
+		player.setItemInHand(InteractionHand.MAIN_HAND, ItemStack.EMPTY);
+		CoalWinchGameTests.leftClickLever(helper.getLevel(), pos, player);
 	}
 
 	/** A right-click on the drum's body (its top) with {@code held}. */
@@ -475,10 +516,10 @@ public class CoalWinchGameTests {
 	}
 
 	/**
-	 * WIN-06 (BUG-002): PULL brings the cart to the drum's end of the line, where it stops and the lever
-	 * drops back to NEUTRAL; the next click goes straight to FEED (not PULL again, which could never
-	 * move it) and FEED takes the cart away. Once it has moved, the cycle is NEUTRAL, PULL, FEED as usual. At the far end, FEED is
-	 * stopped the same way and the next click gives PULL, which brings it back.
+	 * WIN-06 (BUG-002, owner's clicks 2026-10-13): PULL brings the cart to the drum's end of the line, where
+	 * it stops and the lever drops back to NEUTRAL; a left-click sets FEED, which takes the cart away. The
+	 * clicks then work as always (the same click again: NEUTRAL; the other: straight over). At the far
+	 * end, FEED is stopped the same way and a right-click gives PULL, which brings it back.
 	 */
 	@GameTest(structure = YARD, maxTicks = 1200)
 	public void blockedEndLetsTheLeverChooseTheWayOut(GameTestHelper helper) {
@@ -506,22 +547,29 @@ public class CoalWinchGameTests {
 				helper.assertValueEqual(line(helper).lastStop(), "end", "why it stopped");
 				// The owner's case: the cart now stands at the drum's end, where PULL can't move it.
 				marks[0] = CableLoopGameTests.x(helper, cart[0]);
-				lever(helper, player);
-				helper.assertValueEqual(line(helper).lever(), CableLines.Lever.FEED, "the next click skips the blocked PULL");
-				log.add(String.format("PULL to the drum's end: stopped at x %.2f (end); next click: FEED", marks[0]));
+				feedClick(helper, player);
+				helper.assertValueEqual(line(helper).lever(), CableLines.Lever.FEED, "a left-click sets FEED");
+				log.add(String.format("PULL to the drum's end: stopped at x %.2f (end); left-click: FEED", marks[0]));
 			}))
 			.thenIdle(60)
 			.thenExecute(CableGameTests.step(failed, () -> {
 				marks[1] = CableLoopGameTests.x(helper, cart[0]);
 				helper.assertTrue(marks[1] - marks[0] > 3.0, "FEED takes the cart away from the drum's end: x " + marks[0] + " -> " + marks[1]);
 				helper.assertValueEqual(line(helper).blockedSign(), 0, "moving clears the blocked way");
-				// Repeated clicks now cycle as usual: FEED -> NEUTRAL -> PULL -> FEED.
+				// The owner's clicks: left again -> NEUTRAL, right -> PULL, left -> FEED (straight over), right -> PULL, right -> NEUTRAL.
 				List<CableLines.Lever> cycle = new ArrayList<>();
-				for (int i = 0; i < 3; i++) {
-					lever(helper, player);
-					cycle.add(line(helper).lever());
-				}
-				helper.assertValueEqual(cycle, List.of(CableLines.Lever.NEUTRAL, CableLines.Lever.PULL, CableLines.Lever.FEED), "cycle after moving");
+				feedClick(helper, player);
+				cycle.add(line(helper).lever());
+				pullClick(helper, player);
+				cycle.add(line(helper).lever());
+				feedClick(helper, player);
+				cycle.add(line(helper).lever());
+				pullClick(helper, player);
+				cycle.add(line(helper).lever());
+				pullClick(helper, player);
+				cycle.add(line(helper).lever());
+				helper.assertValueEqual(cycle, List.of(CableLines.Lever.NEUTRAL, CableLines.Lever.PULL, CableLines.Lever.FEED, CableLines.Lever.PULL,
+					CableLines.Lever.NEUTRAL), "clicks after moving");
 				log.add(String.format("FEED 60 ticks: x %.2f -> %.2f; then clicks %s", marks[0], marks[1], cycle));
 			}))
 			.thenWaitUntil(() -> helper.assertValueEqual(line(helper).lever(), CableLines.Lever.NEUTRAL, "FEED to the far end stops"))

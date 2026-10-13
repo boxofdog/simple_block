@@ -99,7 +99,12 @@ public class LongLineGameTests {
 
 	/** One click on the drum's lever (where the crank was): the crank helper's right-click. */
 	private static void lever(GameTestHelper helper, ServerPlayer player) {
-		CableLoopGameTests.crank(helper, player, DRUM, true);
+		// The old cycle with the owner's clicks: from NEUTRAL a right-click (PULL), otherwise a left-click (FEED, then NEUTRAL).
+		if (line(helper).lever() == CableLines.Lever.NEUTRAL) {
+			CableLoopGameTests.crank(helper, player, DRUM, true);
+		} else {
+			CoalWinchGameTests.leftClickLever(helper.getLevel(), helper.absolutePos(DRUM), player);
+		}
 	}
 
 	/**

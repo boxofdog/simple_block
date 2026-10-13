@@ -225,17 +225,22 @@ public class FreightStationClientTest implements FabricClientGameTest {
 		context.waitTicks(5);
 		lookAtPoint(context, new Vec3(20.5, g + 9.5 / 16.0, Z + 0.5 + 0.55));
 		context.takeScreenshot("m06-winch-lever-neutral");
-		// Three clicks in a row, a couple of ticks apart: NEUTRAL, PULL, FEED (straight reversal), NEUTRAL.
+		// The owner's clicks (2026-10-13), a couple of ticks apart: right-click PULL, left-click FEED (straight
+		// reversal), left-click again NEUTRAL.
 		List<String> cycle = new ArrayList<>();
 		for (String shot : List.of("m06-winch-lever-pull", "m06-winch-lever-feed", "m06-winch-lever-neutral-again")) {
-			context.getInput().pressKey(options -> options.keyUse);
+			if (shot.endsWith("pull")) {
+				context.getInput().pressKey(options -> options.keyUse);
+			} else {
+				context.getInput().pressKey(options -> options.keyAttack);
+			}
 			context.waitTicks(2);
 			CableLines.Lever server1 = server.computeOnServer(s -> CableLines.line(s.overworld(), drumPos).lever());
 			CableLines.Lever client1 = context.computeOnClient(client -> ((CableDrumBlockEntity) client.level.getBlockEntity(drumPos)).lever());
 			context.takeScreenshot(shot);
 			cycle.add(server1 + "/" + client1);
 		}
-		SimpleBlockTestLog.info("CLIENT WINCH: lever right-clicks (server/client): {}", cycle);
+		SimpleBlockTestLog.info("CLIENT WINCH: lever right-click, left-click, left-click (server/client): {}", cycle);
 		assertTrue(cycle.equals(List.of("PULL/PULL", "FEED/FEED", "NEUTRAL/NEUTRAL")), "lever cycle: " + cycle);
 	}
 
@@ -254,16 +259,14 @@ public class FreightStationClientTest implements FabricClientGameTest {
 		assertTrue(track.contains("simple_block:loading_track") && track.contains("facing=east"), "placed: " + track);
 		server.runCommand("clear @a");
 
-		// Two clicks: PULL, then straight on to FEED: the cart is hauled east onto the track.
+		// A left-click: FEED, the cart is hauled east onto the track.
 		server.runCommand("tp @a 20.5 " + g + " " + (Z + 2.5) + " 180 30");
 		context.waitTicks(5);
 		lookAtPoint(context, new Vec3(20.5, g + 9.5 / 16.0, Z + 0.5 + 0.55));
-		context.getInput().pressKey(options -> options.keyUse);
-		context.waitTicks(2);
-		context.getInput().pressKey(options -> options.keyUse);
+		context.getInput().pressKey(options -> options.keyAttack);
 		context.waitTicks(2);
 		CableLines.Lever second = server.computeOnServer(s -> CableLines.line(s.overworld(), drumPos).lever());
-		assertTrue(second == CableLines.Lever.FEED, "two clicks: FEED, was " + second);
+		assertTrue(second == CableLines.Lever.FEED, "left-click: FEED, was " + second);
 		int waited = 0;
 		while (waited < 600 && !server.computeOnServer(s -> cartOn(s.overworld(), g, Z) instanceof Minecart cart && Couplings.coupled(cart).simpleBlock$dock() != null)) {
 			context.waitTicks(10);
@@ -328,7 +331,7 @@ public class FreightStationClientTest implements FabricClientGameTest {
 		assertTrue(free && folded && clientFolded && Math.abs(still - x) < 0.01, "release by the stop: free " + free + ", folded " + folded + ", x " + x
 			+ " -> " + still);
 
-		// BUG-002 in the client: PULL back to the drum's end, where the lever drops to NEUTRAL; the next click is FEED.
+		// BUG-002 in the client: PULL back to the drum's end, where the lever drops to NEUTRAL; a left-click is FEED.
 		server.runCommand("tp @a 20.5 " + g + " " + (Z + 2.5) + " 180 30");
 		context.waitTicks(5);
 		lookAtPoint(context, new Vec3(20.5, g + 9.5 / 16.0, Z + 0.5 + 0.55));
@@ -343,17 +346,17 @@ public class FreightStationClientTest implements FabricClientGameTest {
 		}
 		double atEnd = server.computeOnServer(s -> cartOn(s.overworld(), g, Z).getX());
 		String endStop = server.computeOnServer(s -> CableLines.line(s.overworld(), drumPos).lastStop());
-		context.getInput().pressKey(options -> options.keyUse);
+		context.getInput().pressKey(options -> options.keyAttack);
 		context.waitTicks(2);
 		CableLines.Lever afterEnd = server.computeOnServer(s -> CableLines.line(s.overworld(), drumPos).lever());
 		String skipMessage = overlayMessage(context);
 		context.waitTicks(40);
 		double away = server.computeOnServer(s -> cartOn(s.overworld(), g, Z).getX());
-		context.getInput().pressKey(options -> options.keyUse);
+		context.getInput().pressKey(options -> options.keyAttack);
 		context.waitTicks(5);
-		SimpleBlockTestLog.info("CLIENT BUG-002: PULL ran the cart back to x {} ({}); next click: {} ('{}'); 40 ticks later x {}", atEnd, endStop,
+		SimpleBlockTestLog.info("CLIENT BUG-002: PULL ran the cart back to x {} ({}); left-click: {} ('{}'); 40 ticks later x {}", atEnd, endStop,
 			afterEnd, skipMessage, away);
-		assertTrue("end".equals(endStop) && afterEnd == CableLines.Lever.FEED && away - atEnd > 2.0, "at the drum's end the next click should be FEED: "
+		assertTrue("end".equals(endStop) && afterEnd == CableLines.Lever.FEED && away - atEnd > 2.0, "at the drum's end a left-click should be FEED: "
 			+ endStop + ", " + afterEnd + ", x " + atEnd + " -> " + away);
 	}
 
@@ -639,9 +642,7 @@ public class FreightStationClientTest implements FabricClientGameTest {
 		boolean farTicking = server.computeOnServer(s -> s.overworld().isPositionEntityTicking(new BlockPos(LONG_END - 10, g, LONG_Z)));
 		assertTrue(!farTicking, "the far end of the line should not be ticking");
 		lookAtPoint(context, new Vec3(0.5, g + 9.5 / 16.0, LONG_Z + 0.5 + 0.55));
-		context.getInput().pressKey(options -> options.keyUse);
-		context.waitTicks(2);
-		context.getInput().pressKey(options -> options.keyUse);
+		context.getInput().pressKey(options -> options.keyAttack);
 		context.waitTicks(2);
 		CableLines.Lever lever = server.computeOnServer(s -> CableLines.line(s.overworld(), drumPos).lever());
 		assertTrue(lever == CableLines.Lever.FEED, "lever on the long line: " + lever);

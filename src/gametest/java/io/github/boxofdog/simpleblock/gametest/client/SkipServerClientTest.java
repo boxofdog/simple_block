@@ -219,7 +219,13 @@ public class SkipServerClientTest implements FabricClientGameTest {
 		context.waitTicks(5);
 		lookAtPoint(context, new Vec3(DRUM_X + 0.5, g + 9.5 / 16.0, Z + 0.5 + 0.55));
 		for (int i = 0; i < 3 && server.computeOnServer(s -> line(s.overworld(), g).lever()) != lever; i++) {
-			context.getInput().pressKey(options -> options.keyUse);
+			// The owner's clicks: right for PULL, left for FEED, the same click again for NEUTRAL.
+			CableLines.Lever now = server.computeOnServer(s -> line(s.overworld(), g).lever());
+			if (lever == CableLines.Lever.PULL || lever == CableLines.Lever.NEUTRAL && now == CableLines.Lever.PULL) {
+				context.getInput().pressKey(options -> options.keyUse);
+			} else {
+				context.getInput().pressKey(options -> options.keyAttack);
+			}
 			context.waitTicks(3);
 		}
 		CableLines.Lever now = server.computeOnServer(s -> line(s.overworld(), g).lever());

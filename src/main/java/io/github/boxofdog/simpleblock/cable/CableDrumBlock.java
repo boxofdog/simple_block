@@ -133,7 +133,7 @@ public class CableDrumBlock extends BaseEntityBlock {
 		BlockHitResult hitResult) {
 		boolean powered = level.getBlockEntity(pos) instanceof CableDrumBlockEntity drum && drum.powered();
 		if (hand == InteractionHand.MAIN_HAND && isCrank(state, pos, hitResult.getLocation())) {
-			return powered ? CoalWinch.cycleLever(level, pos, player) : CableDrive.pull(level, pos, player);
+			return powered ? CoalWinch.setLever(level, pos, player, CableLines.Lever.PULL) : CableDrive.pull(level, pos, player);
 		}
 		if (itemStack.is(Items.FURNACE) && !powered) {
 			return CoalWinch.fitFurnace(level, pos, player, itemStack);
@@ -151,7 +151,7 @@ public class CableDrumBlock extends BaseEntityBlock {
 	protected InteractionResult useWithoutItem(BlockState state, Level level, BlockPos pos, Player player, BlockHitResult hitResult) {
 		boolean powered = level.getBlockEntity(pos) instanceof CableDrumBlockEntity drum && drum.powered();
 		if (isCrank(state, pos, hitResult.getLocation())) {
-			return powered ? CoalWinch.cycleLever(level, pos, player) : CableDrive.pull(level, pos, player);
+			return powered ? CoalWinch.setLever(level, pos, player, CableLines.Lever.PULL) : CableDrive.pull(level, pos, player);
 		}
 		if (powered && !player.isSecondaryUseActive() && CableRoutes.heldHook(level, player) == null) {
 			return CoalWinch.inspect(level, pos, player);

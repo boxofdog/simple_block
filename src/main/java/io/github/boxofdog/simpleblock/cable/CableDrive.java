@@ -88,7 +88,10 @@ public final class CableDrive {
 		return InteractionResult.SUCCESS;
 	}
 
-	/** Left-click held on the crank, from {@link CrankPayload}: keeps it feeding the cable away, if the click is real. */
+	/**
+	 * Left-click on the crank, from {@link CrankPayload}: held, keeps it feeding the cable away; on a
+	 * coal winch, one click on its lever sets FEED. Only if the click is real.
+	 */
 	public static void feed(ServerPlayer player, BlockPos pos, Vec3 hit) {
 		ServerLevel level = player.level();
 		if (!level.isLoaded(pos) || !player.isWithinBlockInteractionRange(pos, 1.0) || hit.distanceToSqr(Vec3.atCenterOf(pos)) > 2.0 * 2.0) {
@@ -96,7 +99,12 @@ public final class CableDrive {
 		}
 		BlockState state = level.getBlockState(pos);
 		if (state.is(CableContent.CABLE_DRUM) && CableDrumBlock.isCrank(state, pos, hit)) {
-			crank(level, pos, player, 1);
+			if (level.getBlockEntity(pos) instanceof CableDrumBlockEntity drum && drum.powered()) {
+				// A coal winch's lever: a left-click sets FEED (again: NEUTRAL).
+				CoalWinch.setLever(level, pos, player, CableLines.Lever.FEED);
+			} else {
+				crank(level, pos, player, 1);
+			}
 		}
 	}
 

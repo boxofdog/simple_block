@@ -24,13 +24,12 @@ import io.github.boxofdog.simpleblock.tuning.Tuning;
  *   <li><b>Fitting:</b> use a furnace on a drum (anywhere but its crank). It mounts on the drum's free
  *       side and the crank becomes a lever; the cable, route and loop stay as they are. Breaking the
  *       drum gives the furnace back, with its unburnt coal.</li>
- *   <li><b>Lever</b> (where the crank was): each right-click moves it one setting, NEUTRAL, PULL, FEED,
- *       NEUTRAL (owner's cycle). It stays where it is set: PULL (leaning back) hauls the cable towards
- *       the drum, FEED (leaning forward) moves it away, NEUTRAL (upright) stops and holds. Every
- *       physical stop puts it back to NEUTRAL ({@link CableDrive}). After a stop against something in
- *       the direction of travel (an end, a blocked cart, the edge of the loaded world) the next click
- *       skips that direction until the load moves again, so the way out can always be chosen (BUG-002:
- *       a cart at the drum's end of the line goes NEUTRAL straight to FEED).</li>
+ *   <li><b>Lever</b> (where the crank was; owner's controls, 2026-10-13): right-click sets PULL,
+ *       left-click sets FEED, and the same click again goes back to NEUTRAL (the other click switches
+ *       straight over). It stays where it is set: PULL (leaning back) hauls the cable towards the drum,
+ *       FEED (leaning forward) moves it away, NEUTRAL (upright) stops and holds. Every physical stop
+ *       puts it back to NEUTRAL ({@link CableDrive}); since each way has its own click, the way out of
+ *       an end can always be chosen (BUG-002).</li>
  *   <li><b>Coal:</b> use coal on the drum's body to put one in (up to {@code winch.coal_capacity}).
  *       Regular coal only. With an empty hand, using the body tells you how much coal is in it, how
  *       long the coal alight has left, and where the lever is: it never moves the lever.</li>
@@ -74,22 +73,20 @@ public final class CoalWinch {
 			}
 			furnace.consume(1, player);
 			level.playSound(null, pos, SoundEvents.ANVIL_USE, SoundSource.BLOCKS, 0.6F, 1.2F);
-			CableRoutes.tell(player, message("fitted", "Coal winch: put coal in, then right-click the lever to pull or feed"));
+			CableRoutes.tell(player, message("fitted", "Coal winch: put coal in, then right-click the lever to pull, left-click to feed"));
 		}
 		return InteractionResult.SUCCESS;
 	}
 
-	/** Right-click on the lever: the next setting in the cycle NEUTRAL, PULL, FEED. */
-	static InteractionResult cycleLever(Level level, BlockPos pos, Player player) {
+	/**
+	 * A click on the lever: right-click asks for PULL, left-click ({@link CableDrive#feed}) for FEED;
+	 * asking for the setting it is already at puts it back to NEUTRAL.
+	 */
+	static InteractionResult setLever(Level level, BlockPos pos, Player player, CableLines.Lever wanted) {
 		if (level instanceof ServerLevel serverLevel && level.getBlockEntity(pos) instanceof CableDrumBlockEntity drum && drum.powered()) {
 			CableLines lines = CableLines.get(serverLevel);
 			CableLines.Line line = lines.getOrCreate(pos);
-			CableLines.Lever next = line.lever.next();
-			boolean skipped = next.sign != 0 && next.sign == line.blockedSign;
-			if (skipped) {
-				// BUG-002: the load last stopped against something going that way: skip to the next setting.
-				next = next.next();
-			}
+			CableLines.Lever next = line.lever == wanted ? CableLines.Lever.NEUTRAL : wanted;
 			if (next != CableLines.Lever.NEUTRAL && !line.drivable()) {
 				CableRoutes.tell(player, CableRoutes.message("crank_locked", "Close the loop, or hang a skip on the cable end, to haul"));
 				level.playSound(null, pos, SoundEvents.WOODEN_BUTTON_CLICK_ON, SoundSource.BLOCKS, 0.8F, 0.6F);
@@ -104,12 +101,7 @@ public final class CoalWinch {
 			lines.changed();
 			drum.copyDrive(line);
 			level.playSound(null, pos, SoundEvents.LEVER_CLICK, SoundSource.BLOCKS, 0.6F, next == CableLines.Lever.NEUTRAL ? 0.5F : 0.6F);
-			if (skipped) {
-				CableRoutes.tell(player, message("lever_skipped", "Lever: %s (%s is blocked here)", leverName(next),
-					leverName(line.blockedSign < 0 ? CableLines.Lever.PULL : CableLines.Lever.FEED)));
-			} else {
-				CableRoutes.tell(player, message("lever", "Lever: %s", leverName(next)));
-			}
+			CableRoutes.tell(player, message("lever", "Lever: %s", leverName(next)));
 		}
 		return InteractionResult.SUCCESS;
 	}
