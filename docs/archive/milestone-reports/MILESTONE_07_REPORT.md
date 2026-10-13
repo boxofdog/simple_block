@@ -214,7 +214,7 @@ M07 is complete pending ChatGPT's independent review and the owner's playtest. M
 
 ## 11. Amendment, 2026-10-13: owner playtest patch (§§1–10) and the four-gate cart
 
-Brief: [MILESTONE_07_PLAYTEST_PATCH.md](../../MILESTONE_07_PLAYTEST_PATCH.md) §§1–10, implemented as one pass as the owner asked, **plus** the owner's later direct instruction that every minecart share one four-gate body. Sections 1–10 above are the **historical** record of Build #22; that build passed the tests of the **old** geometry and does not stand for this one. Choices: [DECISIONS.md §5.5.4](../DECISIONS_PRE_RETIREMENT_2026-10-13.md). Evidence: [`docs/evidence/milestone-07-patch/`](../../evidence/milestone-07-patch), which holds:
+Brief: [MILESTONE_07_PLAYTEST_PATCH.md](../milestone-patches/MILESTONE_07_PLAYTEST_PATCH.md) §§1–10, implemented as one pass as the owner asked, **plus** the owner's later direct instruction that every minecart share one four-gate body. Sections 1–10 above are the **historical** record of Build #22; that build passed the tests of the **old** geometry and does not stand for this one. Choices: [DECISIONS.md §5.5.4](../DECISIONS_PRE_RETIREMENT_2026-10-13.md). Evidence: [`docs/evidence/milestone-07-patch/`](../../evidence/milestone-07-patch), which holds:
 - `server-tests-and-controls.md`: the server results and every negative control;
 - `client-test-log.txt`;
 - the `m07p-*`, `m07c-*` and `m07-server-*` screenshots.

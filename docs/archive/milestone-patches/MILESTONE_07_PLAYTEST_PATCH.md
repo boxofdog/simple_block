@@ -1,3 +1,9 @@
+# Archived M07 owner playtest patch — historical snapshot
+
+**ARCHIVE ONLY (2026-10-13).** Original correction requests are preserved verbatim below for traceability. The latest owner decisions (including the universal **four-gate** minecart and Build #24 lever controls) and verified M07 scope are reconciled in [the authoritative M07 milestone](../../MILESTONE_07.md). The obsolete separate post-patch finishing note has no independent requirements; its substance is included in M07. Do not re-run these historical implementation instructions as a second authorized work package.
+
+---
+
 # M07 owner playtest patch — physical freight geometry, conditional bridle and pulley
 **Date:** 2026-10-13  
 **Status:** OWNER-REQUESTED CORRECTIVE IMPLEMENTATION BRIEF — M07 has code and CI Build #22, but is **NOT owner-accepted**. This patch describes defects encountered in the owner's in-game playtest. It is explicitly requested for Claude Code to read and implement/test as a focused M07 follow-up, not an M08 task. Preserve the original M07 commits/report and write a dated follow-up with fresh tests/CI.
