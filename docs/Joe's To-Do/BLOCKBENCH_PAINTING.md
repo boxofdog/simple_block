@@ -29,7 +29,7 @@ All asset paths below are inside src/main/resources/assets/simple_block/, with e
 
 ## M11 — cargo material painting checklist
 
-**Each identity must look correct at LOW / MEDIUM / HIGH / FULL.** Empty carts expose their real floor. Reuse geometry and atlases where sensible: **17 material identities x 4 fill levels = 68 render combinations, not necessarily 68 separate paintings.**
+**Each identity must look correct at LOW / MEDIUM / HIGH / FULL.** Empty carts expose their real floor. **Hopper-filling/unloading gradually crosses these levels in real time** (including after transferring by hand), so paint for recognizable level-to-level transitions; hoppers themselves are vanilla and need no new Joe painting task. Reuse geometry and atlases where sensible: **17 material identities x 4 fill levels = 68 render combinations, not necessarily 68 separate paintings.**
 
 ### Ingot piles (bar shapes)
 - [ ] Gold ingots
