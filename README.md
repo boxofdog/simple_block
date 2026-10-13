@@ -37,7 +37,7 @@ Milestone 02 (world, night, inventory); see [`docs/MILESTONE_02.md`](docs/MILEST
 
 ## What Milestone 03 changes
 
-See [`docs/MILESTONE_03.md`](docs/MILESTONE_03.md) and, for how it differs from that spec, [`docs/DECISIONS.md`](docs/DECISIONS.md).
+See the [M03 handoff](docs/MILESTONE_03.md) and [historical implementation report](docs/MILESTONE_03_REPORT.md) for the owner-approved vanilla-minecart change.
 
 | ID | Change | Where |
 |---|---|---|
@@ -53,7 +53,7 @@ Each feature is self-contained. To revert one, remove its mixin entries from `sr
 
 ## What Milestone 04 adds
 
-See [`docs/MILESTONE_04.md`](docs/MILESTONE_04.md) and, for the choices made where the brief left room, [`docs/DECISIONS.md`](docs/DECISIONS.md). In M04 nothing moves: M05 (below) makes the cable haul carts. M06 (below) changes how much cable a drum holds and the cable recipes; the rows here describe M04 as built.
+See the [M04 handoff](docs/MILESTONE_04.md) and [historical as-built report](docs/MILESTONE_04_REPORT.md). In M04 nothing moves: M05 (below) makes the cable haul carts. M06 (below) changes how much cable a drum holds and the cable recipes; the rows here describe M04 as built.
 
 | Component | What it does | Where |
 |---|---|---|
@@ -66,7 +66,7 @@ See [`docs/MILESTONE_04.md`](docs/MILESTONE_04.md) and, for the choices made whe
 
 ## What Milestone 05 adds
 
-See [`docs/MILESTONE_05.md`](docs/MILESTONE_05.md), and section 5.0 of [`docs/DECISIONS.md`](docs/DECISIONS.md) for the choices and starting numbers. Every M04 part and gesture works as before.
+See the [M05 handoff](docs/MILESTONE_05.md) and [historical as-built report](docs/MILESTONE_05_REPORT.md) for choices and starting values. Every M04 part and gesture works as before.
 
 | Component | What it does | Where |
 |---|---|---|

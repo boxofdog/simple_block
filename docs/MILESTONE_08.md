@@ -72,7 +72,7 @@ M08 contains **two scoped jobs** when eventually authorized:
 - **Animated channel, practical mold inventory (owner decision):** show molten metal pouring down the front casting channel into a mold as an **animation only**, not a simulated fluid or a block the player must repeatedly break. **Interact with the mold to open/collect its output inventory; it stores at most one stack (64) of a single iron, gold or copper block type.** Finished blocks accumulate there automatically without requiring a click after every casting. No mixed block types in the same mold at once; when full or containing a different type, further output must wait safely rather than vanish. Preserve partial progress when raw-item quantities are not divisible by nine.
 - **Open design questions before a milestone brief:** blast furnace structure/footprint, raw-input reservoir and hopper capacity, exact charcoal-block crafting rule, furnace slowdown, blast furnace fuel and processing rates, whether and how users switch between metal types, manual vs passive freight dumping, and later steelmaking integration. No conveyor networks or industrial process simulation by assumption.
 
-Full design context lives in [BACKLOG.md](BACKLOG.md), confirmed implementation choices in [DECISIONS.md](DECISIONS.md), and the running visible-text cleanup list in [UX_TEXT_LOG.md](UX_TEXT_LOG.md).
+Full design context lives in [BACKLOG.md](BACKLOG.md), owner-settled details and open implementation questions in this handoff, and the running visible-text cleanup list in [UX_TEXT_LOG.md](UX_TEXT_LOG.md).
 
 ### Related M08 heavy-load integration decision (from previous roadmap)
 

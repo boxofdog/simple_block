@@ -1,6 +1,6 @@
 # Instructions for Claude Code — Minecraft Overhaul
 
-**Milestone status vocabulary: [docs/STATUS_KEY.md](docs/STATUS_KEY.md), exactly five labels. Current (2026-10-13): M01–M06 SHIPPED; M07 PLAYTESTING (not owner-accepted); M08–M10 PLANNED - NOT READY; M11 PLANNED - READY.** M07 code `49d7add`, report update `dbda956`, Build #23 green (152/152 required server tests, artifact); reported client suite 9/9 and negative controls 17/17. **No M08–M11 implementation has been authorized. PLANNED - READY does not grant permission to start.** Read the concise [ROADMAP](docs/ROADMAP.md) for current status, the matching **milestone handoff** for approved requirements, and its **report** for actual CI/source/test receipts. Superseded M06/M07 instructions and historical handoff text remain in milestone reports and the dated [roadmap archive](docs/archive/ROADMAP_PRE_CONSOLIDATION_2026-10-13.md), **not here as active commands**. Do not autonomously start anything because it appears in a roadmap or design package.
+**Milestone status vocabulary: [docs/STATUS_KEY.md](docs/STATUS_KEY.md), exactly five labels. Current (2026-10-13): M01–M06 SHIPPED; M07 PLAYTESTING (not owner-accepted); M08–M10 PLANNED - NOT READY; M11 PLANNED - READY.** M07 code `49d7add`, report update `dbda956`, Build #23 green (152/152 required server tests, artifact); reported client suite 9/9 and negative controls 17/17. **No M08–M11 implementation has been authorized. PLANNED - READY does not grant permission to start.** Read the [ROADMAP](docs/ROADMAP.md) for current status and the appropriate milestone document for scope and future appended closeouts. Separate M01–M07 reports are historical only. The retired central decisions ledger is archived; it is not active project authority. Superseded M06/M07 instructions and historical handoff text remain in milestone reports and the dated [roadmap archive](docs/archive/ROADMAP_PRE_CONSOLIDATION_2026-10-13.md), **not here as active commands**. Do not autonomously start anything because it appears in a roadmap or design package.
 
 **M07 owner playtest gate:** the main open decision is sequential unloading of a coupled train at one side-on Loading Rail after release; other untested cases are in [M07 report §12](docs/MILESTONE_07_REPORT.md). Do not reopen accepted M06 behavior or mark M07 owner-accepted without a fresh explicit instruction. The old minecart model restriction was superseded by the **shared universal four-gate cart**.
 
@@ -36,7 +36,7 @@ Before changing code:
 
 ## Verification
 
-- Keep the milestone's test matrix (`docs/TEST_CHECKLIST_01.md`, and for Milestones 02-04 the matrix in that milestone's report) filled in with PASS, FAIL, or NOT RUN and evidence.
+- Keep the milestone's test matrix filled in with PASS, FAIL or NOT RUN and evidence. Old M01–M07 matrices remain in historical reports; new work gets concise results at the bottom of its milestone document, linking detailed evidence.
 - A successful compile alone is not proof of in-game behavior.
 - Report which checks were actually run (build, dev client, integrated server, dedicated server, manual checks), and which were not.
 - If running Minecraft is unavailable, provide exact local testing instructions and honestly report incomplete validation.
@@ -45,16 +45,16 @@ Before changing code:
 
 ## Shared milestone handoff (required on every completion)
 
-After implementing and pushing an **owner-authorized milestone**, maintain the handoff **in that milestone's own report**, not as a large block in `docs/ROADMAP.md`:
+**Never create a new `docs/MILESTONE_XX_REPORT.md` file.** Keep the specification and its implementation outcome together.
 
-1. Commit code and editable art, then document actual implementation SHA(s), changes, technical deviations and unresolved cases in `docs/MILESTONE_XX_REPORT.md`.
-2. Record full server and real-client test cases, PASS/FAIL/NOT RUN, negative controls, screenshots/logs, dedicated-server evidence where relevant, and the commands used. Do not claim a test was run when it was not.
-3. After the exact code SHA passes CI, link its Build URL and published `simple-block-mod` artifact in the report. A code commit precedes the report/documentation commit.
-4. Report the status of **Claude's** implementation/tests/CI checks only. Leave **ChatGPT independent verification** and **owner acceptance** for those parties. Never auto-authorize a later milestone.
-5. Update only the matching status row and report link in `docs/ROADMAP.md`, using an **exact** [docs/STATUS_KEY.md](docs/STATUS_KEY.md) label when warranted; **do not paste milestone requirements, changelogs, CI matrices or handoff checklists back into the roadmap**.
-6. Commit and push the report and concise roadmap status update; provide SHA(s) and remaining issues in the final reply.
+1. First commit tested code and editable assets. Confirm actual implementation SHA(s), GitHub CI Build URL and `simple-block-mod` artifact.
+2. **Append a brief `## Implementation and verification — YYYY-MM-DD` section to the VERY END of the same `docs/MILESTONE_XX.md`**. State delivered features, SHA(s), CI/artifact, server/client and negative-control results as PASS/FAIL/NOT RUN, important deviations/gaps, and concrete owner playtest needs. Link detailed evidence/screenshots instead of embedding logs or drafting a long report.
+3. A separate corrective patch brief is allowed as **specification**, but its completion note still goes at the end of the **main milestone document**. Do not add new report files, continue appending to the historical M01–M07 reports, or paste long handoffs into the roadmap.
+4. Preserve old `MILESTONE_01_REPORT.md` through `MILESTONE_07_REPORT.md` as historical evidence only. Their original content and CI claims remain intact.
+5. Update only the milestone's status and linked handoff in `docs/ROADMAP.md` using exactly the five [canonical states](docs/STATUS_KEY.md). Do not mark ChatGPT review or owner SHIPPED on their behalf.
+6. Push the milestone appendix and concise roadmap change, provide links, and stop. Never start a separate milestone without explicit authorization.
 
-This is a factual reporting workflow, not permission to change scope or start a different milestone.
+**The central `docs/DECISIONS.md` has been retired.** Owner choices belong in their respective milestone documents; unnumbered design directions belong in `FUTURE_WORK.md` / `DESIGN_REGISTER.md`. The original ledger is preserved [only as an archive](docs/archive/DECISIONS_PRE_RETIREMENT_2026-10-13.md) and must never be cited as an active source of implementation instructions.
 
 ## Session output
 

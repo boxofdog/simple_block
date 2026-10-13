@@ -1,6 +1,6 @@
 # Simple Block — Milestone 04: Cable Infrastructure
 
-**Source:** the owner's handoff in the Claude Code session of 2026-10-12, recorded here verbatim (headings added) so later sessions have it. Decisions taken while implementing are in `docs/DECISIONS.md`; the result is in `docs/MILESTONE_04_REPORT.md`.
+**Source:** the owner's handoff in the Claude Code session of 2026-10-12, recorded here verbatim (headings added) so later sessions have it. Historical as-built implementation and tests are in `docs/MILESTONE_04_REPORT.md`. For future authorized patches, append a short dated implementation/verification note at the end of THIS milestone document; do not create a new report.
 
 Implement the foundation for mechanical cable haulage using existing vanilla minecarts. Keep this milestone narrowly scoped.
 

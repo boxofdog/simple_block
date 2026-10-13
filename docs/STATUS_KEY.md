@@ -16,4 +16,4 @@
 
 **As of 2026-10-13:** M01–M06 **SHIPPED**; M07 **PLAYTESTING**; M08, M09 and M10 **PLANNED - NOT READY**; M11 **PLANNED - READY** (detailed rendering/hopper/test handoff is prepared, but still awaits an explicit owner go-ahead). For current status, consult [ROADMAP.md](ROADMAP.md); this file defines the vocabulary, not a separate competing status board.
 
-**Documentation routing:** The [roadmap](ROADMAP.md) holds one exact lifecycle label per milestone. Technical scope and owner decisions live in `MILESTONE_XX.md`; actual commits, CI and remaining gaps live in `MILESTONE_XX_REPORT.md`. Don't reintroduce verbose milestone history into the roadmap.
+**Documentation routing:** The [roadmap](ROADMAP.md) holds one exact lifecycle label per milestone. Technical scope and owner decisions live in `MILESTONE_XX.md`; actual commits, CI and remaining gaps for **new work** are summarized in a concise dated section appended to the end of the same `MILESTONE_XX.md`. M01–M07's separate `*_REPORT.md` files are historical only. Don't reintroduce verbose milestone history into the roadmap.

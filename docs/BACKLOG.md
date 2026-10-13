@@ -1,6 +1,6 @@
 # Simple Block — Future Design Backlog
 
-Ideas here are **not approved implementation tasks**. The short [roadmap](ROADMAP.md) owns order and progress. Confirmed design choices are in [DECISIONS.md](DECISIONS.md); implementation reports are in the milestone files.
+Ideas here are **not approved implementation tasks**. The short [roadmap](ROADMAP.md) owns order and progress. Settled design choices belong in their [milestone handoffs](MILESTONE_08.md), unassigned directions in [DESIGN_REGISTER.md](DESIGN_REGISTER.md). Implementation notes for future work are appended to the same milestone file; separate older reports remain historical.
 
 ## Additional ideas
 
@@ -26,7 +26,7 @@ Ideas here are **not approved implementation tasks**. The short [roadmap](ROADMA
 - **Diamond / Iridescent Infantry:** incoming **arrows reflect back** at **full strength but reduced distance**; a zombie that bites the wearer **breaks its teeth**, taking damage and dealing reduced damage afterward.
 - **Netherite / Netherfire Knight:** **piglins never fight back** and offer the wearer **better trades/barters**; hostile mobs that hit the wearer **catch fire**.
 
-Full-match set activation, numerical damage/slowdown/range, display style, durations, zombie-state persistence, piglin barter weights and test design belong to a **later standalone implementation brief**. Never silently add these to M10 or M06–M08. M10's **Trail Blazer/Old Pro** are separate workwear bonuses; gold/chainmail retirement still belongs to M10. Design details live in [DECISIONS.md §5.7](DECISIONS.md).
+Full-match set activation, numerical damage/slowdown/range, display style, durations, zombie-state persistence, piglin barter weights and test design belong to a **later standalone implementation brief**. Never silently add these to M10 or M06–M08. M10's **Trail Blazer/Old Pro** are separate workwear bonuses; gold/chainmail retirement still belongs to M10. Design details live in [FUTURE_WORK.md](FUTURE_WORK.md), outside M10.
 
 ### I-004 — Modular armor roles and integrated overalls backpack
 

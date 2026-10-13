@@ -1,6 +1,6 @@
 # Simple Block — Milestone 05: Working Haulage and Cobblestone Engine
 
-**Status:** Owner-requested implementation handoff; **not implemented**. Read [M04 report](MILESTONE_04_REPORT.md), [DECISIONS](DECISIONS.md), and [ROADMAP](ROADMAP.md) first.
+**Status:** Owner-requested implementation handoff; **not implemented**. Read the [M04 historical report](MILESTONE_04_REPORT.md), [M05 brief](MILESTONE_05.md) and [current roadmap](ROADMAP.md) first. The former decisions ledger is archived.
 
 **Goal:** Make the existing M04 overhead cable infrastructure move minecarts reversibly, add an operable crank, introduce a bidirectional coal-powered Cobblestone Engine, and fix the known drum render artifact. **Preserve all existing M04 parts, placement gestures, models and save behavior.** Build additively; do not scrap or reimagine the system.
 
@@ -46,7 +46,7 @@ Investigate and correct the side-panel ghosting/striping seen on the M04 drum. P
 - Drum has a visible, animated, usable crank; hand operation does not trigger dismantling or coil loading by accident. Ground-mounted placement remains functional; overhead positioning is demonstrated if implemented.
 - Furnace-on-minecart conversion produces a Cobblestone Engine; breaking returns exactly its furnace and minecart; coal powers **bidirectional** movement. At least one mixed coupled consist can be moved both ways. Show that a sustained climb stresses/stalls the locomotive compared with an equivalent flat run.
 - BUG-001 shows no side ghosting in multiple in-client views; retain a before/after screenshot and note the underlying cause.
-- Save/reload and chunk-unload safety tests; negative controls where feasible. Report actual test counts, failures, limitations, known non-covered situations, screenshots, code commits, CI run and any owner-approved deviations in `docs/MILESTONE_05_REPORT.md`. **Stop after M05.**
+- Save/reload and chunk-unload safety tests; negative controls where feasible. **For future authorized corrections only**, append a concise dated report at the very END of `docs/MILESTONE_05.md` with tests, limitations, evidence links, SHAs and CI; old `*_REPORT.md` remains historical. **Stop after M05.**
 
 ## Deliberately left for later
 

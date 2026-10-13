@@ -42,7 +42,7 @@ This is a **separate, unnumbered post-M10 workstream**, not additional M10 scope
 | **Diamond** | **Iridescent Infantry** | Reflect incoming arrows back with **reduced travel distance but full damage/strength**; a zombie biting the wearer **breaks its teeth**, damaging it and **reducing its subsequent attack damage**. |
 | **Netherite** | **Netherfire Knight** | **Piglins never fight back** against the wearer and offer **more favorable trade/barter outcomes**; any hostile mob that hits the wearer **ignites**. |
 
-**Implementation timing:** settle numerical reductions, durations, reflected-arrow return/range, teeth-broken state behavior, UI feedback, piglin barter odds and exact triggering on a future implementation brief. Do **not** improvise extra systems, equipment tiers or automation. See [DECISIONS.md §5.7](DECISIONS.md). **Current milestone status is in [ROADMAP.md](ROADMAP.md): M04–M06 SHIPPED; M07 PLAYTESTING.**
+**Implementation timing:** settle numerical reductions, durations, reflected-arrow return/range, teeth-broken state behavior, UI feedback, piglin barter odds and exact triggering on a future implementation brief. Do **not** improvise extra systems, equipment tiers or automation. The settled design details above remain here until a dedicated post-M10 milestone is created. **Current milestone status is in [ROADMAP.md](ROADMAP.md): M04–M06 SHIPPED; M07 PLAYTESTING.**
 
 ## Other unnumbered workstreams and playtest follow-ups
 

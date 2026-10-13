@@ -1,6 +1,6 @@
 # Simple Block — Roadmap
 
-**Purpose:** A compact **milestone status and priority index**. This is **not** a specification, implementation handoff, historical conversation log, or bug tracker. For functional requirements, open the milestone brief; for actual code/CI/test evidence, open its report; for accepted decisions, open [DECISIONS.md](DECISIONS.md). See the [project vision](VISION.md).
+**Purpose:** A compact **milestone status and priority index**. This is **not** a specification, implementation handoff, historical conversation log, or bug tracker. For functional requirements, open the milestone brief; for shipped M01–M07 code/CI evidence, open their historical reports. For future work, the implementation/verification summary goes at the END of its milestone document; settled requirements live there too. See the [project vision](VISION.md).
 
 **Current lifecycle vocabulary:** [STATUS_KEY.md](STATUS_KEY.md) defines the **only five milestone states**. M04–M06 were expressly signed off by the owner and are now labeled **SHIPPED** (formerly PASSED). M07 remains **PLAYTESTING**, with owner signoff outstanding. No new human tests are implied by this terminology change.
 
@@ -9,8 +9,8 @@
 | ID | Deliverable | Status | Spec / handoff | Results |
 |---|---|---|---|---|
 | M01 | Remove sleep skipping, phantoms, elytra and shulker bypasses | **SHIPPED** | [Brief](MILESTONE_01.md) | [Report](MILESTONE_01_REPORT.md) |
-| M02 | Geology, heavy inventory, hostile light, hunger and inventory QoL | **SHIPPED** | [Decisions](DECISIONS.md) | [Report](MILESTONE_02_REPORT.md) |
-| M03 | 256-item freight minecarts, cushions, storage restrictions | **SHIPPED** | [Decisions](DECISIONS.md) | [Report](MILESTONE_03_REPORT.md) |
+| M02 | Geology, heavy inventory, hostile light, hunger and inventory QoL | **SHIPPED** | [Handoff](MILESTONE_02.md) | [Historical report](MILESTONE_02_REPORT.md) |
+| M03 | 256-item freight minecarts, cushions, storage restrictions | **SHIPPED** | [Handoff](MILESTONE_03.md) | [Historical report](MILESTONE_03_REPORT.md) |
 | M04 | Cable drums, anchors, routes, cable grips | **SHIPPED** | [Brief](MILESTONE_04.md) | [Report](MILESTONE_04_REPORT.md) · [CI #16](https://github.com/boxofdog/simple_block/actions/runs/38197364425) |
 | M05 | Reversible cable loops, manual cranks, Cobblestone Engine, coupling | **SHIPPED** | [Brief](MILESTONE_05.md) | [Report](MILESTONE_05_REPORT.md) · [CI #17](https://github.com/boxofdog/simple_block/actions/runs/38306694723) |
 | M06 | Loading Rail, powered winch, unlimited supported cable, related corrections | **SHIPPED** | [Brief](MILESTONE_06.md) | [Report](MILESTONE_06_REPORT.md) · [CI #20](https://github.com/boxofdog/simple_block/actions/runs/38382953782) |
@@ -41,8 +41,8 @@
 | What is next? What is shipped? | **This roadmap**, exact five-state status plus next decision only |
 | What do the five states mean? | [STATUS_KEY.md](STATUS_KEY.md), the canonical cross-LLM lifecycle key |
 | What exactly must Claude build? | **[MILESTONE_XX.md](MILESTONE_08.md)** or scoped corrective patch, owner-authorized before coding |
-| What actually shipped? Which commit, CI, artifact, tests or gaps? | **MILESTONE_XX_REPORT.md** for that milestone, with its dated closeout/review/owner receipt |
-| What's been decided (including old decisions superseded later)? | [DECISIONS.md](DECISIONS.md) and [DESIGN_REGISTER.md](DESIGN_REGISTER.md), latest explicit decision wins |
+| Where do implementation commits, CI, tests and gaps go? | A **concise dated section at the end of the same `MILESTONE_XX.md`** for all new work. M01–M07 existing reports remain historical records. |
+| Where do design decisions live? | The appropriate [milestone handoff](MILESTONE_08.md), or [DESIGN_REGISTER.md](DESIGN_REGISTER.md) for unnumbered ideas. [Retired decision archive](archive/DECISIONS_PRE_RETIREMENT_2026-10-13.md) is historical only. |
 | What bug was seen, reproduced and fixed? | [BUG_LOG.md](BUG_LOG.md) (not an automatic task authorization) |
 | What's an idea without a milestone? | [FUTURE_WORK.md](FUTURE_WORK.md) and [BACKLOG.md](BACKLOG.md) |
 | What does Joe need to paint? | [Joe's To-Do](Joe's%20To-Do/README.md) |
@@ -51,8 +51,10 @@
 
 ## Rules for future handoffs
 
-After an **explicitly authorized** implementation, Claude first commits code, runs/tests and checks the specific GitHub Actions build and `simple-block-mod` artifact, and records **SHA(s), CI URLs, client/server PASS/FAIL/NOT RUN, deviations, evidence and open issues in the milestone's own report**. Only then update the **one status row above** using an exact [status-key label](STATUS_KEY.md), link the report, and stop for independent review and owner acceptance. **PLANNED - READY does not authorize starting code; only the owner can move a milestone to IMPLEMENTING or SHIPPED.** Claude cannot mark ChatGPT verification or owner acceptance on their behalf. A green CI build alone is not proof of complete human playtesting.
+**CLAUDE: DO NOT CREATE NEW STANDALONE MILESTONE REPORT FILES.** Following an explicitly owner-authorized implementation, **append a concise, dated `## Implementation and verification — YYYY-MM-DD` section at the very end of that milestone's existing `MILESTONE_XX.md`**. Include only what was implemented, code commit SHA(s), the exact GitHub CI build and published `simple-block-mod` artifact, PASS/FAIL/NOT RUN server/client tests, negative controls where relevant, material deviations, remaining issues and the owner's next playtest. Link fuller logs/screenshots under `docs/evidence/` instead of producing a second lengthy document. Corrective patches also report at the end of the **main milestone file**, with a link to any patch brief. **Do not paste this report into the roadmap.**
+
+Existing `MILESTONE_01_REPORT.md` through `MILESTONE_07_REPORT.md` are **retained as historical evidence**, not templates for future work. No new `MILESTONE_XX_REPORT.md` files. After writing the dated milestone appendix, update only the milestone's single roadmap status/links using an exact [status-key label](STATUS_KEY.md). Claude must not claim independent ChatGPT verification or owner acceptance. **PLANNED - READY is not implementation authorization; only the owner authorizes starting and marks SHIPPED.**
 
 **Working principles:** addition by subtraction; useful permanent infrastructure rather than chores; preserve editable art and original material; no unauthorized scope expansion.
 
-**Provenance:** [Archived pre-consolidation roadmap (2026-10-13)](archive/ROADMAP_PRE_CONSOLIDATION_2026-10-13.md) preserves every original line, including older and now-superseded handoff instructions and acceptance snapshots. It is **not** authoritative for current status or implementation.
+**Provenance:** [Retired decisions ledger](archive/DECISIONS_PRE_RETIREMENT_2026-10-13.md) and [archived pre-consolidation roadmap (2026-10-13)](archive/ROADMAP_PRE_CONSOLIDATION_2026-10-13.md) preserves every original line, including older and now-superseded handoff instructions and acceptance snapshots. It is **not** authoritative for current status or implementation.
