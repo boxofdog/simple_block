@@ -78,4 +78,4 @@ The exact numeric proposals made during discussion (e.g., a 27-slot inventory, 6
 
 ## Current authorized implementation
 
-**Current milestone lifecycle/authorization is controlled by [ROADMAP.md](ROADMAP.md) and [RULES.md](RULES.md), not this historical design register.** As of 2026-10-13, M01–M06 are SHIPPED, M07 is PLAYTESTING, and no M08–M11 implementation is authorized.
+**Current milestone lifecycle/authorization is controlled by the generated status column in [ROADMAP.md](ROADMAP.md) and the owner-approval rules in [RULES.md](RULES.md), not this design register.** Current statuses originate from milestone YAML headers and are not copied into this document.
