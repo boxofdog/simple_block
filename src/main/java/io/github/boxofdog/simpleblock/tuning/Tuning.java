@@ -186,6 +186,19 @@ public final class Tuning {
 		define("skip.transfer_per_tick", 4);
 		// How fast a skip with no cable comes down onto what is under it, blocks per tick.
 		define("skip.fall_speed", 0.25);
+
+		// M08 pre-industrial blast furnace (provisional, for playtesting). Burning ticks to cast nine raw
+		// ore into one metal block (300 = 15 s; a slowed ordinary furnace takes 9 x 400 = 3600 for the
+		// same nine ingots).
+		define("blast_furnace.cast_ticks", 300);
+		// Burning ticks one fuel block gives: a Block of Coal or of Charcoal casts 12 blocks (108 ore,
+		// where a vanilla furnace smelts 80 items on one); a Dried Kelp Block a quarter of that.
+		define("blast_furnace.coal_block_burn_ticks", 3600);
+		define("blast_furnace.kelp_block_burn_ticks", 900);
+		// Items moved per tick from a docked cart or a skip's chute into the hopper.
+		define("blast_furnace.transfer_per_tick", 4);
+		// An ordinary furnace smelts raw ore and metal ores this many times slower (#simple_block:raw_ore_smelting).
+		define("furnace.raw_ore_cook_multiplier", 2.0);
 	}
 
 	private Tuning() {

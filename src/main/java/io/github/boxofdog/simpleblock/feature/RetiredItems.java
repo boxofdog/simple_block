@@ -25,13 +25,17 @@ import net.minecraft.world.level.block.ShulkerBoxBlock;
  *       are disabled by data overrides, and they are taken out of every chest and other non-block
  *       loot (abandoned mineshafts were the only vanilla source; no structure places them). Placed
  *       ones (commands, old structures) keep working. Ordinary rails are untouched.</li>
+ *   <li>M08: the vanilla blast furnace. Its recipe and recipe-book advancement are disabled by
+ *       data overrides, and new villages build ordinary furnaces instead
+ *       ({@code metallurgy/VillageFurnaces}); the pre-industrial blast furnace replaces it.</li>
  * </ul>
  */
 public final class RetiredItems {
 	/** The redstone rails retired in M06. */
 	public static final Set<Item> RAILS = Set.of(Items.POWERED_RAIL, Items.DETECTOR_RAIL, Items.ACTIVATOR_RAIL);
 
-	private static final Set<Item> OTHERS = Set.of(Items.ELYTRA, Items.ENDER_CHEST, Items.CHEST_MINECART, Items.FURNACE_MINECART);
+	private static final Set<Item> OTHERS = Set.of(Items.ELYTRA, Items.ENDER_CHEST, Items.CHEST_MINECART, Items.FURNACE_MINECART,
+		Items.BLAST_FURNACE);
 
 	private RetiredItems() {
 	}

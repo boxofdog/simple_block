@@ -5,6 +5,7 @@ import net.fabricmc.fabric.api.client.rendering.v1.ModelLayerRegistry;
 
 import io.github.boxofdog.simpleblock.client.cable.CableDrumRenderer;
 import io.github.boxofdog.simpleblock.client.cable.CableHookRenderer;
+import io.github.boxofdog.simpleblock.client.metallurgy.BlastFurnaceScreen;
 import io.github.boxofdog.simpleblock.client.skip.OreSkipRenderer;
 import io.github.boxofdog.simpleblock.client.train.CobblestoneEngineRenderer;
 import io.github.boxofdog.simpleblock.client.train.GatedMinecartModel;
@@ -22,5 +23,6 @@ public class SimpleBlockClient implements ClientModInitializer {
 		CableHookRenderer.register();
 		CobblestoneEngineRenderer.register();
 		OreSkipRenderer.register();
+		BlastFurnaceScreen.register();
 	}
 }

@@ -15,6 +15,8 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.AABB;
 
 import io.github.boxofdog.simpleblock.feature.MinecartCargo;
+import io.github.boxofdog.simpleblock.metallurgy.BlastFurnaceBlockEntity;
+import io.github.boxofdog.simpleblock.metallurgy.BlastFurnaceStructure;
 import io.github.boxofdog.simpleblock.train.Couplings;
 import io.github.boxofdog.simpleblock.train.LoadingTrackBlock;
 import io.github.boxofdog.simpleblock.train.LoadingTracks;
@@ -35,6 +37,10 @@ import io.github.boxofdog.simpleblock.tuning.Tuning;
  *       the cart's rim</td><td>{@link Mode#UNLOAD} skip to cart</td>
  *       <td>the skip's discharge gate slides open; the cart's gates stay shut</td></tr>
  * </table>
+ *
+ * <p>M08 adds a third: a skip whose bottom is level with the top of a blast furnace's hopper rim, the
+ * hopper in front of it, empties its chute into the furnace ({@link Mode#FURNACE}; the discharge gate
+ * opens; the furnace takes only raw metal of the kind it holds, up to its 516).
  *
  * <p>A station is a Loading Rail in front of the skip ({@link OreSkip#facing()}) at one of those two
  * positions, whichever way the rail runs: end-on (a docked cart's end gate towards the skip) or side-on
@@ -60,11 +66,13 @@ public final class SkipStations {
 		/** Cart to skip, the cart level with the bridle. */
 		LOAD,
 		/** Skip to cart, the cart one level below the chute, the chute's lip on its rim. */
-		UNLOAD
+		UNLOAD,
+		/** M08: skip to the blast furnace, the chute over the hopper's rim. */
+		FURNACE
 	}
 
-	/** A station: the rail, its docked cart and the direction. */
-	public record Station(BlockPos rail, Minecart cart, Mode mode) {
+	/** A station: the rail and its docked cart, or for {@link Mode#FURNACE} the hopper block (no cart), and the direction. */
+	public record Station(BlockPos rail, @Nullable Minecart cart, Mode mode) {
 	}
 
 	/** A skip's exchange in progress (not saved: after loading it starts again if there is still something to move). */
@@ -136,6 +144,9 @@ public final class SkipStations {
 		if (Math.abs(bottomY - Math.rint(bottomY)) < 1.0E-6) {
 			mode = Mode.LOAD;
 			rail = BlockPos.containing(skip.getX(), Math.rint(bottomY) + LOAD_OFFSET, skip.getZ()).relative(front);
+			if (LoadingTrackBlock.front(level.getBlockState(rail)) == null) {
+				return furnaceStation(level, skip, bottomY);
+			}
 		} else if (Math.abs(bottomY - UNLOAD_OFFSET - Math.rint(bottomY - UNLOAD_OFFSET)) < 1.0E-6) {
 			mode = Mode.UNLOAD;
 			rail = BlockPos.containing(skip.getX(), Math.rint(bottomY - UNLOAD_OFFSET), skip.getZ()).relative(front);
@@ -155,8 +166,26 @@ public final class SkipStations {
 		return carts.isEmpty() ? null : new Station(rail.immutable(), carts.getFirst(), mode);
 	}
 
+	/**
+	 * M08: a skip standing with its bottom level with the top of a blast furnace's hopper rim, the hopper
+	 * in front of it ({@link OreSkip#facing()}): its chute's lip reaches over the rim. The space over the
+	 * rim in front of the chute must be open.
+	 */
+	private static @Nullable Station furnaceStation(Level level, OreSkip skip, double bottomY) {
+		BlockPos overRim = BlockPos.containing(skip.getX(), Math.rint(bottomY), skip.getZ()).relative(skip.facing());
+		BlockPos hopper = overRim.below();
+		if (BlastFurnaceStructure.hopperAt(level, hopper) == null || !level.getBlockState(overRim).getCollisionShape(level, overRim).isEmpty()) {
+			return null;
+		}
+		return new Station(hopper.immutable(), null, Mode.FURNACE);
+	}
+
 	/** How many items could move now at {@code station}: from its source, as many as its destination has room for. */
 	public static int work(OreSkip skip, Station station) {
+		if (station.mode() == Mode.FURNACE) {
+			BlastFurnaceBlockEntity furnace = BlastFurnaceStructure.hopperAt(skip.level(), station.rail());
+			return furnace == null || skip.count() <= 0 ? 0 : Math.min(skip.count(), furnace.room(skip.cargo()));
+		}
 		MinecartCargo.Cart cart = MinecartCargo.cart(station.cart());
 		if (station.mode() == Mode.LOAD) {
 			if (cart.simpleBlock$count() <= 0) {
@@ -197,6 +226,14 @@ public final class SkipStations {
 				int n = same ? Math.min(Tuning.getInt("skip.transfer_per_tick"), work(skip, station)) : 0;
 				if (n <= 0) {
 					close(level, exchange);
+				} else if (station.mode() == Mode.FURNACE) {
+					Item item = skip.cargo();
+					skip.setCargo(item, skip.count() - n);
+					BlastFurnaceStructure.hopperAt(level, station.rail()).deposit(item, n);
+					exchange.moved += n;
+					if (level.getGameTime() % 4 == 0) {
+						level.playSound(null, station.rail(), SoundEvents.GRAVEL_FALL, SoundSource.BLOCKS, 0.6F, 0.9F);
+					}
 				} else {
 					MinecartCargo.Cart cart = MinecartCargo.cart(station.cart());
 					if (station.mode() == Mode.LOAD) {
@@ -224,7 +261,7 @@ public final class SkipStations {
 		}
 		// The doors: the lid and the cart's ramp for loading, the discharge gate for unloading.
 		boolean open = exchange.phase == Exchange.Phase.OPENING || exchange.phase == Exchange.Phase.MOVING;
-		skip.setDoors(open && exchange.mode == Mode.LOAD, open && exchange.mode == Mode.UNLOAD);
+		skip.setDoors(open && exchange.mode == Mode.LOAD, open && exchange.mode != Mode.LOAD);
 		if (open && exchange.mode == Mode.LOAD && station != null && same) {
 			// The cart's gate that faces the skip: an end gate (ramp) or a side gate (lifted), as it stands.
 			LoadingTracks.freight(station.cart()).simpleBlock$holdGateOpen(skip.facing().getOpposite(), 3);

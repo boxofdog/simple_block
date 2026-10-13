@@ -1,0 +1,19 @@
+{
+	"type": "minecraft:crafting_shaped",
+	"category": "misc",
+	"key": {
+		"H": "minecraft:hopper",
+		"B": "minecraft:bricks",
+		"I": "minecraft:iron_block",
+		"F": "minecraft:furnace",
+		"C": "minecraft:cauldron"
+	},
+	"pattern": [
+		" H ",
+		"BI ",
+		"BFC"
+	],
+	"result": {
+		"id": "simple_block:pre_industrial_blast_furnace"
+	}
+}

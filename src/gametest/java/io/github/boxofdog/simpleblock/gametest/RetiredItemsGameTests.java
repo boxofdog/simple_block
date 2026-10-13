@@ -53,7 +53,7 @@ public class RetiredItemsGameTests {
 		Set<Item> items = new LinkedHashSet<>(List.of(Items.ELYTRA, Items.SHULKER_BOX));
 		items.addAll(Items.DYED_SHULKER_BOX.asList());
 		items.addAll(List.of(Items.ENDER_CHEST, Items.CHEST_MINECART, Items.FURNACE_MINECART, Items.POWERED_RAIL, Items.DETECTOR_RAIL,
-			Items.ACTIVATOR_RAIL));
+			Items.ACTIVATOR_RAIL, Items.BLAST_FURNACE));
 		items.addAll(RemovedRocks.items());
 		return items;
 	}
@@ -61,7 +61,8 @@ public class RetiredItemsGameTests {
 	/**
 	 * RET-01: built as the client builds it, no creative tab and not the search shows a retired item,
 	 * while their ids are still registered; rails, the loading track, furnaces, minecarts, chests and
-	 * the items later milestones may retire (gold and chainmail armor, the blast furnace) are still there.
+	 * the items later milestones may retire (gold and chainmail armor) and M08's pre-industrial blast
+	 * furnace and Block of Charcoal are still there. (M08 retired the vanilla blast furnace.)
 	 */
 	@GameTest
 	public void creativeMenuHasNoRetiredItems(GameTestHelper helper) {
@@ -90,8 +91,9 @@ public class RetiredItemsGameTests {
 			helper.assertTrue(BuiltInRegistries.ITEM.getKey(item) != null && BuiltInRegistries.ITEM.containsKey(BuiltInRegistries.ITEM.getKey(item)),
 				"still registered: " + item);
 		}
-		List<Item> kept = List.of(Items.RAIL, TrainContent.LOADING_TRACK_ITEM, Items.FURNACE, Items.MINECART, Items.CHEST, Items.BLAST_FURNACE,
-			Items.GOLDEN_CHESTPLATE, Items.CHAINMAIL_CHESTPLATE, Items.STONE, Items.REDSTONE, Items.COAL);
+		List<Item> kept = List.of(Items.RAIL, TrainContent.LOADING_TRACK_ITEM, Items.FURNACE, Items.MINECART, Items.CHEST,
+			io.github.boxofdog.simpleblock.metallurgy.MetallurgyContent.BLAST_FURNACE_ITEM,
+			io.github.boxofdog.simpleblock.metallurgy.MetallurgyContent.CHARCOAL_BLOCK_ITEM, Items.GOLDEN_CHESTPLATE, Items.CHAINMAIL_CHESTPLATE, Items.STONE, Items.REDSTONE, Items.COAL);
 		for (Item item : kept) {
 			helper.assertTrue(CreativeModeTabs.searchTab().getSearchTabDisplayItems().stream().anyMatch(stack -> stack.is(item)), "still in creative search: " + item);
 		}

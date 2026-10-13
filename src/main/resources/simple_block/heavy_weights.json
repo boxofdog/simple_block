@@ -93,7 +93,8 @@
 			"simple_block:cable": "1/6",
 			"simple_block:cable_coil": "1/2",
 			"simple_block:cable_drum": "2",
-			"simple_block:ore_skip": "67/6"
+			"simple_block:ore_skip": "67/6",
+			"simple_block:pre_industrial_blast_furnace": "21"
 		},
 		"gold": {
 			"minecraft:clock": "4",

@@ -24,6 +24,8 @@
 		"inventory.InventoryMixin",
 		"inventory.SlotMixin",
 		"light.BlockStateBaseMixin",
+		"metallurgy.AbstractFurnaceBlockEntityMixin",
+		"metallurgy.SinglePoolElementMixin",
 		"minecart.MinecartMixin",
 		"mining.BlockBehaviourMixin",
 		"mining.ServerPlayerGameModeMixin",

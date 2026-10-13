@@ -384,6 +384,42 @@ ORE_SKIP_ITEM = [
     Cube('leg_right', [10.5, 10, 7.5], [11.5, 16, 8.5], rot=('z', 22.5, [11, 13, 8])),
 ]
 
+# M08 pre-industrial blast furnace, facing north (its front, with the firebox door and the casting mold,
+# is to the north). The structure is 3x3 blocks and four high; its controller is the middle block of
+# the second layer, so in the controller's model the structure spans x and z -16..32 and the hearth and
+# stack y -16..32. The middle of the front of the hearth (x 0..16, z -16..0) is the open casting bay
+# with the mold, under the stack. The fire and the molten pour are separate models the blockstate adds
+# when the furnace is lit or pouring. The receiving hopper (layer 4) is drawn by the middle block of the
+# top layer: x and z -16..32, y 0..16.
+FURNACE = [
+    Cube('hearth_left', [-16, -16, -16], [0, 0, 32]),
+    Cube('hearth_right', [16, -16, -16], [32, 0, 32]),
+    Cube('hearth_back', [0, -16, 0], [16, 0, 32]),
+    Cube('stack', [-15, 0, -15], [31, 28, 31]),
+    Cube('collar', [-16, 28, -16], [32, 32, 32]),
+    Cube('firebox_door', [3, 2, -15.5], [13, 12, -15]),
+    Cube('tap_runner', [6, -9, -7], [10, -8, 0]),
+    Cube('mold_base', [1, -16, -15], [15, -13, -1]),
+    Cube('mold_wall_front', [1, -13, -15], [15, -9, -14]),
+    Cube('mold_wall_back', [1, -13, -2], [15, -9, -1]),
+    Cube('mold_wall_left', [1, -13, -14], [2, -9, -2]),
+    Cube('mold_wall_right', [14, -13, -14], [15, -9, -2]),
+]
+FURNACE_FIRE = [Cube('fire', [4, 4, -15.7], [12, 10, -15.5])]
+FURNACE_POUR = [
+    Cube('molten_stream', [7, -12, -8], [9, -8.5, -6]),
+    Cube('molten_pool', [2, -12.5, -14], [14, -12, -2]),
+]
+FURNACE_HOPPER = [
+    Cube('hopper_floor', [-14, 0, -14], [30, 2, 30]),
+    Cube('hopper_wall_north', [-16, 0, -16], [32, 16, -14]),
+    Cube('hopper_wall_south', [-16, 0, 30], [32, 16, 32]),
+    Cube('hopper_wall_west', [-16, 0, -14], [-14, 16, 30]),
+    Cube('hopper_wall_east', [30, 0, -14], [32, 16, 30]),
+    Cube('hopper_throat', [-2, 1, -2], [18, 2.1, 18]),
+]
+CHARCOAL_BLOCK = [Cube('charcoal_block', [0, 0, 0], [16, 16, 16])]
+
 # Texture groups: models that share one texture (and one UV layout).
 GROUPS = {
     'block/cable_anchor': {'cable_anchor': ANCHOR, 'cable_anchor_guide': ANCHOR_GUIDE, 'cable_anchor_wheel_front': ANCHOR_WHEEL_FRONT,
@@ -409,12 +445,16 @@ GROUPS = {
     'block/ore_skip': {'ore_skip_chute': SKIP_CHUTE, 'ore_skip_bin': SKIP_BIN, 'ore_skip_gate_closed': SKIP_GATE_CLOSED,
                        'ore_skip_gate_open': SKIP_GATE_OPEN, 'ore_skip_lid_closed': SKIP_LID_CLOSED, 'ore_skip_lid_open': SKIP_LID_OPEN,
                        'ore_skip_bridle': SKIP_BRIDLE, 'ore_skip': ORE_SKIP_ITEM},
+    'block/pre_industrial_blast_furnace': {'pre_industrial_blast_furnace': FURNACE, 'pre_industrial_blast_furnace_fire': FURNACE_FIRE,
+                                           'pre_industrial_blast_furnace_pour': FURNACE_POUR,
+                                           'pre_industrial_blast_furnace_hopper': FURNACE_HOPPER},
+    'block/charcoal_block': {'charcoal_block': CHARCOAL_BLOCK},
 }
 # Where each model's JSON goes (block models are used by blockstates, block items and renderers).
 MODEL_PATHS = {name: ('item/' if name in ('copper_connecting_rod', 'cable', 'cable_coil', 'ore_skip') else 'block/') + name
                for models in GROUPS.values() for name in models}
 # Models also shown as items (they get the standard block display transforms).
-ITEM_DISPLAY = {'cable_anchor', 'cable_drum', 'copper_connecting_rod', 'cable', 'cable_coil', 'loading_track', 'ore_skip'}
+ITEM_DISPLAY = {'cable_anchor', 'cable_drum', 'copper_connecting_rod', 'cable', 'cable_coil', 'loading_track', 'ore_skip', 'charcoal_block'}
 
 # ---- UV layout ----
 
@@ -624,8 +664,31 @@ def main():
     write_json(os.path.join(ASSETS, 'blockstates', 'cobblestone_engine_model.json'), {'variants': {'': m('block/cobblestone_engine')}})
     write_json(os.path.join(ASSETS, 'blockstates', 'ore_skip_part.json'), {'variants': {
         f'part={part}': m(f'block/ore_skip_{part}') for part in ('chute', 'bin', 'gate_closed', 'gate_open', 'lid_closed', 'lid_open', 'bridle')}})
+    # M08 blast furnace: the controller draws the hearth and stack, plus the fire and the pour while lit or
+    # pouring; of the other 35 blocks only the middle of the top layer has a model (the hopper), the rest
+    # an empty one that only gives the breaking particles.
+    write_json(os.path.join(ASSETS, 'blockstates', 'pre_industrial_blast_furnace.json'), {'multipart': [
+        part for facing, y in rotations.items() for part in (
+            {'when': {'facing': facing}, 'apply': m('block/pre_industrial_blast_furnace', y=y)},
+            {'when': {'facing': facing, 'lit': 'true'}, 'apply': m('block/pre_industrial_blast_furnace_fire', y=y)},
+            {'when': {'facing': facing, 'pouring': 'true'}, 'apply': m('block/pre_industrial_blast_furnace_pour', y=y)})]})
+    write_json(os.path.join(ASSETS, 'models', 'block', 'pre_industrial_blast_furnace_part.json'), {
+        'textures': {'particle': f'{NAMESPACE}:block/pre_industrial_blast_furnace'}, 'elements': []})
+    write_json(os.path.join(ASSETS, 'blockstates', 'pre_industrial_blast_furnace_part.json'), {'multipart': [
+        {'apply': m('block/pre_industrial_blast_furnace_part')},
+        {'when': {'dx': '1', 'layer': '3', 'dz': '1'}, 'apply': m('block/pre_industrial_blast_furnace_hopper')}]})
+    write_json(os.path.join(ASSETS, 'models', 'item', 'pre_industrial_blast_furnace.json'), {
+        'parent': f'{NAMESPACE}:block/pre_industrial_blast_furnace',
+        'display': {'gui': {'rotation': [30, 225, 0], 'translation': [0, -1.5, 0], 'scale': [0.2, 0.2, 0.2]},
+                    'ground': {'rotation': [0, 0, 0], 'translation': [0, 3, 0], 'scale': [0.12, 0.12, 0.12]},
+                    'fixed': {'rotation': [0, 0, 0], 'translation': [0, 0, 0], 'scale': [0.25, 0.25, 0.25]},
+                    'thirdperson_righthand': {'rotation': [75, 45, 0], 'translation': [0, 2.5, 0], 'scale': [0.18, 0.18, 0.18]},
+                    'firstperson_righthand': {'rotation': [0, 45, 0], 'translation': [0, 0, 0], 'scale': [0.2, 0.2, 0.2]},
+                    'firstperson_lefthand': {'rotation': [0, 225, 0], 'translation': [0, 0, 0], 'scale': [0.2, 0.2, 0.2]}}})
+    write_json(os.path.join(ASSETS, 'blockstates', 'charcoal_block.json'), {'variants': {'': m('block/charcoal_block')}})
     for item, path in (('cable', 'item/cable'), ('cable_coil', 'item/cable_coil'), ('copper_connecting_rod', 'item/copper_connecting_rod'),
-                       ('cable_anchor', 'block/cable_anchor'), ('cable_drum', 'block/cable_drum'), ('loading_track', 'block/loading_track'), ('ore_skip', 'item/ore_skip')):
+                       ('cable_anchor', 'block/cable_anchor'), ('cable_drum', 'block/cable_drum'), ('loading_track', 'block/loading_track'), ('ore_skip', 'item/ore_skip'),
+                       ('pre_industrial_blast_furnace', 'item/pre_industrial_blast_furnace'), ('charcoal_block', 'block/charcoal_block')):
         write_json(os.path.join(ASSETS, 'items', item + '.json'), {'model': {'type': 'minecraft:model', 'model': f'{NAMESPACE}:{path}'}})
 
     print('written:', *written, sep='\n  ')

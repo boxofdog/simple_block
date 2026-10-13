@@ -16,6 +16,7 @@ import io.github.boxofdog.simpleblock.feature.NoElytraFlight;
 import io.github.boxofdog.simpleblock.feature.RemovedRocks;
 import io.github.boxofdog.simpleblock.feature.RetiredItems;
 import io.github.boxofdog.simpleblock.feature.SaturationSync;
+import io.github.boxofdog.simpleblock.metallurgy.MetallurgyContent;
 import io.github.boxofdog.simpleblock.skip.SkipContent;
 import io.github.boxofdog.simpleblock.train.TrainContent;
 import io.github.boxofdog.simpleblock.tuning.Tuning;
@@ -125,6 +126,23 @@ import io.github.boxofdog.simpleblock.worldgen.IronWorldgen;
  *       {@code CobblestoneEngineRenderer}, {@code mixin/AbstractMinecartRendererMixin}) and the coal winch's
  *       motor in place of its stand ({@code cable/CableDrumBlock#POWERED})</li>
  * </ul>
+ *
+ * <p>Milestone 08, metallurgy and the commodity-only carrying cap ({@code metallurgy/}; registrations in
+ * {@link MetallurgyContent}):
+ * <ul>
+ *   <li>the heavy-load cap limits only commodities (ore, raw metal, ingots, nuggets, diamonds, metal
+ *       blocks); equipment always fits and still counts — {@link HeavyLoad}, {@code feature/HeavyTransfers},
+ *       {@code mixin/inventory/*}, {@code #simple_block:heavy_commodities}, client load bar</li>
+ *   <li>the pre-industrial blast furnace (3x3x4, 516 raw ore, fuel blocks, a 64-block mold) —
+ *       {@code metallurgy/BlastFurnace*}, client {@code metallurgy/BlastFurnaceScreen}; carts tip into its
+ *       hopper ({@code metallurgy/BlastFurnaceFreight}) and skips empty their chute into it
+ *       ({@code skip/SkipStations})</li>
+ *   <li>the Block of Charcoal; the ordinary furnace smelts raw ore slower —
+ *       {@code mixin/metallurgy/AbstractFurnaceBlockEntityMixin}</li>
+ *   <li>the vanilla blast furnace retired: recipe and advancement overrides, creative menu
+ *       ({@link RetiredItems}), new villages build furnaces instead ({@code metallurgy/VillageFurnaces},
+ *       {@code mixin/metallurgy/SinglePoolElementMixin})</li>
+ * </ul>
  */
 public class SimpleBlock implements ModInitializer {
 	public static final String MOD_ID = "simple_block";
@@ -136,6 +154,7 @@ public class SimpleBlock implements ModInitializer {
 		CableContent.register();
 		TrainContent.register();
 		SkipContent.register();
+		MetallurgyContent.register();
 		NoElytraFlight.register();
 		RemovedRocks.register();
 		IronWorldgen.register();

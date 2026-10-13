@@ -1,0 +1,239 @@
+{
+	"meta": {
+		"format_version": "4.10",
+		"model_format": "java_block",
+		"box_uv": false
+	},
+	"name": "pre_industrial_blast_furnace_pour",
+	"model_identifier": "",
+	"parent": "",
+	"ambientocclusion": true,
+	"front_gui_light": false,
+	"visible_box": [
+		1,
+		1,
+		0
+	],
+	"variable_placeholders": "",
+	"variable_placeholder_buttons": [],
+	"export_path": "../../src/main/resources/assets/simple_block/models/block/pre_industrial_blast_furnace_pour.json",
+	"unhandled_root_fields": {},
+	"resolution": {
+		"width": 512,
+		"height": 512
+	},
+	"elements": [
+		{
+			"name": "molten_stream",
+			"box_uv": false,
+			"rescale": false,
+			"locked": false,
+			"light_emission": 0,
+			"render_order": "default",
+			"allow_mirror_modeling": true,
+			"from": [
+				7.0,
+				-12.0,
+				-8.0
+			],
+			"to": [
+				9.0,
+				-8.5,
+				-6.0
+			],
+			"autouv": 0,
+			"color": 0,
+			"origin": [
+				8,
+				8,
+				8
+			],
+			"rotation": [
+				0,
+				0,
+				0
+			],
+			"faces": {
+				"north": {
+					"uv": [
+						164,
+						182,
+						166.0,
+						185.5
+					],
+					"texture": 0
+				},
+				"east": {
+					"uv": [
+						162,
+						182,
+						164.0,
+						185.5
+					],
+					"texture": 0
+				},
+				"south": {
+					"uv": [
+						168,
+						182,
+						170.0,
+						185.5
+					],
+					"texture": 0
+				},
+				"west": {
+					"uv": [
+						166,
+						182,
+						168.0,
+						185.5
+					],
+					"texture": 0
+				},
+				"up": {
+					"uv": [
+						164,
+						180,
+						166.0,
+						182.0
+					],
+					"texture": 0
+				},
+				"down": {
+					"uv": [
+						166,
+						180,
+						168.0,
+						182.0
+					],
+					"texture": 0
+				}
+			},
+			"type": "cube",
+			"uuid": "b7591d78-8557-5000-bb20-b56397e31d09"
+		},
+		{
+			"name": "molten_pool",
+			"box_uv": false,
+			"rescale": false,
+			"locked": false,
+			"light_emission": 0,
+			"render_order": "default",
+			"allow_mirror_modeling": true,
+			"from": [
+				2.0,
+				-12.5,
+				-14.0
+			],
+			"to": [
+				14.0,
+				-12.0,
+				-2.0
+			],
+			"autouv": 0,
+			"color": 1,
+			"origin": [
+				8,
+				8,
+				8
+			],
+			"rotation": [
+				0,
+				0,
+				0
+			],
+			"faces": {
+				"north": {
+					"uv": [
+						64,
+						192,
+						76.0,
+						192.5
+					],
+					"texture": 0
+				},
+				"east": {
+					"uv": [
+						52,
+						192,
+						64.0,
+						192.5
+					],
+					"texture": 0
+				},
+				"south": {
+					"uv": [
+						88,
+						192,
+						100.0,
+						192.5
+					],
+					"texture": 0
+				},
+				"west": {
+					"uv": [
+						76,
+						192,
+						88.0,
+						192.5
+					],
+					"texture": 0
+				},
+				"up": {
+					"uv": [
+						64,
+						180,
+						76.0,
+						192.0
+					],
+					"texture": 0
+				},
+				"down": {
+					"uv": [
+						76,
+						180,
+						88.0,
+						192.0
+					],
+					"texture": 0
+				}
+			},
+			"type": "cube",
+			"uuid": "9255e117-453e-5953-8ce6-4aaa924308af"
+		}
+	],
+	"outliner": [
+		"b7591d78-8557-5000-bb20-b56397e31d09",
+		"9255e117-453e-5953-8ce6-4aaa924308af"
+	],
+	"textures": [
+		{
+			"path": "",
+			"name": "pre_industrial_blast_furnace.png",
+			"folder": "block",
+			"namespace": "simple_block",
+			"id": "0",
+			"group": "",
+			"width": 512,
+			"height": 512,
+			"uv_width": 512,
+			"uv_height": 512,
+			"particle": true,
+			"use_as_default": false,
+			"layers_enabled": false,
+			"sync_to_project": "",
+			"render_mode": "default",
+			"render_sides": "auto",
+			"frame_time": 1,
+			"frame_order_type": "loop",
+			"frame_order": "",
+			"frame_interpolate": false,
+			"visible": true,
+			"internal": false,
+			"saved": true,
+			"uuid": "c260968e-2f75-5124-8a5e-09a9dc0121b5",
+			"relative_path": "../../src/main/resources/assets/simple_block/textures/block/pre_industrial_blast_furnace.png",
+			"source": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAgAAAAIACAYAAAD0eNT6AAAOTElEQVR4nO3dfaxX9X0H8A/bzWa0ioSkVmWGlgr1AVChihujTK3zMQbnmNi4THSZa7raZDPThqVN5x82mBmShdiuq8ZMpZTQ3pYnKVKktIA8XHkcIOCF0frQ4dPapf8sv/1Br3iVe72/c36Xc8/v83r9c/Pjnu/5fs45P+7vfR5+3++wqKmHH5zaqLqGIjZ2vVp1CYV8b8X+YVXXkNFDMyeXep9vOvjLUv13bj7kuFfoxnsfKnX8D+/eVKr/HWs7Hf821lF1AWXcduPYqktoyqKl+yIiYtL4j1ZcSXO27Hi96hJSu/Xy0YXaLX6hOyIiLh09slD7ru6jhdrRWhOn31qo3bY1iyMiYtTYSwu1P7Kvq1A76uN3qi4AADj5BAAASEgAAICEBAAASEgAAICEBAAASEgAAICEBAAASEgAAICEBAAASEgAAICEBAAASEgAAICEBAAASEgAAICEBAAASEgAAICEBAAASEgAAICEBAAASEgAAICEBAAASEgAAICEBAAASEgAAICEBAAASEgAAICEBAAASEgAAICEBAAASEgAAICEBAAASEgAAICEBAAASEgAAICEBAAASEgAAICEBAAASEgAAICEBAAASEgAAICEBAAASEgAAICEOqouoIxFS/dVXUIhW3a8XnUJACTXcc+sixtVF1HE0Td/U3UJhYwccUrVJRRy/72Ta/k+mfvY5mFV1wAwFHVEREybMqrqOpqydsORiIi4bvroagtp0oo13RFhf58sPfu77ha/0F2qfVf30dYUQiW2rVlcqv2RfV0tqoR2U+tbAPBhZk8fW8srFz3e+FW5K10jP/L7pdpXvf/OPPX3SrX/6e9e3qJKqvG/b79Rqv2pw0eWan/FzbMrPf6nfuTMUu1//My/uALYDwGAtjd13MeqLqGQdXtfjYiIaycUu2K0cvuxKzfZt3/MxKktq+lkOrBtXUREjLvi2kLt925cGRG2n775FgAAJCQAAEBCAgAAJCQAAEBCAgAAJCQAAEBCAgAAJCQAAEBCAgAAJCQAAEBCAgAAJCQAAEBCAgAAJGQ2QNpez6xyddUzq11R2be/Z1a5uio7q1327advAgBt7dtr9pkPPLWdVRcAQ5ZbAACQkAAAAAkJAACQkAAAAAkJAACQkAAAAAkJAACQkAAAAAkNu2fWxY2qiyhixPBTqi6hkDff/k3VJRRS1/0997HNBgICOIHa/XF8a+EDjYiIJ1a9GBERX/rmitptQ5187ZH9jYiIzRsWRETEDxbNsb9PovtnzKllQO+xrXtr1SWUsrJrmfd7CXfOuaHU+3ff1sOl+t+4bKfj1w9DAcMQd/2km6ouoZDlW5ZERMTF502ouJJidh7eXnUJbeHKm4od//VLju3/MRNGFWp/oOQcEhl4BgAAEhIAACAhAQAAEhIAACAhAQAAEhIAACAhAQAAEhIAACAhAQAAEhIAACAhAQAAEhIAACAhAQAAEhIAACAhAQAAEhIAACAhAQAAEhIAACAhAQAAEhIAACAhAQAAEhIAACAhAQAAEhIAACAhAQAAEhIAACAhAQAAEhIAACAhAQAAEuqougAA2tf6JdtLtT+w/UiLKuH9BACANnXN565oVNn/O2/8ulT700ecVqp92e0/bfgppfrvnP/8sFIrGGQCAEAbu+jKj1fS7671L0dExGVXfapQ+62r90RE/esfyjwDAAAJCQAAkJAAAAAJCQAAkJAAAAAJCQAAkJAAAAAJCQAAkJAAAAAJCQAAkFDHF2+udqzoZh189c1jP1859rMu9f/VZy+JiIi/W/x/1RbSpKP/fei3P7sjIuKPpt9Ti/09ecqsiIiY9/DVQ3osboCqdEREXH1JNWMtN+u5F1/u9bqudZ8/blpFlTTnpb1re72ua90AfJBbAACQkNkAYYhbvmVJ1SWUsvNwufngKadnVruqlJ0Vr+71D2UCAG3tL6Z+rhbPLPTlrV+/UXUJpYw4bUTVJZTy19d+vtbvn397ar5nYOiTAEDb+/T5V1ZdQiGbXlofERHTLrqq4kqKWbtrdUTY/1Xp2f/QF88AAEBCrgDQ9nrO5Oqq7mdy9j8MTQIAbe07655yDxTgBNwCAICEBAAASEgAAICEBAAASEgAAICEBAAASKgj4oOz1dVFXeuu62x1da0bgA+q3Xekr3nw72s1NveRrnpNhLJnxY9q955opYdmTm7p+2vTwV+2cnXRufnQoByfw19+qFb/r97vqa5NVZdQyoPLO3sd1wVPzK/18Vi1Zl3VJZTyrSeeLvX/7N677yx0/Hbv2Veov7U/3Vio3loOBHThjX9adQkDsnvpsxERcc74CyuuZGB+sWN31SUMCbdeProl61n8QndERFw6emRL1tfVfbQl6wEG3/Q/bm4OjDU/OTZi5tjzxzTVbt9LB5pa/r1qGQCA1njmjrsaERHz19f79s7Es8+NiIhtr/y84kqKeeBPrm1ERHR8+oKIiOj87clDXY35+OiIiDjwcneldRQ1689vaUREPPPdzra+IioAABERccO4i6ouoZBle3f1et0u23HF5MsqqqScjZu39nrdLtvRjnwLAAASEgAAICEBAAASEgAAICEBAAASEgAAICEBAAASEgAAICEBAAASMhIgALRYz9j+zSoztn+zBAAAOIGbr7+m0Kx+b7/zTqH+hp9xeqF2PXMXNEsAAIA+TBzf3NwS23Ycm9Oh2TkQeuYeOJn9CQAA0IeeD9hmFZ1M6GT2JwAAEfHB2ejqql22o11mo6vzdvxw+SrTAQPtadbTj7f1H7ja+fHKqisgEQEA3mfxC90tXV9X99GWrg+gFQQAau3bfzOt0NOvfTlnxKmtXF3L1/e311zQ0u297uEVrgBAUgYCAoCEXAGg1mZ/Y60zWIACXAEAgIQEAABISAAAgIQEAABISAAAgIQEAABISAAAgIQEAABISAAAgIQEAABISAAAgIQEAABISAAAgIQEAABISAAAgIQEAABISAAAgIQEAABISAAAgIQEAABIqKPqAorYvfTZqktoyi927K66BADoZdiMeV9vVF1EM04/66NVl9CU/3nt9apLaErd9u+Tt981rOoaAOrILQAASKjps6fdj9zWWLjhYHx10dZBPfP68oLdja5VC2P5t746qP3cP2NOU1dAtnVvbWr9K7uWNV3/F9etHFBNOzuXDmh9q+fO67eGR26c0au/DYe7e/1+0Y6uftvP3/BAv/Wu+/6L/db39MMr3l3//nWzGxERCzr3RETEnLk/e/d3by3sv5++PLGq//778qVvHqvra4/sL9Tv5g0LCvX7g0VzXNUABl0tnwFotesn3TSg5ZZvWRIRERefN2FAy+88vL3pWmbM+3pj8398Z0DLnnXB2HjtP/d96HJ/eO/djZ899u/9fqjMnDgpIiIWbtsSERGTRp0XERFbjhzud933/evtjWefXN/vMqMvPDu6d7/S5+9v+fxnGp3zn++3vs5/ur3x6Pf776cvl405O7Ye6Lv/vnzljs80Dp1+d/xk9TcK9XvuH4yPn//XjqbbffaG+xs/WjZXCAAGlQAwRH1y+tR+f79/zbpCyw6Wy6761An/fevqPQNa5sl51zUiIg4deSciIs4bdUZERDy34LZGRMSvdh1b9pYpJ15HXzo3HO+/TNsLJ1zXVNvd21e0pC3AYPEMAAAk5AoAtfLes/KT2bbMWbkzemAoEgCohVv+eUFF98Sfr6ZbgEEmABARxx/+6/FhD/+933vv9RdZ5i/vW+GhN4CTSABI4pk77urzq2znnnFm79fDe7/+s/GXNPpadtoXHvXBDVBDAkASs55+3Ac1AO/yLQAASMgVgCGqme/un4zv+QPQXgSAOD7C30AVGeFvoL533z+6VA/AoBs2e/rYpsY5nznlE7Fww8GmOpk55RPxlV3nNNXm0qtnRtdzC5tu88lt+5tqc9aZH2tq+dfeenVQ13/no7cJAAAMuo6IiKnjBvYhtW7v8Q+/Im3GTOx/yNoeB7Ydv6TdbJt/ePwLPkAB4EN4CBAAEuqI6H2WPlBF2rz3zH4w2wAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA1N3/A7zhs10N8nJ4AAAAAElFTkSuQmCC"
+		}
+	]
+}

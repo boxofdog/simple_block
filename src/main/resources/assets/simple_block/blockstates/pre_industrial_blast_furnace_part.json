@@ -1,0 +1,19 @@
+{
+	"multipart": [
+		{
+			"apply": {
+				"model": "simple_block:block/pre_industrial_blast_furnace_part"
+			}
+		},
+		{
+			"when": {
+				"dx": "1",
+				"layer": "3",
+				"dz": "1"
+			},
+			"apply": {
+				"model": "simple_block:block/pre_industrial_blast_furnace_hopper"
+			}
+		}
+	]
+}

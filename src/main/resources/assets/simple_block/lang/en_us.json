@@ -84,5 +84,14 @@
 	"simple_block.winch.lever_skipped": "Lever: %s (%s is blocked here)",
 	"item.simple_block.ore_skip": "Ore Skip",
 	"entity.simple_block.ore_skip": "Ore Skip",
-	"container.simple_block.ore_skip": "Ore Skip"
+	"container.simple_block.ore_skip": "Ore Skip",
+	"block.simple_block.pre_industrial_blast_furnace": "Pre-Industrial Blast Furnace",
+	"block.simple_block.pre_industrial_blast_furnace_part": "Pre-Industrial Blast Furnace",
+	"block.simple_block.charcoal_block": "Block of Charcoal",
+	"simple_block.blast_furnace.reservoir": "Raw iron, copper or gold",
+	"simple_block.blast_furnace.not_ore": "The furnace smelts raw iron, copper or gold",
+	"simple_block.blast_furnace.other_ore": "The furnace holds %s: it takes no other ore until that is used or taken out",
+	"simple_block.blast_furnace.full": "The furnace is full: %s / %s",
+	"simple_block.blast_furnace.too_heavy": "Too heavy: you can't carry any more %s",
+	"simple_block.blast_furnace.no_room": "The furnace needs a clear space 3 blocks wide, 3 deep and 4 high"
 }

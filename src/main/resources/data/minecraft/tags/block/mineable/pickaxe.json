@@ -1,6 +1,9 @@
 {
 	"values": [
 		"simple_block:cable_anchor",
-		"simple_block:loading_track"
+		"simple_block:loading_track",
+		"simple_block:pre_industrial_blast_furnace",
+		"simple_block:pre_industrial_blast_furnace_part",
+		"simple_block:charcoal_block"
 	]
 }

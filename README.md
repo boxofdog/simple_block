@@ -108,6 +108,20 @@ See [`docs/MILESTONE_07.md`](docs/MILESTONE_07.md) and [`docs/MILESTONE_07_REPOR
 | Moving cable | The hoist cable (and the free end's) moves along its whole length, routed and down the shaft, with the drum while the skip or hook actually moves; it stands still when they stop. | `cable/CableLines#shownSpeed`, client `cable/CableDrumRenderer`, `skip/OreSkipRenderer`, `cable/CableHookRenderer` |
 | Models | New editable sources: the skip's chute, bin, discharge gate (closed/open), lid (closed/open), bridle and item; the engine; the coal winch's powered frames; the ceiling pulley; the minecart body (`gated_minecart`, an entity model on vanilla's minecart texture). | `art/blockbench/`, `tools/models/generate_models.py`, `tools/models/generate_minecart_bbmodel.py` |
 
+## What Milestone 08 adds
+
+See [`docs/MILESTONE_08.md`](docs/MILESTONE_08.md). M01–M07 work as before except where this table says otherwise.
+
+| Component | What it does | Where |
+|---|---|---|
+| Commodity-only carrying cap | Everything weighted still counts toward the 64-ingot load, but only commodities (raw metal and raw-metal blocks, metal and diamond ores, ingots, nuggets, diamonds, iron/gold/copper/diamond/netherite blocks, every copper building block) are refused once the load leaves no room for them. Tools, armor, rails, buckets, lanterns, minecarts and other equipment are always taken (pickups, shift-clicks, the cursor, crafting, armor swaps), raising the load past 64 and leaving less room for commodities. Nothing is dropped. The load bar rescales past 64 with a white tick at the cap; its tooltip then says that only ore, ingots and metal blocks are refused. | `feature/HeavyLoad`, `feature/HeavyTransfers`, `mixin/inventory/*`, `#simple_block:heavy_commodities`, client `InventoryScreenAddons` |
+| Pre-Industrial Blast Furnace | Shaped recipe: hopper top middle; Bricks block, iron block; Bricks block, furnace, cauldron (or its mirror image); one furnace. Its item places the whole furnace, 3x3 and four high, facing you, the block you click its front middle bottom (all 36 blocks must be free). Using any block of it opens its screen: the ore reservoir (up to 516 raw iron, copper or gold, one kind at a time), one fuel slot (Blocks of Coal or Charcoal, Dried Kelp Blocks; 64) and the mold (64 cast blocks of one metal). It casts nine raw metal into one block of the metal while it has fuel and the mold has room, otherwise waits with nothing lost; it glows while burning and shows the molten pour after each cast. Breaking any block breaks it all and drops the furnace and everything in it. | `metallurgy/BlastFurnace*`, `metallurgy/MetallurgyContent`, `blast_furnace.*` in `tuning/Tuning`, client `metallurgy/BlastFurnaceScreen` |
+| Furnace freight | A freight cart docked on a Loading Rail beside the furnace, level with the top of its hopper's rim (any of the twelve places along its sides, end-on or side-on), opens its gate towards the furnace and tips its raw metal in. A hung skip whose bottom is level with the hopper's rim, the hopper in front of it, empties its chute into it (a winched skip stops there). Another metal, anything not raw metal, a full furnace or a block over the rim: nothing moves; a partial load fills it and the rest stays. | `metallurgy/BlastFurnaceFreight`, `skip/SkipStations` |
+| Block of Charcoal | Nine charcoal; burns like a Block of Coal (also in an ordinary furnace). | `metallurgy/MetallurgyContent`, recipe |
+| Slower ordinary furnace | An ordinary furnace smelts raw metal and metal ores twice as slowly; everything else as before. | `mixin/metallurgy/AbstractFurnaceBlockEntityMixin`, `#simple_block:raw_ore_smelting` |
+| Vanilla blast furnace retired | No recipe, not in the creative menu; new villages (and trail ruins) build an ordinary furnace where theirs had a blast furnace, facing the same way. Villagers, their jobs and trades are unchanged. | recipe/advancement overrides, `feature/RetiredItems`, `metallurgy/VillageFurnaces`, `mixin/metallurgy/SinglePoolElementMixin` |
+| Models | New editable sources: the furnace's hearth and stack, fire, molten pour and hopper; the Block of Charcoal. | `art/blockbench/`, `tools/models/generate_models.py` |
+
 ## Toolchain
 
 | | |
@@ -155,12 +169,13 @@ Counts reflect source files only, not proof of implemented or tested behavior.
 
 | Source set | First-level package | Java files |
 |---|---|---:|
-| client | client | 18 |
-| gametest | gametest | 40 |
+| client | client | 19 |
+| gametest | gametest | 42 |
 | main | (root) | 1 |
 | main | cable | 17 |
 | main | feature | 20 |
-| main | mixin | 38 |
+| main | metallurgy | 9 |
+| main | mixin | 40 |
 | main | network | 3 |
 | main | skip | 7 |
 | main | train | 6 |

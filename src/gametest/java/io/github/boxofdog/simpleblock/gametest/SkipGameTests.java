@@ -58,11 +58,11 @@ import io.github.boxofdog.simpleblock.train.TrainContent;
  * floor, and one at (12, 9, 4) beside the bridle of a skip at height 6.
  */
 public class SkipGameTests {
-	private static final String SHAFT = "simple_block-gametest:skip_shaft";
+	static final String SHAFT = "simple_block-gametest:skip_shaft";
 	private static final BlockPos DRUM = new BlockPos(2, 1, 5);
 	private static final BlockPos MID_ANCHOR = new BlockPos(7, 6, 5);
 	private static final BlockPos HEAD_ANCHOR = new BlockPos(12, 11, 5);
-	private static final BlockPos COLUMN = new BlockPos(12, 1, 5);
+	static final BlockPos COLUMN = new BlockPos(12, 1, 5);
 	private static final BlockPos BOTTOM_RAIL = new BlockPos(12, 1, 4);
 	private static final BlockPos TOP_RAIL = new BlockPos(12, 9, 4);
 	/** The skip's bottom when the top station's cart is level with its bridle. */
@@ -100,7 +100,7 @@ public class SkipGameTests {
 	}
 
 	/** A freight cart standing on {@code rail} (relative) with {@code count} of {@code item}; it docks on its next tick. */
-	private static Minecart cartOn(GameTestHelper helper, BlockPos rail, Item item, int count) {
+	static Minecart cartOn(GameTestHelper helper, BlockPos rail, Item item, int count) {
 		Minecart cart = helper.spawn(EntityTypes.MINECART, Vec3.atBottomCenterOf(rail).add(0.0, 0.0625, 0.0));
 		cart.setDeltaMovement(Vec3.ZERO);
 		MinecartCargo.cart(cart).simpleBlock$setCargo(item, count);
@@ -112,13 +112,13 @@ public class SkipGameTests {
 	}
 
 	/** The shaft's drum, anchors and route (the cable end put down under the head anchor). Run at least a tick after {@link #layShaft}. */
-	private static void route(GameTestHelper helper, ServerPlayer player) {
+	static void route(GameTestHelper helper, ServerPlayer player) {
 		// Next to the drum, where its loose end lies (the end only follows the hand between ticks).
 		CableGameTests.teleport(helper, player, new BlockPos(3, 1, 6));
 		CableLoopGameTests.route(helper, player, DRUM, MID_ANCHOR, HEAD_ANCHOR);
 	}
 
-	private static CableDrumBlockEntity layShaft(GameTestHelper helper, ServerPlayer player) {
+	static CableDrumBlockEntity layShaft(GameTestHelper helper, ServerPlayer player) {
 		floor(helper);
 		CableDrumBlockEntity drum = CableGameTests.windDrum(helper, player, DRUM, 1);
 		CableGameTests.hangAnchor(helper, player, MID_ANCHOR.above());
@@ -127,7 +127,7 @@ public class SkipGameTests {
 	}
 
 	/** Picks up the cable end from under the head anchor and uses it on the skip. */
-	private static void hang(GameTestHelper helper, ServerPlayer player, OreSkip skip) {
+	static void hang(GameTestHelper helper, ServerPlayer player, OreSkip skip) {
 		player.setItemInHand(InteractionHand.MAIN_HAND, ItemStack.EMPTY);
 		var hook = CableGameTests.hook(helper, DRUM);
 		player.interactOn(hook, InteractionHand.MAIN_HAND, hook.position());
@@ -695,7 +695,7 @@ public class SkipGameTests {
 	}
 
 	/** A hung skip in the shaft (route, cable end used on it), held still at {@code bottom} (relative), with the given cargo. */
-	private static void holdAt(GameTestHelper helper, OreSkip skip, double bottom, Item item, int count) {
+	static void holdAt(GameTestHelper helper, OreSkip skip, double bottom, Item item, int count) {
 		Vec3 at = helper.absoluteVec(new Vec3(COLUMN.getX() + 0.5, bottom, COLUMN.getZ() + 0.5));
 		skip.setPos(at.x, at.y, at.z);
 		skip.setCargo(item, count);

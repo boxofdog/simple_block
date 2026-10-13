@@ -34,7 +34,8 @@
 			"io.github.boxofdog.simpleblock.gametest.LoadingTrackGameTests",
 			"io.github.boxofdog.simpleblock.gametest.CoalWinchGameTests",
 			"io.github.boxofdog.simpleblock.gametest.RetiredItemsGameTests",
-			"io.github.boxofdog.simpleblock.gametest.SkipGameTests"
+			"io.github.boxofdog.simpleblock.gametest.SkipGameTests",
+			"io.github.boxofdog.simpleblock.gametest.BlastFurnaceGameTests"
 		],
 		"fabric-client-gametest": [
 			"io.github.boxofdog.simpleblock.gametest.client.SurvivalSmokeClientTest",
@@ -45,7 +46,8 @@
 			"io.github.boxofdog.simpleblock.gametest.client.MachineryArtClientTest",
 			"io.github.boxofdog.simpleblock.gametest.client.SkipClientTest",
 			"io.github.boxofdog.simpleblock.gametest.client.SkipServerClientTest",
-			"io.github.boxofdog.simpleblock.gametest.client.MinecartBodyClientTest"
+			"io.github.boxofdog.simpleblock.gametest.client.MinecartBodyClientTest",
+			"io.github.boxofdog.simpleblock.gametest.client.BlastFurnaceClientTest"
 		]
 	},
 	"depends": {
