@@ -32,7 +32,7 @@
 
 **M08 — owner playtesting.** Implemented after the owner's 2026-10-13 authorization: the commodity-only carrying cap, the pre-industrial blast furnace (redesigned to the owner's iron-fronted brick furnace with a back-middle hopper, an outside channel and a whole-block mold), cart and skip intake, the Block of Charcoal, slower raw-ore smelting and the retired vanilla blast furnace. Results, gaps and the playtest list: [M08 verification](MILESTONE_08.md#implementation-and-verification--2026-10-13). Not owner-accepted; villager professions remain the [village backlog](BACKLOG.md).
 
-**M09–M11:** packages are indexed above. M09 and M11 handoffs are **ready, but not implementation-authorized**; M10 still requires design. **None has been authorized to start.** Mining Boots/Mule/Old Pro remain **M10**, not M08; the heavy-freight fill rendering and hopper mechanics remain **M11**, not M07.
+**M09–M11:** packages are indexed above. **M09, M10 and M11 are PLANNED - READY**, but **none is implementation-authorized**; each requires the owner's explicit go-ahead. Mining Boots/Mule/Old Pro remain **M10**, not M08; the heavy-freight fill rendering and hopper mechanics remain **M11**, not M07.
 
 Documentation and handoff conventions (including the five canonical statuses): [RULES.md](RULES.md).
 
