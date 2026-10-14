@@ -162,3 +162,39 @@ Full historical design context is archived in [ROADMAP_PRE_CONSOLIDATION_2026-10
 - Tip a cart from a rail behind the hopper; try a copper cart into iron.
 - Hoist a skip beside the hopper and empty it.
 - Fuel it, watch metal run and the mold show the cast block.
+
+## Implementation and verification — 2026-10-14
+
+**Metadata:** M08 | PLAYTESTING | Owner playtest changes: Blast Furnace rename with old-ID compatibility; continuous mold-fill casting animation.
+
+**Implementation**
+- Commits: `9cdadf7269d1e288f06dd79058627ce79fab1901` rename and casting animation; `e240d807a1ede1d070db32693b9868d6dc749fcd` M09 test stabilization (CI head)
+- Delivered: `simple_block:blast_furnace*` IDs, assets, lang and docs; old `pre_industrial_blast_furnace*` block, item and block-entity IDs resolve to the new ones. The mold fills in eight steps with each cast's real progress; the finished block holds 40 ticks (`blast_furnace.cast_hold_ticks`) while the next batch keeps cooking, then the next fill rises; paused casts hold; idle shows the last block; taking it out empties at once.
+- Deviations: Compatibility is a registry-lookup alias, not a world migration; vanilla's blast furnace stays retired. No gameplay timing changed.
+
+**CI**
+- Build: #39 | Run ID: 38522399370 | PASS
+- Source SHA: `e240d807a1ede1d070db32693b9868d6dc749fcd`
+- URL: https://github.com/boxofdog/simple_block/actions/runs/38522399370
+- Artifact: `simple-block-mod` id 11874229564, available.
+
+**Tests**
+
+| Category | Result | Passed/Total | Evidence / Notes |
+|---|---|---|---|
+| Server | PASS | 195/195 | local on `e240d80`; Build #39 log: all 195 required tests passed; [evidence](evidence/milestone-08/playtest-changes-2026-10-14.txt) |
+| Client | PASS | 12/12 | full suite on `9cdadf7`; [screenshots](evidence/milestone-08/screenshots/) `m08-*filling`, `*cast-block`, `*next-fill` |
+| Dedicated server | PASS | 1/1 | `BlastFurnaceClientTest` dedicated pass: fill 4/8, cast block, next fill 5/8 |
+| Negative controls | PASS | 2/2 | aliases emptied; fill held at 0 |
+
+**Known gaps**
+- GAP-01: MINOR — rename tested with saved block-state, item and block-entity data, not a whole pre-rename world; next: owner loads an old test world.
+- GAP-02: MINOR — 40-tick hold is provisional; next: playtest feel.
+- GAP-03: MINOR — generated fill-step models use the placeholder furnace atlas; next: Joe paints it (already listed).
+
+**Owner playtest**
+- Check names read "Blast Furnace" in inventory, tooltip and screen.
+- Load a world with an older furnace; confirm contents survive.
+- Watch a cast fill, the solid block, and the next fill rise.
+- Stop fuel mid-cast; confirm the fill holds and resumes.
+- Take the output; confirm the mold empties at once.

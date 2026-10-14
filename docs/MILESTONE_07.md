@@ -145,3 +145,40 @@ A cable-hauled freight minecart approaching a **real Loading Rail near the far/t
 - Unload a coupled car side-on at a Loading Rail.
 - Dock a winched cart on a Loading Rail under the last support.
 - Drive the lever: right-click PULL, left-click FEED, same click NEUTRAL.
+
+## Implementation and verification — 2026-10-14
+
+**Metadata:** M07 | PLAYTESTING | Owner playtest fixes: BUG-003–005, Loading Rail release after an exchange, heavy skip drop; change 2 proposed only.
+
+**Implementation**
+- Commits: `9cdadf7269d1e288f06dd79058627ce79fab1901` playtest fixes; `e240d807a1ede1d070db32693b9868d6dc749fcd` M09 test stabilization (CI head)
+- Delivered: rod reach 1–6 blocks; carts hauled up climbs between level anchors; steep spans drawn under the anchor's block; a finished exchange lets that cart go and folds its stop; an unhooked skip accelerates down and clangs on landing only, 512 cargo kept.
+- Deviations: Change 2 (two-ended winch) not built; proposal above awaits owner decisions. Release applies to the exchanging car only; the sequential-redocking question (GAP-01 of 2026-10-13) is unchanged.
+
+**CI**
+- Build: #39 | Run ID: 38522399370 | PASS
+- Source SHA: `e240d807a1ede1d070db32693b9868d6dc749fcd`
+- URL: https://github.com/boxofdog/simple_block/actions/runs/38522399370
+- Artifact: `simple-block-mod` id 11874229564, available. Build #38 (run 38516998674) on `9cdadf7` failed only JOCK-03 (M09), fixed in `e240d80`.
+
+**Tests**
+
+| Category | Result | Passed/Total | Evidence / Notes |
+|---|---|---|---|
+| Server | PASS | 195/195 | local on `e240d80`; Build #39 log: all 195 required tests passed; [evidence](evidence/milestone-07/playtest-fixes-2026-10-14.txt) |
+| Client | PASS | 12/12 | full suite on `9cdadf7`, incl. `PlaytestFixesClientTest` |
+| Dedicated server | PASS | 1/1 | `PlaytestFixesClientTest` dedicated pass: cable bend, rod grip, clang |
+| Negative controls | PASS | 3/3 | old reach, no release, steady silent fall: 5 tests failed as expected; [evidence](evidence/milestone-07/playtest-fixes-2026-10-14.txt) |
+
+**Known gaps**
+- GAP-01: MAJOR — two-ended winch not implemented; next: owner answers proposal (a)–(c).
+- GAP-02: MINOR — BUG-005 checked from one angle by test; next: owner views several angles.
+- GAP-03: MINOR — climbs tested on one 4-block slope; next: playtest steeper and curved climbs.
+- GAP-04: MINOR — rare M09 full-suite flakes (`open_door_draws_them_in`, `breach_redistributes`), pass alone; next: watch CI.
+
+**Owner playtest**
+- Hang anchors 4–5 blocks over a rail; confirm the rod grips.
+- Haul a cart up a slope under level anchors.
+- View an incline cable under its anchor block from several angles.
+- Finish a skip exchange, wind the skip on; confirm the cart is released and not refilled.
+- Break a hung skip's drum; watch the drop and hear the landing clang.
