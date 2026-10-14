@@ -98,7 +98,12 @@ public class WorkwearClientTest implements FabricClientGameTest {
 	}
 
 	private static void run(ClientGameTestContext context, TestServerContext server, int g, String shots) {
-		wear(server, "simple_block:headlamp", "simple_block:overalls", "simple_block:spiked_boots");
+		// Just after joining a dedicated server the commands can land before the player is ready: wear the
+		// outfit until the client sees it.
+		for (int i = 0; i < 10 && context.computeOnClient(client -> Workwear.bonus(client.player)) != Workwear.Bonus.TRAIL_BLAZER; i++) {
+			wear(server, "simple_block:headlamp", "simple_block:overalls", "simple_block:spiked_boots");
+			context.waitTicks(10);
+		}
 		// A wall north of the player; behind it a torch the player places, a torch and a ladder the "world" places, and a rope.
 		server.runCommand("fill " + (X - 5) + " " + g + " " + (Z - 4) + " " + (X + 5) + " " + (g + 4) + " " + (Z - 4) + " minecraft:stone");
 		BlockPos placedTorch = new BlockPos(X - 2, g, Z - 7);
