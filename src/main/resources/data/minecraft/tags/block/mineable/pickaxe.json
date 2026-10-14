@@ -6,6 +6,12 @@
 		"simple_block:blast_furnace_part",
 		"simple_block:charcoal_block",
 		"simple_block:blast_furnace_channel",
-		"simple_block:blast_furnace_mold"
+		"simple_block:blast_furnace_mold",
+		"simple_block:zombie_effigy",
+		"simple_block:skeleton_effigy",
+		"simple_block:creeper_effigy",
+		"simple_block:enderman_effigy",
+		"simple_block:skeleton_block",
+		"simple_block:enderman_block"
 	]
 }

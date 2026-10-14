@@ -1,0 +1,17 @@
+{
+	"type": "minecraft:crafting_shaped",
+	"category": "misc",
+	"key": {
+		"H": "minecraft:skeleton_skull",
+		"B": "simple_block:skeleton_block"
+	},
+	"pattern": [
+		" H ",
+		" B ",
+		" B "
+	],
+	"result": {
+		"count": 1,
+		"id": "simple_block:skeleton_effigy"
+	}
+}

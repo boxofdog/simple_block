@@ -46,8 +46,9 @@ import io.github.boxofdog.simpleblock.mixin.mobs.MobAccessor;
  * as the mob is inside a loaded effigy's cone of its own type and, while it runs, the mob has no target
  * ({@code mixin/effigy}), gets off anything it rides, puts out a creeper's fuse, and flees along a real
  * path out of every cone that holds it, sprinting (vanilla's sprint: +30% speed and the sprinting dust).
- * It ends once the mob is clear of every such cone by a 4-block margin (so it does not step straight back
- * in); a mob with no way out stays afraid where it is and looks again every second. Nothing else changes:
+ * Once the mob is clear of every such cone by a 4-block margin it stands still, still without a target,
+ * for a 5-second retreat, and only then is fear over (so it does not step straight back in and resume a
+ * chase at the edge); a mob with no way out stays afraid where it is and looks again every second. Nothing else changes:
  * spawning, despawning, and anything coming into a cone from outside it (a skeleton's arrows included).
  *
  * <p><b>Loaded only.</b> The effigies looked at are those whose block entity is loaded (kept in a set as
@@ -63,6 +64,8 @@ public final class Effigies {
 	private static final int ESCAPE_DISTANCE = 16;
 	private static final int REPATH_TICKS = 10;
 	private static final int TRAPPED_RETRY_TICKS = 20;
+	/** The retreat once clear of every cone: no target, no chase, standing off. */
+	public static final int RETREAT_TICKS = 100;
 
 	private static final Map<Level, Set<EffigyBlockEntity>> LOADED = new WeakHashMap<>();
 
@@ -108,6 +111,12 @@ public final class Effigies {
 				}
 			}
 		});
+	}
+
+	/** Whether {@code mob} is now inside a loaded effigy's cone of its own type (whether or not it has noticed yet). */
+	public static boolean frightens(Mob mob) {
+		EffigyType type = EffigyType.frightening(mob);
+		return type != null && !affecting(mob, type, 0.0).isEmpty();
 	}
 
 	/** The loaded effigies in {@code level} (for the tests). */
@@ -202,6 +211,10 @@ public final class Effigies {
 		private final PathfinderMob mob;
 		private final EffigyType type;
 		private int repath;
+		private boolean retreating;
+		private int retreat;
+		/** Searches for a way out since the goal was added (for the tests). */
+		private int searches;
 
 		FearGoal(PathfinderMob mob) {
 			this.mob = mob;
@@ -216,7 +229,20 @@ public final class Effigies {
 
 		@Override
 		public boolean canContinueToUse() {
-			return this.mob.isAlive() && !affecting(this.mob, this.type, MARGIN).isEmpty();
+			if (!this.mob.isAlive()) {
+				return false;
+			}
+			if (this.retreating) {
+				return this.retreat > 0;
+			}
+			if (!affecting(this.mob, this.type, MARGIN).isEmpty()) {
+				return true;
+			}
+			// Clear of every cone by the margin: the retreat begins.
+			this.retreating = true;
+			this.retreat = RETREAT_TICKS;
+			this.mob.getNavigation().stop();
+			return true;
 		}
 
 		@Override
@@ -235,6 +261,8 @@ public final class Effigies {
 			this.mob.setAggressive(false);
 			this.mob.getNavigation().stop();
 			this.repath = 0;
+			this.retreating = false;
+			this.retreat = 0;
 			this.calmDown();
 		}
 
@@ -254,6 +282,16 @@ public final class Effigies {
 		@Override
 		public void tick() {
 			this.calmDown();
+			if (this.retreating) {
+				// Clear of every cone: stand off for the rest of the retreat (inside one again: flee again).
+				if (affecting(this.mob, this.type, 0.0).isEmpty()) {
+					this.retreat--;
+					this.mob.setSprinting(false);
+					return;
+				}
+				this.retreating = false;
+				this.repath = 0;
+			}
 			// A new way out when the last one has run out (arrived, or given up as stuck), at most every half second.
 			if (--this.repath <= 0 && this.mob.getNavigation().isDone()) {
 				this.repath = this.flee() ? REPATH_TICKS : TRAPPED_RETRY_TICKS;
@@ -264,6 +302,7 @@ public final class Effigies {
 
 		/** Sets off along the best path out of every cone that holds the mob; false if none leads further out. */
 		private boolean flee() {
+			this.searches++;
 			List<EffigyBlockEntity> effigies = affecting(this.mob, this.type, MARGIN);
 			Vec3 here = this.mob.getBoundingBox().getCenter();
 			double current = totalDepth(effigies, here);
@@ -310,8 +349,18 @@ public final class Effigies {
 		}
 	}
 
-	/** Whether {@code mob} is fleeing an effigy now (for the tests). */
-	public static boolean fleeing(@Nullable Mob mob) {
-		return mob != null && afraid(mob);
+	/** Whether {@code mob} is in its retreat, clear of the cones (for the tests). */
+	public static boolean retreating(Mob mob) {
+		return goal(mob) instanceof FearGoal fear && fear.retreating;
+	}
+
+	/** How many times {@code mob} has looked for a way out (for the tests). */
+	public static int searches(Mob mob) {
+		return goal(mob) instanceof FearGoal fear ? fear.searches : 0;
+	}
+
+	private static @Nullable Goal goal(Mob mob) {
+		return ((MobAccessor) mob).simpleBlock$getGoalSelector().getAvailableGoals().stream().map(wrapped -> wrapped.getGoal())
+			.filter(goal -> goal instanceof FearGoal).findFirst().orElse(null);
 	}
 }

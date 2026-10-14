@@ -1,0 +1,7 @@
+{
+	"type": "simple_block:compression",
+	"drop": "minecraft:bone",
+	"result": {
+		"id": "simple_block:skeleton_block"
+	}
+}

@@ -1,9 +1,14 @@
 package io.github.boxofdog.simpleblock.mixin.effigy;
 
+import java.util.Optional;
+
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
+import com.llamalad7.mixinextras.injector.ModifyReturnValue;
 import com.llamalad7.mixinextras.sugar.Local;
 
 import net.minecraft.core.NonNullList;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.item.crafting.CraftingInput;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.CraftingRecipe;
 import net.minecraft.world.item.crafting.RecipeHolder;
@@ -16,10 +21,18 @@ import io.github.boxofdog.simpleblock.effigy.CompressionRecipe;
 
 /**
  * M12: a crafter making a compressed monster block uses the whole stack in every cell
- * ({@link CompressionRecipe}). Vanilla then takes one from each cell; each is left at one first.
+ * ({@link CompressionRecipe}). Vanilla then takes one from each cell; each is left at one first. Its
+ * cached recipe lookup (which ignores counts; used for the crafting and for the screen's preview) is
+ * checked again for the counts.
  */
 @Mixin(CrafterBlock.class)
 abstract class CrafterBlockMixin {
+	@ModifyReturnValue(method = "getPotentialResults", at = @At("RETURN"))
+	private static Optional<RecipeHolder<CraftingRecipe>> simpleBlock$countsMatter(Optional<RecipeHolder<CraftingRecipe>> found, ServerLevel level,
+		CraftingInput input) {
+		return CompressionRecipe.recheck(found, level, input);
+	}
+
 	@ModifyExpressionValue(method = "dispenseFrom", at = @At(value = "INVOKE",
 		target = "Lnet/minecraft/world/level/block/entity/CrafterBlockEntity;getItems()Lnet/minecraft/core/NonNullList;"))
 	private NonNullList<ItemStack> simpleBlock$takeWholeStacks(NonNullList<ItemStack> items, @Local RecipeHolder<CraftingRecipe> recipe) {

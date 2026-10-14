@@ -1,0 +1,17 @@
+{
+	"type": "minecraft:crafting_shaped",
+	"category": "misc",
+	"key": {
+		"H": "minecraft:creeper_head",
+		"B": "simple_block:creeper_block"
+	},
+	"pattern": [
+		" H ",
+		" B ",
+		" B "
+	],
+	"result": {
+		"count": 1,
+		"id": "simple_block:creeper_effigy"
+	}
+}

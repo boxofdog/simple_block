@@ -3,13 +3,18 @@ package io.github.boxofdog.simpleblock.effigy;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 
+import java.util.Optional;
+
 import net.minecraft.core.Holder;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.ItemStackTemplate;
 import net.minecraft.world.item.crafting.CraftingInput;
+import net.minecraft.world.item.crafting.CraftingRecipe;
+import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.item.crafting.CustomRecipe;
 import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraft.world.item.crafting.RecipeSerializer;
@@ -28,6 +33,10 @@ import org.jspecify.annotations.Nullable;
  * the crafting table and inventory grid ({@code mixin/effigy/ResultSlotMixin}, covering clicks,
  * shift-click and every repeat, which all go through the result slot) and the crafter
  * ({@code mixin/effigy/CrafterBlockMixin}). It is a special recipe, so not in the recipe book.
+ *
+ * <p>The crafter remembers recipes by the items in its cells, not their counts; for this recipe the
+ * counts matter, so the crafter's answer is checked again ({@link #recheck}): a remembered compression
+ * for a grid with a short stack crafts nothing, and a remembered "nothing" for a grid now full does.
  */
 public class CompressionRecipe extends CustomRecipe {
 	public static final MapCodec<CompressionRecipe> MAP_CODEC = RecordCodecBuilder.mapCodec(i -> i.group(
@@ -74,6 +83,17 @@ public class CompressionRecipe extends CustomRecipe {
 	@Override
 	public RecipeSerializer<CompressionRecipe> getSerializer() {
 		return SERIALIZER;
+	}
+
+	/** The crafter's recipe for {@code input} ({@code found}, from its cache), checked again for the stack counts. */
+	public static Optional<RecipeHolder<CraftingRecipe>> recheck(Optional<RecipeHolder<CraftingRecipe>> found, ServerLevel level, CraftingInput input) {
+		if (found.isPresent()) {
+			return found.get().value() instanceof CompressionRecipe compression && !compression.matches(input, level) ? Optional.empty() : found;
+		}
+		if (input.width() != 3 || input.height() != 3 || input.ingredientCount() != 9) {
+			return found;
+		}
+		return level.recipeAccess().getRecipeFor(RecipeType.CRAFTING, input, level).filter(recipe -> recipe.value() instanceof CompressionRecipe);
 	}
 
 	/** Whether {@code recipe} is a compression recipe, whose craft takes whole stacks. */

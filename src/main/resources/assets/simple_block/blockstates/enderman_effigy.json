@@ -1,0 +1,10 @@
+{
+	"variants": {
+		"half=lower": {
+			"model": "simple_block:block/effigy/enderman_effigy_particle"
+		},
+		"half=upper": {
+			"model": "simple_block:block/effigy/enderman_effigy_particle"
+		}
+	}
+}

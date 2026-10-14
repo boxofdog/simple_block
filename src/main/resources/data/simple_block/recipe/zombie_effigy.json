@@ -1,0 +1,17 @@
+{
+	"type": "minecraft:crafting_shaped",
+	"category": "misc",
+	"key": {
+		"H": "minecraft:zombie_head",
+		"B": "simple_block:zombie_block"
+	},
+	"pattern": [
+		" H ",
+		" B ",
+		" B "
+	],
+	"result": {
+		"count": 1,
+		"id": "simple_block:zombie_effigy"
+	}
+}

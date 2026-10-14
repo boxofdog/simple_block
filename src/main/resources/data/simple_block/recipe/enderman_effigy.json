@@ -1,0 +1,17 @@
+{
+	"type": "minecraft:crafting_shaped",
+	"category": "misc",
+	"key": {
+		"H": "minecraft:ender_eye",
+		"B": "simple_block:enderman_block"
+	},
+	"pattern": [
+		" H ",
+		" B ",
+		" B "
+	],
+	"result": {
+		"count": 1,
+		"id": "simple_block:enderman_effigy"
+	}
+}

@@ -54,7 +54,7 @@ public final class EffigyContent {
 					.forceSolidOn());
 			EFFIGIES.put(type, effigy);
 			EFFIGY_ITEMS.put(type, register(type.getSerializedName() + "_effigy",
-				key -> new EffigyItem(type, new Item.Properties().stacksTo(1).useBlockDescriptionPrefix().setId(key))));
+				key -> new EffigyItem(type, new Item.Properties().useBlockDescriptionPrefix().setId(key))));
 		}
 	}
 

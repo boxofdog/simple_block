@@ -1,0 +1,9 @@
+{
+	"replace": false,
+	"values": [
+		"simple_block:zombie_effigy",
+		"simple_block:skeleton_effigy",
+		"simple_block:creeper_effigy",
+		"simple_block:enderman_effigy"
+	]
+}

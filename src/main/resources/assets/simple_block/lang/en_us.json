@@ -121,5 +121,20 @@
 	"item.simple_block.spelunker_rope": "Spelunker's Rope",
 	"block.simple_block.spelunker_rope_anchor": "Spelunker's Rope Anchor",
 	"block.simple_block.spelunker_rope": "Spelunker's Rope",
-	"block.simple_block.spelunker_rope_coil": "Spelunker's Rope Coil"
+	"block.simple_block.spelunker_rope_coil": "Spelunker's Rope Coil",
+	"block.simple_block.zombie_block": "Zombie Block",
+	"block.simple_block.skeleton_block": "Skeleton Block",
+	"block.simple_block.creeper_block": "Creeper Block",
+	"block.simple_block.enderman_block": "Enderman Block",
+	"block.simple_block.zombie_effigy": "Zombie Effigy",
+	"item.simple_block.zombie_effigy.tooltip": "Scares away Zombies in a 100-block conical radius",
+	"block.simple_block.skeleton_effigy": "Skeleton Effigy",
+	"item.simple_block.skeleton_effigy.tooltip": "Scares away Skeletons in a 100-block conical radius",
+	"block.simple_block.creeper_effigy": "Creeper Effigy",
+	"item.simple_block.creeper_effigy.tooltip": "Scares away Creepers in a 100-block conical radius",
+	"block.simple_block.enderman_effigy": "Enderman Effigy",
+	"item.simple_block.enderman_effigy.tooltip": "Scares away Endermen in a 100-block conical radius",
+	"block.simple_block.effigy_figure": "Effigy Figure",
+	"simple_block.effigy.confirm": "Are you sure? Monster Effigies cannot be picked back up after being destroyed.",
+	"simple_block.effigy.place": "Place"
 }

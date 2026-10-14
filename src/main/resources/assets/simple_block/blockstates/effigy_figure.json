@@ -1,0 +1,16 @@
+{
+	"variants": {
+		"type=zombie": {
+			"model": "simple_block:block/effigy/zombie_effigy"
+		},
+		"type=skeleton": {
+			"model": "simple_block:block/effigy/skeleton_effigy"
+		},
+		"type=creeper": {
+			"model": "simple_block:block/effigy/creeper_effigy"
+		},
+		"type=enderman": {
+			"model": "simple_block:block/effigy/enderman_effigy"
+		}
+	}
+}

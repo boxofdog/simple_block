@@ -1,0 +1,7 @@
+{
+	"type": "simple_block:compression",
+	"drop": "minecraft:ender_pearl",
+	"result": {
+		"id": "simple_block:enderman_block"
+	}
+}

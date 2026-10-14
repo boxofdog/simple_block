@@ -1,0 +1,7 @@
+{
+	"type": "simple_block:compression",
+	"drop": "minecraft:gunpowder",
+	"result": {
+		"id": "simple_block:creeper_block"
+	}
+}
