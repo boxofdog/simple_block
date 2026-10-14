@@ -181,12 +181,12 @@ Counts reflect source files only, not proof of implemented or tested behavior.
 | Source set | First-level package | Java files |
 |---|---|---:|
 | client | client | 23 |
-| gametest | gametest | 44 |
+| gametest | gametest | 47 |
 | main | (root) | 1 |
 | main | cable | 17 |
-| main | feature | 25 |
+| main | feature | 26 |
 | main | metallurgy | 12 |
-| main | mixin | 46 |
+| main | mixin | 47 |
 | main | network | 3 |
 | main | skip | 7 |
 | main | train | 6 |
