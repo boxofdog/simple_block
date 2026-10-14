@@ -17,6 +17,7 @@ File names and counts only. Presence does not prove execution, PASS, or owner ap
 | [milestone-09](milestone-09/) | 9 | 3 | 0 | [client-test-log.txt](milestone-09/client-test-log.txt), [negative-controls.txt](milestone-09/negative-controls.txt), [server-test-log.txt](milestone-09/server-test-log.txt) |
 | [milestone-10](milestone-10/) | 10 | 1 | 0 | [m10-verification-2026-10-14.txt](milestone-10/m10-verification-2026-10-14.txt) |
 | [milestone-11](milestone-11/) | 16 | 1 | 0 | [m11-verification-2026-10-14.txt](milestone-11/m11-verification-2026-10-14.txt) |
+| [milestone-12](milestone-12/) | 0 | 0 | 0 | — |
 | [rails-3d](rails-3d/) | 5 | 0 | 0 | — |
 
 Regenerate using tools/docs/automation.py evidence --write
