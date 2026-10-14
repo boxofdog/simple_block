@@ -1,0 +1,24 @@
+M08 owner-playtest changes, 2026-10-14, on 9cdadf7269d1e288f06dd79058627ce79fab1901 code (local full ./gradlew runGameTest: All 195 required tests passed; local xvfb runClientGameTest: all 12 client tests, BUILD SUCCESSFUL).
+
+Server:
+M08-F1: owner's furnace recipe and its mirror make one; 2 rotations, swapped, filled, brick-item and ingot variants make nothing; 9 charcoal -> Block of Charcoal; vanilla blast furnace recipe gone; furnace item weighs 21 (equipment)
+M08 rename compatibility: [block state simple_block:pre_industrial_blast_furnace[facing=east,lit=true] -> Block{simple_block:blast_furnace}[facing=east,lit=true,pouring=false], _part, _channel, _mold -> blast_furnace_part, _channel, _mold, item stack of 3 -> 3 simple_block:blast_furnace, block entity with 300 raw iron under the old type name -> BlastFurnaceBlockEntity with 300 raw iron, control: simple_block:no_such_furnace still unknown]
+M08-F2: blocked placement refused (item kept); placed 38 blocks (furnace, channel, mold) facing the player; breaking one part dropped the furnace item, 150 raw iron, 5 coal blocks and 7 iron blocks and cleared all 38; breaking the mold clears all 38 too; creative break dropped only the contents
+M08-F3: reservoir 516th accepted, 517th refused; ore blocks, coal and a second metal refused; screen shift-click filled to 516 and kept 48; fuel slot only coal/charcoal/kelp blocks; mold takes nothing; reservoir gives a stack back
+M08-F4: cast_ticks 300 and 3600 burn per coal block: no fuel no progress; 20 raw iron -> 2 iron blocks + 2 raw waiting, 1 coal block used; full or gold mold waits with nothing burned; copper and gold cast (burn left 2400)
+M08 casting animation: [first cast: fill rose 1..8 over 299 ticks, channel running, cast done: solid iron block shown 39 ticks (hold 40), then the next fill shows at 2/8 with the iron block above it, three blocks cast in exactly 900 ticks, fuel out at fill 6/8 (burn 2510 left set to 0): held 60 ticks, channel still; fuel back: resumed, idle: last block shown; stack taken out: empty at once]
+M08-F5: saved and loaded 516 raw gold, 11 kelp blocks, 5 gold blocks, burn 777/900 and progress 123 exactly
+M08-F6 cart -> hopper: [side-on 100 raw iron tipped in, end-on partial: 16 of 50 to fill 516, 34 kept, copper cart, iron furnace: refused, coal cart: refused, full furnace: refused, block over the rim: refused, rail one level low: refused]; moved 116 in total
+M08-F8: new structure pieces built ordinary furnaces (same facing) for every blast furnace: [desert_armorer_1 1, plains_armorer_house_1 1, savanna_armorer_1 1, snowy_armorer_house_1 1, snowy_armorer_house_2 1, taiga_armorer_2 1, taiga_armorer_house_1 2, large_room_1 1, large_room_5 2]
+M08-F9: ordinary furnace: raw iron 400 ticks (x2.0), beef 200; charcoal block burned as fuel
+M08-F10: at 50 ingots, shift-click on a mold of 10 iron blocks took 1 (cap), 9 stayed
+M08-F7 skip -> hopper: [200 raw iron down the chute, copper skip at iron furnace refused, coal skip refused, full furnace refused]
+
+Client (singleplayer, then a dedicated server; screenshots/m08-*filling, *cast-block, *next-fill):
+CLIENT M08 FURNACE (m08-furnace): use-key placement made 38 structure blocks on the server, 38 seen by the client, controller Block{simple_block:blast_furnace}[facing=north,lit=false,pouring=false]; lit true, pouring true, mold filled 4/8 part way through the first cast, then the cast block (iron, fill 0), the next fill 5/8 over it; 1 blocks cast at cast_ticks 160; the mold then shows iron
+CLIENT M08 FURNACE (m08-server-furnace): use-key placement made 38 structure blocks on the server, 38 seen by the client, controller Block{simple_block:blast_furnace}[facing=north,lit=false,pouring=false]; lit true, pouring true, mold filled 4/8 part way through the first cast, then the cast block (iron, fill 0), the next fill 5/8 over it; 1 blocks cast at cast_ticks 160; the mold then shows iron
+
+Negative controls (working tree, sources restored byte-identical afterwards): the old-name aliases emptied, the mold fill held at 0.
+game_tests_old_furnace_names_load_as_the_blast_furnace failed: Failed to parse either. First: Not a string; Second: Unknown registry key in ResourceKey[minecraft:root / minecraft:block]: simple_block:pre
+game_tests_mold_fills_with_each_cast failed: metal runs down the channel while the mold fills on tick 0
+2 required tests failed

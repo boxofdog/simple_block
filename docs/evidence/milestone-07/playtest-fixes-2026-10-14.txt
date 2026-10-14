@@ -1,0 +1,27 @@
+M07 owner-playtest fixes, 2026-10-14, on 9cdadf7269d1e288f06dd79058627ce79fab1901 code (local full ./gradlew runGameTest: All 195 required tests passed; local xvfb runClientGameTest: all 12 client tests, BUILD SUCCESSFUL).
+
+Server:
+BUG-003 rod reach (cable.rod_reach_max 6.0): [anchors 3 over the rail: grips at 3.69, anchors 4 over the rail: grips at 4.69, anchors 5 over the rail: grips at 5.69]
+BUG-003 rod reach (cable.rod_reach_max 6.0): [anchors 6 over the rail: no grip]
+BUG-004 climb between level anchors: cable at the foot of the climb in the old reach (1.5-3) false, in the new (1.0-6.0) true; cart hauled from x 3.5 to x 17 (top of the climb at 13) in 340 ticks, gripping all the way (reach 1.42-3.95); line's last stop null
+M07 heavy skip drop: [8 blocks onto the floor in 15 ticks (at the old steady 0.25 a tick: 32), one clang, on landing, dropped onto a ledge 3 up: lands on it, one clang, ledge taken away: falls the rest, clang; a half-block drop: clang, standing on the floor 40 ticks: put, silent, saved and loaded at 8.20 in mid-fall, loaded copy lands with a clang; 512 raw iron in it throughout]
+M07 stop folds after a finished exchange: [up: stopped at the empty cart's bridle height 2.0, nothing moved, cart still docked, stop up, up again: stopped with the chute over the cart (5.6875), 256 into it, then the cart let go and the stop folded, fed down: lowest bottom 1.00 (the cart's bridle height 2.0 passed), cart 256, skip 44, last stop blocked]
+
+Client (singleplayer, then a dedicated server; screenshots/m07pt-*):
+CLIENT BUG-002: PULL ran the cart back to x 22.649999365210533 (track_end); left-click: FEED ('Lever: feed'); 40 ticks later x 27.599999487400055
+CLIENT M07PT BUG-005 (m07pt): the straight run from the low anchor would pass through its plank true; drawn with a bend true it does false
+CLIENT M07PT BUG-003 (m07pt): rod under cable from anchors 5 up: the client sees it gripping at 5.6875
+CLIENT M07PT DROP (m07pt): skip let fall 8 blocks landed after 13 ticks; clang heard before landing false, on landing true; cargo 512
+CLIENT M07PT BUG-005 (m07pt-server): the straight run from the low anchor would pass through its plank true; drawn with a bend true it does false
+CLIENT M07PT BUG-003 (m07pt-server): rod under cable from anchors 5 up: the client sees it gripping at 5.6875
+CLIENT M07PT DROP (m07pt-server): skip let fall 8 blocks landed after 13 ticks; clang heard before landing false, on landing true; cargo 512
+
+Negative controls (working tree, sources restored byte-identical afterwards): rod reach back to 1.5-3, no release after a finished exchange, a steady silent 0.25 fall.
+game_tests_rod_grips_cable_up_to_five_blocks_up failed: anchors 3 blocks over the rail: gripping false, expected true on tick 5
+game_tests_cart_is_hauled_up_aclimb_between_level_anchors failed: the rod should reach the cable at the foot of the climb on tick 2407
+2 required tests failed
+game_tests_dropped_skip_falls_like_an_anchor failed: Expected clangs on landing to be 1: was 0 on tick 32
+game_tests_skip_exchanges_by_height_at_the_loading_rail failed: the cart should be let go after its finished exchange on tick 264
+game_tests_finished_exchange_lets_the_cart_go failed: waiting for the finished exchange to let the cart go on tick 1602
+3 required tests failed
+BUG-005 is drawing only: its control is in the client test (the straight run would pass through the plank).
