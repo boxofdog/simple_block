@@ -7,6 +7,8 @@ status: IMPLEMENTING
 
 **Owner-scoped 2026-10-14. Status: PLANNED - READY, not implemented.** This is the complete design handoff for four very expensive, permanent monster-repelling monuments. Adding this milestone to the repository is **not** an implementation or SHIPPED claim; Claude starts coding only on explicit owner authorization. Preserve M01–M11, especially [M09 hostile behavior](MILESTONE_09.md) and [M11's no-floating-text direction](UX_TEXT_LOG.md).
 
+**Owner decision (2026-10-14, with the implementation authorization):** Ender Pearls stack to 16, so the Enderman Block takes **nine full stacks of 16 (144 pearls)**; the Enderman Effigy costs 288 pearls plus the Eye of Ender. Pearl stacking stays vanilla. The compression rule for all four is "every grid slot holds one full stack", consuming a full stack per slot.
+
 ## Purpose and boundaries
 
 Turn large quantities of **existing vanilla mob drops** into permanent, placeable territorial defenses. The effigies do **not** stop monsters from spawning, illuminate the world, harm monsters, or add new ores, progression currencies or factory systems. A matching monster can appear within the protected territory but must panic and leave. Each effigy is specific to its corresponding vanilla monster.

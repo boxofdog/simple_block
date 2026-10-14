@@ -18,8 +18,11 @@ import io.github.boxofdog.simpleblock.SimpleBlock;
  * a one-wide recipe in the middle column, so it still works.
  */
 public final class CenterColumnRecipes {
+	/** The cable and cable-coil recipes, and (M12) the four effigies': head or eye over two monster blocks. */
 	private static final Set<Identifier> RECIPES = Set.of(Identifier.fromNamespaceAndPath(SimpleBlock.MOD_ID, "cable"),
-		Identifier.fromNamespaceAndPath(SimpleBlock.MOD_ID, "cable_coil"));
+		Identifier.fromNamespaceAndPath(SimpleBlock.MOD_ID, "cable_coil"), Identifier.fromNamespaceAndPath(SimpleBlock.MOD_ID, "zombie_effigy"),
+		Identifier.fromNamespaceAndPath(SimpleBlock.MOD_ID, "skeleton_effigy"), Identifier.fromNamespaceAndPath(SimpleBlock.MOD_ID, "creeper_effigy"),
+		Identifier.fromNamespaceAndPath(SimpleBlock.MOD_ID, "enderman_effigy"));
 
 	private CenterColumnRecipes() {
 	}

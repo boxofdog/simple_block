@@ -59,7 +59,12 @@
 		"workwear.PlayerMiningMixin",
 		"workwear.ServerPlayerGameModeMixin",
 		"workwear.SkeletonAimMixin",
-		"workwear.BlockItemMixin"
+		"workwear.BlockItemMixin",
+		"effigy.CrafterBlockMixin",
+		"effigy.CreeperAccessor",
+		"effigy.EndermanFearMixin",
+		"effigy.MobFearMixin",
+		"effigy.ResultSlotMixin"
 	],
 	"injectors": {
 		"defaultRequire": 1

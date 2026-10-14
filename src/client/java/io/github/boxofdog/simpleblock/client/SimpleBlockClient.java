@@ -7,6 +7,8 @@ import io.github.boxofdog.simpleblock.client.workwear.RearWarning;
 import io.github.boxofdog.simpleblock.client.workwear.TrailBlazerGhosts;
 import io.github.boxofdog.simpleblock.client.cable.CableDrumRenderer;
 import io.github.boxofdog.simpleblock.client.cable.CableHookRenderer;
+import io.github.boxofdog.simpleblock.client.effigy.EffigyPlacementScreen;
+import io.github.boxofdog.simpleblock.client.effigy.EffigyRenderer;
 import io.github.boxofdog.simpleblock.client.metallurgy.BlastFurnaceScreen;
 import io.github.boxofdog.simpleblock.client.skip.OreSkipRenderer;
 import io.github.boxofdog.simpleblock.client.train.CobblestoneEngineRenderer;
@@ -28,5 +30,7 @@ public class SimpleBlockClient implements ClientModInitializer {
 		CobblestoneEngineRenderer.register();
 		OreSkipRenderer.register();
 		BlastFurnaceScreen.register();
+		EffigyPlacementScreen.register();
+		EffigyRenderer.register();
 	}
 }

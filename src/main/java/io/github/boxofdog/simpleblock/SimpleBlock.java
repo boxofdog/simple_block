@@ -19,6 +19,7 @@ import io.github.boxofdog.simpleblock.feature.RetiredItems;
 import io.github.boxofdog.simpleblock.feature.SaturationSync;
 import io.github.boxofdog.simpleblock.metallurgy.MetallurgyContent;
 import io.github.boxofdog.simpleblock.rope.RopeContent;
+import io.github.boxofdog.simpleblock.effigy.EffigyContent;
 import io.github.boxofdog.simpleblock.skip.SkipContent;
 import io.github.boxofdog.simpleblock.train.TrainContent;
 import io.github.boxofdog.simpleblock.tuning.Tuning;
@@ -183,6 +184,7 @@ public class SimpleBlock implements ModInitializer {
 		MetallurgyContent.register();
 		WorkwearContent.register();
 		RopeContent.register();
+		EffigyContent.register();
 		NoElytraFlight.register();
 		RemovedRocks.register();
 		IronWorldgen.register();
