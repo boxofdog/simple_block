@@ -210,7 +210,7 @@ Counts reflect source files only, not proof of implemented or tested behavior.
 | Source set | First-level package | Java files |
 |---|---|---:|
 | client | client | 26 |
-| gametest | gametest | 56 |
+| gametest | gametest | 57 |
 | main | (root) | 1 |
 | main | cable | 18 |
 | main | feature | 27 |
