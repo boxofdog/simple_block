@@ -33,7 +33,7 @@ Each existing paint job below now has **direct links to its PNG texture atlas an
 
 ## Waiting for Claude's new geometry/UV templates
 
-- [ ] **3D ordinary rail remodel** — paint the future rail/sleeper UVs once a separate roadmap implementation supplies the model and templates. Match the Loading Rail's gauge, level and joints.
+- [ ] **3D ordinary rail remodel** — delivered 2026-10-14: ordinary rails now use the Loading Rail's own texture and UVs (`textures/block/loading_track.png`), so painting the Loading Rail paints every rail too. Sources `art/blockbench/rail_straight`, `rail_curve`, `rail_ascending`. Check the painted sleepers and railheads also read well on curves and slopes.
 - [ ] **M11 cart cargo fills** — geometry and UV templates delivered 2026-10-14 (placeholders in game): see the checklist below and [M11](../MILESTONE_11.md).
 
 ## M11 — cargo material painting checklist
