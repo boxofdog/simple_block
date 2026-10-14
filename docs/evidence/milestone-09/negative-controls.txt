@@ -1,0 +1,23 @@
+M09 negative controls on 817a49de598dba930acfa56b5d71bb469ffa87c7, 2026-10-14: each feature disabled in the working tree, the 20 M09 server tests run, the source restored (git status clean afterwards).
+
+Set A disabled: the closed-wooden-door route; creeper retaliation (onDamaged returns); the ledge grab (SpiderJockeys.tick returns); the recruit goal's target check; forgetting dark lit spots; the breach re-check (RandomStrollGoal.trigger).
+hostile_behaviour_game_tests_door_routes_are_physical failed: a closed oak door right in the way should be taken on tick 14
+hostile_behaviour_game_tests_breach_redistributes failed: the zombies that knew of the light should re-check at once: 0 decisions on tick 2702
+hostile_behaviour_game_tests_impassable_cap_is_not_clipped failed: the haul should be tried and given up on tick 405
+hostile_behaviour_game_tests_recruitment_rules failed: a skeleton with a target doesn't recruit on tick 15
+hostile_behaviour_game_tests_pursuit_beats_the_door failed: waiting for the zombie to break the door once the player is gone on tick 24002
+hostile_behaviour_game_tests_creeper_retaliation_negative_controls failed: the positive control should provoke retaliation on tick 75
+hostile_behaviour_game_tests_extinguished_area_stops_attracting failed: Expected zombies still remembering lit ground to be 0: was 6 on tick 2702
+hostile_behaviour_game_tests_light_drawn_zombie_breaks_wooden_door failed: waiting for the zombie to break the door on tick 24002
+hostile_behaviour_game_tests_light_drawn_skeleton_breaks_wooden_door failed: waiting for the skeleton to break the door on tick 24002
+hostile_behaviour_game_tests_provoked_creeper_blows_the_nearest_door failed: waiting for the creeper to explode on tick 7002
+hostile_behaviour_game_tests_provoked_creeper_keeps_mob_griefing failed: waiting for the creeper to explode on tick 7002
+hostile_behaviour_game_tests_jockey_hauls_round_an_overhang failed: the skeleton is inside a block at (6729537.5, 9.181800038814536, 2979981.300000012) on tick 27
+hostile_behaviour_game_tests_provoked_creeper_goes_under_the_shooter failed: waiting for the creeper to explode on tick 7002
+13 required tests failed
+
+Set B disabled: the 'shooter readily reachable' gate; the ordinary-spider-only check (cave spiders allowed).
+hostile_behaviour_game_tests_skeleton_walks_to_aspider_and_mounts failed: it should mount the ordinary spider on tick 782
+hostile_behaviour_game_tests_recruitment_rules failed: distant, cave and mounted spiders must not be recruited on tick 21
+hostile_behaviour_game_tests_creeper_retaliation_negative_controls failed: arrow from a reachable player must not provoke retaliation on tick 99
+3 required tests failed

@@ -1,0 +1,6 @@
+Client game tests on 817a49de598dba930acfa56b5d71bb469ffa87c7 (clean tree; local xvfb ./gradlew runClientGameTest, all 11 client tests, 2026-10-14): BUILD SUCCESSFUL.
+Screenshots: screenshots/m09-*. The creeper shots are taken from the top of the pillar, so the creeper at its foot is hidden; the after shot shows the blast.
+
+CLIENT M09 LEDGE (m09-ledge): jockey pushed up a wall under a one-block overhang for 240 ticks; client saw the grab pose 15 ticks; hauls started 1, cleared 1; spider ended 10.0 blocks above the ground
+CLIENT M09 CREEPER: player on a 7-high planks pillar shot a creeper: provoked true, ignited true (1.77 blocks from the pillar's X/Z), exploded true, client sees the pillar's base gone true
+CLIENT M09 LEDGE (m09-server-ledge): jockey pushed up a wall under a one-block overhang for 240 ticks; client saw the grab pose 16 ticks; hauls started 1, cleared 1; spider ended 10.0 blocks above the ground

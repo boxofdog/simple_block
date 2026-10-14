@@ -1,6 +1,6 @@
 ---
 milestone: M09
-status: IMPLEMENTING
+status: PLAYTESTING
 ---
 
 # M09 — Hostile attraction, opportunistic intrusion and rare spider jockeys
@@ -68,3 +68,41 @@ The original M02 system already samples and remembers lit ground and sometimes i
 **Required negative controls when authorized:** arrow damage from skeletons, dispensers or other non-player sources does not provoke creeper retaliation; player pursuit wins; darkened areas release ambient interest; closed inaccessible interior does not cause omniscient door navigation; valid wooden-door access behaves as approved; ordinary sword hits and reachable arrow hits do not provoke special creeper retaliation; **a provoked creeper prioritizes a nearby valid door/trapdoor over the X/Z fallback; absent a door it approaches the closest reachable horizontal position even when the shooter is vertically distant; post-explosion mobs occupy only genuinely reachable space**; **recruitment is exceptional, combat interrupts it, unmounted spiders climb normally, and no ledge-grab animation/boost happens without an obstructing overhang**; no out-of-scope custom iron gate or village changes. Check real client and dedicated-server behavior, alongside regression tests against M02's entrancement, zombie-door breaking and creeper evaporation.
 
 **M09: PLANNED - READY. No implementation authorization yet.**
+
+## Implementation and verification — 2026-10-14
+
+**Metadata:** M09 | PLAYTESTING | Persistent light interest, open doors, light-drawn wooden-door breaking, breach redistribution, creeper retaliation, rare jockeys with ledge grab.
+
+**Implementation**
+- Commits: `817a49de598dba930acfa56b5d71bb469ffa87c7` M09 behaviour, server tests, client test
+- Delivered: lit spots remembered to 28 blocks, forgotten when dark; walled-off mobs loiter, use reachable open doors, break a wooden door within 6 path steps; breaches trigger immediate re-routing; unreachable-archer creepers blow the nearest door or the spot under the shooter; rare skeleton recruitment; collision-checked ledge haul with raised-arms pose.
+- Deviations: ZOMB-03 (M02) now uses a dark room. Under an impassable cap, vanilla climbing still pushes the rider's head into the ceiling after the haul is abandoned.
+
+**CI**
+- Build: #37 | Run ID: 38501374609 | PASS
+- Source SHA: `817a49de598dba930acfa56b5d71bb469ffa87c7`
+- URL: https://github.com/boxofdog/simple_block/actions/runs/38501374609
+- Artifact: `simple-block-mod` id 11866715185, available. Build #37 log: all 188 required server tests passed.
+
+**Tests**
+
+| Category | Result | Passed/Total | Evidence / Notes |
+|---|---|---|---|
+| Server | PASS | 188/188 | local and Build #37; 20 M09 tests; M02 entrancement, zombie-door, creeper-evaporation regressions pass; [log](evidence/milestone-09/server-test-log.txt) |
+| Client | PASS | 11/11 | full suite; client sees the grab pose and the creeper's blast under the shooter; [log](evidence/milestone-09/client-test-log.txt), [screenshots](evidence/milestone-09/screenshots/) |
+| Dedicated server | PASS | 1/1 | ledge grab pose synced to a remote client |
+| Negative controls | PASS | 16/16 | 8 features disabled, 16 expected failures; [log](evidence/milestone-09/negative-controls.txt) |
+
+**Known gaps**
+- GAP-01: MINOR — light behind walls is found by M02's random sampling, so door breaking can take minutes; next: playtest pace.
+- GAP-02: MINOR — rates provisional (memory 28, door notice 6 steps, breach 24, creeper radius 10/reach 32/timeout 400, recruit 1%/200 ticks); next: playtest.
+- GAP-03: MINOR — `pursuing_zombie_breaks_oak_door` (M02) flaked once locally (M08 GAP-01).
+- GAP-04: MINOR — creeper screenshots hide the creeper; assertions cover it.
+- GAP-05: MINOR — ledge grab tested with a no-AI rider pushed up a wall; next: watch natural jockeys.
+
+**Owner playtest**
+- At night, light a walled room; watch mobs loiter, then try an open and a closed wooden door.
+- Put the lights out; confirm interest fades.
+- Shoot a creeper from a tower and from behind a door; sword one; shoot one in the open.
+- Leave skeletons and spiders near light; look for a rare jockey.
+- Watch a jockey climb under an overhang.
