@@ -407,8 +407,8 @@ public class FreightTransferGameTests {
 	 * one full of something else, a block or a rail or another cart in the way, a hopper level with the
 	 * rail, and a hopper feeding the cart from above all keep the cargo in and the gates shut. A hopper
 	 * with room for 10 takes 10 and the gate shuts. A hopper locked by redstone still takes items in, as
-	 * from another hopper. Of two hoppers, right side and front end, the right one is used until full,
-	 * then the front one.
+	 * from another hopper. Of hoppers on the right, the left and the front, the right one is used until
+	 * full, then the left one.
 	 */
 	@GameTest(structure = YARD, maxTicks = 1600)
 	public void hopperDischargeRefusalsAndOrder(GameTestHelper helper) {
@@ -475,14 +475,17 @@ public class FreightTransferGameTests {
 					}
 				});
 		}
-		// Two hoppers: the right side's (east, the rail facing north) first, then the front end's.
-		HopperBlockEntity[] two = new HopperBlockEntity[2];
+		// Three hoppers: right side (east, the rail facing north, room for 5), left side (west) and front end
+		// (north): the right one first, then the left; the front is never needed.
+		HopperBlockEntity[] three = new HopperBlockEntity[3];
 		List<Direction> opened = new ArrayList<>();
 		sequence
 			.thenExecute(() -> {
 				station(helper, RAIL, Direction.NORTH);
-				two[0] = hopper(helper, RAIL.east().below(), Direction.DOWN, dirt.copy(), dirt.copy(), dirt.copy(), dirt.copy(), new ItemStack(Items.RAW_IRON, 59));
-				two[1] = hopper(helper, RAIL.north().below(), Direction.DOWN);
+				three[0] = hopper(helper, RAIL.east().below(), Direction.DOWN, dirt.copy(), dirt.copy(), dirt.copy(), dirt.copy(),
+					new ItemStack(Items.RAW_IRON, 59));
+				three[1] = hopper(helper, RAIL.west().below(), Direction.DOWN);
+				three[2] = hopper(helper, RAIL.north().below(), Direction.DOWN);
 				cart[0] = SkipGameTests.cartOn(helper, RAIL, Items.RAW_IRON, 20);
 			})
 			.thenExecuteFor(80, () -> {
@@ -492,12 +495,11 @@ public class FreightTransferGameTests {
 				}
 			})
 			.thenExecute(() -> {
-				helper.assertValueEqual(opened, List.of(Direction.EAST, Direction.NORTH), "gates in turn (around " + surroundings(helper) + ", east hopper "
-					+ slots(two[0]) + ")");
-				helper.assertTrue(held(two[0], Items.RAW_IRON) == 64 && held(two[1], Items.RAW_IRON) == 15 && count(cart[0]) == 0,
-					"5 to the right, then 15 to the front: " + held(two[0], Items.RAW_IRON) + ", " + held(two[1], Items.RAW_IRON) + " " + slots(two[1])
-						+ " at " + two[1].getBlockPos() + ", cart " + count(cart[0]));
-				log.add("two hoppers: right side (east) took 5 until full, then the front end (north) 15");
+				helper.assertValueEqual(opened, List.of(Direction.EAST, Direction.WEST), "gates in turn (around " + surroundings(helper) + ")");
+				helper.assertTrue(held(three[0], Items.RAW_IRON) == 64 && held(three[1], Items.RAW_IRON) == 15 && held(three[2], Items.RAW_IRON) == 0
+					&& count(cart[0]) == 0, "5 to the right, then 15 to the left, none to the front: " + held(three[0], Items.RAW_IRON) + ", "
+					+ held(three[1], Items.RAW_IRON) + ", " + held(three[2], Items.RAW_IRON));
+				log.add("three hoppers: right side (east) took 5 until full, then the left side (west) 15; the front end none");
 				SimpleBlockTestLog.info("HOP-03: {}", log);
 			})
 			.thenSucceed();
