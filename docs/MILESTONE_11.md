@@ -1,6 +1,6 @@
 ---
 milestone: M11
-status: PLANNED - READY
+status: IMPLEMENTING
 ---
 
 # M11 — Type-aware minecart cargo fill states, hopper freight transfer and text cleanup
