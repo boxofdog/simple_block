@@ -18,7 +18,7 @@
 | M08 | Bulk Blast Furnace + commodity-only carrying cap | **PLAYTESTING** | [M08 package](MILESTONE_08.md) | [Verification](MILESTONE_08.md#implementation-and-verification--2026-10-13) · [CI #36](https://github.com/boxofdog/simple_block/actions/runs/38471351760) |
 | M09 | Hostile loitering, opportunistic doors, creeper retaliation, rare jockeys | **PLAYTESTING** | [M09 package](MILESTONE_09.md) | [Verification](MILESTONE_09.md#implementation-and-verification--2026-10-14) · [CI #37](https://github.com/boxofdog/simple_block/actions/runs/38501374609) |
 | M10 | Headlamp/Overalls/boots, workwear bonuses, Spelunker's Rope, armor retirement | **PLAYTESTING** | [M10 package](MILESTONE_10.md) | Implementation authorized; verification pending |
-| M11 | Material-/shape-specific cart fills, progressive hopper transfer, cart text removal | **IMPLEMENTING** | [M11 package](MILESTONE_11.md) | Not implemented |
+| M11 | Material-/shape-specific cart fills, progressive hopper transfer, cart text removal | **PLAYTESTING** | [M11 package](MILESTONE_11.md) | Not implemented |
 
 **Post-M10 and unnumbered plans:** ordinary 3D rails, revised villages, extreme-grade railway behavior, the Witch's Tome/discovered enchanting, and separate iron/diamond/netherite armor set bonuses live in [BACKLOG.md](BACKLOG.md). They are not an authorization or an extension of M08–M11.
 

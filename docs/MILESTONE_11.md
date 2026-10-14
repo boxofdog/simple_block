@@ -1,11 +1,11 @@
 ---
 milestone: M11
-status: IMPLEMENTING
+status: PLAYTESTING
 ---
 
 # M11 — Type-aware minecart cargo fill states, hopper freight transfer and text cleanup
 
-**Owner-scoped 2026-10-13. Status: PLANNED - READY. NOT YET IMPLEMENTATION-AUTHORIZED.** A standalone **freight-cart rendering, progressive transfer and hopper integration** milestone, separate from the active M07 corrections and planned M08–M10. Number is for tracking and **does not require** completing M08–M10 first. Claude starts only upon specific owner authorization.
+**Owner-scoped 2026-10-13; implementation authorized and delivered 2026-10-14 (see appendix). Status: PLAYTESTING, not SHIPPED.** A standalone **freight-cart rendering, progressive transfer and hopper integration** milestone, separate from the active M07 corrections and planned M08–M10. Number is for tracking and **does not require** completing M08–M10 first. Claude starts only upon specific owner authorization.
 
 **Responsibilities:** Claude codes real cargo-type-aware rendering, **hopper-to-cart and cart-to-hopper inventory integration, incremental transfer, open-gate geometry and text cleanup**, fill transitions, reusable shapes/models, linked UV and placeholder PNG templates, synchronization and tests. Joe paints final textures later, exclusively tracked in [Joe's To-Do](Joe's%20To-Do/BLOCKBENCH_PAINTING.md). Passing CI does not mean finished paintwork.
 
@@ -84,3 +84,40 @@ The prior M03 behavior (see `CargoMinecartRenderer.shouldShowName/getNameTag` an
 7. **Actual-client visual proof** of all five shapes and step differences, at least two materials per multi-material family, gate open/closed and different travel orientations; multiplayer and save/reload proof. Negative controls showing the tests fail with a deliberately wrong mapping or constant fill height. Only after owner separately authorizes implementation: full server/client regression, green CI artifact and report with PASS/FAIL/NOT RUN. Artwork remains pending Joe's approval.
 
 This brief is **not** an instruction for Claude to paint all those cargo piles. It **does** commit Claude to implement real hopper logistics, progressive cargo movement, correctly differentiated fill-state selection, and removal of cart flavor text **once the owner authorizes M11**. No new hopper textures are required: vanilla hoppers remain vanilla; Joe only paints material fills.
+
+## Implementation and verification — 2026-10-14
+
+**Metadata:** M11 | PLAYTESTING | Cargo looks by form and fill, gradual hand loading, vanilla hopper loading/unloading, slower skips, no floating text.
+
+**Implementation**
+- Commits: `8b7f2664f41e6e4b72ae2b48b5724d8665988d17` implementation; `dc2898e6a8e02d3f00e5796133bb8086d31e3fd7`, `e2f1c73a0304e7cf7de7bcc77b3525a5f806a476` test fixes
+- Delivered: 30 cargo items (owner: brief's 17 added, rest kept), each its own look in five forms plus covered fallback, four bands; hand use moves 4 items, 1 per 4 ticks; down-pointing hopper over a docked cart feeds it at hopper pace; docked cart tips through matching gate into a hopper diagonally below, 1/tick, order right/left/front/back; skips and furnace 1/tick; all mod action-bar text and cart label removed (UX-010–024).
+- Deviations: a locked receiving hopper still accepts (vanilla). Hoppers under the rail get nothing (closed floor). Emptied or filled carts are let go, like skip exchanges.
+
+**CI**
+- Build: #52 | Run ID: 38597022406 | PASS
+- Source SHA: `e2f1c73a0304e7cf7de7bcc77b3525a5f806a476`
+- URL: https://github.com/boxofdog/simple_block/actions/runs/38597022406
+- Artifact: `simple-block-mod` id 11909209800, available. Build #52 log: all 215 required server tests passed.
+
+**Tests**
+
+| Category | Result | Passed/Total | Evidence / Notes |
+|---|---|---|---|
+| Server | PASS | 215/215 | local and CI; 7 M11 tests; [log](evidence/milestone-11/m11-verification-2026-10-14.txt) |
+| Client | PASS | 15/15 | full suite; looks and bands match synced cargo; gates open; held-key loading; [screenshots](evidence/milestone-11/screenshots/) |
+| Dedicated server | PASS | 1/1 | same M11 client checks over a dedicated server |
+| Negative controls | PASS | 9/9 | 9 rules broken, each failed its tests; [log](evidence/milestone-11/m11-verification-2026-10-14.txt) |
+
+**Known gaps**
+- GAP-01: MINOR — 31 placeholder material textures; next: Joe paints (To-Do).
+- GAP-02: MINOR — rates and band heights provisional; next: playtest.
+- GAP-03: MAJOR — refusals now silent (UX-010–024); next: owner picks replacement feedback.
+- GAP-04: MINOR — Build #47 hit two unrelated flakes (long line, light behind walls); #48–#52 pass.
+- GAP-05: MINOR — skip hand loading still instant (brief covers carts).
+
+**Owner playtest**
+- Hold use on a cart with raw iron; watch the load rise.
+- Hopper over a Loading Rail; dock a cart; let it fill.
+- Hopper beside and below the rail; dock a loaded cart; watch the gate.
+- Check nothing prints anywhere.
