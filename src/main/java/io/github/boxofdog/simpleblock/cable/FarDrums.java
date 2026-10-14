@@ -108,8 +108,8 @@ public final class FarDrums {
 		}
 		level.playSound(null, farPos, SoundEvents.CHAIN_PLACE, SoundSource.BLOCKS, 1.0F, 1.2F);
 		return line != null && line.powered
-			? message("attached_winch", "Cable made fast to this drum: work the coal winch from either end (right-click pulls the cart towards you)")
-			: message("attached", "Cable made fast to this drum: crank from either end (right-click pulls the cart towards you)");
+			? message("attached_winch", "Cable made fast: work the winch's lever from either drum")
+			: message("attached", "Cable made fast: crank from either drum");
 	}
 
 	private static void face(ServerLevel level, BlockPos pos, Direction facing) {
