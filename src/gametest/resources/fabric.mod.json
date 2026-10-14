@@ -38,6 +38,7 @@
 			"io.github.boxofdog.simpleblock.gametest.RopeGameTests",
 			"io.github.boxofdog.simpleblock.gametest.RetiredItemsGameTests",
 			"io.github.boxofdog.simpleblock.gametest.SkipGameTests",
+			"io.github.boxofdog.simpleblock.gametest.FreightTransferGameTests",
 			"io.github.boxofdog.simpleblock.gametest.BlastFurnaceGameTests",
 			"io.github.boxofdog.simpleblock.gametest.HostileBehaviourGameTests"
 		],
@@ -55,7 +56,8 @@
 			"io.github.boxofdog.simpleblock.gametest.client.HostileClientTest",
 			"io.github.boxofdog.simpleblock.gametest.client.PlaytestFixesClientTest",
 			"io.github.boxofdog.simpleblock.gametest.client.TwoDrumClientTest",
-			"io.github.boxofdog.simpleblock.gametest.client.WorkwearClientTest"
+			"io.github.boxofdog.simpleblock.gametest.client.WorkwearClientTest",
+			"io.github.boxofdog.simpleblock.gametest.client.CargoFillClientTest"
 		]
 	},
 	"depends": {

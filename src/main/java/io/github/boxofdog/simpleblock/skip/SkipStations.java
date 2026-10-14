@@ -301,4 +301,10 @@ public final class SkipStations {
 	public static boolean busy(OreSkip skip) {
 		return skip.exchange.busy();
 	}
+
+	/** M11: whether a skip near {@code cart} is exchanging with it now (filling or emptying it). */
+	public static boolean working(ServerLevel level, Minecart cart) {
+		return !level.getEntitiesOfClass(OreSkip.class, cart.getBoundingBox().inflate(4.0),
+			skip -> skip.exchange.busy() && skip.exchange.cart == cart).isEmpty();
+	}
 }

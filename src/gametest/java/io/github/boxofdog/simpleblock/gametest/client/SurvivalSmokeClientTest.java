@@ -95,7 +95,7 @@ public class SurvivalSmokeClientTest implements FabricClientGameTest {
 
 	/**
 	 * FRT-01..08 in the real client: place a minecart on rails with the use key, load three stacks of
-	 * raw iron, see the cargo label, fail to get in, sneak-use to unload a stack. The cart is left
+	 * raw iron (M11: holding the key, and no text), fail to get in, sneak-use to unload a stack. The cart is left
 	 * loaded for {@link #minecartAfterReload}.
 	 */
 	private static void minecart(ClientGameTestContext context, TestServerContext server, int ground) {
@@ -114,11 +114,14 @@ public class SurvivalSmokeClientTest implements FabricClientGameTest {
 		List<String> placed = cartsOnServer(server, ground);
 		assertTrue(placed.size() == 1, "expected one minecart on the rails after using the item, found " + placed);
 
+		// M11: loading is gradual, a batch per use: hold the use key while each stack goes in.
 		for (int stack = 0; stack < 3; stack++) {
 			server.runCommand("item replace entity @a weapon.mainhand with minecraft:raw_iron 64");
 			context.waitTicks(3);
 			context.getInput().lookAt(new BlockPos(0, ground, 2));
-			context.getInput().pressKey(options -> options.keyUse);
+			context.getInput().holdKey(options -> options.keyUse);
+			context.waitTicks(76);
+			context.getInput().releaseKey(options -> options.keyUse);
 			context.waitTicks(5);
 		}
 		String loadedMessage = overlayMessage(context);
@@ -131,7 +134,7 @@ public class SurvivalSmokeClientTest implements FabricClientGameTest {
 		assertTrue(serverCarts.equals(List.of("192 minecraft:raw_iron")), "server cargo after loading: " + serverCarts);
 		assertTrue(clientCarts.equals(serverCarts), "client cargo " + clientCarts + " differs from server " + serverCarts);
 		assertTrue(held == 0, "raw iron left in hand: " + held);
-		assertTrue(loadedMessage.contains("192 / 256"), "expected the cargo in the message, saw: " + loadedMessage);
+		assertTrue(loadedMessage.isEmpty(), "M11: the cart says nothing, saw: " + loadedMessage);
 
 		// Empty hand: no seat, just the cargo.
 		context.getInput().pressKey(options -> options.keyUse);
@@ -146,8 +149,9 @@ public class SurvivalSmokeClientTest implements FabricClientGameTest {
 		// Crouching lowers the eyes; aim at the cart again so the crosshair is on it and not the rail.
 		context.getInput().lookAt(new BlockPos(0, ground, 2));
 		context.waitTicks(1);
-		context.getInput().pressKey(options -> options.keyUse);
-		context.waitTicks(5);
+		context.getInput().holdKey(options -> options.keyUse);
+		context.waitTicks(80);
+		context.getInput().releaseKey(options -> options.keyUse);
 		context.getInput().releaseKey(options -> options.keyShift);
 		context.waitTicks(3);
 		int unloaded = context.computeOnClient(client -> client.player.getInventory().countItem(Items.RAW_IRON));
@@ -156,7 +160,8 @@ public class SurvivalSmokeClientTest implements FabricClientGameTest {
 		context.takeScreenshot("minecart-unloaded-one-stack");
 		SimpleBlockTestLog.info("CLIENT MINECART: riding after use: {}; sneak-use unloaded {} raw iron, cart now {}, message '{}'", riding, unloaded,
 			afterUnload, unloadMessage);
-		assertTrue(unloaded == 64, "expected 64 raw iron unloaded, got " + unloaded);
+		assertTrue(unloaded == 64, "expected 64 raw iron unloaded (the heavy-load cap), got " + unloaded);
+		assertTrue(unloadMessage.isEmpty(), "M11: the cart says nothing, saw: " + unloadMessage);
 		assertTrue(afterUnload.equals(List.of("128 minecraft:raw_iron")), "cart after unloading: " + afterUnload);
 		server.runCommand("clear @a");
 	}
@@ -248,8 +253,9 @@ public class SurvivalSmokeClientTest implements FabricClientGameTest {
 		context.waitTicks(3);
 		context.getInput().lookAt(new BlockPos(0, ground, 2));
 		context.waitTicks(1);
-		context.getInput().pressKey(options -> options.keyUse);
-		context.waitTicks(5);
+		context.getInput().holdKey(options -> options.keyUse);
+		context.waitTicks(80);
+		context.getInput().releaseKey(options -> options.keyUse);
 		context.getInput().releaseKey(options -> options.keyShift);
 		context.waitTicks(3);
 		String[] removed = cushions(context, server, ground);
@@ -290,8 +296,8 @@ public class SurvivalSmokeClientTest implements FabricClientGameTest {
 		context.takeScreenshot("chest-minecart-refused");
 		SimpleBlockTestLog.info("CLIENT STORAGE: ender chest placed: {}, message '{}'; chest minecart placed: {}, still held: {}, message '{}'",
 			enderPlaced, enderMessage, chestCart, stillHeld, cartMessage);
-		assertTrue(!enderPlaced && enderMessage.toLowerCase().contains("ender chest"), "ender chest: placed " + enderPlaced + ", message " + enderMessage);
-		assertTrue(!chestCart && stillHeld == 1 && cartMessage.toLowerCase().contains("chest minecart"),
+		assertTrue(!enderPlaced && enderMessage.isEmpty(), "ender chest: placed " + enderPlaced + ", message (M11: none) " + enderMessage);
+		assertTrue(!chestCart && stillHeld == 1 && cartMessage.isEmpty(),
 			"chest minecart: placed " + chestCart + ", held " + stillHeld + ", message " + cartMessage);
 		server.runCommand("clear @a");
 	}
@@ -345,7 +351,7 @@ public class SurvivalSmokeClientTest implements FabricClientGameTest {
 		SimpleBlockTestLog.info("CLIENT SHULKER: placed: {}, still holding: {}, message '{}'", placed, boxesHeld, message);
 		assertTrue(!placed, "the shulker box was placed");
 		assertTrue(boxesHeld == 1, "the shulker box should still be in the inventory");
-		assertTrue(message.toLowerCase().contains("shulker"), "expected a shulker box message, saw: " + message);
+		assertTrue(message.isEmpty(), "M11: no shulker box message, saw: " + message);
 		server.runCommand("clear @a");
 	}
 

@@ -12,6 +12,7 @@ import net.minecraft.world.entity.EntitySpawnReason;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.gameevent.GameEvent;
+import io.github.boxofdog.simpleblock.feature.Feedback;
 
 /**
  * The ore skip item: used on the top of a block, it stands a skip on it, its front (chute) towards the
@@ -39,7 +40,7 @@ public class SkipItem extends Item {
 		skip.setPos(pos.getX() + 0.5, pos.getY(), pos.getZ() + 0.5);
 		if (skip.obstruction(pos.getY()) != null) {
 			if (context.getPlayer() instanceof ServerPlayer player) {
-				player.sendOverlayMessage(Component.translatableWithFallback("simple_block.skip.no_room",
+				Feedback.quiet(player, Component.translatableWithFallback("simple_block.skip.no_room",
 					"No room: a skip needs four blocks of height, and a clear block on each side"));
 			}
 			return InteractionResult.FAIL;

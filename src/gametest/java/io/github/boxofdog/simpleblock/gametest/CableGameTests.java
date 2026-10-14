@@ -47,6 +47,7 @@ import io.github.boxofdog.simpleblock.cable.CableHook;
 import io.github.boxofdog.simpleblock.cable.CableIndex;
 import io.github.boxofdog.simpleblock.cable.CableRoutes;
 import io.github.boxofdog.simpleblock.cable.ConnectingRods;
+import io.github.boxofdog.simpleblock.feature.MinecartCargo;
 
 /**
  * M04 cable infrastructure: recipes, anchors, the drum, laying out and taking down routes, and the
@@ -646,8 +647,13 @@ public class CableGameTests {
 		helper.assertValueEqual(MinecartCargoGameTests.load(player, cart, Items.RAW_COPPER, 20), 0, "raw copper left in hand: a cart with a rod takes cargo");
 		player.getInventory().clearContent();
 		player.setShiftKeyDown(true);
-		MinecartCargoGameTests.use(player, cart, InteractionHand.MAIN_HAND);
-		helper.assertTrue(ConnectingRods.hasRod(cart), "the first sneak-use should unload, not take the rod");
+		// M11: each sneak-use unloads a batch; held until the cart is empty.
+		for (int i = 0; i < 20 && MinecartCargoGameTests.cargo(cart).simpleBlock$count() > 0; i++) {
+			MinecartCargo.forgetPace(player);
+			MinecartCargoGameTests.use(player, cart, InteractionHand.MAIN_HAND);
+			helper.assertTrue(ConnectingRods.hasRod(cart), "sneak-uses should unload, not take the rod, while there is cargo");
+		}
+		MinecartCargo.forgetPace(player);
 		helper.assertValueEqual(MinecartCargoGameTests.cargo(cart).simpleBlock$count(), 0, "cargo after unloading");
 		player.getInventory().clearContent();
 		MinecartCargoGameTests.use(player, cart, InteractionHand.MAIN_HAND);

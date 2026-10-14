@@ -47,7 +47,9 @@ import io.github.boxofdog.simpleblock.feature.MinecartCargo;
 /**
  * M03 FRT-01..09: the minecart carries 256 of one mined resource and nobody rides it. Every
  * transfer goes through {@code Player.interactOn}, the method the server runs for a player's
- * use-entity packet. Test ids refer to {@code docs/M03_TEST_PLAN.md}.
+ * use-entity packet. Test ids refer to {@code docs/M03_TEST_PLAN.md}. M11: a use moves one batch;
+ * {@link #holdUse} stands for holding the button until nothing more moves (the pace itself is
+ * {@code FreightTransferGameTests}).
  */
 public class MinecartCargoGameTests {
 	static Minecart cartOnRail(GameTestHelper helper, BlockPos rail) {
@@ -66,17 +68,33 @@ public class MinecartCargoGameTests {
 		player.interactOn(cart, hand, cart.position());
 	}
 
+	/**
+	 * M11: holds use on the cart until a use moves nothing more, each use one batch (the pace between
+	 * uses waived, as if the button were held that long).
+	 */
+	static void holdUse(ServerPlayer player, Minecart cart, InteractionHand hand) {
+		for (int i = 0; i < 300; i++) {
+			int before = cargo(cart).simpleBlock$count();
+			int held = player.getItemInHand(hand).getCount();
+			MinecartCargo.forgetPace(player);
+			use(player, cart, hand);
+			if (cargo(cart).simpleBlock$count() == before && player.getItemInHand(hand).getCount() == held) {
+				return;
+			}
+		}
+	}
+
 	/** Loads {@code count} of {@code item} from the player's main hand, returning what is left in hand. */
 	static int load(ServerPlayer player, Minecart cart, Item item, int count) {
 		player.setShiftKeyDown(false);
 		player.setItemInHand(InteractionHand.MAIN_HAND, new ItemStack(item, count));
-		use(player, cart, InteractionHand.MAIN_HAND);
+		holdUse(player, cart, InteractionHand.MAIN_HAND);
 		return player.getMainHandItem().is(item) ? player.getMainHandItem().getCount() : 0;
 	}
 
 	private static void unload(ServerPlayer player, Minecart cart) {
 		player.setShiftKeyDown(true);
-		use(player, cart, InteractionHand.MAIN_HAND);
+		holdUse(player, cart, InteractionHand.MAIN_HAND);
 		player.setShiftKeyDown(false);
 	}
 
@@ -169,7 +187,7 @@ public class MinecartCargoGameTests {
 		helper.assertValueEqual(load(player, cart, Items.RAW_COPPER, 10), 10, "raw copper left in hand");
 		assertCargo(helper, cart, Items.RAW_IRON, 256, "after offering raw copper");
 
-		// T07: empty it (unloading a stack at a time, putting each one away), then load something else.
+		// T07: empty it (unloading as much as the cap allows each time, putting it away), then load something else.
 		int unloaded = 0;
 		for (int round = 0; round < 8 && cargo(cart).simpleBlock$count() > 0; round++) {
 			player.getInventory().clearContent();
@@ -192,10 +210,11 @@ public class MinecartCargoGameTests {
 		named.set(DataComponents.CUSTOM_NAME, Component.literal("Lucky iron"));
 		ItemStack bundle = new ItemStack(Items.BUNDLE);
 		bundle.set(DataComponents.BUNDLE_CONTENTS, new BundleContents(List.of(ItemStackTemplate.fromNonEmptyStack(new ItemStack(Items.RAW_IRON, 16)))));
-		List<ItemStack> refused = List.of(new ItemStack(Items.IRON_BLOCK, 3), new ItemStack(Items.RAW_IRON_BLOCK, 3), new ItemStack(Items.IRON_INGOT, 8),
-			new ItemStack(Items.IRON_NUGGET, 8), new ItemStack(Items.IRON_PICKAXE), new ItemStack(Items.CHEST, 2), new ItemStack(Items.SHULKER_BOX),
-			new ItemStack(Items.BUCKET), new ItemStack(Items.WATER_BUCKET), new ItemStack(Items.MINECART), new ItemStack(Items.DIRT, 30),
-			new ItemStack(Items.GRAVEL, 30), named, bundle);
+		// (M11 made ingots, storage blocks, sand, gravel and dirt cargo.)
+		List<ItemStack> refused = List.of(new ItemStack(Items.RAW_IRON_BLOCK, 3), new ItemStack(Items.IRON_NUGGET, 8), new ItemStack(Items.IRON_PICKAXE),
+			new ItemStack(Items.CHEST, 2), new ItemStack(Items.SHULKER_BOX), new ItemStack(Items.BUCKET), new ItemStack(Items.WATER_BUCKET),
+			new ItemStack(Items.MINECART), new ItemStack(Items.GRASS_BLOCK, 30), new ItemStack(Items.CLAY_BALL, 30), new ItemStack(Items.RAW_COPPER_BLOCK, 2),
+			named, bundle);
 		List<String> names = new ArrayList<>();
 		for (ItemStack offer : refused) {
 			ItemStack held = offer.copy();
@@ -246,12 +265,12 @@ public class MinecartCargoGameTests {
 		helper.assertValueEqual(carried(player, Items.RAW_IRON), 4, "raw iron taken at the cap");
 		assertCargo(helper, cart, Items.RAW_IRON, 196, "after unloading at the cap");
 
-		// At the heavy cap, weightless cargo is limited by space only.
+		// At the heavy cap, weightless cargo is limited by space only: held down, all 96 come out.
 		unload(player, stone);
-		helper.assertValueEqual(carried(player, Items.COBBLESTONE), 64, "cobblestone taken while at the heavy cap");
-		assertCargo(helper, stone, Items.COBBLESTONE, 32, "cobblestone left");
+		helper.assertValueEqual(carried(player, Items.COBBLESTONE), 96, "cobblestone taken while at the heavy cap");
+		assertCargo(helper, stone, Items.COBBLESTONE, 0, "cobblestone left");
 		SimpleBlockTestLog.info("FRT-04: full inventory + one slot of 60 cobblestone took 4 (cart 100 -> 96), then 0; with 60 ingots carried took "
-			+ "4 raw iron (cart 200 -> 196), then 0 at the cap; at the cap a full 64 cobblestone (weightless) still came out");
+			+ "4 raw iron (cart 200 -> 196), then 0 at the cap; at the cap all 96 cobblestone (weightless) still came out");
 		cart.discard();
 		stone.discard();
 		TestPlayers.remove(player);
@@ -354,7 +373,10 @@ public class MinecartCargoGameTests {
 			.thenSucceed();
 	}
 
-	/** T14: two players clicking in the same tick never create or lose items. */
+	/**
+	 * T14: two players clicking in the same tick never create or lose items. M11: however often they
+	 * click in one tick, each moves one batch ({@code minecart.hand_batch}, 4).
+	 */
 	@GameTest
 	public void quickRepeatedUseByTwoPlayersConservesItems(GameTestHelper helper) {
 		Minecart cart = cartOnRail(helper, new BlockPos(3, 2, 3));
@@ -371,23 +393,33 @@ public class MinecartCargoGameTests {
 			use(b, cart, InteractionHand.MAIN_HAND);
 		}
 		int afterLoading = cargo(cart).simpleBlock$count() + carried(a, Items.RAW_IRON) + carried(b, Items.RAW_IRON);
-		helper.assertValueEqual(cargo(cart).simpleBlock$count(), 256, "cart after both loaded");
+		helper.assertValueEqual(cargo(cart).simpleBlock$count(), 208, "cart after both loaded (one batch each in the tick)");
 		helper.assertValueEqual(afterLoading, start, "raw iron in total after loading");
-		for (int i = 0; i < 10; i++) {
-			unload(a, cart);
-			unload(b, cart);
-		}
-		int afterUnloading = cargo(cart).simpleBlock$count() + carried(a, Items.RAW_IRON) + carried(b, Items.RAW_IRON);
-		helper.assertValueEqual(afterUnloading, start, "raw iron in total after 20 unloads in one tick");
-		helper.assertValueEqual(carried(a, Items.RAW_IRON), 64, "A carries the 64 the heavy cap allows");
-		helper.assertValueEqual(carried(b, Items.RAW_IRON), 64, "B carries the 64 the heavy cap allows");
-		helper.assertValueEqual(cargo(cart).simpleBlock$count(), 200, "left in the cart");
-		SimpleBlockTestLog.info("FRT-04 (T14): two players, 10 loads then 20 unloads in one tick: {} raw iron before, {} after loading, {} after "
-			+ "unloading (cart {}, each player 64 = heavy cap)", start, afterLoading, afterUnloading, cargo(cart).simpleBlock$count());
-		cart.discard();
-		TestPlayers.remove(a);
-		TestPlayers.remove(b);
-		helper.succeed();
+		int loadedCart = cargo(cart).simpleBlock$count();
+		helper.runAfterDelay(5, () -> {
+			// Next batch time: 10 sneak-uses each in one tick, again one batch each.
+			a.getInventory().clearContent();
+			b.getInventory().clearContent();
+			int before = cargo(cart).simpleBlock$count();
+			for (int i = 0; i < 10; i++) {
+				a.setShiftKeyDown(true);
+				b.setShiftKeyDown(true);
+				use(a, cart, InteractionHand.MAIN_HAND);
+				use(b, cart, InteractionHand.MAIN_HAND);
+			}
+			a.setShiftKeyDown(false);
+			b.setShiftKeyDown(false);
+			int after = cargo(cart).simpleBlock$count() + carried(a, Items.RAW_IRON) + carried(b, Items.RAW_IRON);
+			helper.assertValueEqual(after, before, "raw iron in total after 20 unloads in one tick");
+			helper.assertValueEqual(carried(a, Items.RAW_IRON), 4, "A took one batch");
+			helper.assertValueEqual(carried(b, Items.RAW_IRON), 4, "B took one batch");
+			SimpleBlockTestLog.info("FRT-04 (T14): two players, 10 loads each in one tick: cart 200 -> {} ({} raw iron before and after); 10 unloads "
+				+ "each in one tick: 4 each, total {} -> {}", loadedCart, start, before, after);
+			cart.discard();
+			TestPlayers.remove(a);
+			TestPlayers.remove(b);
+			helper.succeed();
+		});
 	}
 
 	/** T15: a hopper under a loaded cart cannot take its cargo; the cargo is not a container's. */

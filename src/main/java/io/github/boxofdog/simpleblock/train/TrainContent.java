@@ -30,6 +30,8 @@ import io.github.boxofdog.simpleblock.SimpleBlock;
  */
 public final class TrainContent {
 	public static final Block ENGINE_MODEL = technical("cobblestone_engine_model", Block::new);
+	/** M11: the models of a freight cart's load, drawn by the minecart renderer. */
+	public static final CargoFillBlock CARGO_FILL_MODEL = (CargoFillBlock) technical("cargo_fill", CargoFillBlock::new);
 	public static final Block LOADING_TRACK = block("loading_track", LoadingTrackBlock::new,
 		BlockBehaviour.Properties.of().noCollision().noOcclusion().strength(0.7F).sound(SoundType.METAL));
 	public static final Item LOADING_TRACK_ITEM = item("loading_track", LOADING_TRACK);

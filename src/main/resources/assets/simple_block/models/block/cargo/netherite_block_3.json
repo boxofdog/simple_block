@@ -1,0 +1,6 @@
+{
+	"parent": "simple_block:block/cargo/form/blocks_3",
+	"textures": {
+		"cargo": "simple_block:block/cargo/netherite_block"
+	}
+}

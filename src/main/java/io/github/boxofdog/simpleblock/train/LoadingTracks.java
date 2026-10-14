@@ -25,6 +25,7 @@ import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 
 import io.github.boxofdog.simpleblock.feature.MinecartCushions;
+import io.github.boxofdog.simpleblock.feature.Feedback;
 
 /**
  * M06 Loading Track: a freight station that is useful before there is anything to load from (the
@@ -135,6 +136,8 @@ public final class LoadingTracks {
 				coupled.simpleBlock$setDock(null);
 			} else {
 				stopEngines(cart);
+				// M11: tips into a hopper beside the rail through the gate on that side.
+				FreightHoppers.discharge(level, (Minecart) cart, dock);
 			}
 			return;
 		}
@@ -230,7 +233,7 @@ public final class LoadingTracks {
 		List<AbstractMinecart> docked = serverLevel.getEntitiesOfClass(AbstractMinecart.class, new AABB(pos).inflate(1.0),
 			cart -> pos.equals(Couplings.coupled(cart).simpleBlock$dock()));
 		if (docked.isEmpty()) {
-			serverPlayer.sendOverlayMessage(message("empty", "No train is held here"));
+			Feedback.quiet(serverPlayer, message("empty", "No train is held here"));
 			setStop(serverLevel, pos, false);
 			return InteractionResult.SUCCESS;
 		}
@@ -239,7 +242,7 @@ public final class LoadingTracks {
 		}
 		setStop(serverLevel, pos, false);
 		level.playSound(null, pos, SoundEvents.IRON_TRAPDOOR_OPEN, SoundSource.BLOCKS, 0.8F, 0.9F);
-		serverPlayer.sendOverlayMessage(message("released", "Released: start the engine or the winch to move off"));
+		Feedback.quiet(serverPlayer, message("released", "Released: start the engine or the winch to move off"));
 		return InteractionResult.SUCCESS;
 	}
 

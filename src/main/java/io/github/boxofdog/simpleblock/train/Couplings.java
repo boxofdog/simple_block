@@ -31,6 +31,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
+import io.github.boxofdog.simpleblock.feature.Feedback;
 
 /**
  * M05 train coupling (owner's choice: an iron chain). Use an iron chain on one minecart, then on
@@ -254,7 +255,7 @@ public final class Couplings {
 		AbstractMinecart first = pending == null || level.getGameTime() - pending.time() > PENDING_TICKS ? null : resolve(level, pending.cart());
 		if (first == null || first == cart) {
 			if (freeSlot(cart) < 0) {
-				player.sendOverlayMessage(message("ends_taken", "Both ends of this cart are coupled"));
+				Feedback.quiet(player, message("ends_taken", "Both ends of this cart are coupled"));
 				return;
 			}
 			PENDING.put(player.getUUID(), new Pending(cart.getUUID(), level.getGameTime()));
@@ -262,7 +263,7 @@ public final class Couplings {
 			return;
 		}
 		if (first.distanceTo(cart) > REACH) {
-			player.sendOverlayMessage(message("too_far", "Too far apart to couple"));
+			Feedback.quiet(player, message("too_far", "Too far apart to couple"));
 			return;
 		}
 		if (cart.getUUID().equals(coupled(first).simpleBlock$coupling(0)) || cart.getUUID().equals(coupled(first).simpleBlock$coupling(1))) {
@@ -271,7 +272,7 @@ public final class Couplings {
 		int firstSlot = freeSlot(first);
 		int slot = freeSlot(cart);
 		if (firstSlot < 0 || slot < 0) {
-			player.sendOverlayMessage(message("ends_taken", "Both ends of this cart are coupled"));
+			Feedback.quiet(player, message("ends_taken", "Both ends of this cart are coupled"));
 			return;
 		}
 		coupled(first).simpleBlock$setCoupling(firstSlot, cart.getUUID());

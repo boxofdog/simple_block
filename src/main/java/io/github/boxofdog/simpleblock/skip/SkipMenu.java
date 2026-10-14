@@ -13,6 +13,7 @@ import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
+import io.github.boxofdog.simpleblock.feature.Feedback;
 
 /**
  * M07: the ore skip's screen: its one cargo slot over the player's inventory.
@@ -106,17 +107,17 @@ public class SkipMenu extends AbstractContainerMenu {
 					if (allowed > 0) {
 						this.setCarried(SkipCargo.withdraw(skip, allowed));
 					} else if (skip.count() > 0) {
-						serverPlayer.sendOverlayMessage(SkipCargo.message("too_heavy", "Too heavy: you can't carry any more %s",
+						Feedback.quiet(serverPlayer, SkipCargo.message("too_heavy", "Too heavy: you can't carry any more %s",
 							new ItemStack(skip.cargo()).getItemName()));
 					}
 				} else if (SkipCargo.room(skip, carried) > 0) {
 					SkipCargo.deposit(skip, carried, right ? 1 : carried.getCount());
 					this.setCarried(carried.isEmpty() ? ItemStack.EMPTY : carried);
 				} else {
-					serverPlayer.sendOverlayMessage(SkipCargo.loadFromHand(skip, carried.copy()));
+					Feedback.quiet(serverPlayer, SkipCargo.loadFromHand(skip, carried.copy()));
 				}
 			}
-			case BUTTON_SHIFT -> serverPlayer.sendOverlayMessage(SkipCargo.unloadToInventory(skip, serverPlayer));
+			case BUTTON_SHIFT -> Feedback.quiet(serverPlayer, SkipCargo.unloadToInventory(skip, serverPlayer));
 			default -> {
 				return false;
 			}

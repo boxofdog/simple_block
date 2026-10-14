@@ -1,10 +1,13 @@
 package io.github.boxofdog.simpleblock.feature;
 
+import java.util.Map;
+import java.util.WeakHashMap;
+
 import net.minecraft.core.registries.Registries;
-import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.sounds.SoundEvents;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
@@ -20,6 +23,7 @@ import net.minecraft.world.level.storage.ValueOutput;
 import org.jspecify.annotations.Nullable;
 
 import io.github.boxofdog.simpleblock.SimpleBlock;
+import io.github.boxofdog.simpleblock.tuning.Tuning;
 
 /**
  * FRT-01..08: the ordinary minecart is a cargo cart. It carries up to {@link #CAPACITY} items of one
@@ -28,20 +32,26 @@ import io.github.boxofdog.simpleblock.SimpleBlock;
  *
  * <ul>
  *   <li>What can be loaded: plain (component-free) stacks of the item tag
- *       {@code #simple_block:minecart_cargo}: ores, raw metals, coal, gems and stone.</li>
- *   <li>Use with cargo in hand loads as much of the stack as fits; use with an empty hand shows
- *       the cargo. Sneak + use unloads up to one stack through {@code Inventory.add}, which takes
- *       only what fits in the inventory and under the heavy-load cap ({@link HeavyLoad}); the rest
- *       stays in the cart.</li>
+ *       {@code #simple_block:minecart_cargo}: ores, raw metals, coal, gems, stone, and (M11) ingots,
+ *       storage blocks, sand, gravel and dirt.</li>
+ *   <li>M11: loading and unloading by hand is gradual. Each use with cargo in hand moves
+ *       {@code minecart.hand_batch} items from the stack into the cart; sneak + use moves as many
+ *       into the inventory through {@code Inventory.add}, which takes only what fits there and under
+ *       the heavy-load cap ({@link HeavyLoad}). Holding use repeats it (vanilla repeats a held use
+ *       every 4 ticks), and the server allows one batch per {@code minecart.hand_interval_ticks} for
+ *       each player, so filling a cart takes time and its fill shows each step. Letting go stops it;
+ *       nothing is taken in advance.</li>
+ *   <li>M11: the cart says nothing: no label while looked at, no message when used. What it carries
+ *       shows in it (client {@code CargoMinecartRenderer}).</li>
  *   <li>Destroying a cart (broken, killed, burnt, blown up, or hit by a creative player) drops the
  *       cargo as ordinary item stacks; the minecart item it leaves is the plain, empty one.</li>
  *   <li>The cargo is one item and a count in synced entity data, saved with the cart. Every change
  *       happens on the server within one tick, source first, so nothing is created or lost.</li>
  * </ul>
  *
- * <p>Hooks: {@code mixin/minecart/MinecartMixin} (cargo state, use, no riding, saving, spilling);
- * client {@code CargoMinecartRenderer} (label while looked at). Furnace, hopper, TNT and other
- * minecart types are unchanged; chest minecarts are disabled by {@link ChestMinecarts}.
+ * <p>Hooks: {@code mixin/minecart/MinecartMixin} (cargo state, use, no riding, saving, spilling).
+ * Furnace, hopper, TNT and other minecart types are unchanged; chest minecarts are disabled by
+ * {@link ChestMinecarts}. M11 hoppers: {@code train/FreightHoppers}.
  */
 public final class MinecartCargo {
 	/** Owner-set starting capacity (M03): items of one kind per cart. */
@@ -65,6 +75,9 @@ public final class MinecartCargo {
 		void simpleBlock$setCushion(@Nullable DyeColor color);
 	}
 
+	/** The game time of each player's last hand batch (server). */
+	private static final Map<Player, Long> LAST_BATCH = new WeakHashMap<>();
+
 	private MinecartCargo() {
 	}
 
@@ -77,24 +90,19 @@ public final class MinecartCargo {
 		return !stack.isEmpty() && stack.is(CARGO) && stack.getComponentsPatch().isEmpty();
 	}
 
-	/** "Raw Iron 180 / 256", or "Empty 0 / 256". */
-	public static Component status(Cart cart) {
-		int count = cart.simpleBlock$count();
-		Component what = count > 0 ? new ItemStack(cart.simpleBlock$cargo()).getItemName() : message("empty", "Empty");
-		return message("status", "%s %s / %s", what, count, CAPACITY);
-	}
-
-	private static Component message(String key, String fallback, Object... args) {
-		return Component.translatableWithFallback("simple_block.minecart." + key, fallback, args);
+	/** How many of {@code stack}'s item the cart could take now: none if it holds something else. */
+	public static int room(Cart cart, ItemStack stack) {
+		if (!isCargo(stack) || cart.simpleBlock$count() > 0 && !stack.is(cart.simpleBlock$cargo())) {
+			return 0;
+		}
+		return CAPACITY - cart.simpleBlock$count();
 	}
 
 	/**
-	 * Replaces riding. Sneak + use unloads one stack, whatever is in hand. Otherwise the main hand
-	 * loads what it holds, or with an empty hand just shows the cargo; a main hand holding something
-	 * that isn't cargo gets an explanation, unless the off hand holds cargo, which then loads.
-	 * (Unloading with an empty hand, as first specified, would put the stack in that same hand, and
-	 * the next click would load it straight back.) Client and server choose the same hand; only the
-	 * server moves items.
+	 * Replaces riding. Sneak + use unloads, whatever is in hand. Otherwise the main hand loads what it
+	 * holds; an empty main hand does nothing; a main hand holding something that isn't cargo passes to
+	 * the off hand if that holds cargo, which then loads. Client and server choose the same hand; only
+	 * the server moves items, a batch at a time.
 	 */
 	public static InteractionResult interact(Minecart minecart, Player player, InteractionHand hand) {
 		ItemStack held = player.getItemInHand(hand);
@@ -107,51 +115,59 @@ public final class MinecartCargo {
 		} else if (!unloading && !held.isEmpty() && !isCargo(held) && isCargo(player.getOffhandItem())) {
 			return InteractionResult.PASS;
 		}
-		if (player instanceof ServerPlayer serverPlayer) {
+		if (player instanceof ServerPlayer serverPlayer && (unloading || isCargo(held)) && batchDue(serverPlayer)) {
 			Cart cart = cart(minecart);
-			serverPlayer.sendOverlayMessage(unloading ? unload(cart, serverPlayer) : held.isEmpty() ? status(cart) : load(cart, held));
+			int moved = unloading ? unload(cart, serverPlayer) : load(cart, held);
+			if (moved > 0) {
+				minecart.playSound(SoundEvents.GRAVEL_HIT, 0.5F, unloading ? 1.2F : 0.9F);
+			}
 		}
 		return InteractionResult.SUCCESS;
 	}
 
-	/** Loads as much of {@code held} as fits and returns the message to show. */
-	static Component load(Cart cart, ItemStack held) {
-		Item loaded = cart.simpleBlock$cargo();
-		int count = cart.simpleBlock$count();
-		if (!isCargo(held)) {
-			return message("not_cargo", "%s isn't cargo: ores, raw metals, coal, gems and stone only", held.getHoverName());
+	/** Whether this player may move another batch now (and notes that they do). */
+	private static boolean batchDue(ServerPlayer player) {
+		long now = player.level().getGameTime();
+		Long last = LAST_BATCH.get(player);
+		if (last != null && now - last < Tuning.getInt("minecart.hand_interval_ticks") && now >= last) {
+			return false;
 		}
-		if (count > 0 && !held.is(loaded)) {
-			return message("other_cargo", "This cart carries %s: empty it before loading %s", new ItemStack(loaded).getItemName(), held.getItemName());
-		}
-		int moved = Math.min(CAPACITY - count, held.getCount());
+		LAST_BATCH.put(player, now);
+		return true;
+	}
+
+	/** For tests: as if this player's last batch were long ago (holding use for as long as a test needs, within one tick). */
+	public static void forgetPace(Player player) {
+		LAST_BATCH.remove(player);
+	}
+
+	/** Loads one batch from {@code held}, as much as fits; returns how many moved. */
+	static int load(Cart cart, ItemStack held) {
+		int moved = Math.min(Math.min(room(cart, held), held.getCount()), Tuning.getInt("minecart.hand_batch"));
 		if (moved <= 0) {
-			return message("full", "Full: %s", status(cart));
+			return 0;
 		}
 		Item item = held.getItem();
 		held.shrink(moved);
-		cart.simpleBlock$setCargo(item, count + moved);
-		return status(cart);
+		cart.simpleBlock$setCargo(item, cart.simpleBlock$count() + moved);
+		return moved;
 	}
 
-	/** Moves up to one stack into the player's inventory, as much as fits, and returns the message to show. */
-	static Component unload(Cart cart, ServerPlayer player) {
+	/** Moves one batch into the player's inventory, as much as fits; returns how many moved. */
+	static int unload(Cart cart, ServerPlayer player) {
 		Item item = cart.simpleBlock$cargo();
 		int count = cart.simpleBlock$count();
 		if (count <= 0) {
-			return status(cart);
+			return 0;
 		}
-		ItemStack stack = new ItemStack(item, Math.min(count, item.getDefaultMaxStackSize()));
+		ItemStack stack = new ItemStack(item, Math.min(count, Tuning.getInt("minecart.hand_batch")));
 		int offered = stack.getCount();
 		player.getInventory().add(stack);
 		int moved = offered - stack.getCount();
-		if (moved <= 0) {
-			return HeavyLoad.allowedCount(player, new ItemStack(item)) <= 0
-				? message("too_heavy", "Too heavy: you can't carry any more %s", new ItemStack(item).getItemName())
-				: message("no_room", "No room in your inventory");
+		if (moved > 0) {
+			cart.simpleBlock$setCargo(item, count - moved);
 		}
-		cart.simpleBlock$setCargo(item, count - moved);
-		return status(cart);
+		return moved;
 	}
 
 	/** Drops the cargo as ordinary stacks and empties the cart; does nothing the second time. */

@@ -17,6 +17,18 @@
 		"minecraft:stone",
 		"minecraft:cobblestone",
 		"minecraft:deepslate",
-		"minecraft:cobbled_deepslate"
+		"minecraft:cobbled_deepslate",
+		"minecraft:iron_ingot",
+		"minecraft:copper_ingot",
+		"minecraft:gold_ingot",
+		"minecraft:netherite_ingot",
+		"minecraft:iron_block",
+		"minecraft:copper_block",
+		"minecraft:gold_block",
+		"minecraft:diamond_block",
+		"minecraft:netherite_block",
+		"minecraft:sand",
+		"minecraft:gravel",
+		"minecraft:dirt"
 	]
 }

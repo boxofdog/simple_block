@@ -54,6 +54,7 @@
 	"simple_block.cable.wound": "Cable fitted: run it through as many anchors as you like",
 	"block.simple_block.cable_drum_part": "Cable Drum Spool",
 	"block.simple_block.cobblestone_engine_model": "Cobblestone Engine",
+	"block.simple_block.cargo_fill": "Cart Load",
 	"entity.minecraft.furnace_minecart": "Cobblestone Engine",
 	"item.minecraft.furnace_minecart": "Cobblestone Engine",
 	"simple_block.cable.crank_locked": "Close the loop to haul",

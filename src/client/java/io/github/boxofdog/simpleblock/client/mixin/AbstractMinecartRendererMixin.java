@@ -18,7 +18,7 @@ import io.github.boxofdog.simpleblock.client.train.CobblestoneEngineRenderer;
 import io.github.boxofdog.simpleblock.client.train.CouplingChains;
 
 /**
- * Lets {@link CargoMinecartRenderer} draw a fitted cushion inside the cart, and (M05)
+ * Lets {@link CargoMinecartRenderer} draw a fitted cushion (M11: or the load) inside the cart, and (M05)
  * {@link CobblestoneEngineRenderer} draw the engine (M07: inside the cart body, which is drawn as usual,
  * since the owner's cart redesign as {@code GatedMinecartModel} with its gates shut). The hook sits just before
  * the cart body is drawn (the {@code scale(-1, -1, 1)} into model space), where the pose already
@@ -34,7 +34,7 @@ abstract class AbstractMinecartRendererMixin {
 	)
 	private void simpleBlock$submitCushion(MinecartRenderState state, PoseStack poseStack, SubmitNodeCollector collector, CameraRenderState camera, CallbackInfo ci) {
 		if ((Object) this instanceof CargoMinecartRenderer renderer) {
-			renderer.submitCushion(state, poseStack, collector);
+			renderer.submitContents(state, poseStack, collector);
 		} else if ((Object) this instanceof CobblestoneEngineRenderer renderer) {
 			// M07: the engine sits inside the cart; vanilla goes on to draw the unchanged cart body.
 			renderer.submitEngine(state, poseStack, collector);

@@ -218,7 +218,7 @@ public class FreightStationClientTest implements FabricClientGameTest {
 			+ "empty hand on the body: '{}', lever {}", powered, clientPowered, furnaces == 0, stillLooped, coal, inspect, afterInspect);
 		assertTrue(powered && clientPowered && furnaces == 0 && stillLooped, "fitting the furnace");
 		assertTrue(coal == 3, "coal in: " + coal);
-		assertTrue(inspect.contains("3 coal") && afterInspect == CableLines.Lever.NEUTRAL, "inspecting: '" + inspect + "', lever " + afterInspect);
+		assertTrue(inspect.isEmpty() && afterInspect == CableLines.Lever.NEUTRAL, "inspecting (M11: no text): '" + inspect + "', lever " + afterInspect);
 
 		// The lever is where the crank was: on the drum's south side (facing east).
 		server.runCommand("tp @a 20.5 " + g + " " + (Z + 2.5) + " 180 30");

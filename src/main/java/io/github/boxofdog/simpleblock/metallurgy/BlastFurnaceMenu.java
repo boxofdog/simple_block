@@ -19,6 +19,7 @@ import net.minecraft.world.item.Items;
 
 import io.github.boxofdog.simpleblock.feature.HeavyLoad;
 import io.github.boxofdog.simpleblock.tuning.Tuning;
+import io.github.boxofdog.simpleblock.feature.Feedback;
 
 /**
  * M08: the furnace's screen, laid out like a vanilla furnace: the ore reservoir where the input goes,
@@ -153,14 +154,14 @@ public class BlastFurnaceMenu extends AbstractContainerMenu {
 					if (allowed > 0) {
 						this.setCarried(furnace.withdraw(allowed));
 					} else if (furnace.count() > 0) {
-						serverPlayer.sendOverlayMessage(message("too_heavy", "Too heavy: you can't carry any more %s",
+						Feedback.quiet(serverPlayer, message("too_heavy", "Too heavy: you can't carry any more %s",
 							new ItemStack(furnace.ore()).getItemName()));
 					}
 				} else if (furnace.room(carried.getItem()) > 0) {
 					carried.shrink(furnace.deposit(carried.getItem(), right ? 1 : carried.getCount()));
 					this.setCarried(carried.isEmpty() ? ItemStack.EMPTY : carried);
 				} else {
-					serverPlayer.sendOverlayMessage(refusal(furnace, carried.getItem()));
+					Feedback.quiet(serverPlayer, refusal(furnace, carried.getItem()));
 				}
 			}
 			case BUTTON_SHIFT -> {
@@ -173,7 +174,7 @@ public class BlastFurnaceMenu extends AbstractContainerMenu {
 						furnace.deposit(taken.getItem(), taken.getCount());
 					}
 				} else if (stack > 0) {
-					serverPlayer.sendOverlayMessage(message("too_heavy", "Too heavy: you can't carry any more %s",
+					Feedback.quiet(serverPlayer, message("too_heavy", "Too heavy: you can't carry any more %s",
 						new ItemStack(furnace.ore()).getItemName()));
 				}
 			}

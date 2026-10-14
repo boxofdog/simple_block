@@ -15,6 +15,7 @@ import net.minecraft.world.level.storage.ValueOutput;
 import io.github.boxofdog.simpleblock.feature.MinecartCargo;
 import io.github.boxofdog.simpleblock.feature.MinecartCushions;
 import io.github.boxofdog.simpleblock.tuning.Tuning;
+import io.github.boxofdog.simpleblock.feature.Feedback;
 
 /**
  * The copper connecting rod, fitted to a minecart. It stands up from the cart like a tram's trolley
@@ -93,14 +94,14 @@ public final class ConnectingRods {
 				rod.simpleBlock$setReach(0.0F);
 				serverPlayer.getInventory().placeItemBackInInventory(new ItemStack(CableContent.CONNECTING_ROD), Prediction.SERVER_ONLY);
 				minecart.playSound(SoundEvents.COPPER_HIT, 1.0F, 0.8F);
-				serverPlayer.sendOverlayMessage(CableRoutes.message("rod_removed", "Connecting rod taken off"));
+				Feedback.quiet(serverPlayer, CableRoutes.message("rod_removed", "Connecting rod taken off"));
 			} else if (rod.simpleBlock$rod()) {
-				serverPlayer.sendOverlayMessage(CableRoutes.message("rod_present", "This cart already has a connecting rod"));
+				Feedback.quiet(serverPlayer, CableRoutes.message("rod_present", "This cart already has a connecting rod"));
 			} else {
 				rod.simpleBlock$setRod(true);
 				player.getItemInHand(hand).consume(1, player);
 				minecart.playSound(SoundEvents.COPPER_PLACE, 1.0F, 1.0F);
-				serverPlayer.sendOverlayMessage(CableRoutes.message("rod_fitted", "Connecting rod fitted: it grips a cable the cart passes under"));
+				Feedback.quiet(serverPlayer, CableRoutes.message("rod_fitted", "Connecting rod fitted: it grips a cable the cart passes under"));
 			}
 		}
 		return InteractionResult.SUCCESS;

@@ -72,6 +72,7 @@ public class SkipServerClientTest implements FabricClientGameTest {
 			context.getInput().pressKey(options -> options.keyUse);
 			context.waitTicks(10);
 			String loaded = overlayMessage(context);
+			int afterLoad = server.computeOnServer(s -> skip(s.overworld(), g).count());
 			// The screen, and one click on the cargo slot.
 			server.runCommand("clear @a");
 			context.waitTicks(10);
@@ -130,7 +131,8 @@ public class SkipServerClientTest implements FabricClientGameTest {
 				+ "the head anchor {}; a cart docked at the skip's own level got {}; PULL stopped the skip at y {} (rail + 11/16), client saw the discharge "
 				+ "gate open {}, cart {} raw iron, skip {}", placed, loaded, shown, afterRight, client[0], client[1], afterPut, hung, bridle, head, sameLevel,
 				stopped, gate, cart, left);
-			assertTrue(placed.contains("facing north") && loaded.contains("64 / 512") && shown == 64, "placed and loaded: " + placed + " '" + loaded + "' " + shown);
+			assertTrue(placed.contains("facing north") && loaded.isEmpty() && afterLoad == 64 && shown == 64, "placed and loaded (M11: no text): " + placed + " '"
+				+ loaded + "' " + afterLoad + " " + shown);
 			assertTrue(afterRight == 32 && client[0] == 32 && client[1] == 32 && afterPut == 64, "slot clicks over the network: " + afterRight + "/"
 				+ client[0] + "/" + client[1] + ", then " + afterPut);
 			assertTrue(bridle && head == CableAnchorBlock.Return.PULLEY, "hung over the network: '" + hung + "', bridle " + bridle + ", anchor " + head);

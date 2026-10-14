@@ -30,7 +30,7 @@ public final class EnderChests {
 	/** Tells a player why nothing happened. Server-side only; a no-op for dispensers and clients. */
 	public static void notifyDisabled(@Nullable Player player) {
 		if (player instanceof ServerPlayer serverPlayer) {
-			serverPlayer.sendOverlayMessage(
+			Feedback.quiet(serverPlayer, 
 					Component.translatableWithFallback("message.simple_block.ender_chest_disabled", "Ender chests don't work in this world")
 			);
 		}

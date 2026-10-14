@@ -211,6 +211,7 @@ public class SkipClientTest implements FabricClientGameTest {
 		lookAtPoint(context, new Vec3(X + 0.5, g + 1.5, Z + 0.5));
 		use(context);
 		String loaded = overlayMessage(context);
+		int afterLoad = server.computeOnServer(s -> skip(s.overworld(), g).count());
 		server.runCommand("clear @a");
 		context.waitTicks(5);
 		use(context);
@@ -236,7 +237,8 @@ public class SkipClientTest implements FabricClientGameTest {
 		context.waitTicks(5);
 		SimpleBlockTestLog.info("CLIENT SKIP: placed by key ({}), client box {} tall, no bridle; loaded by hand: '{}'; slot click took a stack: skip {}, cursor {}; "
 			+ "clicked back: skip {}", placed, height, loaded, afterTake, cursor, afterPut);
-		assertTrue(loaded.contains("512 / 512") && afterTake == 448 && cursor == 64 && afterPut == 512, "load and slot clicks: '" + loaded + "' " + afterTake
+		assertTrue(loaded.isEmpty() && afterLoad == 512 && afterTake == 448 && cursor == 64 && afterPut == 512, "load (M11: no text) and slot clicks: '"
+			+ loaded + "' " + afterLoad + "/" + afterTake
 			+ "/" + cursor + "/" + afterPut);
 		server.computeOnServer(s -> {
 			skip(s.overworld(), g).setCargo(Items.RAW_IRON, 300);

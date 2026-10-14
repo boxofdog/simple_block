@@ -27,6 +27,7 @@ import io.github.boxofdog.simpleblock.cable.ConnectingRods;
 import io.github.boxofdog.simpleblock.feature.MinecartCargo;
 import io.github.boxofdog.simpleblock.feature.MinecartCushions;
 import io.github.boxofdog.simpleblock.tuning.Tuning;
+import io.github.boxofdog.simpleblock.feature.Feedback;
 
 /**
  * M05 Cobblestone Engine: vanilla's furnace minecart, reworked into a small coal-fired locomotive.
@@ -101,7 +102,7 @@ public final class CobblestoneEngine {
 		}
 		if (player instanceof ServerPlayer serverPlayer && cart.level() instanceof ServerLevel level) {
 			if (MinecartCargo.cart(cart).simpleBlock$count() > 0 || MinecartCushions.isFitted(cart) || ConnectingRods.hasRod(cart) || cart.isVehicle()) {
-				serverPlayer.sendOverlayMessage(message("not_empty", "Empty the cart first"));
+				Feedback.quiet(serverPlayer, message("not_empty", "Empty the cart first"));
 				return InteractionResult.SUCCESS;
 			}
 			MinecartFurnace engine = EntityTypes.FURNACE_MINECART.create(level, EntitySpawnReason.CONVERSION);
@@ -132,7 +133,7 @@ public final class CobblestoneEngine {
 		if (held.is(ItemTags.FURNACE_MINECART_FUEL)) {
 			if (player instanceof ServerPlayer serverPlayer) {
 				if (state.simpleBlock$fuel() + FUEL_PER_ITEM > MAX_FUEL) {
-					serverPlayer.sendOverlayMessage(message("full", "The firebox is full"));
+					Feedback.quiet(serverPlayer, message("full", "The firebox is full"));
 				} else {
 					state.simpleBlock$setFuel(state.simpleBlock$fuel() + FUEL_PER_ITEM);
 					held.consume(1, player);
@@ -148,9 +149,9 @@ public final class CobblestoneEngine {
 			if (state.simpleBlock$running()) {
 				state.simpleBlock$setRunning(false);
 			} else if (Couplings.docked(engine)) {
-				serverPlayer.sendOverlayMessage(message("docked", "Held at a Loading Rail: use the rail to release it"));
+				Feedback.quiet(serverPlayer, message("docked", "Held at a Loading Rail: use the rail to release it"));
 			} else if (state.simpleBlock$fuel() <= 0) {
-				serverPlayer.sendOverlayMessage(message("no_fuel", "Needs coal"));
+				Feedback.quiet(serverPlayer, message("no_fuel", "Needs coal"));
 			} else {
 				Vec3 away = engine.position().subtract(player.position());
 				Vec3 heading = alongTrack(engine, away);

@@ -16,7 +16,6 @@ import net.minecraft.client.renderer.entity.state.CushionRenderState;
 import net.minecraft.client.renderer.entity.state.MinecartRenderState;
 import net.minecraft.client.renderer.state.level.CameraRenderState;
 import net.minecraft.client.renderer.texture.OverlayTexture;
-import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.EntityTypes;
 import net.minecraft.world.entity.vehicle.minecart.AbstractMinecart;
@@ -33,12 +32,15 @@ import io.github.boxofdog.simpleblock.cable.ConnectingRodPartBlock;
 import io.github.boxofdog.simpleblock.cable.ConnectingRods;
 import io.github.boxofdog.simpleblock.feature.MinecartCargo;
 import io.github.boxofdog.simpleblock.feature.MinecartCushions;
+import io.github.boxofdog.simpleblock.train.CargoLooks;
 import io.github.boxofdog.simpleblock.train.LoadingTracks;
+import io.github.boxofdog.simpleblock.train.TrainContent;
 
 /**
  * The vanilla minecart renderer plus:
  * <ul>
- *   <li>FRT-08: a cargo label ("Raw Iron 180 / 256") while the player looks at a cargo cart;</li>
+ *   <li>M11: the cargo it carries, drawn by its look and fill ({@link CargoLooks}); no label (a name given with
+ *       a name tag shows as in vanilla);</li>
  *   <li>a fitted cushion ({@link MinecartCushions}), drawn with vanilla's own cushion model and
  *       texture, squeezed to fit between the cart's walls and resting on its floor. The drawing hook
  *       is {@code mixin/AbstractMinecartRendererMixin}.</li>
@@ -52,7 +54,6 @@ import io.github.boxofdog.simpleblock.train.LoadingTracks;
  *       an end gate folds down into a ramp, a side gate swings up and out), and a cushioned cart keeps
  *       them all shut.</li>
  * </ul>
- * M04 owns the visible cargo.
  */
 public class CargoMinecartRenderer extends MinecartRenderer {
 	/** Inside the cart: 16 x 12 pixels between the walls; the cushion is 16 x 16, so it is narrowed. */
@@ -60,6 +61,8 @@ public class CargoMinecartRenderer extends MinecartRenderer {
 	private static final float CUSHION_WIDTH = 11.0F / 16.0F;
 	/** The cart floor is 3 pixels below the pose's origin; the cushion model's base is 4 pixels below its own. */
 	private static final float CUSHION_DROP = -1.0F / 16.0F;
+	/** The cart floor's height in the pose: the load's models stand on it. */
+	private static final float CARGO_FLOOR = -3.0F / 16.0F;
 
 	/** Height of the rod's base above the cart's position on the rail, and of the base model. */
 	private static final float ROD_BASE_Y = 6.0F / 16.0F;
@@ -100,6 +103,10 @@ public class CargoMinecartRenderer extends MinecartRenderer {
 		public int openGate = -1;
 		/** How far it has swung, 0 shut to 1 open. */
 		public float gateSwing;
+		/** M11: the load drawn in a freight cart, from its synced cargo; band 0 draws none. */
+		public CargoLooks.Look cargoLook = CargoLooks.Look.COVERED;
+		public int cargoBand;
+		final BlockModelRenderState cargo = new BlockModelRenderState();
 	}
 
 	@Override
@@ -122,6 +129,17 @@ public class CargoMinecartRenderer extends MinecartRenderer {
 			this.rodPart(cart.rodBase, ConnectingRodPartBlock.Part.BASE);
 			this.rodPart(cart.rodShaft, ConnectingRodPartBlock.Part.SHAFT);
 			this.rodPart(cart.rodHead, gripping ? ConnectingRodPartBlock.Part.HEAD_CLOSED : ConnectingRodPartBlock.Part.HEAD_OPEN);
+		}
+		// M11: a freight cart's load, by its look and how full it is (cushioned carts and engines carry none).
+		cart.cargoBand = 0;
+		if (entity instanceof Minecart minecart && LoadingTracks.isFreight(minecart)) {
+			MinecartCargo.Cart cargo = MinecartCargo.cart(minecart);
+			cart.cargoBand = CargoLooks.band(cargo.simpleBlock$count());
+			if (cart.cargoBand > 0) {
+				cart.cargoLook = CargoLooks.look(cargo.simpleBlock$cargo());
+				this.blockModelResolver.update(cart.cargo, TrainContent.CARGO_FILL_MODEL.fill(cart.cargoLook, cart.cargoBand),
+					AbstractMinecartRenderer.BLOCK_DISPLAY_CONTEXT);
+			}
 		}
 		// Only a freight cart opens a gate: the one on the side of the skip it tips into.
 		Direction side = LoadingTracks.isFreight(entity) ? LoadingTracks.freight(entity).simpleBlock$swingSide() : null;
@@ -196,8 +214,18 @@ public class CargoMinecartRenderer extends MinecartRenderer {
 	}
 
 	/** Called with the cart's pose (y up, origin above the cart floor), just before the cart body is drawn. */
-	public void submitCushion(MinecartRenderState state, PoseStack poseStack, SubmitNodeCollector collector) {
-		if (!(state instanceof State cart) || cart.cushion == null) {
+	public void submitContents(MinecartRenderState state, PoseStack poseStack, SubmitNodeCollector collector) {
+		if (!(state instanceof State cart)) {
+			return;
+		}
+		if (cart.cargoBand > 0) {
+			// The load's models are laid out in the cart's inside: x along it, y 0 on its floor.
+			poseStack.pushPose();
+			poseStack.translate(-0.5F, CARGO_FLOOR, -0.5F);
+			cart.cargo.submit(poseStack, collector, state.lightCoords, OverlayTexture.NO_OVERLAY, state.outlineColor);
+			poseStack.popPose();
+		}
+		if (cart.cushion == null) {
 			return;
 		}
 		poseStack.pushPose();
@@ -208,20 +236,5 @@ public class CargoMinecartRenderer extends MinecartRenderer {
 		collector.submitModel(this.cushionModel, cart.cushionState, poseStack, this.cushionModel.renderType(cart.cushion), state.lightCoords,
 			OverlayTexture.NO_OVERLAY, state.outlineColor);
 		poseStack.popPose();
-	}
-
-	@Override
-	protected boolean shouldShowName(AbstractMinecart entity, double distanceToCameraSq) {
-		boolean cargoCart = entity instanceof Minecart minecart && !MinecartCushions.isFitted(minecart);
-		return cargoCart && entity == this.entityRenderDispatcher.crosshairPickEntity || super.shouldShowName(entity, distanceToCameraSq);
-	}
-
-	@Override
-	protected @Nullable Component getNameTag(AbstractMinecart entity) {
-		if (!(entity instanceof Minecart minecart) || MinecartCushions.isFitted(minecart)) {
-			return super.getNameTag(entity);
-		}
-		Component status = MinecartCargo.status(MinecartCargo.cart(minecart));
-		return minecart.hasCustomName() ? Component.empty().append(minecart.getCustomName()).append(" - ").append(status) : status;
 	}
 }

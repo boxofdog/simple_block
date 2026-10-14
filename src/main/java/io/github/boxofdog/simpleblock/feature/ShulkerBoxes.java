@@ -31,7 +31,7 @@ public final class ShulkerBoxes {
 	/** Tells a player why nothing happened. Server-side only; a no-op for dispensers and clients. */
 	public static void notifyDisabled(@Nullable Player player) {
 		if (player instanceof ServerPlayer serverPlayer) {
-			serverPlayer.sendOverlayMessage(
+			Feedback.quiet(serverPlayer, 
 					Component.translatableWithFallback("message.simple_block.shulker_box_disabled", "Shulker boxes don't work in this world")
 			);
 		}

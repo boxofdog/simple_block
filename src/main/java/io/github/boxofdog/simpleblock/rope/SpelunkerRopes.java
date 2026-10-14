@@ -14,6 +14,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
+import io.github.boxofdog.simpleblock.feature.Feedback;
 
 /**
  * M10 Spelunker's Rope: an anchor fixed under a block or on its side, with a climbing rope hanging
@@ -49,7 +50,7 @@ public final class SpelunkerRopes {
 	}
 
 	static void tell(Player player, Component message) {
-		player.sendOverlayMessage(message);
+		Feedback.quiet(player, message);
 	}
 
 	/** Whether the line may go down into this block: open air only. */

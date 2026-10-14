@@ -1,0 +1,6 @@
+{
+	"parent": "simple_block:block/cargo/form/rocks_3",
+	"textures": {
+		"cargo": "simple_block:block/cargo/deepslate_copper_ore"
+	}
+}

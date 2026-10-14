@@ -72,7 +72,7 @@ public final class MinecartCushions {
 			return null;
 		}
 		if (player instanceof ServerPlayer serverPlayer) {
-			serverPlayer.sendOverlayMessage(fitted == null ? fit(minecart, cart, serverPlayer, player.getItemInHand(hand)) : remove(minecart, cart, serverPlayer, fitted));
+			Feedback.quiet(serverPlayer, fitted == null ? fit(minecart, cart, serverPlayer, player.getItemInHand(hand)) : remove(minecart, cart, serverPlayer, fitted));
 		}
 		return InteractionResult.SUCCESS;
 	}

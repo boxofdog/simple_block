@@ -48,6 +48,7 @@
 		"shulker.ShulkerBoxBlockMixin",
 		"sleep.ServerLevelMixin",
 		"train.AbstractMinecartMixin",
+		"train.HopperBlockEntityMixin",
 		"train.MinecartFurnaceMixin",
 		"train.VehicleEntityMixin",
 		"armor.AbstractVillagerMixin",

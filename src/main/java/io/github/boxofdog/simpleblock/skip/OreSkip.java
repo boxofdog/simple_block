@@ -42,6 +42,7 @@ import io.github.boxofdog.simpleblock.cable.CableHook;
 import io.github.boxofdog.simpleblock.cable.CableRoutes;
 import io.github.boxofdog.simpleblock.feature.MinecartCargo;
 import io.github.boxofdog.simpleblock.tuning.Tuning;
+import io.github.boxofdog.simpleblock.feature.Feedback;
 
 /**
  * M07 upright ore skip: a vertical carrier hoisted on a drum's cable (owner's brief, sections 1 to 4).
@@ -433,10 +434,10 @@ public class OreSkip extends VehicleEntity implements SkipCargo.Store {
 		if (hook != null) {
 			BlockPos bridle = BlockPos.containing(this.getX(), this.getY() + BODY_HEIGHT + 0.5, this.getZ());
 			if (this.drum() != null) {
-				serverPlayer.sendOverlayMessage(SkipCargo.message("already_hung", "This skip already hangs on a cable"));
+				Feedback.quiet(serverPlayer, SkipCargo.message("already_hung", "This skip already hangs on a cable"));
 			} else if (obstruction(level, this, this.boxAt(this.getY(), HEIGHT), this.lateral()) != null) {
 				// No room for the bridle (the fourth block, or beside it): nothing is hung, nothing used.
-				serverPlayer.sendOverlayMessage(Component.translatableWithFallback("simple_block.cable.blocked", "The cable would run through %s at %s",
+				Feedback.quiet(serverPlayer, Component.translatableWithFallback("simple_block.cable.blocked", "The cable would run through %s at %s",
 					level.getBlockState(bridle).getBlock().getName(), bridle.toShortString()));
 			} else {
 				CableHoists.Attach attach = CableHoists.attach(level, hook, this.getUUID(), this.column(), this.getY() + HEIGHT);
@@ -444,12 +445,12 @@ public class OreSkip extends VehicleEntity implements SkipCargo.Store {
 					BlockPos drumPos = hook.drumPos();
 					this.setDrum(drumPos, hook.endPos());
 				}
-				serverPlayer.sendOverlayMessage(attach.message());
+				Feedback.quiet(serverPlayer, attach.message());
 			}
 		} else if (player.isSecondaryUseActive() && held.isEmpty()) {
-			serverPlayer.sendOverlayMessage(this.unhang(level));
+			Feedback.quiet(serverPlayer, this.unhang(level));
 		} else if (MinecartCargo.isCargo(held)) {
-			serverPlayer.sendOverlayMessage(SkipCargo.loadFromHand(this, held));
+			Feedback.quiet(serverPlayer, SkipCargo.loadFromHand(this, held));
 		} else {
 			serverPlayer.openMenu(new SimpleMenuProvider((id, inventory, p) -> SkipMenu.server(id, inventory, this),
 				Component.translatable("container.simple_block.ore_skip")));

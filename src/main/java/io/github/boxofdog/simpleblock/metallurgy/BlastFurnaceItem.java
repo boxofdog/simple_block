@@ -19,6 +19,7 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.gameevent.GameEvent;
 import net.minecraft.world.phys.shapes.CollisionContext;
+import io.github.boxofdog.simpleblock.feature.Feedback;
 
 /**
  * M08: the furnace item places the whole furnace at once ({@link BlastFurnaceStructure}), facing the
@@ -47,7 +48,7 @@ public class BlastFurnaceItem extends BlockItem {
 			if (!level.isInWorldBounds(pos) || !level.getBlockState(pos).canBeReplaced(context) && !pos.equals(context.getClickedPos())
 				|| !level.isUnobstructed(state, pos, collision)) {
 				if (player != null && !level.isClientSide()) {
-					player.sendOverlayMessage(Component.translatableWithFallback("simple_block.blast_furnace.no_room",
+					Feedback.quiet(player, Component.translatableWithFallback("simple_block.blast_furnace.no_room",
 						"The furnace needs a clear space 3 blocks wide, 3 deep and 4 high"));
 				}
 				return InteractionResult.FAIL;

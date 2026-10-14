@@ -384,7 +384,7 @@ public class SkipGameTests {
 		Minecart cart = helper.spawn(EntityTypes.MINECART, new Vec3(4.5, 1.0625, 8.5));
 		for (int i = 0; i < 5; i++) {
 			player.setItemInHand(InteractionHand.MAIN_HAND, new ItemStack(Items.RAW_IRON, 64));
-			player.interactOn(cart, InteractionHand.MAIN_HAND, cart.position());
+			MinecartCargoGameTests.holdUse(player, cart, InteractionHand.MAIN_HAND);
 		}
 		helper.assertValueEqual(cartCount(cart), MinecartCargo.CAPACITY, "freight cart capacity");
 		cart.discard();
@@ -708,7 +708,7 @@ public class SkipGameTests {
 	 * that cart (256 of its 512; the cart's front stays shut, the skip's discharge gate opens). Totals are
 	 * kept throughout.
 	 */
-	@GameTest(structure = SHAFT, maxTicks = 1600)
+	@GameTest(structure = SHAFT, maxTicks = 2200)
 	public void skipExchangesByHeightAtTheLoadingRail(GameTestHelper helper) {
 		ServerPlayer player = TestPlayers.create(helper, GameType.SURVIVAL, new BlockPos(8, 1, 6));
 		layShaft(helper, player);
@@ -734,7 +734,7 @@ public class SkipGameTests {
 				helper.assertTrue(helper.absolutePos(TOP_RAIL).equals(Couplings.coupled(carts[0]).simpleBlock$dock()), "top cart docked");
 				setLever(helper, player, CableLines.Lever.PULL);
 			}))
-			.thenExecuteFor(260, () -> {
+			.thenExecuteFor(360, () -> {
 				if (carts[0] != null && LoadingTracks.freight(carts[0]).simpleBlock$gateOpen()) {
 					seen[0] = true;
 				}
@@ -765,7 +765,7 @@ public class SkipGameTests {
 					setLever(helper, player, CableLines.Lever.FEED);
 				}
 			}))
-			.thenExecuteFor(240, () -> {
+			.thenExecuteFor(420, () -> {
 				if (carts[1] != null && LoadingTracks.freight(carts[1]).simpleBlock$gateOpen()) {
 					seen[0] = true;
 				}
@@ -1259,7 +1259,7 @@ public class SkipGameTests {
 	 * four directions, with the Loading Rails on that side: lifted to the cart at its bridle it is loaded
 	 * (ramp and lid), then held with its chute's lip on a lower cart's rim it fills it (discharge gate).
 	 */
-	@GameTest(structure = SHAFT, maxTicks = 1600)
+	@GameTest(structure = SHAFT, maxTicks = 2400)
 	public void skipExchangesFacingEveryWay(GameTestHelper helper) {
 		ServerPlayer player = TestPlayers.create(helper, GameType.SURVIVAL, new BlockPos(8, 1, 6));
 		layShaft(helper, player);
@@ -1290,13 +1290,13 @@ public class SkipGameTests {
 					carts[0] = cartOn(helper, rails[0], Items.RAW_COPPER, 100);
 					holdAt(helper, skip, 2.0, Items.AIR, 0);
 				}))
-				.thenExecuteAfter(60, CableGameTests.step(failed, () -> {
+				.thenExecuteAfter(160, CableGameTests.step(failed, () -> {
 					helper.assertTrue(skip.count() == 100 && cartCount(carts[0]) == 0, facing + ": loaded at the bridle: skip " + skip.count() + ", cart "
 						+ cartCount(carts[0]));
 					carts[1] = cartOn(helper, rails[1], Items.AIR, 0);
 					holdAt(helper, skip, 1.0 + SkipStations.UNLOAD_OFFSET, Items.RAW_COPPER, 100);
 				}))
-				.thenExecuteAfter(60, CableGameTests.step(failed, () -> {
+				.thenExecuteAfter(160, CableGameTests.step(failed, () -> {
 					helper.assertTrue(skip.count() == 0 && cartCount(carts[1]) == 100, facing + ": unloaded below the chute: skip " + skip.count() + ", cart "
 						+ cartCount(carts[1]));
 					log.add(facing + ": 100 in at the bridle, 100 out through the chute");
@@ -1321,7 +1321,7 @@ public class SkipGameTests {
 	 * into the skip through its long side gate (the one facing the skip opens, never an end gate), and below
 	 * the chute it is filled through its rim; the other car is not touched and the train stays coupled.
 	 */
-	@GameTest(structure = SHAFT, maxTicks = 600)
+	@GameTest(structure = SHAFT, maxTicks = 900)
 	public void skipExchangesSideOnWithACoupledTrain(GameTestHelper helper) {
 		ServerPlayer player = TestPlayers.create(helper, GameType.SURVIVAL, new BlockPos(8, 1, 6));
 		layShaft(helper, player);
@@ -1351,7 +1351,7 @@ public class SkipGameTests {
 				holdAt(helper, skip, 2.0, Items.AIR, 0);
 			}))
 			.thenExecuteAfter(20, CableGameTests.step(failed, () -> seen[0] = LoadingTracks.freight(train[0]).simpleBlock$gateSide()))
-			.thenExecuteAfter(60, CableGameTests.step(failed, () -> {
+			.thenExecuteAfter(160, CableGameTests.step(failed, () -> {
 				helper.assertTrue(skip.count() == 100 && cartCount(train[0]) == 0 && cartCount(train[1]) == 50, "side-on at the bridle: skip " + skip.count()
 					+ ", docked car " + cartCount(train[0]) + ", other car " + cartCount(train[1]));
 				helper.assertValueEqual(seen[0], Direction.SOUTH, "the gate that opened (the side towards the skip)");
@@ -1370,7 +1370,7 @@ public class SkipGameTests {
 				holdAt(helper, skip, 1.0 + SkipStations.UNLOAD_OFFSET, Items.RAW_COPPER, 100);
 			}))
 			.thenExecuteAfter(20, CableGameTests.step(failed, () -> seen[1] = LoadingTracks.freight(train[0]).simpleBlock$gateSide()))
-			.thenExecuteAfter(60, CableGameTests.step(failed, () -> {
+			.thenExecuteAfter(160, CableGameTests.step(failed, () -> {
 				helper.assertTrue(skip.count() == 0 && cartCount(train[0]) == 100 && cartCount(train[1]) == 0, "side-on below the chute: skip " + skip.count()
 					+ ", docked car " + cartCount(train[0]) + ", other car " + cartCount(train[1]));
 				helper.assertTrue(seen[1] == null && TrainGameTests.coupled(train[0], train[1]), "filled through the rim, gates shut, still coupled: " + seen[1]);

@@ -221,8 +221,8 @@ public final class Tuning {
 		define("skip.mass", 1.5);
 		define("skip.cargo_mass", 4.0);
 		define("skip.lift_load", 0.5);
-		// Items moved per tick between a skip and a docked freight cart.
-		define("skip.transfer_per_tick", 4);
+		// Items moved per tick between a skip and a docked freight cart (M11 owner: slower, was 4).
+		define("skip.transfer_per_tick", 1);
 		// M07 playtest: a skip with no cable drops like an anchor: it gains this much speed a tick (blocks per
 		// tick per tick; vanilla gravity is 0.08), up to the top speed, and clangs when it lands.
 		define("skip.fall_gravity", 0.08);
@@ -239,10 +239,18 @@ public final class Tuning {
 		// where a vanilla furnace smelts 80 items on one); a Dried Kelp Block a quarter of that.
 		define("blast_furnace.coal_block_burn_ticks", 3600);
 		define("blast_furnace.kelp_block_burn_ticks", 900);
-		// Items moved per tick from a docked cart or a skip's chute into the hopper.
-		define("blast_furnace.transfer_per_tick", 4);
+		// Items moved per tick from a docked cart or a skip's chute into the hopper (M11 owner: slower, was 4).
+		define("blast_furnace.transfer_per_tick", 1);
 		// An ordinary furnace smelts raw ore and metal ores this many times slower (#simple_block:raw_ore_smelting).
 		define("furnace.raw_ore_cook_multiplier", 2.0);
+
+		// M11 freight (provisional). Loading or unloading a cart by hand: items per use, and the least ticks
+		// between one player's uses (vanilla repeats a held use every 4 ticks), so 1 item a tick held down.
+		define("minecart.hand_batch", 4);
+		define("minecart.hand_interval_ticks", 4);
+		// Items a docked cart tips through a gate into a hopper each tick. (A hopper over a cart feeds it at
+		// the hopper's own vanilla pace, one item every 8 ticks.)
+		define("freight.hopper_discharge_per_tick", 1);
 	}
 
 	private Tuning() {

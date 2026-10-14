@@ -1,0 +1,6 @@
+{
+	"parent": "simple_block:block/cargo/form/blocks_1",
+	"textures": {
+		"cargo": "simple_block:block/cargo/diamond_block"
+	}
+}

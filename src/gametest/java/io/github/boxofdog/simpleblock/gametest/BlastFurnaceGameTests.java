@@ -566,7 +566,7 @@ public class BlastFurnaceGameTests {
 			.thenExecute(CableGameTests.step(failed, () -> {
 				helper.assertTrue(LoadingTracks.freight(cart[0]).simpleBlock$gateSide() == Direction.NORTH, "side gate open towards the hopper");
 			}))
-			.thenIdle(40)
+			.thenIdle(110)
 			.thenExecute(CableGameTests.step(failed, () -> {
 				helper.assertTrue(furnace.count() == 100 && MinecartCargo.cart(cart[0]).simpleBlock$count() == 0, "side-on: all 100 in: " + furnace);
 				log.add("side-on 100 raw iron tipped in");
@@ -655,7 +655,7 @@ public class BlastFurnaceGameTests {
 					}))
 			.thenIdle(8)
 			.thenExecute(CableGameTests.step(failed, () -> helper.assertTrue(skip.gateOpen(), "discharge gate open")))
-			.thenIdle(70)
+			.thenIdle(210)
 			.thenExecute(CableGameTests.step(failed, () -> {
 				helper.assertTrue(furnace.count() == 200 && skip.count() == 0, "skip emptied into the furnace: " + furnace + ", skip " + skip.count());
 				log.add("200 raw iron down the chute");

@@ -1,0 +1,376 @@
+{
+	"variants": {
+		"band=1,look=coal": {
+			"model": "simple_block:block/cargo/coal_1"
+		},
+		"band=1,look=cobbled_deepslate": {
+			"model": "simple_block:block/cargo/cobbled_deepslate_1"
+		},
+		"band=1,look=cobblestone": {
+			"model": "simple_block:block/cargo/cobblestone_1"
+		},
+		"band=1,look=copper_block": {
+			"model": "simple_block:block/cargo/copper_block_1"
+		},
+		"band=1,look=copper_ingot": {
+			"model": "simple_block:block/cargo/copper_ingot_1"
+		},
+		"band=1,look=copper_ore": {
+			"model": "simple_block:block/cargo/copper_ore_1"
+		},
+		"band=1,look=covered": {
+			"model": "simple_block:block/cargo/covered_1"
+		},
+		"band=1,look=deepslate": {
+			"model": "simple_block:block/cargo/deepslate_1"
+		},
+		"band=1,look=deepslate_copper_ore": {
+			"model": "simple_block:block/cargo/deepslate_copper_ore_1"
+		},
+		"band=1,look=deepslate_gold_ore": {
+			"model": "simple_block:block/cargo/deepslate_gold_ore_1"
+		},
+		"band=1,look=deepslate_iron_ore": {
+			"model": "simple_block:block/cargo/deepslate_iron_ore_1"
+		},
+		"band=1,look=diamond": {
+			"model": "simple_block:block/cargo/diamond_1"
+		},
+		"band=1,look=diamond_block": {
+			"model": "simple_block:block/cargo/diamond_block_1"
+		},
+		"band=1,look=dirt": {
+			"model": "simple_block:block/cargo/dirt_1"
+		},
+		"band=1,look=emerald": {
+			"model": "simple_block:block/cargo/emerald_1"
+		},
+		"band=1,look=gold_block": {
+			"model": "simple_block:block/cargo/gold_block_1"
+		},
+		"band=1,look=gold_ingot": {
+			"model": "simple_block:block/cargo/gold_ingot_1"
+		},
+		"band=1,look=gold_ore": {
+			"model": "simple_block:block/cargo/gold_ore_1"
+		},
+		"band=1,look=gravel": {
+			"model": "simple_block:block/cargo/gravel_1"
+		},
+		"band=1,look=iron_block": {
+			"model": "simple_block:block/cargo/iron_block_1"
+		},
+		"band=1,look=iron_ingot": {
+			"model": "simple_block:block/cargo/iron_ingot_1"
+		},
+		"band=1,look=iron_ore": {
+			"model": "simple_block:block/cargo/iron_ore_1"
+		},
+		"band=1,look=lapis_lazuli": {
+			"model": "simple_block:block/cargo/lapis_lazuli_1"
+		},
+		"band=1,look=netherite_block": {
+			"model": "simple_block:block/cargo/netherite_block_1"
+		},
+		"band=1,look=netherite_ingot": {
+			"model": "simple_block:block/cargo/netherite_ingot_1"
+		},
+		"band=1,look=raw_copper": {
+			"model": "simple_block:block/cargo/raw_copper_1"
+		},
+		"band=1,look=raw_gold": {
+			"model": "simple_block:block/cargo/raw_gold_1"
+		},
+		"band=1,look=raw_iron": {
+			"model": "simple_block:block/cargo/raw_iron_1"
+		},
+		"band=1,look=redstone": {
+			"model": "simple_block:block/cargo/redstone_1"
+		},
+		"band=1,look=sand": {
+			"model": "simple_block:block/cargo/sand_1"
+		},
+		"band=1,look=stone": {
+			"model": "simple_block:block/cargo/stone_1"
+		},
+		"band=2,look=coal": {
+			"model": "simple_block:block/cargo/coal_2"
+		},
+		"band=2,look=cobbled_deepslate": {
+			"model": "simple_block:block/cargo/cobbled_deepslate_2"
+		},
+		"band=2,look=cobblestone": {
+			"model": "simple_block:block/cargo/cobblestone_2"
+		},
+		"band=2,look=copper_block": {
+			"model": "simple_block:block/cargo/copper_block_2"
+		},
+		"band=2,look=copper_ingot": {
+			"model": "simple_block:block/cargo/copper_ingot_2"
+		},
+		"band=2,look=copper_ore": {
+			"model": "simple_block:block/cargo/copper_ore_2"
+		},
+		"band=2,look=covered": {
+			"model": "simple_block:block/cargo/covered_2"
+		},
+		"band=2,look=deepslate": {
+			"model": "simple_block:block/cargo/deepslate_2"
+		},
+		"band=2,look=deepslate_copper_ore": {
+			"model": "simple_block:block/cargo/deepslate_copper_ore_2"
+		},
+		"band=2,look=deepslate_gold_ore": {
+			"model": "simple_block:block/cargo/deepslate_gold_ore_2"
+		},
+		"band=2,look=deepslate_iron_ore": {
+			"model": "simple_block:block/cargo/deepslate_iron_ore_2"
+		},
+		"band=2,look=diamond": {
+			"model": "simple_block:block/cargo/diamond_2"
+		},
+		"band=2,look=diamond_block": {
+			"model": "simple_block:block/cargo/diamond_block_2"
+		},
+		"band=2,look=dirt": {
+			"model": "simple_block:block/cargo/dirt_2"
+		},
+		"band=2,look=emerald": {
+			"model": "simple_block:block/cargo/emerald_2"
+		},
+		"band=2,look=gold_block": {
+			"model": "simple_block:block/cargo/gold_block_2"
+		},
+		"band=2,look=gold_ingot": {
+			"model": "simple_block:block/cargo/gold_ingot_2"
+		},
+		"band=2,look=gold_ore": {
+			"model": "simple_block:block/cargo/gold_ore_2"
+		},
+		"band=2,look=gravel": {
+			"model": "simple_block:block/cargo/gravel_2"
+		},
+		"band=2,look=iron_block": {
+			"model": "simple_block:block/cargo/iron_block_2"
+		},
+		"band=2,look=iron_ingot": {
+			"model": "simple_block:block/cargo/iron_ingot_2"
+		},
+		"band=2,look=iron_ore": {
+			"model": "simple_block:block/cargo/iron_ore_2"
+		},
+		"band=2,look=lapis_lazuli": {
+			"model": "simple_block:block/cargo/lapis_lazuli_2"
+		},
+		"band=2,look=netherite_block": {
+			"model": "simple_block:block/cargo/netherite_block_2"
+		},
+		"band=2,look=netherite_ingot": {
+			"model": "simple_block:block/cargo/netherite_ingot_2"
+		},
+		"band=2,look=raw_copper": {
+			"model": "simple_block:block/cargo/raw_copper_2"
+		},
+		"band=2,look=raw_gold": {
+			"model": "simple_block:block/cargo/raw_gold_2"
+		},
+		"band=2,look=raw_iron": {
+			"model": "simple_block:block/cargo/raw_iron_2"
+		},
+		"band=2,look=redstone": {
+			"model": "simple_block:block/cargo/redstone_2"
+		},
+		"band=2,look=sand": {
+			"model": "simple_block:block/cargo/sand_2"
+		},
+		"band=2,look=stone": {
+			"model": "simple_block:block/cargo/stone_2"
+		},
+		"band=3,look=coal": {
+			"model": "simple_block:block/cargo/coal_3"
+		},
+		"band=3,look=cobbled_deepslate": {
+			"model": "simple_block:block/cargo/cobbled_deepslate_3"
+		},
+		"band=3,look=cobblestone": {
+			"model": "simple_block:block/cargo/cobblestone_3"
+		},
+		"band=3,look=copper_block": {
+			"model": "simple_block:block/cargo/copper_block_3"
+		},
+		"band=3,look=copper_ingot": {
+			"model": "simple_block:block/cargo/copper_ingot_3"
+		},
+		"band=3,look=copper_ore": {
+			"model": "simple_block:block/cargo/copper_ore_3"
+		},
+		"band=3,look=covered": {
+			"model": "simple_block:block/cargo/covered_3"
+		},
+		"band=3,look=deepslate": {
+			"model": "simple_block:block/cargo/deepslate_3"
+		},
+		"band=3,look=deepslate_copper_ore": {
+			"model": "simple_block:block/cargo/deepslate_copper_ore_3"
+		},
+		"band=3,look=deepslate_gold_ore": {
+			"model": "simple_block:block/cargo/deepslate_gold_ore_3"
+		},
+		"band=3,look=deepslate_iron_ore": {
+			"model": "simple_block:block/cargo/deepslate_iron_ore_3"
+		},
+		"band=3,look=diamond": {
+			"model": "simple_block:block/cargo/diamond_3"
+		},
+		"band=3,look=diamond_block": {
+			"model": "simple_block:block/cargo/diamond_block_3"
+		},
+		"band=3,look=dirt": {
+			"model": "simple_block:block/cargo/dirt_3"
+		},
+		"band=3,look=emerald": {
+			"model": "simple_block:block/cargo/emerald_3"
+		},
+		"band=3,look=gold_block": {
+			"model": "simple_block:block/cargo/gold_block_3"
+		},
+		"band=3,look=gold_ingot": {
+			"model": "simple_block:block/cargo/gold_ingot_3"
+		},
+		"band=3,look=gold_ore": {
+			"model": "simple_block:block/cargo/gold_ore_3"
+		},
+		"band=3,look=gravel": {
+			"model": "simple_block:block/cargo/gravel_3"
+		},
+		"band=3,look=iron_block": {
+			"model": "simple_block:block/cargo/iron_block_3"
+		},
+		"band=3,look=iron_ingot": {
+			"model": "simple_block:block/cargo/iron_ingot_3"
+		},
+		"band=3,look=iron_ore": {
+			"model": "simple_block:block/cargo/iron_ore_3"
+		},
+		"band=3,look=lapis_lazuli": {
+			"model": "simple_block:block/cargo/lapis_lazuli_3"
+		},
+		"band=3,look=netherite_block": {
+			"model": "simple_block:block/cargo/netherite_block_3"
+		},
+		"band=3,look=netherite_ingot": {
+			"model": "simple_block:block/cargo/netherite_ingot_3"
+		},
+		"band=3,look=raw_copper": {
+			"model": "simple_block:block/cargo/raw_copper_3"
+		},
+		"band=3,look=raw_gold": {
+			"model": "simple_block:block/cargo/raw_gold_3"
+		},
+		"band=3,look=raw_iron": {
+			"model": "simple_block:block/cargo/raw_iron_3"
+		},
+		"band=3,look=redstone": {
+			"model": "simple_block:block/cargo/redstone_3"
+		},
+		"band=3,look=sand": {
+			"model": "simple_block:block/cargo/sand_3"
+		},
+		"band=3,look=stone": {
+			"model": "simple_block:block/cargo/stone_3"
+		},
+		"band=4,look=coal": {
+			"model": "simple_block:block/cargo/coal_4"
+		},
+		"band=4,look=cobbled_deepslate": {
+			"model": "simple_block:block/cargo/cobbled_deepslate_4"
+		},
+		"band=4,look=cobblestone": {
+			"model": "simple_block:block/cargo/cobblestone_4"
+		},
+		"band=4,look=copper_block": {
+			"model": "simple_block:block/cargo/copper_block_4"
+		},
+		"band=4,look=copper_ingot": {
+			"model": "simple_block:block/cargo/copper_ingot_4"
+		},
+		"band=4,look=copper_ore": {
+			"model": "simple_block:block/cargo/copper_ore_4"
+		},
+		"band=4,look=covered": {
+			"model": "simple_block:block/cargo/covered_4"
+		},
+		"band=4,look=deepslate": {
+			"model": "simple_block:block/cargo/deepslate_4"
+		},
+		"band=4,look=deepslate_copper_ore": {
+			"model": "simple_block:block/cargo/deepslate_copper_ore_4"
+		},
+		"band=4,look=deepslate_gold_ore": {
+			"model": "simple_block:block/cargo/deepslate_gold_ore_4"
+		},
+		"band=4,look=deepslate_iron_ore": {
+			"model": "simple_block:block/cargo/deepslate_iron_ore_4"
+		},
+		"band=4,look=diamond": {
+			"model": "simple_block:block/cargo/diamond_4"
+		},
+		"band=4,look=diamond_block": {
+			"model": "simple_block:block/cargo/diamond_block_4"
+		},
+		"band=4,look=dirt": {
+			"model": "simple_block:block/cargo/dirt_4"
+		},
+		"band=4,look=emerald": {
+			"model": "simple_block:block/cargo/emerald_4"
+		},
+		"band=4,look=gold_block": {
+			"model": "simple_block:block/cargo/gold_block_4"
+		},
+		"band=4,look=gold_ingot": {
+			"model": "simple_block:block/cargo/gold_ingot_4"
+		},
+		"band=4,look=gold_ore": {
+			"model": "simple_block:block/cargo/gold_ore_4"
+		},
+		"band=4,look=gravel": {
+			"model": "simple_block:block/cargo/gravel_4"
+		},
+		"band=4,look=iron_block": {
+			"model": "simple_block:block/cargo/iron_block_4"
+		},
+		"band=4,look=iron_ingot": {
+			"model": "simple_block:block/cargo/iron_ingot_4"
+		},
+		"band=4,look=iron_ore": {
+			"model": "simple_block:block/cargo/iron_ore_4"
+		},
+		"band=4,look=lapis_lazuli": {
+			"model": "simple_block:block/cargo/lapis_lazuli_4"
+		},
+		"band=4,look=netherite_block": {
+			"model": "simple_block:block/cargo/netherite_block_4"
+		},
+		"band=4,look=netherite_ingot": {
+			"model": "simple_block:block/cargo/netherite_ingot_4"
+		},
+		"band=4,look=raw_copper": {
+			"model": "simple_block:block/cargo/raw_copper_4"
+		},
+		"band=4,look=raw_gold": {
+			"model": "simple_block:block/cargo/raw_gold_4"
+		},
+		"band=4,look=raw_iron": {
+			"model": "simple_block:block/cargo/raw_iron_4"
+		},
+		"band=4,look=redstone": {
+			"model": "simple_block:block/cargo/redstone_4"
+		},
+		"band=4,look=sand": {
+			"model": "simple_block:block/cargo/sand_4"
+		},
+		"band=4,look=stone": {
+			"model": "simple_block:block/cargo/stone_4"
+		}
+	}
+}

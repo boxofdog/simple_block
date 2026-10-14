@@ -26,6 +26,7 @@ import net.minecraft.world.phys.shapes.VoxelShape;
 import org.jspecify.annotations.Nullable;
 
 import io.github.boxofdog.simpleblock.tuning.Tuning;
+import io.github.boxofdog.simpleblock.feature.Feedback;
 
 /**
  * Laying out cable. A drum is fitted with one cable coil (M06: a reusable installation, not a length of
@@ -99,7 +100,7 @@ public final class CableRoutes {
 
 	static void tell(Player player, Component message) {
 		if (player instanceof ServerPlayer serverPlayer) {
-			serverPlayer.sendOverlayMessage(message);
+			Feedback.quiet(serverPlayer, message);
 		}
 	}
 
