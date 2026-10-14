@@ -69,6 +69,16 @@ The original M02 system already samples and remembers lit ground and sometimes i
 
 **M09: PLAYTESTING. Implemented and verified as documented below; owner acceptance is still pending.**
 
+## Playtesting Changes
+
+**Owner feedback — 2026-10-13:**
+
+- **Creeper retaliation:** owner reports it **works great** in actual play, with no correction requested at this stage.
+- **Illuminated-area loitering and wooden-door breaking:** owner reports both **work great** and describes zombies frequently breaking doors; no correction requested at this stage.
+- **Rare spider jockeys / ledge grabs:** **not yet observed by the owner**, consistent with intentionally rare recruitment; **not a reported failure and not owner-verified**. Keep the existing natural-jockey playtest gap open.
+
+**M09 remains PLAYTESTING**, not SHIPPED; positive feedback on the observed behaviors does not count as blanket milestone acceptance.
+
 ## Implementation and verification — 2026-10-14
 
 **Metadata:** M09 | PLAYTESTING | Persistent light interest, open doors, light-drawn wooden-door breaking, breach redistribution, creeper retaliation, rare jockeys with ledge grab.
@@ -106,14 +116,3 @@ The original M02 system already samples and remembers lit ground and sometimes i
 - Shoot a creeper from a tower and from behind a door; sword one; shoot one in the open.
 - Leave skeletons and spiders near light; look for a rare jockey.
 - Watch a jockey climb under an overhang.
-
-## Playtesting Changes
-
-**Owner feedback — 2026-10-13:**
-
-- **Creeper retaliation:** owner reports it **works great** in actual play, with no correction requested at this stage.
-- **Illuminated-area loitering and wooden-door breaking:** owner reports both **work great** and describes zombies frequently breaking doors; no correction requested at this stage.
-- **Rare spider jockeys / ledge grabs:** **not yet observed by the owner**, consistent with intentionally rare recruitment; **not a reported failure and not owner-verified**. Keep the existing natural-jockey playtest gap open.
-
-**M09 remains PLAYTESTING**, not SHIPPED; positive feedback on the observed behaviors does not count as blanket milestone acceptance.
-
