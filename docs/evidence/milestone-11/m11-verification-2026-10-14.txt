@@ -1,0 +1,54 @@
+M11 freight fills, hopper transfer and no floating text, 2026-10-14, on dc2898e6a8e02d3f00e5796133bb8086d31e3fd7 (implementation 8b7f266, tests a3d01ee/dc2898e). Local ./gradlew build: All 215 required tests passed; FreightTransferGameTests also passed 5 runs in a row.
+
+Server:
+FILL-01: 30 cargo items, each its own look: minecraft:raw_iron=rocks/raw_iron, minecraft:raw_copper=rocks/raw_copper, minecraft:raw_gold=rocks/raw_gold, minecraft:iron_ore=rocks/iron_ore, minecraft:deepslate_iron_ore=rocks/deepslate_iron_ore, minecraft:copper_ore=rocks/copper_ore, minecraft:deepslate_copper_ore=rocks/deepslate_copper_ore, minecraft:gold_ore=rocks/gold_ore, minecraft:deepslate_gold_ore=rocks/deepslate_gold_ore, minecraft:coal=rocks/coal, minecraft:diamond=gems/diamond, minecraft:emerald=gems/emerald, minecraft:lapis_lazuli=gems/lapis_lazuli, minecraft:redstone=heap/redstone, minecraft:stone=blocks/stone, minecraft:cobblestone=heap/cobblestone, minecraft:deepslate=blocks/deepslate, minecraft:cobbled_deepslate=heap/cobbled_deepslate, minecraft:iron_ingot=ingots/iron_ingot, minecraft:copper_ingot=ingots/copper_ingot, minecraft:gold_ingot=ingots/gold_ingot, minecraft:netherite_ingot=ingots/netherite_ingot, minecraft:iron_block=blocks/iron_block, minecraft:copper_block=blocks/copper_block, minecraft:gold_block=blocks/gold_block, minecraft:diamond_block=blocks/diamond_block, minecraft:netherite_block=blocks/netherite_block, minecraft:sand=heap/sand, minecraft:gravel=heap/gravel, minecraft:dirt=heap/dirt; bands 0/1/64/65/128/129/192/193/256 -> 0/1/1/2/2/3/3/4/4; anything else covered
+HOP-04: coupled car 40 coal -> south side hopper; end hopper under the neighbour 0; neighbour keeps 30; still coupled
+HOP-05: [saved mid-flow at 41/19, loaded back 41, hopper broken: 19 dropped, 41 kept, gate shut, cart broken while fed: 8 dropped, 22 kept by the hopper]
+HAND-01/TEXT-01: held use: 40 ticks -> 40 in (steps of 4: [4, 4, 4, 4, 8, 8, 8, 8, 12, 12, 12, 12]), let go 40 ticks -> no change, second stack -> 104 (band 1 then 2), raw copper refused, sneak-held 40 ticks -> 40 out; 0 action-bar messages
+HOP-02 cart -> hopper: [north rail, hopper north: end gate north, first item at tick 12, 24 in by 35, north rail, hopper east: side gate east, first item at tick 12, 24 in by 35, north rail, hopper south: end gate south, first item at tick 12, 24 in by 35, north rail, hopper west: side gate west, first item at tick 12, 24 in by 35, east rail, hopper north: side gate north, first item at tick 12, 24 in by 35, east rail, hopper east: end gate east, first item at tick 12, 24 in by 35, east rail, hopper south: side gate south, first item at tick 12, 24 in by 35, east rail, hopper west: end gate west, first item at tick 12, 24 in by 35]
+HOP-01 hopper over a docked cart: [fed 13 in 100 ticks, one at a time, filled to 256 (hopper keeps 3), let go, plain rail: nothing moved, locked hopper: nothing moved, hopper pointing east: nothing moved, hopper two blocks up: nothing moved, other cargo: nothing moved, not cargo: nothing moved, full cart: nothing moved]
+HOP-03: [full hopper: 0 tipped, hopper full of another kind: 0 tipped, block over the hopper: 0 tipped, rail over the hopper: 0 tipped, another cart over the hopper: 0 tipped, hopper level with the rail: 0 tipped, fed from above: 0 tipped, room for 10: 10 tipped, locked hopper: 30 tipped, three hoppers: right side (east) took 5 until full, then the left side (west) 15; the front end none]
+
+Client (singleplayer, then a dedicated server; screenshots/m11-*):
+CLIENT M11 FORMS (m11): [iron_ingot 256 -> iron_ingot/ingots band 4, diamond 256 -> diamond/gems band 4, gold_block 256 -> gold_block/blocks band 4, iron_ore 256 -> iron_ore/rocks band 4, sand 256 -> sand/heap band 4, stick 256 -> covered/covered band 4, copper_ingot 100 -> copper_ingot/ingots band 2, emerald 100 -> emerald/gems band 2, diamond_block 100 -> diamond_block/blocks band 2, raw_gold 100 -> raw_gold/rocks band 2, gravel 100 -> gravel/heap band 2, cobbled_deepslate 100 -> cobbled_deepslate/heap band 2]
+CLIENT M11 BANDS (m11): [air 0 -> none, raw_iron 1 -> raw_iron/rocks band 1, raw_iron 100 -> raw_iron/rocks band 2, raw_iron 160 -> raw_iron/rocks band 3, raw_iron 256 -> raw_iron/rocks band 4]
+CLIENT M11 GATES (m11): side hopper: east 1.00 cargo 202; end hopper: north 1.00 cargo 202
+CLIENT M11 HAND (m11): held use, client count every 10 ticks [12, 20, 32, 40, 52, 60]; overlay ''
+CLIENT M11 FORMS (m11-server): [iron_ingot 256 -> iron_ingot/ingots band 4, diamond 256 -> diamond/gems band 4, gold_block 256 -> gold_block/blocks band 4, iron_ore 256 -> iron_ore/rocks band 4, sand 256 -> sand/heap band 4, stick 256 -> covered/covered band 4, copper_ingot 100 -> copper_ingot/ingots band 2, emerald 100 -> emerald/gems band 2, diamond_block 100 -> diamond_block/blocks band 2, raw_gold 100 -> raw_gold/rocks band 2, gravel 100 -> gravel/heap band 2, cobbled_deepslate 100 -> cobbled_deepslate/heap band 2]
+CLIENT M11 BANDS (m11-server): [air 0 -> none, raw_iron 1 -> raw_iron/rocks band 1, raw_iron 100 -> raw_iron/rocks band 2, raw_iron 160 -> raw_iron/rocks band 3, raw_iron 256 -> raw_iron/rocks band 4]
+CLIENT M11 GATES (m11-server): side hopper: east 1.00 cargo 202; end hopper: north 1.00 cargo 202
+CLIENT M11 HAND (m11-server): held use, client count every 10 ticks [12, 20, 32, 40, 52, 60]; overlay ''
+
+Negative controls (each source edited, freight tests run, source restored; git status clean afterwards):
+== constant fill height (every load band 4)
+2 required tests failed :(
+- simple_block-gametest:freight_transfer_game_tests_every_cargo_has_its_own_look_and_band: Expected band at 1 to be 1: was 4 on tick 0
+- simple_block-gametest:freight_transfer_game_tests_hand_loading_is_gradual_and_silent: band 1 then 2: [4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4
+== wrong mapping (every cargo drawn covered)
+1 required tests failed :(
+- simple_block-gametest:freight_transfer_game_tests_every_cargo_has_its_own_look_and_band: Expected form of minecraft:gold_ingot to be INGOTS: was COVERED on tick 0
+== instant hand loading (no pace)
+1 required tests failed :(
+- simple_block-gametest:freight_transfer_game_tests_hand_loading_is_gradual_and_silent: Expected after 40 ticks of holding use (10 batches of 4) to be 40: was 64 on tick 42
+== hopper feeds any cart under it (no Loading Rail or docking needed, both checks removed)
+1 required tests failed :(
+- simple_block-gametest:freight_transfer_game_tests_hopper_above_feeds_adocked_cart: plain rail: cart 5, hopper 5 minecraft:raw_iron on tick 233
+== discharge ignores what is over the hopper
+1 required tests failed :(
+- simple_block-gametest:freight_transfer_game_tests_hopper_discharge_refusals_and_order: Expected block over the hopper: items tipped (receiver [30 minecraft:raw_iron, 0 minecraft:air, 0 minecraft:air, 0 minecraft:air, 0 minecraft:air] at BlockPos{x=-4556114, y=7, z=9800930}, docked false, over Bloc
+== discharge dumps the whole load at once
+2 required tests failed :(
+- simple_block-gametest:freight_transfer_game_tests_cart_tips_into_ahopper_through_that_gate: the gate opens before the cargo runs: [24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0] on tick 45
+- simple_block-gametest:freight_transfer_game_tests_cut_short_transfers_lose_nothing: mid-flow: cart 0, hopper 60 on tick 30
+== the opposite gate opens
+4 required tests failed :(
+- simple_block-gametest:freight_transfer_game_tests_cart_tips_into_ahopper_through_that_gate: Expected north rail, hopper north: the gate that opened to be north: was south on tick 45
+- simple_block-gametest:freight_transfer_game_tests_hopper_discharge_refusals_and_order: Expected room for 10: items tipped (receiver [64 minecraft:dirt, 64 minecraft:dirt, 64 minecraft:dirt, 64 minecraft:dirt, 54 minecraft:raw_iron] at BlockPos{x=-8159642, y=7, z=3561410}, docked true, over Block{m
+- simple_block-gametest:freight_transfer_game_tests_coupled_train_unloads_sideways: docked car into the side hopper: 0 on tick 70
+- simple_block-gametest:freight_transfer_game_tests_cut_short_transfers_lose_nothing: mid-flow: cart 60, hopper 0 on tick 30
+== messages shown again
+1 required tests failed :(
+- simple_block-gametest:freight_transfer_game_tests_hand_loading_is_gradual_and_silent: Expected action-bar messages sent to the player to be 0: was 1 on tick 242
+== left side tried before right
+1 required tests failed :(
+- simple_block-gametest:freight_transfer_game_tests_hopper_discharge_refusals_and_order: Expected gates in turn (around [cart 0 minecraft:air at BlockPos{x=3, y=2, z=3} gate null docked false]) to be [east, west]: was [west] on tick 620
