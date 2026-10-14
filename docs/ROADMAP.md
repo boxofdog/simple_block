@@ -1,6 +1,6 @@
 # Simple Block — Roadmap
 
-**Purpose:** A compact **milestone status and priority index**. This is **not** a specification, implementation handoff, historical conversation log, or bug tracker. For functional requirements, open the milestone brief; for M01–M07 code/CI evidence, open the **Implementation and verification** section at the end of each milestone document (detailed historical reports are archived in [archive/milestone-reports/](archive/milestone-reports/)). For future work, the implementation/verification summary goes at the END of its milestone document; settled requirements live there too. See the [project vision](VISION.md).
+**Purpose:** A short milestone status and evidence index—not a second specification or bug log. Each milestone contains its requirements and dated verification appendices; older reports are [archived](archive/milestone-reports/). See the [project vision](VISION.md), [bug log](BUG_LOG.md) and [backlog](BACKLOG.md) for their respective subjects.
 
 **Status column is generated:** The `milestone`/`status` YAML header of each `MILESTONE_XX.md` is authoritative. [RULES.md](RULES.md) defines the five labels; [status synchronization](../tools/docs/sync_milestone_statuses.py) changes only the status cells in the table below. **Do not edit the status cells manually.** Notes and pending decisions below remain editorial and do not change automatically.
 
@@ -20,7 +20,7 @@
 | M10 | Headlamp/Overalls/boots, workwear bonuses, Spelunker's Rope, armor retirement | **PLAYTESTING** | [M10 package](MILESTONE_10.md) | [Verification](MILESTONE_10.md#implementation-and-verification--2026-10-14) · [CI #46](https://github.com/boxofdog/simple_block/actions/runs/38535509454) |
 | M11 | Material-/shape-specific cart fills, progressive hopper transfer, cart text removal | **PLAYTESTING** | [M11 package](MILESTONE_11.md) | [Verification](MILESTONE_11.md#implementation-and-verification--2026-10-14) · [CI #52](https://github.com/boxofdog/simple_block/actions/runs/38597022406) |
 
-**Post-M10 and unnumbered plans:** ordinary 3D rails, revised villages, extreme-grade railway behavior, the Witch's Tome/discovered enchanting, and separate iron/diamond/netherite armor set bonuses live in [BACKLOG.md](BACKLOG.md). They are not an authorization or an extension of M08–M11.
+**Unnumbered work:** ordinary 3D rails have been implemented (owner visual review pending). Revised villages, extreme grades, discovered enchanting and iron/diamond/netherite armor bonuses remain future [backlog](BACKLOG.md) ideas, **not implementation authorizations**.
 
 ## Playtesting Changes
 
