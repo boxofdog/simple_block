@@ -182,16 +182,18 @@ Counts reflect source files only, not proof of implemented or tested behavior.
 | Source set | First-level package | Java files |
 |---|---|---:|
 | client | client | 23 |
-| gametest | gametest | 49 |
+| gametest | gametest | 51 |
 | main | (root) | 1 |
 | main | cable | 18 |
 | main | feature | 26 |
 | main | metallurgy | 12 |
-| main | mixin | 47 |
+| main | mixin | 55 |
 | main | network | 3 |
+| main | rope | 7 |
 | main | skip | 7 |
 | main | train | 6 |
 | main | tuning | 1 |
+| main | workwear | 3 |
 | main | worldgen | 7 |
 
 Regenerate using tools/docs/automation.py readme --write
