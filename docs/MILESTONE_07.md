@@ -177,3 +177,39 @@ A cable-hauled freight minecart approaching a **real Loading Rail near the far/t
 - View an incline cable under its anchor block from several angles.
 - Finish a skip exchange, wind the skip on; confirm the cart is released and not refilled.
 - Break a hung skip's drum; watch the drop and hear the landing clang.
+
+## Implementation and verification — 2026-10-14
+
+**Metadata:** M07 | PLAYTESTING | Playtest change 2: two drums and one cable, worked from either end; the one-drum loop kept.
+
+**Implementation**
+- Commits: `cf081601b846657355b8738d2d6bfe14b2c6379e` two-drum lines; `febfe33c9cede18f87085a326f2aca18138ce17c` shorter attach messages; `1c8434b7adc9b7cac505f007cd38333a3ac54255` HOST-06 test bound (CI head)
+- Delivered: the held cable end is made fast to an empty second drum (straight route, no return wheel). Each drum's crank or lever works from its own end, and the last command wins. A coal winch's second drum shows the lever, mirrored, with no motor. Coal goes only in the winch. Sneak-using either drum, or breaking either drum or an anchor, unhooks the line, including while the first drum is unloaded.
+- Deviations: NONE; the earlier proposal (a fitting on the return anchor) was replaced by the owner's two-drum decision.
+
+**CI**
+- Build: #42 | Run ID: 38526791742 | PASS
+- Source SHA: `1c8434b7adc9b7cac505f007cd38333a3ac54255`
+- URL: https://github.com/boxofdog/simple_block/actions/runs/38526791742
+- Artifact: `simple-block-mod` id 11876078125, available. Build #40 (run 38525185843) on `cf08160`: PASS; Build #41 on `febfe33` failed only the M09 HOST-06 flake, bounded in `1c8434b`.
+
+**Tests**
+
+| Category | Result | Passed/Total | Evidence / Notes |
+|---|---|---|---|
+| Server | PASS | 198/198 | local on `cf08160`; Build #42 log: all 198 required tests passed; [evidence](evidence/milestone-07/two-drums-2026-10-14.txt) |
+| Client | PASS | 13/13 | full suite on `cf08160`, incl. `TwoDrumClientTest`; [screenshots](evidence/milestone-07/screenshots/) `m07twin-*` |
+| Dedicated server | PASS | 1/1 | `TwoDrumClientTest` dedicated pass: cable onto the second drum, mirrored levers, cart hauled |
+| Negative controls | PASS | 3/3 | no attaching, no mirroring, no straight check; [evidence](evidence/milestone-07/two-drums-2026-10-14.txt) |
+
+**Known gaps**
+- GAP-01: MINOR — unhooking while the first drum is unloaded is untested; next: long-line test.
+- GAP-02: MINOR — the second drum's barrel uses the wound-spool model; it does not wind or unwind visibly; next: owner view.
+- GAP-03: MINOR — two-drum lines must be straight (owner rule); next: playtest.
+
+**Owner playtest**
+- Run a drum's cable through anchors and use a second empty drum with the end.
+- Crank from each drum; check right-click pulls the cart towards that drum.
+- Fit a furnace to the first drum; work the lever from the second drum.
+- Try coal or a furnace on the second drum; confirm both are refused.
+- Sneak-use either drum; confirm the end returns to the last anchor.
