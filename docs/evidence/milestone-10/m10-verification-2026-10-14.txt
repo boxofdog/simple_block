@@ -1,0 +1,51 @@
+M10 workwear, spelunking rope and armor retirement, 2026-10-14, on 0f36ef7f9a06eb9d533508228ec6e2e22dd852d9 (code; stage 1 5db77dd2f9883371145c7d00f9ce02aa78635358). Local ./gradlew build: All 208 required tests passed (two earlier full runs each had one known timing flake: attraction_works_underground_in_daytime, pursuing_zombie_breaks_oak_door); local xvfb runClientGameTest: BUILD SUCCESSFUL, whole suite incl. WorkwearClientTest.
+
+Server:
+ARM-01: [golden armor recipes: none loaded, the chestplate grid makes nothing, mob armor tiers: [leather_helmet, copper_helmet, copper_helmet, copper_helmet, iron_helmet, diamond_helmet], 60 piglins spawned: 0 golden armor pieces, 49 with weapons, 450 ruined portal and bastion chests: 0 retired armor, 306 gold stacks, 10 armorers raised to master: 120 offers, 0 chainmail]
+WW-01: [headlamp: 1 simple_block:headlamp, overalls: 1 simple_block:overalls, spiked boots: 1 simple_block:spiked_boots, mining boots: 1 simple_block:mining_boots, rope: 1 simple_block:rope, spelunker's rope: 1 simple_block:spelunker_rope, 8 misplaced grids make nothing (lantern on top, lantern under the ring, chest off-centre, chestplate and leggings swapped, dripstone or iron over the boots, string across, rope over the anchor)]
+OLD-01: [sword in hand, iron pickaxe in offhand: Mule alone stone speed 0.20, ore drops false; Old Pro 1.20 (the pickaxe), true; iron ore broken: 1 raw iron, pickaxe damage 1, sword 0; shovel in hand digs dirt itself (1.20)]
+OV-01: [overalls on over leggings: leggings moved into the inventory, leggings refused while the overalls are on: right-click and slot click, with the overalls: 9 stacks went into the backpack row (36 slots), taken off with the inventory full: the row's 576 dirt dropped at the feet, none lost, none made; row empty]
+TB-01: skeleton at 14 blocks, 60 shots each: mean horizontal miss 2.37 degrees at a plain target, 5.13 at a Trail Blazer (aim penalty +8.0)
+MULE-01: [raw iron taken in: 64 without, 128 with Mining Boots, 128 carried: speed -50%; Mining Boots locked against click, shift-click, number key and right-click; nothing lost, 96 carried: speed -25%, 3 anvils (93, equipment): not locked, the boots come off and back on, Old Pro with 100 raw iron: all four slots locked; nothing lost, down to 60 raw iron: unlocked, the headlamp comes off, died locked: 120 raw iron and the three pieces dropped]
+BON-01: [[air, air, spiked_boots] -> [spelunkers_speed], [headlamp, overalls, spiked_boots] -> [trail_blazer], [air, air, mining_boots] -> [mule], [headlamp, overalls, mining_boots] -> [old_pro], [headlamp, overalls, leather_boots] -> [], ladder lift: 0.200 without, 0.272 with Spiked Boots (net climb x1.60)]
+HL-01: [worn: light 13 at the head 5, 2, 5, moved 4 blocks: old light gone, new one at the head, head in glass: glass kept, light at the feet, taken off: no light left, died: no light left, left the game: no light left]
+All 8 required tests passed :)
+ROPE-01: [hung under a block: anchor and 12 rope (y 13-2), the end in the air, one Rope: 1 more block to the floor, the spare 11 coiled on y 1; another Rope refused, not used; floor untouched, climbable: on the rope true, on the coil true, sneak-use: whole line taken up, 1 Spelunker's Rope + 1 Rope back, refused: on a top face, and with a block right under the anchor]
+ROPE-02: [on a side: 12 rope; one Rope: to the floor, 11 spare coiled, a rope broken mid-line: the whole line came down, dropping 1 Spelunker's Rope + 1 Rope there, support removed: line down, its Spelunker's Rope dropped]
+All 2 required tests passed :)
+
+Client (singleplayer, then a dedicated server; screenshots/m10-*):
+CLIENT M10 TRAIL BLAZER (m10): Trail Blazer true; 7 ghosts behind the wall: player's torch yellow true, world torch blue true, world ladder blue true, rope yellow true
+CLIENT M10 HEADLAMP (m10): the client sees a light block at the head true, block light 13
+CLIENT M10 REAR WARNING (m10): zombie 7 blocks behind, clear line 0.79; a wall between 0.00; turned to face it 0.00
+CLIENT M10 INVENTORY (m10): Old Pro carrying 100 raw iron: 4 armor slots locked on the client; with the Overalls the load bar is under the panel (bar top 209, panel bottom 203)
+CLIENT M10 TRAIL BLAZER (m10-server): Trail Blazer true; 7 ghosts behind the wall: player's torch yellow true, world torch blue true, world ladder blue true, rope yellow true
+CLIENT M10 HEADLAMP (m10-server): the client sees a light block at the head true, block light 13
+CLIENT M10 REAR WARNING (m10-server): zombie 7 blocks behind, clear line 0.79; a wall between 0.00; turned to face it 0.00
+CLIENT M10 INVENTORY (m10-server): Old Pro carrying 100 raw iron: 4 armor slots locked on the client; with the Overalls the load bar is under the panel (bar top 209, panel bottom 203)
+
+Negative controls (each source edited, run, restored byte-identical; git status clean afterwards):
+== armor lock off (ArmorSlot mixin never locks)
+1 required tests failed :(
+- simple_block-gametest:workwear_game_tests_mule_carries_and_the_overload_locks: the boots cannot be taken off or swapped on tick 2
+== headlamp light never removed
+1 required tests failed :(
+- simple_block-gametest:workwear_game_tests_headlamp_lights_and_leaves_nothing: the old light is gone: Block{minecraft:light}[level=13,waterlogged=false] on tick 4
+== overalls do not clear the legs slot
+1 required tests failed :(
+- simple_block-gametest:workwear_game_tests_overalls_take_two_slots_and_open_the_backpack: the legs slot is cleared on tick 1
+== mob armor tiers not remapped
+1 required tests failed :(
+- simple_block-gametest:workwear_game_tests_gold_and_chainmail_armor_are_retired: Expected mob helmet tiers to be [minecraft:leather_helmet, minecraft:copper_helmet, minecraft:copper_helmet, minecraft:copper_helmet, mine
+== rope extension uses no Rope
+1 required tests failed :(
+- simple_block-gametest:rope_game_tests_spelunkers_rope_hangs_extends_and_comes_back: Expected one Rope used to be 2: was 3 on tick 0
+== no faster climbing
+1 required tests failed :(
+- simple_block-gametest:workwear_game_tests_bonuses_and_climbing: Spiked Boots climbing lift 0.272: 0.2 on tick 10
+== Old Pro mines with the main hand
+1 required tests failed :(
+- simple_block-gametest:workwear_game_tests_old_pro_mines_with_the_offhand_pickaxe: Old Pro: the pickaxe's speed (x6 the sword's) and drops: 0.2 vs 0.2 on tick 0
+== skeleton aim unchanged
+1 required tests failed :(
+- simple_block-gametest:workwear_game_tests_trail_blazer_spoils_skeleton_aim: arrows should scatter more at a Trail Blazer: 2.01 vs 1.93 degrees on tick 0
