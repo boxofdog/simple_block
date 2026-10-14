@@ -187,12 +187,11 @@ Counts reflect source files only, not proof of implemented or tested behavior.
 | main | cable | 18 |
 | main | feature | 26 |
 | main | metallurgy | 12 |
-| main | mixin | 50 |
+| main | mixin | 47 |
 | main | network | 3 |
 | main | skip | 7 |
 | main | train | 6 |
 | main | tuning | 1 |
-| main | workwear | 1 |
 | main | worldgen | 7 |
 
 Regenerate using tools/docs/automation.py readme --write
