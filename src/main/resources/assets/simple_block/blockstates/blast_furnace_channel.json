@@ -1,0 +1,78 @@
+{
+	"multipart": [
+		{
+			"when": {
+				"facing": "north"
+			},
+			"apply": {
+				"model": "simple_block:block/blast_furnace_channel"
+			}
+		},
+		{
+			"when": {
+				"facing": "north",
+				"pouring": "true"
+			},
+			"apply": {
+				"model": "simple_block:block/blast_furnace_channel_pour"
+			}
+		},
+		{
+			"when": {
+				"facing": "east"
+			},
+			"apply": {
+				"model": "simple_block:block/blast_furnace_channel",
+				"y": 90
+			}
+		},
+		{
+			"when": {
+				"facing": "east",
+				"pouring": "true"
+			},
+			"apply": {
+				"model": "simple_block:block/blast_furnace_channel_pour",
+				"y": 90
+			}
+		},
+		{
+			"when": {
+				"facing": "south"
+			},
+			"apply": {
+				"model": "simple_block:block/blast_furnace_channel",
+				"y": 180
+			}
+		},
+		{
+			"when": {
+				"facing": "south",
+				"pouring": "true"
+			},
+			"apply": {
+				"model": "simple_block:block/blast_furnace_channel_pour",
+				"y": 180
+			}
+		},
+		{
+			"when": {
+				"facing": "west"
+			},
+			"apply": {
+				"model": "simple_block:block/blast_furnace_channel",
+				"y": 270
+			}
+		},
+		{
+			"when": {
+				"facing": "west",
+				"pouring": "true"
+			},
+			"apply": {
+				"model": "simple_block:block/blast_furnace_channel_pour",
+				"y": 270
+			}
+		}
+	]
+}

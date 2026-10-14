@@ -597,6 +597,104 @@ public class SkipGameTests {
 			.thenSucceed();
 	}
 
+	/**
+	 * M07 playtest (owner): a skip with no cable drops like a heavy anchor and clangs on landing, never
+	 * before. A loaded skip (512 raw iron) let fall from 8 blocks up gains speed every tick, lands on the
+	 * floor much sooner than the old steady 0.25 a tick, and clangs once, on landing; dropped again onto a
+	 * ledge part way down it lands on the ledge and clangs; the ledge taken away, it falls the rest; a
+	 * half-block drop still clangs, while a skip standing on the floor stays put and silent. Saved and
+	 * loaded mid-fall it still comes down and lands. The cargo stays in it throughout.
+	 */
+	@GameTest(structure = SHAFT, maxTicks = 1200)
+	public void droppedSkipFallsLikeAnAnchor(GameTestHelper helper) {
+		ServerPlayer player = TestPlayers.create(helper, GameType.SURVIVAL, new BlockPos(8, 1, 6));
+		layShaft(helper, player);
+		OreSkip[] skip = {spawnSkip(helper, COLUMN)};
+		BlockPos ledge = COLUMN.above(3);
+		int[] ticks = {0};
+		int[] fall = new int[2];
+		int[] early = {0};
+		List<String> log = new ArrayList<>();
+		boolean[] failed = {false};
+		Runnable lift = () -> {
+			Vec3 at = helper.absoluteVec(new Vec3(COLUMN.getX() + 0.5, 9.0, COLUMN.getZ() + 0.5));
+			skip[0].setPos(at.x, at.y, at.z);
+			ticks[0] = 0;
+		};
+		helper.startSequence()
+			.thenExecute(CableGameTests.step(failed, () -> {
+				skip[0].setCargo(Items.RAW_IRON, SkipCargo.CAPACITY);
+				lift.run();
+			}))
+			// The long fall: no clang until it lands.
+			.thenWaitUntil(() -> {
+				ticks[0]++;
+				if (Math.abs(y(helper, skip[0]) - 1.0) > 1.0E-3) {
+					early[0] += skip[0].landings();
+					helper.assertTrue(false, "falling: " + y(helper, skip[0]));
+				}
+			})
+			.thenExecute(CableGameTests.step(failed, () -> {
+				fall[0] = ticks[0];
+				helper.assertValueEqual(early[0], 0, "clangs while still falling");
+				helper.assertValueEqual(skip[0].landings(), 1, "clangs on landing");
+				log.add("8 blocks onto the floor in " + fall[0] + " ticks (at the old steady 0.25 a tick: 32), one clang, on landing");
+				helper.setBlock(ledge, Blocks.STONE);
+				lift.run();
+			}))
+			.thenWaitUntil(() -> helper.assertTrue(skip[0].landings() == 2, "waiting to land on the ledge"))
+			.thenIdle(5)
+			.thenExecute(CableGameTests.step(failed, () -> {
+				helper.assertTrue(Math.abs(y(helper, skip[0]) - (ledge.getY() + 1.0)) < 1.0E-3, "resting on the ledge: " + y(helper, skip[0]));
+				helper.assertValueEqual(skip[0].landings(), 2, "one clang on the ledge");
+				log.add("dropped onto a ledge 3 up: lands on it, one clang");
+				helper.setBlock(ledge, Blocks.AIR);
+			}))
+			.thenWaitUntil(() -> helper.assertTrue(skip[0].landings() == 3 && Math.abs(y(helper, skip[0]) - 1.0) < 1.0E-3, "waiting to land on the floor"))
+			.thenExecute(CableGameTests.step(failed, () -> {
+				Vec3 at = helper.absoluteVec(new Vec3(COLUMN.getX() + 0.5, 1.5, COLUMN.getZ() + 0.5));
+				skip[0].setPos(at.x, at.y, at.z);
+			}))
+			.thenIdle(10)
+			.thenExecute(CableGameTests.step(failed, () -> {
+				helper.assertTrue(Math.abs(y(helper, skip[0]) - 1.0) < 1.0E-3, "down from half a block");
+				helper.assertValueEqual(skip[0].landings(), 4, "a half-block drop clangs too");
+				log.add("ledge taken away: falls the rest, clang; a half-block drop: clang");
+			}))
+			.thenIdle(40)
+			.thenExecute(CableGameTests.step(failed, () -> {
+				helper.assertValueEqual(skip[0].landings(), 4, "standing on the floor: no more clangs");
+				helper.assertTrue(Math.abs(y(helper, skip[0]) - 1.0) < 1.0E-3, "standing on the floor: stays put");
+				log.add("standing on the floor 40 ticks: put, silent");
+				// Saved and loaded in mid-fall.
+				lift.run();
+			}))
+			.thenIdle(4)
+			.thenExecute(CableGameTests.step(failed, () -> {
+				ServerLevel level = helper.getLevel();
+				double before = y(helper, skip[0]);
+				TagValueOutput output = TagValueOutput.createWithContext(ProblemReporter.DISCARDING, level.registryAccess());
+				skip[0].saveWithoutId(output);
+				OreSkip copy = SkipContent.ORE_SKIP.create(level, EntitySpawnReason.LOAD);
+				copy.load(TagValueInput.create(ProblemReporter.DISCARDING, level.registryAccess(), output.buildResult()));
+				skip[0].discard();
+				level.addFreshEntity(copy);
+				skip[0] = copy;
+				helper.assertTrue(before > 1.5, "saved in mid-fall: " + before);
+				log.add(String.format("saved and loaded at %.2f in mid-fall", before));
+			}))
+			.thenWaitUntil(() -> helper.assertTrue(skip[0].landings() == 1 && Math.abs(y(helper, skip[0]) - 1.0) < 1.0E-3, "waiting for the loaded skip to land"))
+			.thenExecute(CableGameTests.step(failed, () -> {
+				helper.assertTrue(skip[0].cargo() == Items.RAW_IRON && skip[0].count() == SkipCargo.CAPACITY, "cargo kept: " + skip[0]);
+				helper.assertTrue(fall[0] <= 18, "the 8-block fall should take far fewer than the old 32 ticks: " + fall[0]);
+				log.add("loaded copy lands with a clang; 512 raw iron in it throughout");
+				SimpleBlockTestLog.info("M07 heavy skip drop: {}", log);
+				skip[0].discard();
+				TestPlayers.remove(player);
+			}))
+			.thenSucceed();
+	}
+
 	// ---- SKIP-06..08 stations ----
 
 	/**
@@ -604,7 +702,7 @@ public class SkipGameTests {
 	 * with its bridle, the skip stops there exactly (lever to NEUTRAL, "docked") and the cart tips its
 	 * load into it through its ramp (the gate folded down, the skip's lid open), as much as the skip has
 	 * room for: a skip already holding 400 raw iron takes 112 of the cart's 200 (direction by height,
-	 * not by who has cargo). The doors close, the cart stays held, nothing restarts. Lowered towards the
+	 * not by who has cargo). The doors close, the cart is let go and the stop folds (M07 playtest), nothing restarts. Lowered towards the
 	 * floor, where an empty cart is docked one level below its chute (owner's playtest patch §1), it stops
 	 * with the chute's lip on the cart's rim ({@link SkipStations#UNLOAD_OFFSET} above the rail) and fills
 	 * that cart (256 of its 512; the cart's front stays shut, the skip's discharge gate opens). Totals are
@@ -655,7 +753,9 @@ public class SkipGameTests {
 				helper.assertValueEqual(cartCount(carts[0]), 88, "cart after loading (200 - 112)");
 				helper.assertTrue(seen[0] && seen[1] && !seen[2], "ramp down " + seen[0] + ", lid open " + seen[1] + ", discharge gate never open " + !seen[2]);
 				helper.assertFalse(LoadingTracks.freight(carts[0]).simpleBlock$gateOpen() || skip.lidOpen(), "doors closed afterwards");
-				helper.assertTrue(Couplings.coupled(carts[0]).simpleBlock$dock() != null, "the cart is still held");
+				// M07 playtest: the exchange finished, so the cart is let go and the stop folds.
+				helper.assertTrue(Couplings.coupled(carts[0]).simpleBlock$dock() == null, "the cart should be let go after its finished exchange");
+				helper.assertFalse(helper.getBlockState(TOP_RAIL).getValue(LoadingTrackBlock.RAISED), "the stop should fold");
 				log.add("PULL: stopped at y " + TOP_STATION + " (" + line(helper).lastStop() + "), cart 200 -> 88 into the skip 400 -> 512 via the ramp");
 				// Now the bottom cart, empty; and down.
 				carts[1] = cartOn(helper, BOTTOM_RAIL, Items.AIR, 0);
@@ -688,6 +788,73 @@ public class SkipGameTests {
 				for (Minecart cart : carts) {
 					cart.discard();
 				}
+				skip.discard();
+				TestPlayers.remove(player);
+			}))
+			.thenSucceed();
+	}
+
+	/**
+	 * M07 playtest (owner): a skip wound up past a Loading Rail at y 5 first stops where the empty cart
+	 * there is level with its bridle; nothing to move, so the cart stays docked, its stop up. Wound on
+	 * up, it stops with its chute over the cart and fills it (256 of its 300); the exchange finished,
+	 * the cart is let go and the stop folds. Fed back down past the cart's bridle height, it no longer
+	 * stops there and takes nothing back: before this change the still-docked cart would have tipped its
+	 * 256 straight back into the skip.
+	 */
+	@GameTest(structure = SHAFT, maxTicks = 1600)
+	public void finishedExchangeLetsTheCartGo(GameTestHelper helper) {
+		BlockPos rail = new BlockPos(12, 5, 4);
+		ServerPlayer player = TestPlayers.create(helper, GameType.SURVIVAL, new BlockPos(8, 1, 6));
+		layShaft(helper, player);
+		loadingRail(helper, rail);
+		OreSkip skip = spawnSkip(helper, COLUMN);
+		skip.setCargo(Items.RAW_IRON, 300);
+		Minecart[] cart = new Minecart[1];
+		double load = rail.getY() - SkipStations.LOAD_OFFSET;
+		double unload = rail.getY() + SkipStations.UNLOAD_OFFSET;
+		List<String> log = new ArrayList<>();
+		double[] lowest = {Double.MAX_VALUE};
+		boolean[] failed = {false};
+		helper.startSequence()
+			.thenIdle(2)
+			.thenExecute(CableGameTests.step(failed, () -> {
+				route(helper, player);
+				CableGameTests.teleport(helper, player, new BlockPos(12, 1, 8));
+				cart[0] = cartOn(helper, rail, Items.AIR, 0);
+				hang(helper, player, skip);
+				coalWinch(helper, player, 2);
+			}))
+			.thenExecuteAfter(2, CableGameTests.step(failed, () -> setLever(helper, player, CableLines.Lever.PULL)))
+			.thenWaitUntil(() -> helper.assertTrue(line(helper).lever() == CableLines.Lever.NEUTRAL && Math.abs(y(helper, skip) - load) < 1.0E-6,
+				"waiting for the stop at the cart's bridle height"))
+			.thenIdle(30)
+			.thenExecute(CableGameTests.step(failed, () -> {
+				helper.assertTrue(helper.absolutePos(rail).equals(Couplings.coupled(cart[0]).simpleBlock$dock()), "nothing to move: the cart stays docked");
+				helper.assertTrue(helper.getBlockState(rail).getValue(LoadingTrackBlock.RAISED), "nothing to move: the stop stays up");
+				log.add("up: stopped at the empty cart's bridle height " + load + ", nothing moved, cart still docked, stop up");
+				setLever(helper, player, CableLines.Lever.PULL);
+			}))
+			.thenWaitUntil(() -> helper.assertTrue(line(helper).lever() == CableLines.Lever.NEUTRAL && Math.abs(y(helper, skip) - unload) < 1.0E-6,
+				"waiting for the stop with the chute over the cart"))
+			.thenWaitUntil(() -> helper.assertTrue(Couplings.coupled(cart[0]).simpleBlock$dock() == null, "waiting for the finished exchange to let the cart go"))
+			.thenExecute(CableGameTests.step(failed, () -> {
+				helper.assertValueEqual(cartCount(cart[0]), MinecartCargo.CAPACITY, "cart filled");
+				helper.assertValueEqual(skip.count(), 300 - MinecartCargo.CAPACITY, "skip after unloading");
+				helper.assertFalse(helper.getBlockState(rail).getValue(LoadingTrackBlock.RAISED), "the stop should fold");
+				helper.assertTrue(helper.absolutePos(rail).equals(LoadingTracks.freight(cart[0]).simpleBlock$released()), "the cart is marked released from this rail");
+				log.add("up again: stopped with the chute over the cart (" + unload + "), 256 into it, then the cart let go and the stop folded");
+				setLever(helper, player, CableLines.Lever.FEED);
+			}))
+			.thenExecuteFor(300, () -> lowest[0] = Math.min(lowest[0], y(helper, skip)))
+			.thenExecute(CableGameTests.step(failed, () -> {
+				log.add(String.format("fed down: lowest bottom %.2f (the cart's bridle height %s passed), cart %d, skip %d, last stop %s", lowest[0], load,
+					cartCount(cart[0]), skip.count(), line(helper).lastStop()));
+				SimpleBlockTestLog.info("M07 stop folds after a finished exchange: {}", log);
+				helper.assertTrue(lowest[0] < load - 0.5, "the skip should pass the released cart's bridle height: lowest " + lowest[0]);
+				helper.assertValueEqual(cartCount(cart[0]), MinecartCargo.CAPACITY, "the cart keeps its load");
+				helper.assertValueEqual(skip.count(), 300 - MinecartCargo.CAPACITY, "the skip took nothing back");
+				cart[0].discard();
 				skip.discard();
 				TestPlayers.remove(player);
 			}))

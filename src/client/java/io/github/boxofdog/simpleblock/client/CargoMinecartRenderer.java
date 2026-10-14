@@ -44,7 +44,7 @@ import io.github.boxofdog.simpleblock.train.LoadingTracks;
  *       is {@code mixin/AbstractMinecartRendererMixin}.</li>
  *   <li>M04: a fitted connecting rod ({@link ConnectingRods}), built from the
  *       {@code block/connecting_rod_*} models: the base on the cart, the shaft stretched up to the cable
- *       it grips (or folded down to {@code cable.rod_reach_min} with the head open), and the head. It
+ *       it grips (or folded down to {@link ConnectingRods#FOLDED} with the head open), and the head. It
  *       stands upright whatever the cart's tilt, with its stem on the side away from the anchors'
  *       hanger arms (east of a north-south track, south of an east-west one).</li>
  *   <li>M07 (owner's cart redesign): the body is {@link GatedMinecartModel}, as for every minecart; a
@@ -116,7 +116,7 @@ public class CargoMinecartRenderer extends MinecartRenderer {
 		cart.rod = entity instanceof Minecart minecart && ConnectingRods.hasRod(minecart);
 		if (cart.rod) {
 			boolean gripping = ConnectingRods.isGripping((Minecart) entity);
-			cart.rodReach = gripping ? ConnectingRods.fitted((Minecart) entity).simpleBlock$reach() : (float) ConnectingRods.reachMin();
+			cart.rodReach = gripping ? ConnectingRods.fitted((Minecart) entity).simpleBlock$reach() : (float) ConnectingRods.FOLDED;
 			float yaw = ((state.yRot % 180.0F) + 180.0F) % 180.0F;
 			cart.rodAcross = yaw < 45.0F || yaw >= 135.0F;
 			this.rodPart(cart.rodBase, ConnectingRodPartBlock.Part.BASE);

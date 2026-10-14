@@ -61,7 +61,7 @@ public class RetiredItemsGameTests {
 	/**
 	 * RET-01: built as the client builds it, no creative tab and not the search shows a retired item,
 	 * while their ids are still registered; rails, the loading track, furnaces, minecarts, chests and
-	 * the items later milestones may retire (gold and chainmail armor) and M08's pre-industrial blast
+	 * the items later milestones may retire (gold and chainmail armor) and M08's blast
 	 * furnace and Block of Charcoal are still there. (M08 retired the vanilla blast furnace.)
 	 */
 	@GameTest

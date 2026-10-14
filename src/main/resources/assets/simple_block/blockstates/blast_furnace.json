@@ -1,0 +1,78 @@
+{
+	"multipart": [
+		{
+			"when": {
+				"facing": "north"
+			},
+			"apply": {
+				"model": "simple_block:block/blast_furnace"
+			}
+		},
+		{
+			"when": {
+				"facing": "north",
+				"lit": "true"
+			},
+			"apply": {
+				"model": "simple_block:block/blast_furnace_fire"
+			}
+		},
+		{
+			"when": {
+				"facing": "east"
+			},
+			"apply": {
+				"model": "simple_block:block/blast_furnace",
+				"y": 90
+			}
+		},
+		{
+			"when": {
+				"facing": "east",
+				"lit": "true"
+			},
+			"apply": {
+				"model": "simple_block:block/blast_furnace_fire",
+				"y": 90
+			}
+		},
+		{
+			"when": {
+				"facing": "south"
+			},
+			"apply": {
+				"model": "simple_block:block/blast_furnace",
+				"y": 180
+			}
+		},
+		{
+			"when": {
+				"facing": "south",
+				"lit": "true"
+			},
+			"apply": {
+				"model": "simple_block:block/blast_furnace_fire",
+				"y": 180
+			}
+		},
+		{
+			"when": {
+				"facing": "west"
+			},
+			"apply": {
+				"model": "simple_block:block/blast_furnace",
+				"y": 270
+			}
+		},
+		{
+			"when": {
+				"facing": "west",
+				"lit": "true"
+			},
+			"apply": {
+				"model": "simple_block:block/blast_furnace_fire",
+				"y": 270
+			}
+		}
+	]
+}

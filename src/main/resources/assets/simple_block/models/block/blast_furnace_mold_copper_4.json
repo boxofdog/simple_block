@@ -1,0 +1,77 @@
+{
+	"textures": {
+		"cast": "minecraft:block/copper_block",
+		"particle": "minecraft:block/copper_block"
+	},
+	"elements": [
+		{
+			"name": "cast",
+			"from": [
+				1,
+				8.05,
+				1
+			],
+			"to": [
+				15,
+				15,
+				15
+			],
+			"faces": {
+				"north": {
+					"uv": [
+						1,
+						1,
+						15,
+						7.95
+					],
+					"texture": "#cast"
+				},
+				"east": {
+					"uv": [
+						1,
+						1,
+						15,
+						7.95
+					],
+					"texture": "#cast"
+				},
+				"south": {
+					"uv": [
+						1,
+						1,
+						15,
+						7.95
+					],
+					"texture": "#cast"
+				},
+				"west": {
+					"uv": [
+						1,
+						1,
+						15,
+						7.95
+					],
+					"texture": "#cast"
+				},
+				"up": {
+					"uv": [
+						1,
+						1,
+						15,
+						15
+					],
+					"texture": "#cast"
+				},
+				"down": {
+					"uv": [
+						1,
+						1,
+						15,
+						15
+					],
+					"texture": "#cast"
+				}
+			}
+		}
+	]
+}

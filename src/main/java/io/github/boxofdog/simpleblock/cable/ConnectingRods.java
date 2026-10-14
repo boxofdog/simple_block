@@ -38,6 +38,8 @@ import io.github.boxofdog.simpleblock.tuning.Tuning;
 public final class ConnectingRods {
 	/** How far sideways from the cart's middle the cable can run for the head to find it, in blocks. */
 	public static final double TOLERANCE = 0.5;
+	/** Height of the head above the cart with the rod folded down (gripping nothing), in blocks. */
+	public static final double FOLDED = 1.5;
 
 	/** A minecart's rod state. */
 	public interface Fitted {

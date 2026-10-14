@@ -170,8 +170,10 @@ public final class Tuning {
 		// Longest straight span between two supports (drum or anchor), in blocks.
 		define("cable.max_span", 12);
 		// Height of the cable above a minecart (its position on the rail) that a connecting rod grips.
-		define("cable.rod_reach_min", 1.5);
-		define("cable.rod_reach_max", 3.0);
+		// BUG-003/004: up to 6 (anchors up to five blocks over the rail, and the cable's rise over the foot
+		// of a climb, where a straight span runs well above the bend); down to 1 (its dip over the top).
+		define("cable.rod_reach_min", 1.0);
+		define("cable.rod_reach_max", 6.0);
 		// M05 cable loops (provisional). Working-strand speed while the crank is held, blocks per tick
 		// (0.06 = 1.2 blocks a second on the level).
 		define("cable.crank_speed", 0.06);
@@ -212,13 +214,18 @@ public final class Tuning {
 		define("skip.lift_load", 0.5);
 		// Items moved per tick between a skip and a docked freight cart.
 		define("skip.transfer_per_tick", 4);
-		// How fast a skip with no cable comes down onto what is under it, blocks per tick.
-		define("skip.fall_speed", 0.25);
+		// M07 playtest: a skip with no cable drops like an anchor: it gains this much speed a tick (blocks per
+		// tick per tick; vanilla gravity is 0.08), up to the top speed, and clangs when it lands.
+		define("skip.fall_gravity", 0.08);
+		define("skip.fall_max_speed", 3.0);
 
-		// M08 pre-industrial blast furnace (provisional, for playtesting). Burning ticks to cast nine raw
+		// M08 blast furnace (provisional, for playtesting). Burning ticks to cast nine raw
 		// ore into one metal block (300 = 15 s; a slowed ordinary furnace takes 9 x 400 = 3600 for the
 		// same nine ingots).
 		define("blast_furnace.cast_ticks", 300);
+		// M08 playtest: how long a finished cast is shown as a solid block in the mold before the next fill shows
+		// (only the picture: casting goes on meanwhile, and the next fill shows caught up with it).
+		define("blast_furnace.cast_hold_ticks", 40);
 		// Burning ticks one fuel block gives: a Block of Coal or of Charcoal casts 12 blocks (108 ore,
 		// where a vanilla furnace smelts 80 items on one); a Dried Kelp Block a quarter of that.
 		define("blast_furnace.coal_block_burn_ticks", 3600);

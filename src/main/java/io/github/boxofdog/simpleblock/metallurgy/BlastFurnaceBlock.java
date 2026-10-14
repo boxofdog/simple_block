@@ -30,7 +30,7 @@ import net.minecraft.world.level.block.state.properties.EnumProperty;
 import net.minecraft.world.phys.BlockHitResult;
 
 /**
- * M08 pre-industrial blast furnace: the controller block, the middle of the stack's lower layer
+ * M08 blast furnace: the controller block, the middle of the stack's lower layer
  * ({@link BlastFurnaceStructure}). It holds the furnace's inventories ({@link BlastFurnaceBlockEntity})
  * and draws layers 0-2: the brick stack facing {@link #FACING} (the front, with the firebox door and the
  * casting mold), its fire when {@link #LIT} and the molten pour when {@link #POURING}.
@@ -94,7 +94,7 @@ public class BlastFurnaceBlock extends BaseEntityBlock {
 		}
 		if (!level.isClientSide()) {
 			player.openMenu(new SimpleMenuProvider((id, inventory, p) -> BlastFurnaceMenu.server(id, inventory, furnace),
-				Component.translatable("block.simple_block.pre_industrial_blast_furnace")));
+				Component.translatable("block.simple_block.blast_furnace")));
 		}
 		return InteractionResult.SUCCESS;
 	}

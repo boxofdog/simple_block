@@ -38,7 +38,7 @@ import io.github.boxofdog.simpleblock.tuning.Tuning;
  * M08 in a real client ({@code m08-*} screenshots in {@code build/run/clientGameTest/screenshots}):
  * <ul>
  *   <li>the furnace item placed with a real use-key press builds the whole 3x3x4 furnace, seen by the
- *       client; front and hopper views, lit and pouring;</li>
+ *       client; front and hopper views, lit, the mold filling as a block is cast, the cast block, the next fill over it;</li>
  *   <li>a real use-key press on the furnace opens its screen, showing the reservoir's count;</li>
  *   <li>the survival inventory's load bar over the cap (64 ingots plus a carried anvil): the client's
  *       load agrees with the server's, the bar's tooltip says only commodities are refused.</li>
@@ -96,7 +96,7 @@ public class BlastFurnaceClientTest implements FabricClientGameTest {
 	}
 
 	private static void furnace(ClientGameTestContext context, TestServerContext server, BlockPos front, BlockPos controller, String shots) {
-		server.runCommand("item replace entity @a weapon.mainhand with simple_block:pre_industrial_blast_furnace");
+		server.runCommand("item replace entity @a weapon.mainhand with simple_block:blast_furnace");
 		context.waitTicks(3);
 		// The block used becomes the mold, two in front of the furnace.
 		lookAtPoint(context, new Vec3(front.getX() + 0.5, front.getY() - 0.02, front.getZ() - 1.5));
@@ -111,8 +111,8 @@ public class BlastFurnaceClientTest implements FabricClientGameTest {
 		server.runCommand("tp @a 15.5 " + (front.getY() + 7) + " 2.5 35 35");
 		context.waitTicks(10);
 		context.takeScreenshot(shots + "-hopper");
-		// Lit and pouring: a short cast for the picture.
-		Tuning.set("blast_furnace.cast_ticks", 40);
+		// Lit and casting: a short cast (160 ticks) for the pictures.
+		Tuning.set("blast_furnace.cast_ticks", 160);
 		server.runOnServer(s -> {
 			BlastFurnaceBlockEntity furnace = (BlastFurnaceBlockEntity) s.overworld().getBlockEntity(controller);
 			furnace.setOre(Items.RAW_IRON, 100);
@@ -122,16 +122,32 @@ public class BlastFurnaceClientTest implements FabricClientGameTest {
 		context.waitTicks(20);
 		boolean lit = context.computeOnClient(client -> client.level.getBlockState(controller).getValue(BlastFurnaceBlock.LIT));
 		context.takeScreenshot(shots + "-lit");
-		// The output close up: the iron front's tap, the channel and the mold, while metal runs.
+		// The output close up: the iron front's tap, the channel and the mold filling as the block is cast.
+		BlockPos moldPos = BlastFurnaceStructure.mold(controller, net.minecraft.core.Direction.NORTH);
 		server.runCommand("tp @a " + (front.getX() - 2.5) + " " + front.getY() + " " + (front.getZ() - 5.5) + " -37 25");
-		context.waitTicks(25);
+		context.waitTicks(60);
 		boolean pouring = context.computeOnClient(client -> client.level.getBlockState(controller).getValue(BlastFurnaceBlock.POURING));
-		context.takeScreenshot(shots + "-pouring");
-		// No more ore: once the pour is over the mold shows the cast block.
+		int midFill = context.computeOnClient(client -> client.level.getBlockState(moldPos).getValue(BlastFurnaceMoldBlock.FILL));
+		context.takeScreenshot(shots + "-filling");
+		// The cast done: the solid block shows in the mold for a moment.
+		int[] solidFill = {-1};
+		String[] solidShows = {""};
+		for (int i = 0; i < 120 && solidFill[0] != 0; i++) {
+			context.waitTick();
+			context.runOnClient(client -> {
+				solidFill[0] = client.level.getBlockState(moldPos).getValue(BlastFurnaceMoldBlock.FILL);
+				solidShows[0] = client.level.getBlockState(moldPos).getValue(BlastFurnaceMoldBlock.CONTENT).getSerializedName();
+			});
+		}
+		context.takeScreenshot(shots + "-cast-block");
+		// The next cast fills over it, the finished block above the molten metal.
+		context.waitTicks(Tuning.getInt("blast_furnace.cast_hold_ticks") + 50);
+		int nextFill = context.computeOnClient(client -> client.level.getBlockState(moldPos).getValue(BlastFurnaceMoldBlock.FILL));
+		context.takeScreenshot(shots + "-next-fill");
+		// No more ore: the mold shows the cast block once the cast in progress is set aside.
 		server.runOnServer(s -> ((BlastFurnaceBlockEntity) s.overworld().getBlockEntity(controller)).setOre(Items.AIR, 0));
 		Tuning.reset("blast_furnace.cast_ticks");
-		context.waitTicks(35);
-		BlockPos moldPos = BlastFurnaceStructure.mold(controller, net.minecraft.core.Direction.NORTH);
+		context.waitTicks(5);
 		String moldShows = context.computeOnClient(client -> client.level.getBlockState(moldPos).getValue(BlastFurnaceMoldBlock.CONTENT).getSerializedName());
 		context.takeScreenshot(shots + "-casting");
 		server.runCommand("tp @a " + (front.getX() + 4.5) + " " + (front.getY() + 1) + " " + (front.getZ() - 6.5) + " 28 12");
@@ -139,13 +155,17 @@ public class BlastFurnaceClientTest implements FabricClientGameTest {
 		context.takeScreenshot(shots + "-three-quarter");
 		int cast = server.computeOnServer(s -> ((BlastFurnaceBlockEntity) s.overworld().getBlockEntity(controller)).mold().getCount());
 		SimpleBlockTestLog.info("CLIENT M08 FURNACE ({}): use-key placement made {} structure blocks on the server, {} seen by the client, controller {}; "
-			+ "lit {}, pouring {}, {} blocks cast at cast_ticks 40; the mold then shows {}", shots, serverBlocks, clientBlocks, clientController, lit, pouring,
-			cast, moldShows);
+			+ "lit {}, pouring {}, mold filled {}/8 part way through the first cast, then the cast block ({}, fill {}), the next fill {}/8 over it; "
+			+ "{} blocks cast at cast_ticks 160; the mold then shows {}", shots, serverBlocks, clientBlocks, clientController, lit, pouring, midFill,
+			solidShows[0], solidFill[0], nextFill, cast, moldShows);
 		assertTrue(serverBlocks == 38 && clientBlocks == 38, "the whole furnace should be placed: server " + serverBlocks + ", client " + clientBlocks);
 		assertTrue(clientController.is(MetallurgyContent.BLAST_FURNACE) && clientController.getValue(BlastFurnaceBlock.FACING)
 			== net.minecraft.core.Direction.NORTH, "controller facing the player: " + clientController);
 		assertTrue(moldShows.equals("iron"), "the mold should show the cast iron block, shows " + moldShows);
 		assertTrue(lit && pouring && cast >= 1, "the furnace should light, pour and cast: lit " + lit + ", pouring " + pouring + ", cast " + cast);
+		assertTrue(midFill >= 2 && midFill <= 6, "part way through a cast the client should see the mold part filled: " + midFill);
+		assertTrue(solidFill[0] == 0 && solidShows[0].equals("iron"), "the finished cast should show as a solid iron block: " + solidShows[0] + " fill " + solidFill[0]);
+		assertTrue(nextFill > 0, "the next cast should fill over it: " + nextFill);
 	}
 
 	private static int count(net.minecraft.world.level.Level level, BlockPos controller) {

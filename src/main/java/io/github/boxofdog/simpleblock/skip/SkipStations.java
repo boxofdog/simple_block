@@ -55,8 +55,10 @@ import io.github.boxofdog.simpleblock.tuning.Tuning;
  * giving to the other at once, so an exchange cut short (the cart released or broken, the rail broken,
  * the chunk unloading) leaves every item in one or the other. The doors open for
  * {@value #DOOR_TICKS} ticks first and close for as many after; the skip will not move until they are
- * shut. Nothing restarts the winch or the train: the player releases the cart at the rail and sets
- * the winch again.
+ * shut. M07 playtest: once a cart's exchange has finished (nothing more to move) and the doors are
+ * shut, that cart is let go and its rail's stop folds, so a skip wound on past it cannot work it again;
+ * a refused or interrupted exchange leaves it docked. Only that car is let go: the others of a coupled
+ * train dock there in turn. Nothing restarts the winch or the train.
  */
 public final class SkipStations {
 	/** Ticks the lid, gate or ramp takes to open or close. */
@@ -85,6 +87,9 @@ public final class SkipStations {
 		@Nullable Mode mode;
 		/** Items moved in this exchange (for tests and messages). */
 		int moved;
+		/** M07 playtest: the cart worked, and whether the exchange ran to its end (nothing more to move) rather than being cut short. */
+		@Nullable Minecart cart;
+		boolean completed;
 
 		boolean busy() {
 			return this.phase != Phase.NONE;
@@ -212,6 +217,8 @@ public final class SkipStations {
 					exchange.rail = station.rail();
 					exchange.mode = station.mode();
 					exchange.moved = 0;
+					exchange.cart = station.cart();
+					exchange.completed = false;
 					level.playSound(null, station.rail(), SoundEvents.IRON_TRAPDOOR_OPEN, SoundSource.BLOCKS, 0.8F, 0.8F);
 				}
 			}
@@ -225,6 +232,8 @@ public final class SkipStations {
 			case MOVING -> {
 				int n = same ? Math.min(Tuning.getInt("skip.transfer_per_tick"), work(skip, station)) : 0;
 				if (n <= 0) {
+					// Done (nothing more to move, the station still there), or cut short.
+					exchange.completed = same && exchange.moved > 0;
 					close(level, exchange);
 				} else if (station.mode() == Mode.FURNACE) {
 					Item item = skip.cargo();
@@ -253,6 +262,14 @@ public final class SkipStations {
 			}
 			case CLOSING -> {
 				if (--exchange.ticks <= 0) {
+					// M07 playtest: a finished exchange with a cart lets it go, its stop folding, so that the
+					// skip wound on past it cannot work the same cart again (it does not dock there again until
+					// it has left). A refused or interrupted one keeps it docked.
+					if (exchange.completed && exchange.cart != null && exchange.rail != null && exchange.mode != Mode.FURNACE) {
+						LoadingTracks.releaseCar(level, exchange.cart, exchange.rail);
+					}
+					exchange.cart = null;
+					exchange.completed = false;
 					exchange.phase = Exchange.Phase.NONE;
 					exchange.rail = null;
 					exchange.mode = null;

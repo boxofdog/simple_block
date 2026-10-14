@@ -116,7 +116,7 @@ public class CableDrumRenderer implements BlockEntityRenderer<CableDrumBlockEnti
 			return;
 		}
 		Vec3 origin = Vec3.atLowerCornerOf(drum.getBlockPos());
-		List<Vec3> path = new ArrayList<>(drum.points());
+		List<Vec3> path = new ArrayList<>(CableGeometry.drawnPath(drum.getLevel(), drum.points()));
 		Direction outward = drum.looped() ? CableLoops.outward(drum) : null;
 		// The texture moves with the cable's travel, on a loop and (M07 patch §9) on an open route too.
 		double v = -travel;
@@ -140,7 +140,7 @@ public class CableDrumRenderer implements BlockEntityRenderer<CableDrumBlockEnti
 		if (!(level.getBlockEntity(drumPos) instanceof CableDrumBlockEntity drum)) {
 			return null;
 		}
-		List<Vec3> path = drum.points();
+		List<Vec3> path = CableGeometry.drawnPath(level, drum.points());
 		double v = -Mth.lerp(partialTicks, drum.previousTravel, drum.travel);
 		for (int i = 1; i < path.size(); i++) {
 			v += path.get(i - 1).distanceTo(path.get(i));

@@ -705,4 +705,88 @@ public class CableLoopGameTests {
 			}))
 			.thenSucceed();
 	}
+
+	/**
+	 * BUG-004 (M07 playtest): anchors hung two blocks over the level track on both sides of a 4-block
+	 * climb, none over the ramp. The straight span runs well above the foot of the climb (4.3 blocks
+	 * over the cart there) and dips near its top; a cart hauled forward keeps its grip all the way up
+	 * and over. Control: with the rod's old reach (1.5 to 3) the cable at the foot is out of reach,
+	 * which is where hauling used to stop.
+	 */
+	@GameTest(structure = YARD, maxTicks = 3000)
+	public void cartIsHauledUpAClimbBetweenLevelAnchors(GameTestHelper helper) {
+		ServerPlayer player = TestPlayers.create(helper, GameType.SURVIVAL, new BlockPos(3, 1, 7));
+		for (int x = 2; x <= 8; x++) {
+			rail(helper, new BlockPos(x, 1, 4), RailShape.EAST_WEST);
+		}
+		for (int i = 0; i < 4; i++) {
+			for (int y = 0; y < i + 1; y++) {
+				helper.setBlock(new BlockPos(9 + i, y, 4), Blocks.STONE);
+			}
+			rail(helper, new BlockPos(9 + i, 1 + i, 4), RailShape.ASCENDING_EAST);
+		}
+		for (int x = 13; x < 30; x++) {
+			for (int y = 0; y < 4; y++) {
+				helper.setBlock(new BlockPos(x, y, 4), Blocks.STONE);
+			}
+			rail(helper, new BlockPos(x, 5, 4), RailShape.EAST_WEST);
+		}
+		CableDrumBlockEntity drum = CableGameTests.windDrum(helper, player, DRUM, 1);
+		BlockPos[] anchors = {new BlockPos(5, 3, 4), new BlockPos(16, 7, 4), new BlockPos(23, 7, 4)};
+		for (BlockPos anchor : anchors) {
+			CableGameTests.hangAnchor(helper, player, anchor.above());
+		}
+		Minecart[] cart = new Minecart[1];
+		int[] ticks = {0};
+		int[] arrived = {-1};
+		double[] reach = {Double.MAX_VALUE, 0.0};
+		boolean[] oldReach = new boolean[2];
+		boolean[] failed = {false};
+		helper.startSequence()
+			.thenIdle(2)
+			.thenExecute(CableGameTests.step(failed, () -> {
+				route(helper, player, DRUM, anchors);
+				close(helper, player, anchors[2]);
+				helper.assertTrue(drum.looped(), "loop closed over the climb");
+				player.getInventory().clearContent();
+				// The cart's position at the foot of the climb, on the rail there.
+				Vec3 foot = helper.absoluteVec(new Vec3(9.5, 1.0625, 4.5));
+				oldReach[0] = CableIndex.grip(helper.getLevel(), foot, ConnectingRods.TOLERANCE, 1.5, 3.0) != null;
+				oldReach[1] = CableIndex.grip(helper.getLevel(), foot, ConnectingRods.TOLERANCE, ConnectingRods.reachMin(), ConnectingRods.reachMax()) != null;
+				cart[0] = rodCart(helper, 3.5);
+			}))
+			.thenIdle(5)
+			.thenExecuteFor(2400, CableGameTests.step(failed, () -> {
+				int tick = ticks[0]++;
+				if (arrived[0] >= 0) {
+					return;
+				}
+				if (tick % 4 == 0) {
+					crank(helper, player, DRUM, false);
+				}
+				double x = x(helper, cart[0]);
+				if (x > 4.0) {
+					float r = ConnectingRods.fitted(cart[0]).simpleBlock$reach();
+					helper.assertTrue(r > 0.0F, "the rod let go at x " + String.format("%.2f", x));
+					reach[0] = Math.min(reach[0], r);
+					reach[1] = Math.max(reach[1], r);
+				}
+				if (x >= 17.0) {
+					arrived[0] = tick;
+				}
+			}))
+			.thenExecute(CableGameTests.step(failed, () -> {
+				CableLines.Line line = CableLines.line(helper.getLevel(), helper.absolutePos(DRUM));
+				SimpleBlockTestLog.info("BUG-004 climb between level anchors: cable at the foot of the climb in the old reach (1.5-3) {}, in the new ({}-{}) {}; "
+					+ "cart hauled from x 3.5 to x 17 (top of the climb at 13) in {} ticks, gripping all the way (reach {}-{}); line's last stop {}", oldReach[0],
+					ConnectingRods.reachMin(), ConnectingRods.reachMax(), oldReach[1], arrived[0], String.format("%.2f", reach[0]), String.format("%.2f", reach[1]),
+					line == null ? null : line.lastStop());
+				helper.assertFalse(oldReach[0], "control: the old reach should not get the cable at the foot of the climb");
+				helper.assertTrue(oldReach[1], "the rod should reach the cable at the foot of the climb");
+				helper.assertTrue(arrived[0] >= 0, "the cart should be hauled up the climb and on past x 17");
+				cart[0].discard();
+				TestPlayers.remove(player);
+			}))
+			.thenSucceed();
+	}
 }

@@ -27,7 +27,7 @@ import net.minecraft.world.level.block.ShulkerBoxBlock;
  *       ones (commands, old structures) keep working. Ordinary rails are untouched.</li>
  *   <li>M08: the vanilla blast furnace. Its recipe and recipe-book advancement are disabled by
  *       data overrides, and new villages build ordinary furnaces instead
- *       ({@code metallurgy/VillageFurnaces}); the pre-industrial blast furnace replaces it.</li>
+ *       ({@code metallurgy/VillageFurnaces}); the blast furnace replaces it.</li>
  * </ul>
  */
 public final class RetiredItems {

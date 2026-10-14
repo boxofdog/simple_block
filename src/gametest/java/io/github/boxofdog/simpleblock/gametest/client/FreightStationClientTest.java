@@ -356,7 +356,10 @@ public class FreightStationClientTest implements FabricClientGameTest {
 		context.waitTicks(5);
 		SimpleBlockTestLog.info("CLIENT BUG-002: PULL ran the cart back to x {} ({}); left-click: {} ('{}'); 40 ticks later x {}", atEnd, endStop,
 			afterEnd, skipMessage, away);
-		assertTrue("end".equals(endStop) && afterEnd == CableLines.Lever.FEED && away - atEnd > 2.0, "at the drum's end a left-click should be FEED: "
+		// Stopped at the drum's end: by the cable's end zone, or (since BUG-003/004 let the rod keep its grip lower
+		// down as the cable dips to the drum) by the end of the track just before it.
+		assertTrue(("end".equals(endStop) || "track_end".equals(endStop)) && afterEnd == CableLines.Lever.FEED && away - atEnd > 2.0,
+			"at the drum's end a left-click should be FEED: "
 			+ endStop + ", " + afterEnd + ", x " + atEnd + " -> " + away);
 	}
 

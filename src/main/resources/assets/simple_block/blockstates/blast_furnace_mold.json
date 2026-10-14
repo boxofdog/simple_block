@@ -1,0 +1,289 @@
+{
+	"multipart": [
+		{
+			"apply": {
+				"model": "simple_block:block/blast_furnace_mold"
+			}
+		},
+		{
+			"when": {
+				"fill": "1"
+			},
+			"apply": {
+				"model": "simple_block:block/blast_furnace_mold_molten_1"
+			}
+		},
+		{
+			"when": {
+				"fill": "2"
+			},
+			"apply": {
+				"model": "simple_block:block/blast_furnace_mold_molten_2"
+			}
+		},
+		{
+			"when": {
+				"fill": "3"
+			},
+			"apply": {
+				"model": "simple_block:block/blast_furnace_mold_molten_3"
+			}
+		},
+		{
+			"when": {
+				"fill": "4"
+			},
+			"apply": {
+				"model": "simple_block:block/blast_furnace_mold_molten_4"
+			}
+		},
+		{
+			"when": {
+				"fill": "5"
+			},
+			"apply": {
+				"model": "simple_block:block/blast_furnace_mold_molten_5"
+			}
+		},
+		{
+			"when": {
+				"fill": "6"
+			},
+			"apply": {
+				"model": "simple_block:block/blast_furnace_mold_molten_6"
+			}
+		},
+		{
+			"when": {
+				"fill": "7"
+			},
+			"apply": {
+				"model": "simple_block:block/blast_furnace_mold_molten_7"
+			}
+		},
+		{
+			"when": {
+				"fill": "8"
+			},
+			"apply": {
+				"model": "simple_block:block/blast_furnace_mold_molten_8"
+			}
+		},
+		{
+			"when": {
+				"content": "iron",
+				"fill": "0"
+			},
+			"apply": {
+				"model": "simple_block:block/blast_furnace_mold_iron"
+			}
+		},
+		{
+			"when": {
+				"content": "iron",
+				"fill": "1"
+			},
+			"apply": {
+				"model": "simple_block:block/blast_furnace_mold_iron_1"
+			}
+		},
+		{
+			"when": {
+				"content": "iron",
+				"fill": "2"
+			},
+			"apply": {
+				"model": "simple_block:block/blast_furnace_mold_iron_2"
+			}
+		},
+		{
+			"when": {
+				"content": "iron",
+				"fill": "3"
+			},
+			"apply": {
+				"model": "simple_block:block/blast_furnace_mold_iron_3"
+			}
+		},
+		{
+			"when": {
+				"content": "iron",
+				"fill": "4"
+			},
+			"apply": {
+				"model": "simple_block:block/blast_furnace_mold_iron_4"
+			}
+		},
+		{
+			"when": {
+				"content": "iron",
+				"fill": "5"
+			},
+			"apply": {
+				"model": "simple_block:block/blast_furnace_mold_iron_5"
+			}
+		},
+		{
+			"when": {
+				"content": "iron",
+				"fill": "6"
+			},
+			"apply": {
+				"model": "simple_block:block/blast_furnace_mold_iron_6"
+			}
+		},
+		{
+			"when": {
+				"content": "iron",
+				"fill": "7"
+			},
+			"apply": {
+				"model": "simple_block:block/blast_furnace_mold_iron_7"
+			}
+		},
+		{
+			"when": {
+				"content": "copper",
+				"fill": "0"
+			},
+			"apply": {
+				"model": "simple_block:block/blast_furnace_mold_copper"
+			}
+		},
+		{
+			"when": {
+				"content": "copper",
+				"fill": "1"
+			},
+			"apply": {
+				"model": "simple_block:block/blast_furnace_mold_copper_1"
+			}
+		},
+		{
+			"when": {
+				"content": "copper",
+				"fill": "2"
+			},
+			"apply": {
+				"model": "simple_block:block/blast_furnace_mold_copper_2"
+			}
+		},
+		{
+			"when": {
+				"content": "copper",
+				"fill": "3"
+			},
+			"apply": {
+				"model": "simple_block:block/blast_furnace_mold_copper_3"
+			}
+		},
+		{
+			"when": {
+				"content": "copper",
+				"fill": "4"
+			},
+			"apply": {
+				"model": "simple_block:block/blast_furnace_mold_copper_4"
+			}
+		},
+		{
+			"when": {
+				"content": "copper",
+				"fill": "5"
+			},
+			"apply": {
+				"model": "simple_block:block/blast_furnace_mold_copper_5"
+			}
+		},
+		{
+			"when": {
+				"content": "copper",
+				"fill": "6"
+			},
+			"apply": {
+				"model": "simple_block:block/blast_furnace_mold_copper_6"
+			}
+		},
+		{
+			"when": {
+				"content": "copper",
+				"fill": "7"
+			},
+			"apply": {
+				"model": "simple_block:block/blast_furnace_mold_copper_7"
+			}
+		},
+		{
+			"when": {
+				"content": "gold",
+				"fill": "0"
+			},
+			"apply": {
+				"model": "simple_block:block/blast_furnace_mold_gold"
+			}
+		},
+		{
+			"when": {
+				"content": "gold",
+				"fill": "1"
+			},
+			"apply": {
+				"model": "simple_block:block/blast_furnace_mold_gold_1"
+			}
+		},
+		{
+			"when": {
+				"content": "gold",
+				"fill": "2"
+			},
+			"apply": {
+				"model": "simple_block:block/blast_furnace_mold_gold_2"
+			}
+		},
+		{
+			"when": {
+				"content": "gold",
+				"fill": "3"
+			},
+			"apply": {
+				"model": "simple_block:block/blast_furnace_mold_gold_3"
+			}
+		},
+		{
+			"when": {
+				"content": "gold",
+				"fill": "4"
+			},
+			"apply": {
+				"model": "simple_block:block/blast_furnace_mold_gold_4"
+			}
+		},
+		{
+			"when": {
+				"content": "gold",
+				"fill": "5"
+			},
+			"apply": {
+				"model": "simple_block:block/blast_furnace_mold_gold_5"
+			}
+		},
+		{
+			"when": {
+				"content": "gold",
+				"fill": "6"
+			},
+			"apply": {
+				"model": "simple_block:block/blast_furnace_mold_gold_6"
+			}
+		},
+		{
+			"when": {
+				"content": "gold",
+				"fill": "7"
+			},
+			"apply": {
+				"model": "simple_block:block/blast_furnace_mold_gold_7"
+			}
+		}
+	]
+}

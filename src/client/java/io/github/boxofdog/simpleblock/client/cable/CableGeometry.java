@@ -1,5 +1,6 @@
 package io.github.boxofdog.simpleblock.client.cable;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import com.mojang.blaze3d.vertex.PoseStack;
@@ -32,6 +33,74 @@ public final class CableGeometry {
 	}
 
 	private CableGeometry() {
+	}
+
+	/** How far under the overhead block a cable bent round it runs, and how far past its side it climbs. */
+	private static final double UNDER = 1.0 / 16.0;
+	private static final double PAST = 0.04;
+
+	/**
+	 * BUG-005: a route path (supports' cable points, in order) as it is drawn. A run that climbs steeply
+	 * from a roller would pass through the block the support hangs from (a roller is 4 pixels under
+	 * it, so any climb of more than half a block per block cuts its corner); such a run is drawn level
+	 * under that block to its side and climbs from there. The cable's travel and grip use the straight
+	 * runs: the bend is within half a block of the roller.
+	 */
+	public static List<Vec3> drawnPath(Level level, List<Vec3> points) {
+		List<Vec3> drawn = new ArrayList<>(points.size() + 4);
+		for (int i = 0; i < points.size(); i++) {
+			Vec3 point = points.get(i);
+			if (i > 0) {
+				Vec3 bend = bend(level, points.get(i), points.get(i - 1));
+				if (bend != null) {
+					drawn.add(bend);
+				}
+			}
+			drawn.add(point);
+			if (i + 1 < points.size()) {
+				Vec3 bend = bend(level, point, points.get(i + 1));
+				if (bend != null) {
+					drawn.add(bend);
+				}
+			}
+		}
+		return drawn;
+	}
+
+	/** Where a run from {@code at} (a roller) towards the higher {@code to} must bend to clear the block over {@code at}, or null. */
+	private static Vec3 bend(Level level, Vec3 at, Vec3 to) {
+		if (to.y <= at.y) {
+			return null;
+		}
+		BlockPos cell = BlockPos.containing(at);
+		BlockPos over = cell.above();
+		if (level.getBlockState(over).getCollisionShape(level, over).isEmpty()) {
+			return null;
+		}
+		double dx = to.x - at.x;
+		double dz = to.z - at.z;
+		double horizontal = Math.sqrt(dx * dx + dz * dz);
+		if (horizontal < 1.0E-6) {
+			return null;
+		}
+		dx /= horizontal;
+		dz /= horizontal;
+		// Distance along the run's heading from the roller to the side of its block.
+		double toSide = Double.MAX_VALUE;
+		if (Math.abs(dx) > 1.0E-6) {
+			toSide = Math.min(toSide, ((dx > 0 ? cell.getX() + 1 : cell.getX()) - at.x) / dx);
+		}
+		if (Math.abs(dz) > 1.0E-6) {
+			toSide = Math.min(toSide, ((dz > 0 ? cell.getZ() + 1 : cell.getZ()) - at.z) / dz);
+		}
+		double ceiling = over.getY() - UNDER;
+		double climb = (to.y - at.y) / horizontal;
+		// Clear already: at the block's side the straight run is still under it.
+		if (at.y + climb * toSide <= ceiling || toSide >= horizontal) {
+			return null;
+		}
+		double out = toSide + PAST;
+		return new Vec3(at.x + dx * out, Math.max(at.y, ceiling), at.z + dz * out);
 	}
 
 	/** Cuts the straight run {@code from}-{@code to} (world positions) into lit pieces relative to {@code origin}. */

@@ -10,6 +10,7 @@
 		"chestcart.HopperBlockEntityMixin",
 		"chestcart.MinecartChestMixin",
 		"chestcart.VehicleEntityMixin",
+		"compat.MappedRegistryMixin",
 		"elytra.EndCityPieceMixin",
 		"enderchest.BlockItemMixin",
 		"enderchest.EnderChestBlockMixin",

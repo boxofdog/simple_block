@@ -134,7 +134,7 @@ import io.github.boxofdog.simpleblock.worldgen.IronWorldgen;
  *   <li>the heavy-load cap limits only commodities (ore, raw metal, ingots, nuggets, diamonds, metal
  *       blocks); equipment always fits and still counts — {@link HeavyLoad}, {@code feature/HeavyTransfers},
  *       {@code mixin/inventory/*}, {@code #simple_block:heavy_commodities}, client load bar</li>
- *   <li>the pre-industrial blast furnace (3x3x4, 516 raw ore, fuel blocks, a 64-block mold) —
+ *   <li>the blast furnace (3x3x4, 516 raw ore, fuel blocks, a 64-block mold) —
  *       {@code metallurgy/BlastFurnace*}, client {@code metallurgy/BlastFurnaceScreen}; carts tip into its
  *       hopper ({@code metallurgy/BlastFurnaceFreight}) and skips empty their chute into it
  *       ({@code skip/SkipStations})</li>

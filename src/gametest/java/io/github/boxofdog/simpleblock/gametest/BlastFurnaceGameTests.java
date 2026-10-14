@@ -46,6 +46,8 @@ import io.github.boxofdog.simpleblock.feature.MinecartCargo;
 import io.github.boxofdog.simpleblock.metallurgy.BlastFurnaceBlock;
 import io.github.boxofdog.simpleblock.metallurgy.BlastFurnaceBlockEntity;
 import io.github.boxofdog.simpleblock.metallurgy.BlastFurnaceFreight;
+import io.github.boxofdog.simpleblock.metallurgy.BlastFurnaceMoldBlock;
+import io.github.boxofdog.simpleblock.metallurgy.BlastFurnaceChannelBlock;
 import io.github.boxofdog.simpleblock.metallurgy.BlastFurnaceMenu;
 import io.github.boxofdog.simpleblock.metallurgy.BlastFurnacePartBlock;
 import io.github.boxofdog.simpleblock.metallurgy.BlastFurnaceStructure;
@@ -59,7 +61,7 @@ import io.github.boxofdog.simpleblock.train.TrainContent;
 import io.github.boxofdog.simpleblock.tuning.Tuning;
 
 /**
- * M08 pre-industrial blast furnace: recipe and mirror, the one-piece 3x3x4 structure, the 516-ore
+ * M08 blast furnace: recipe and mirror, the one-piece 3x3x4 structure, the 516-ore
  * reservoir, fuel and mold, casting, save and load, cart and skip delivery into its hopper with their
  * refusals, the retired vanilla blast furnace in new villages, and the slower ordinary furnace.
  */
@@ -170,6 +172,69 @@ public class BlastFurnaceGameTests {
 			&& !HeavyLoad.isCommodity(new ItemStack(MetallurgyContent.BLAST_FURNACE_ITEM)), "the furnace item weighs its 21 iron, as equipment");
 		SimpleBlockTestLog.info("M08-F1: owner's furnace recipe and its mirror make one; 2 rotations, swapped, filled, brick-item and ingot "
 			+ "variants make nothing; 9 charcoal -> Block of Charcoal; vanilla blast furnace recipe gone; furnace item weighs 21 (equipment)");
+		helper.succeed();
+	}
+
+	/**
+	 * M08 playtest rename (owner): the furnace is {@code simple_block:blast_furnace} throughout. Things
+	 * saved under the old {@code pre_industrial_blast_furnace} names load as the renamed furnace: a block
+	 * state (as in a chunk's palette), an item stack of three, the furnace's block entity with 300 raw
+	 * iron in it (its old type name), and the part, channel and mold blocks. Control: an unknown name is
+	 * still unknown, and nothing is registered under the old names.
+	 */
+	@GameTest
+	public void oldFurnaceNamesLoadAsTheBlastFurnace(GameTestHelper helper) {
+		ServerLevel level = helper.getLevel();
+		var registries = level.registryAccess();
+		var ops = registries.createSerializationContext(net.minecraft.nbt.NbtOps.INSTANCE);
+		List<String> log = new ArrayList<>();
+		String old = "simple_block:pre_industrial_blast_furnace";
+
+		CompoundTag state = new CompoundTag();
+		state.putString("id", old);
+		CompoundTag properties = new CompoundTag();
+		properties.putString("facing", "east");
+		properties.putString("lit", "true");
+		state.put("properties", properties);
+		BlockState decoded = BlockState.CODEC.parse(ops, state).getOrThrow();
+		helper.assertTrue(decoded.is(MetallurgyContent.BLAST_FURNACE) && decoded.getValue(BlastFurnaceBlock.FACING) == Direction.EAST
+			&& decoded.getValue(BlastFurnaceBlock.LIT), "old block state: " + decoded);
+		log.add("block state " + old + "[facing=east,lit=true] -> " + decoded);
+		for (String suffix : new String[] {"_part", "_channel", "_mold"}) {
+			CompoundTag part = new CompoundTag();
+			part.putString("id", old + suffix);
+			BlockState partState = BlockState.CODEC.parse(ops, part).getOrThrow();
+			helper.assertTrue(net.minecraft.core.registries.BuiltInRegistries.BLOCK.getKey(partState.getBlock()).getPath().equals("blast_furnace" + suffix),
+				"old " + suffix + ": " + partState);
+		}
+		log.add("_part, _channel, _mold -> blast_furnace_part, _channel, _mold");
+
+		CompoundTag stack = new CompoundTag();
+		stack.putString("id", old);
+		stack.putInt("count", 3);
+		ItemStack item = ItemStack.CODEC.parse(ops, stack).getOrThrow();
+		helper.assertTrue(item.is(MetallurgyContent.BLAST_FURNACE_ITEM) && item.getCount() == 3, "old item stack: " + item);
+		log.add("item stack of 3 -> " + item);
+
+		BlockPos pos = helper.absolutePos(new BlockPos(1, 1, 1));
+		BlockState controller = MetallurgyContent.BLAST_FURNACE.defaultBlockState();
+		BlastFurnaceBlockEntity saved = new BlastFurnaceBlockEntity(pos, controller);
+		saved.setOre(Items.RAW_IRON, 300);
+		CompoundTag tag = saved.saveWithFullMetadata(registries);
+		helper.assertTrue("simple_block:blast_furnace".equals(tag.getStringOr("id", "")), "saved under the new name: " + tag.get("id"));
+		tag.putString("id", old);
+		var loaded = net.minecraft.world.level.block.entity.BlockEntity.loadStatic(pos, controller, tag, registries);
+		helper.assertTrue(loaded instanceof BlastFurnaceBlockEntity furnace && furnace.ore() == Items.RAW_IRON && furnace.count() == 300,
+			"old block entity: " + loaded);
+		log.add("block entity with 300 raw iron under the old type name -> " + loaded.getClass().getSimpleName() + " with 300 raw iron");
+
+		CompoundTag unknown = new CompoundTag();
+		unknown.putString("id", "simple_block:no_such_furnace");
+		helper.assertTrue(BlockState.CODEC.parse(ops, unknown).isError(), "an unknown name stays unknown");
+		helper.assertTrue(net.minecraft.core.registries.BuiltInRegistries.BLOCK.getKey(MetallurgyContent.BLAST_FURNACE).getPath().equals("blast_furnace"),
+			"registered under the new name");
+		log.add("control: simple_block:no_such_furnace still unknown");
+		SimpleBlockTestLog.info("M08 rename compatibility: {}", log);
 		helper.succeed();
 	}
 
@@ -343,6 +408,102 @@ public class BlastFurnaceGameTests {
 		helper.assertTrue(furnace.mold().is(Items.GOLD_BLOCK), "gold casts a gold block");
 		SimpleBlockTestLog.info("M08-F4: cast_ticks {} and {} burn per coal block: no fuel no progress; 20 raw iron -> 2 iron blocks + 2 raw "
 			+ "waiting, 1 coal block used; full or gold mold waits with nothing burned; copper and gold cast (burn left {})", cast, burn, furnace.burn());
+		helper.succeed();
+	}
+
+	/**
+	 * M08 playtest (owner): the mold shows the casting as it happens. 27 raw iron, fuel: through the first
+	 * cast the empty mold fills eighth by eighth (never going back down); the finished block then shows
+	 * solid (fill 0, iron) for the hold; the next fill shows caught up with the next cast and rises with
+	 * the finished block above it, never an empty mold, while three blocks are cast in exactly three
+	 * cast times (the picture costs no time). A cast with no fuel left holds its fill and resumes; the
+	 * furnace's tap and channel run metal only while filling. Idle, the last block stays; its stack taken
+	 * out, the mold shows empty at once.
+	 */
+	@GameTest(structure = SHAFT)
+	public void moldFillsWithEachCast(GameTestHelper helper) {
+		floor(helper);
+		BlastFurnaceBlockEntity furnace = build(helper, CONTROLLER);
+		int cast = Tuning.getInt("blast_furnace.cast_ticks");
+		int hold = Tuning.getInt("blast_furnace.cast_hold_ticks");
+		BlockPos moldPos = BlastFurnaceStructure.mold(furnace.getBlockPos(), Direction.NORTH);
+		BlockPos channelPos = BlastFurnaceStructure.channel(furnace.getBlockPos(), Direction.NORTH);
+		java.util.function.IntSupplier fill = () -> helper.getLevel().getBlockState(moldPos).getValue(BlastFurnaceMoldBlock.FILL);
+		java.util.function.Supplier<BlastFurnaceMoldBlock.Content> shown = () -> helper.getLevel().getBlockState(moldPos).getValue(BlastFurnaceMoldBlock.CONTENT);
+		java.util.function.BooleanSupplier running = () -> helper.getLevel().getBlockState(channelPos).getValue(BlastFurnaceChannelBlock.POURING);
+		furnace.setOre(Items.RAW_IRON, 27);
+		furnace.items().setItem(BlastFurnaceBlockEntity.FUEL_SLOT, new ItemStack(Items.COAL_BLOCK, 4));
+		List<String> log = new ArrayList<>();
+
+		// The first cast: an empty mold filling up.
+		int last = 0;
+		int[] levels = new int[9];
+		for (int t = 0; t < cast - 1; t++) {
+			run(helper, furnace, 1);
+			int f = fill.getAsInt();
+			helper.assertTrue(f >= last, "the fill went down during the first cast: " + last + " -> " + f);
+			helper.assertTrue(shown.get() == BlastFurnaceMoldBlock.Content.EMPTY, "nothing above the first fill");
+			helper.assertTrue(running.getAsBoolean(), "metal runs down the channel while the mold fills");
+			levels[f]++;
+			last = f;
+		}
+		helper.assertValueEqual(last, 8, "full of molten metal just before the cast is done");
+		for (int k = 1; k <= 8; k++) {
+			helper.assertTrue(levels[k] > 0, "fill level " + k + " shown");
+		}
+		log.add("first cast: fill rose 1..8 over " + (cast - 1) + " ticks, channel running");
+
+		// Done: the solid block for the hold, while the next cast is already under way.
+		run(helper, furnace, 1);
+		helper.assertTrue(furnace.mold().getCount() == 1, "one block cast");
+		int solid = 0;
+		for (int t = 0; t < hold + 5; t++) {
+			if (fill.getAsInt() == 0 && shown.get() == BlastFurnaceMoldBlock.Content.IRON) {
+				solid++;
+			}
+			helper.assertTrue(shown.get() == BlastFurnaceMoldBlock.Content.IRON, "the cast block stays shown (never an empty mold)");
+			run(helper, furnace, 1);
+		}
+		helper.assertTrue(solid >= hold - 1 && solid <= hold + 1, "the finished block shows solid for the hold: " + solid + " ticks");
+		int caughtUp = fill.getAsInt();
+		helper.assertTrue(caughtUp >= 2, "the next fill shows caught up with its cast: " + caughtUp);
+		log.add("cast done: solid iron block shown " + solid + " ticks (hold " + hold + "), then the next fill shows at " + caughtUp
+			+ "/8 with the iron block above it");
+
+		// Production is not slowed: the third block is cast at 3 x cast_ticks.
+		run(helper, furnace, 3 * cast - (cast + hold + 5) - 1);
+		helper.assertValueEqual(furnace.mold().getCount(), 2, "two blocks after 3 x cast_ticks - 1");
+		run(helper, furnace, 1);
+		helper.assertValueEqual(furnace.mold().getCount(), 3, "three blocks after exactly 3 x cast_ticks");
+		log.add("three blocks cast in exactly " + (3 * cast) + " ticks");
+
+		// A cast with no fuel holds its fill and resumes.
+		furnace.setOre(Items.RAW_IRON, 9);
+		furnace.items().setItem(BlastFurnaceBlockEntity.FUEL_SLOT, new ItemStack(Items.COAL_BLOCK, 1));
+		run(helper, furnace, hold + cast / 2);
+		int before = fill.getAsInt();
+		int burn = furnace.burn();
+		furnace.items().setItem(BlastFurnaceBlockEntity.FUEL_SLOT, ItemStack.EMPTY);
+		// Burn the current fuel block out quickly: the test sets its time left.
+		furnace.setBurnForTest(0);
+		run(helper, furnace, 60);
+		helper.assertValueEqual(fill.getAsInt(), before, "no fuel: the fill holds");
+		helper.assertFalse(running.getAsBoolean(), "no fuel: no metal running");
+		furnace.items().setItem(BlastFurnaceBlockEntity.FUEL_SLOT, new ItemStack(Items.COAL_BLOCK, 1));
+		run(helper, furnace, cast / 4);
+		helper.assertTrue(fill.getAsInt() > before, "fuel again: the fill resumes");
+		log.add("fuel out at fill " + before + "/8 (burn " + burn + " left set to 0): held 60 ticks, channel still; fuel back: resumed");
+		run(helper, furnace, cast);
+		helper.assertValueEqual(furnace.mold().getCount(), 4, "four blocks");
+
+		// Idle: the last block stays; taken out, the mold shows empty at once.
+		run(helper, furnace, hold + 5);
+		helper.assertTrue(fill.getAsInt() == 0 && shown.get() == BlastFurnaceMoldBlock.Content.IRON, "idle: the last block shows");
+		furnace.items().setItem(BlastFurnaceBlockEntity.MOLD_SLOT, ItemStack.EMPTY);
+		run(helper, furnace, 1);
+		helper.assertTrue(fill.getAsInt() == 0 && shown.get() == BlastFurnaceMoldBlock.Content.EMPTY, "emptied: the mold shows empty at once");
+		log.add("idle: last block shown; stack taken out: empty at once");
+		SimpleBlockTestLog.info("M08 casting animation: {}", log);
 		helper.succeed();
 	}
 

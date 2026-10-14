@@ -766,4 +766,73 @@ public class CableGameTests {
 			}))
 			.thenSucceed();
 	}
+
+	/**
+	 * BUG-003 (M07 playtest): a cart's rod grips cable hung from anchors 3, 4 and 5 blocks over the rail
+	 * (the cable runs on the rollers 0.75 lower), and, as a control, not from anchors 6 blocks over it.
+	 */
+	private static void rodReach(GameTestHelper helper, int... heights) {
+		ServerPlayer player = TestPlayers.create(helper, GameType.CREATIVE, new BlockPos(1, 1, 9));
+		Minecart[] carts = new Minecart[heights.length];
+		BlockPos[][] anchors = new BlockPos[heights.length][];
+		CableDrumBlockEntity[] drums = new CableDrumBlockEntity[heights.length];
+		boolean[] failed = {false};
+		helper.startSequence()
+			.thenExecute(step(failed, () -> {
+				for (int lane = 0; lane < heights.length; lane++) {
+					int z = 1 + 3 * lane;
+					for (int x = 2; x < 20; x++) {
+						helper.setBlock(new BlockPos(x, 0, z), Blocks.STONE);
+						helper.setBlock(new BlockPos(x, 1, z), Blocks.RAIL.defaultBlockState().setValue(RailBlock.SHAPE, RailShape.EAST_WEST));
+					}
+					drums[lane] = windDrum(helper, player, new BlockPos(1, 1, z), 1);
+					anchors[lane] = new BlockPos[] {new BlockPos(7, 1 + heights[lane], z), new BlockPos(13, 1 + heights[lane], z)};
+					for (BlockPos anchor : anchors[lane]) {
+						hangAnchor(helper, player, anchor.above());
+					}
+				}
+			}))
+			.thenIdle(2)
+			.thenExecute(step(failed, () -> {
+				for (int lane = 0; lane < heights.length; lane++) {
+					BlockPos at = new BlockPos(1, 1, 1 + 3 * lane);
+					teleport(helper, player, new BlockPos(2, 1, 2 + 3 * lane));
+					CableHook hook = hook(helper, at);
+					player.interactOn(hook, InteractionHand.MAIN_HAND, hook.position());
+					for (BlockPos anchor : anchors[lane]) {
+						useBlock(helper, player, anchor, false);
+					}
+					useBlock(helper, player, anchors[lane][1], false);
+					helper.assertValueEqual(drums[lane].route().size(), 2, "anchors routed in lane " + lane);
+					carts[lane] = helper.spawn(EntityTypes.MINECART, Vec3.atBottomCenterOf(new BlockPos(10, 1, 1 + 3 * lane)).add(0, 0.0625, 0));
+					carts[lane].setDeltaMovement(Vec3.ZERO);
+					ConnectingRods.fitted(carts[lane]).simpleBlock$setRod(true);
+				}
+			}))
+			.thenIdle(3)
+			.thenExecute(step(failed, () -> {
+				List<String> log = new ArrayList<>();
+				for (int lane = 0; lane < heights.length; lane++) {
+					float reach = ConnectingRods.fitted(carts[lane]).simpleBlock$reach();
+					log.add("anchors " + heights[lane] + " over the rail: " + (reach > 0.0F ? String.format("grips at %.2f", reach) : "no grip"));
+					boolean expected = heights[lane] <= 5;
+					helper.assertTrue(ConnectingRods.isGripping(carts[lane]) == expected, "anchors " + heights[lane] + " blocks over the rail: gripping "
+						+ ConnectingRods.isGripping(carts[lane]) + ", expected " + expected);
+					carts[lane].discard();
+				}
+				SimpleBlockTestLog.info("BUG-003 rod reach (cable.rod_reach_max {}): {}", ConnectingRods.reachMax(), log);
+				TestPlayers.remove(player);
+			}))
+			.thenSucceed();
+	}
+
+	@GameTest(structure = YARD, maxTicks = 200)
+	public void rodGripsCableUpToFiveBlocksUp(GameTestHelper helper) {
+		rodReach(helper, 3, 4, 5);
+	}
+
+	@GameTest(structure = YARD, maxTicks = 200)
+	public void rodDoesNotGripCableSixBlocksUp(GameTestHelper helper) {
+		rodReach(helper, 6);
+	}
 }

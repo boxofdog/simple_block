@@ -51,8 +51,8 @@ public class BlastFurnaceBlockEntity extends BlockEntity {
 	public static final int ORE_PER_BLOCK = 9;
 	public static final int FUEL_SLOT = 0;
 	public static final int MOLD_SLOT = 1;
-	/** Ticks the front shows the molten pour after each cast. */
-	static final int POUR_TICKS = 30;
+	/** M08 playtest: eighths of the mold the molten metal is drawn in. */
+	static final int FILL_STEPS = 8;
 	/** What each raw metal casts into. */
 	public static final Map<Item, Item> CASTS = Map.of(Items.RAW_IRON, Items.IRON_BLOCK, Items.RAW_COPPER,
 		Items.COPPER_BLOCK.weathering().unaffected(), Items.RAW_GOLD, Items.GOLD_BLOCK);
@@ -64,7 +64,8 @@ public class BlastFurnaceBlockEntity extends BlockEntity {
 	private int burnTotal;
 	/** Ticks of burning towards the next cast. */
 	private int progress;
-	private int pour;
+	/** Ticks the finished cast is still shown solid, before the next fill shows (not saved). */
+	private int hold;
 	/** Set by a creative player breaking the furnace: it then drops no furnace item. */
 	boolean brokenInCreative;
 	final SimpleContainer items = new SimpleContainer(2) {
@@ -176,6 +177,11 @@ public class BlastFurnaceBlockEntity extends BlockEntity {
 		return mold.isEmpty() || mold.is(cast) && mold.getCount() < mold.getMaxStackSize();
 	}
 
+	/** For tests: sets the burning time left in the current fuel block. */
+	public void setBurnForTest(int burn) {
+		this.burn = burn;
+	}
+
 	public static void serverTick(Level level, BlockPos pos, BlockState state, BlastFurnaceBlockEntity furnace) {
 		if (level instanceof ServerLevel serverLevel) {
 			BlastFurnaceFreight.tick(serverLevel, furnace);
@@ -203,20 +209,24 @@ public class BlastFurnaceBlockEntity extends BlockEntity {
 					mold.grow(1);
 					furnace.items.setChanged();
 				}
-				furnace.pour = POUR_TICKS;
+				furnace.hold = Tuning.getInt("blast_furnace.cast_hold_ticks");
 				level.playSound(null, pos, SoundEvents.LAVA_POP, SoundSource.BLOCKS, 0.8F, 0.7F);
 			}
 			furnace.setChanged();
 		}
-		if (furnace.pour > 0) {
-			furnace.pour--;
+		if (furnace.hold > 0) {
+			furnace.hold--;
 		}
 		boolean lit = working && furnace.burn > 0;
-		boolean pouring = furnace.pour > 0;
+		// M08 playtest: the mold fills with the cast's real progress (shown from just after the finished
+		// block's moment, at once caught up); metal runs from the tap down the channel while it fills.
+		int fill = furnace.hold > 0 || furnace.progress <= 0 ? 0
+			: Math.min(FILL_STEPS, (int) Math.ceil(furnace.progress * (double) FILL_STEPS / Tuning.getInt("blast_furnace.cast_ticks")));
+		boolean pouring = lit && fill > 0;
 		if (state.getValue(BlastFurnaceBlock.LIT) != lit || state.getValue(BlastFurnaceBlock.POURING) != pouring) {
 			level.setBlock(pos, state.setValue(BlastFurnaceBlock.LIT, lit).setValue(BlastFurnaceBlock.POURING, pouring), Block.UPDATE_ALL);
 		}
-		// The channel shows the metal running, the mold the molten metal and then the cast block.
+		// The channel shows the metal running, the mold the molten metal rising and then the cast block.
 		Direction facing = state.getValue(BlastFurnaceBlock.FACING);
 		BlockPos channelPos = BlastFurnaceStructure.channel(pos, facing);
 		BlockState channel = level.getBlockState(channelPos);
@@ -225,9 +235,10 @@ public class BlastFurnaceBlockEntity extends BlockEntity {
 		}
 		BlockPos moldPos = BlastFurnaceStructure.mold(pos, facing);
 		BlockState mold = level.getBlockState(moldPos);
-		BlastFurnaceMoldBlock.Content content = BlastFurnaceMoldBlock.Content.of(furnace.mold(), pouring);
-		if (mold.is(MetallurgyContent.BLAST_FURNACE_MOLD) && mold.getValue(BlastFurnaceMoldBlock.CONTENT) != content) {
-			level.setBlock(moldPos, mold.setValue(BlastFurnaceMoldBlock.CONTENT, content), Block.UPDATE_CLIENTS);
+		BlastFurnaceMoldBlock.Content content = BlastFurnaceMoldBlock.Content.of(furnace.mold());
+		if (mold.is(MetallurgyContent.BLAST_FURNACE_MOLD)
+			&& (mold.getValue(BlastFurnaceMoldBlock.CONTENT) != content || mold.getValue(BlastFurnaceMoldBlock.FILL) != fill)) {
+			level.setBlock(moldPos, mold.setValue(BlastFurnaceMoldBlock.CONTENT, content).setValue(BlastFurnaceMoldBlock.FILL, fill), Block.UPDATE_CLIENTS);
 		}
 	}
 

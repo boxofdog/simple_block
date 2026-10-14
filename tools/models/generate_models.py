@@ -50,6 +50,11 @@ def write_json(path, obj):
     write(path, json.dumps(obj, indent='\t') + '\n')
 
 
+def read_json(path):
+    with open(path, encoding='utf-8') as f:
+        return json.load(f)
+
+
 # ---- Geometry ----
 
 class Cube:
@@ -384,7 +389,7 @@ ORE_SKIP_ITEM = [
     Cube('leg_right', [10.5, 10, 7.5], [11.5, 16, 8.5], rot=('z', 22.5, [11, 13, 8])),
 ]
 
-# M08 pre-industrial blast furnace, facing north (its front to z -16), after the owner's sketch and notes
+# M08 blast furnace, facing north (its front to z -16), after the owner's sketch and notes
 # (2026-10-13): a very large industrial brick-and-iron fireplace. The furnace is 3x3 blocks and four
 # high; its controller is the middle block of the second layer, so its model spans x and z -16..32 and
 # y -16..32 (layers 1-3): a stone footing, the brick body (stepping in a little above a string course)
@@ -481,6 +486,8 @@ MOLD = (
     + [Cube(f'mold_tie_{i}', [x, 15, z1], [x + 2, 16, z2], uv_key='mold_tie_ns') for i, (x, z1, z2) in enumerate(((0, 2, 14), (14, 2, 14)))]
 )
 MOLD_MOLTEN = [Cube('mold_molten', [1, 1.1, 1], [15, 15, 15])]
+# M08 playtest: eighths the mold's molten fill is drawn in (BlastFurnaceMoldBlock.FILL).
+MOLD_FILL_STEPS = 8
 CHARCOAL_BLOCK = [Cube('charcoal_block', [0, 0, 0], [16, 16, 16])]
 
 # Texture groups: models that share one texture (and one UV layout).
@@ -508,13 +515,13 @@ GROUPS = {
     'block/ore_skip': {'ore_skip_chute': SKIP_CHUTE, 'ore_skip_bin': SKIP_BIN, 'ore_skip_gate_closed': SKIP_GATE_CLOSED,
                        'ore_skip_gate_open': SKIP_GATE_OPEN, 'ore_skip_lid_closed': SKIP_LID_CLOSED, 'ore_skip_lid_open': SKIP_LID_OPEN,
                        'ore_skip_bridle': SKIP_BRIDLE, 'ore_skip': ORE_SKIP_ITEM},
-    'block/pre_industrial_blast_furnace': {'pre_industrial_blast_furnace': FURNACE, 'pre_industrial_blast_furnace_fire': FURNACE_FIRE,
-                                           'pre_industrial_blast_furnace_crown': FURNACE_CROWN,
-                                           'pre_industrial_blast_furnace_hopper': FURNACE_HOPPER,
-                                           'pre_industrial_blast_furnace_channel': CHANNEL,
-                                           'pre_industrial_blast_furnace_channel_pour': CHANNEL_POUR,
-                                           'pre_industrial_blast_furnace_mold': MOLD,
-                                           'pre_industrial_blast_furnace_mold_molten': MOLD_MOLTEN},
+    'block/blast_furnace': {'blast_furnace': FURNACE, 'blast_furnace_fire': FURNACE_FIRE,
+                                           'blast_furnace_crown': FURNACE_CROWN,
+                                           'blast_furnace_hopper': FURNACE_HOPPER,
+                                           'blast_furnace_channel': CHANNEL,
+                                           'blast_furnace_channel_pour': CHANNEL_POUR,
+                                           'blast_furnace_mold': MOLD,
+                                           'blast_furnace_mold_molten': MOLD_MOLTEN},
     'block/charcoal_block': {'charcoal_block': CHARCOAL_BLOCK},
 }
 # Where each model's JSON goes (block models are used by blockstates, block items and renderers).
@@ -690,7 +697,7 @@ def main():
     for texture, models in GROUPS.items():
         cubes = [c for cs in models.values() for c in cs]
         size, regions, keys = pack(cubes)
-        png = template_png(size, regions, keys, MATERIAL_COLOURS if texture == 'block/pre_industrial_blast_furnace' else None)
+        png = template_png(size, regions, keys, MATERIAL_COLOURS if texture == 'block/blast_furnace' else None)
         tex_file = os.path.join(ASSETS, 'textures', texture + '.png')
         write(tex_file, png, binary=True)
         texture_id = f'{NAMESPACE}:{texture}'
@@ -749,38 +756,56 @@ def main():
     # M08 blast furnace: the controller draws the hearth and stack, plus the fire and the pour while lit or
     # pouring; of the other 35 blocks only the middle of the top layer has a model (the hopper), the rest
     # an empty one that only gives the breaking particles.
-    write_json(os.path.join(ASSETS, 'blockstates', 'pre_industrial_blast_furnace.json'), {'multipart': [
+    write_json(os.path.join(ASSETS, 'blockstates', 'blast_furnace.json'), {'multipart': [
         part for facing, y in rotations.items() for part in (
-            {'when': {'facing': facing}, 'apply': m('block/pre_industrial_blast_furnace', y=y)},
-            {'when': {'facing': facing, 'lit': 'true'}, 'apply': m('block/pre_industrial_blast_furnace_fire', y=y)})]})
-    write_json(os.path.join(ASSETS, 'models', 'block', 'pre_industrial_blast_furnace_part.json'), {
-        'textures': {'particle': f'{NAMESPACE}:block/pre_industrial_blast_furnace'}, 'elements': []})
+            {'when': {'facing': facing}, 'apply': m('block/blast_furnace', y=y)},
+            {'when': {'facing': facing, 'lit': 'true'}, 'apply': m('block/blast_furnace_fire', y=y)})]})
+    write_json(os.path.join(ASSETS, 'models', 'block', 'blast_furnace_part.json'), {
+        'textures': {'particle': f'{NAMESPACE}:block/blast_furnace'}, 'elements': []})
     # The crown is drawn by the top layer's middle block; the hopper by its back middle block, which
     # depends on the facing (dx and dz are world offsets from the controller, 1 in the middle).
     back = {'north': ('1', '2'), 'south': ('1', '0'), 'east': ('0', '1'), 'west': ('2', '1')}
-    write_json(os.path.join(ASSETS, 'blockstates', 'pre_industrial_blast_furnace_part.json'), {'multipart': [
-        {'apply': m('block/pre_industrial_blast_furnace_part')}]
-        + [{'when': {'dx': '1', 'layer': '3', 'dz': '1', 'facing': facing}, 'apply': m('block/pre_industrial_blast_furnace_crown', y=y)}
+    write_json(os.path.join(ASSETS, 'blockstates', 'blast_furnace_part.json'), {'multipart': [
+        {'apply': m('block/blast_furnace_part')}]
+        + [{'when': {'dx': '1', 'layer': '3', 'dz': '1', 'facing': facing}, 'apply': m('block/blast_furnace_crown', y=y)}
            for facing, y in rotations.items()]
         + [{'when': {'dx': back[facing][0], 'layer': '3', 'dz': back[facing][1], 'facing': facing},
-            'apply': m('block/pre_industrial_blast_furnace_hopper')} for facing in rotations]})
-    write_json(os.path.join(ASSETS, 'blockstates', 'pre_industrial_blast_furnace_channel.json'), {'multipart': [
+            'apply': m('block/blast_furnace_hopper')} for facing in rotations]})
+    write_json(os.path.join(ASSETS, 'blockstates', 'blast_furnace_channel.json'), {'multipart': [
         part for facing, y in rotations.items() for part in (
-            {'when': {'facing': facing}, 'apply': m('block/pre_industrial_blast_furnace_channel', y=y)},
-            {'when': {'facing': facing, 'pouring': 'true'}, 'apply': m('block/pre_industrial_blast_furnace_channel_pour', y=y)})]})
-    write_json(os.path.join(ASSETS, 'blockstates', 'pre_industrial_blast_furnace_mold.json'), {'multipart': [
-        {'apply': m('block/pre_industrial_blast_furnace_mold')},
-        {'when': {'content': 'molten'}, 'apply': m('block/pre_industrial_blast_furnace_mold_molten')}]
-        + [{'when': {'content': metal}, 'apply': m(f'block/pre_industrial_blast_furnace_mold_{metal}')} for metal in ('iron', 'copper', 'gold')]})
-    # The cast block in the mold: the cavity filled with the game's own block texture of that metal.
+            {'when': {'facing': facing}, 'apply': m('block/blast_furnace_channel', y=y)},
+            {'when': {'facing': facing, 'pouring': 'true'}, 'apply': m('block/blast_furnace_channel_pour', y=y)})]})
+    # M08 playtest: the mold fills eighth by eighth with the cast's progress (fill 1..8: molten metal from
+    # the cavity's floor up); above the molten metal stands the block it last cast (content), if any.
+    write_json(os.path.join(ASSETS, 'blockstates', 'blast_furnace_mold.json'), {'multipart': [
+        {'apply': m('block/blast_furnace_mold')}]
+        + [{'when': {'fill': str(k)}, 'apply': m(f'block/blast_furnace_mold_molten_{k}')} for k in range(1, MOLD_FILL_STEPS + 1)]
+        + [{'when': {'content': metal, 'fill': str(k)}, 'apply': m(f'block/blast_furnace_mold_{metal}' + (f'_{k}' if k else ''))}
+           for metal in ('iron', 'copper', 'gold') for k in range(MOLD_FILL_STEPS)]})
+    cavity_floor, cavity_top = 1.1, 15.0
+    level = lambda k: round(cavity_floor + (cavity_top - cavity_floor) * k / MOLD_FILL_STEPS, 4)
+    molten = read_json(os.path.join(ASSETS, 'models', 'block', 'blast_furnace_mold_molten.json'))
+    for k in range(1, MOLD_FILL_STEPS + 1):
+        model = json.loads(json.dumps(molten))
+        for element in model['elements']:
+            element['to'][1] = level(k)
+            for face, spec in element['faces'].items():
+                if face not in ('up', 'down'):
+                    u1, v1, u2, v2 = spec['uv']
+                    spec['uv'] = [u1, round(v2 - (v2 - v1) * k / MOLD_FILL_STEPS, 4), u2, v2]
+        write_json(os.path.join(ASSETS, 'models', 'block', f'blast_furnace_mold_molten_{k}.json'), model)
+    # The cast block in the mold: the cavity filled with the game's own block texture of that metal (k: the
+    # part of it above k eighths of molten metal).
     for metal, texture in (('iron', 'iron_block'), ('copper', 'copper_block'), ('gold', 'gold_block')):
-        write_json(os.path.join(ASSETS, 'models', 'block', f'pre_industrial_blast_furnace_mold_{metal}.json'), {
-            'textures': {'cast': f'minecraft:block/{texture}', 'particle': f'minecraft:block/{texture}'},
-            'elements': [{'name': 'cast', 'from': [1, 1.1, 1], 'to': [15, 15, 15], 'faces': {
-                face: {'uv': [1, 1, 15, 15] if face in ('up', 'down') else [1, 1, 15, 14.9], 'texture': '#cast'}
-                for face in FACES}}]})
-    write_json(os.path.join(ASSETS, 'models', 'item', 'pre_industrial_blast_furnace.json'), {
-        'parent': f'{NAMESPACE}:block/pre_industrial_blast_furnace',
+        for k in range(MOLD_FILL_STEPS):
+            bottom = level(k)
+            write_json(os.path.join(ASSETS, 'models', 'block', f'blast_furnace_mold_{metal}' + (f'_{k}' if k else '') + '.json'), {
+                'textures': {'cast': f'minecraft:block/{texture}', 'particle': f'minecraft:block/{texture}'},
+                'elements': [{'name': 'cast', 'from': [1, bottom, 1], 'to': [15, 15, 15], 'faces': {
+                    face: {'uv': [1, 1, 15, 15] if face in ('up', 'down') else [1, 1, 15, round(1 + (15 - bottom), 4)], 'texture': '#cast'}
+                    for face in FACES}}]})
+    write_json(os.path.join(ASSETS, 'models', 'item', 'blast_furnace.json'), {
+        'parent': f'{NAMESPACE}:block/blast_furnace',
         'display': {'gui': {'rotation': [30, 225, 0], 'translation': [0, -1.5, 0], 'scale': [0.2, 0.2, 0.2]},
                     'ground': {'rotation': [0, 0, 0], 'translation': [0, 3, 0], 'scale': [0.12, 0.12, 0.12]},
                     'fixed': {'rotation': [0, 0, 0], 'translation': [0, 0, 0], 'scale': [0.25, 0.25, 0.25]},
@@ -790,7 +815,7 @@ def main():
     write_json(os.path.join(ASSETS, 'blockstates', 'charcoal_block.json'), {'variants': {'': m('block/charcoal_block')}})
     for item, path in (('cable', 'item/cable'), ('cable_coil', 'item/cable_coil'), ('copper_connecting_rod', 'item/copper_connecting_rod'),
                        ('cable_anchor', 'block/cable_anchor'), ('cable_drum', 'block/cable_drum'), ('loading_track', 'block/loading_track'), ('ore_skip', 'item/ore_skip'),
-                       ('pre_industrial_blast_furnace', 'item/pre_industrial_blast_furnace'), ('charcoal_block', 'block/charcoal_block')):
+                       ('blast_furnace', 'item/blast_furnace'), ('charcoal_block', 'block/charcoal_block')):
         write_json(os.path.join(ASSETS, 'items', item + '.json'), {'model': {'type': 'minecraft:model', 'model': f'{NAMESPACE}:{path}'}})
 
     print('written:', *written, sep='\n  ')

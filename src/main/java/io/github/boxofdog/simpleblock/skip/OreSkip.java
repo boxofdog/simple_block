@@ -94,6 +94,9 @@ public class OreSkip extends VehicleEntity implements SkipCargo.Store {
 	final SkipStations.Exchange exchange = new SkipStations.Exchange();
 	/** Not saved: the height of the station it last stopped at; it passes that one until it has moved away. */
 	double passingY = Double.NaN;
+	/** Falling with no cable: its speed, blocks per tick (not saved: a skip loaded in mid-air starts falling again from rest). */
+	private double fallSpeed;
+	private int landings;
 	/** Not saved: why it last could not move (for tests). */
 	@Nullable String lastHalt;
 
@@ -300,6 +303,9 @@ public class OreSkip extends VehicleEntity implements SkipCargo.Store {
 		} else if (!this.exchange.busy()) {
 			this.fall();
 		}
+		if (hoist != null || this.exchange.busy()) {
+			this.fallSpeed = 0.0;
+		}
 		if (!Double.isNaN(this.passingY) && Math.abs(this.getY() - this.passingY) > 0.5) {
 			this.passingY = Double.NaN;
 		}
@@ -347,13 +353,40 @@ public class OreSkip extends VehicleEntity implements SkipCargo.Store {
 		return halt == null && reached == y ? "blocked" : halt;
 	}
 
-	/** With no cable: comes down onto whatever is under it. */
+	/**
+	 * With no cable: comes down onto whatever is under it, like a dropped anchor (M07 playtest): faster
+	 * every tick ({@code skip.fall_gravity}, up to {@code skip.fall_max_speed}), with a heavy metallic
+	 * clang when it strikes what stops it, however far it fell, as loud as it hit hard; nothing for a
+	 * skip that only settles a little (one let go standing on something stays where it is, silent).
+	 * Its cargo stays in it.
+	 */
 	private void fall() {
 		double y = this.getY();
-		double reached = this.reach(y, y - Tuning.getDouble("skip.fall_speed"));
+		this.fallSpeed = Math.min(this.fallSpeed + Tuning.getDouble("skip.fall_gravity"), Tuning.getDouble("skip.fall_max_speed"));
+		double target = y - this.fallSpeed;
+		double reached = this.reach(y, target);
 		if (reached != y) {
 			this.setPos(this.getX(), reached, this.getZ());
 		}
+		if (reached > target + 1.0E-9) {
+			// Stopped by what is under it.
+			double impact = this.fallSpeed;
+			this.fallSpeed = 0.0;
+			if (impact >= LANDING_SPEED && this.level() instanceof ServerLevel level) {
+				this.landings++;
+				float volume = (float) Math.min(1.5, 0.5 + impact);
+				level.playSound(null, this.getX(), this.getY(), this.getZ(), SoundEvents.ANVIL_LAND, SoundSource.BLOCKS, volume, 0.6F);
+				level.playSound(null, this.getX(), this.getY(), this.getZ(), SoundEvents.CHAIN_BREAK, SoundSource.BLOCKS, volume * 0.6F, 0.7F);
+			}
+		}
+	}
+
+	/** Speed (blocks per tick) a falling skip must hit something at for the clang: more than a little settling. */
+	static final double LANDING_SPEED = 0.15;
+
+	/** For tests: how many times this skip has landed with a clang. */
+	public int landings() {
+		return this.landings;
 	}
 
 	/**

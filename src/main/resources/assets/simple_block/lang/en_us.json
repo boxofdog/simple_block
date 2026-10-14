@@ -85,8 +85,8 @@
 	"item.simple_block.ore_skip": "Ore Skip",
 	"entity.simple_block.ore_skip": "Ore Skip",
 	"container.simple_block.ore_skip": "Ore Skip",
-	"block.simple_block.pre_industrial_blast_furnace": "Pre-Industrial Blast Furnace",
-	"block.simple_block.pre_industrial_blast_furnace_part": "Pre-Industrial Blast Furnace",
+	"block.simple_block.blast_furnace": "Blast Furnace",
+	"block.simple_block.blast_furnace_part": "Blast Furnace",
 	"block.simple_block.charcoal_block": "Block of Charcoal",
 	"simple_block.blast_furnace.reservoir": "Raw iron, copper or gold",
 	"simple_block.blast_furnace.not_ore": "The furnace smelts raw iron, copper or gold",
@@ -94,6 +94,6 @@
 	"simple_block.blast_furnace.full": "The furnace is full: %s / %s",
 	"simple_block.blast_furnace.too_heavy": "Too heavy: you can't carry any more %s",
 	"simple_block.blast_furnace.no_room": "The furnace needs a clear space 3 blocks wide, 5 deep and 4 high (the mold where you click)",
-	"block.simple_block.pre_industrial_blast_furnace_channel": "Pre-Industrial Blast Furnace",
-	"block.simple_block.pre_industrial_blast_furnace_mold": "Pre-Industrial Blast Furnace"
+	"block.simple_block.blast_furnace_channel": "Blast Furnace",
+	"block.simple_block.blast_furnace_mold": "Blast Furnace"
 }

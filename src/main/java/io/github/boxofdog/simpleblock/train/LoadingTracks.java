@@ -243,6 +243,24 @@ public final class LoadingTracks {
 		return InteractionResult.SUCCESS;
 	}
 
+	/**
+	 * M07 playtest: lets go of the one {@code car} docked at {@code track} (its skip exchange finished):
+	 * the stop folds, and the car does not dock there again until it has left it. The rest of its train
+	 * is left as it is. Does nothing if the car is no longer docked there.
+	 */
+	public static void releaseCar(ServerLevel level, AbstractMinecart car, BlockPos track) {
+		Couplings.Coupled coupled = Couplings.coupled(car);
+		if (!car.isAlive() || !track.equals(coupled.simpleBlock$dock())) {
+			return;
+		}
+		coupled.simpleBlock$setDock(null);
+		Freight freight = freight(car);
+		freight.simpleBlock$setReleased(track.immutable());
+		freight.simpleBlock$setOnReleased(track.equals(car.getCurrentBlockPosOrRailBelow()));
+		setStop(level, track, false);
+		level.playSound(null, track, SoundEvents.IRON_TRAPDOOR_OPEN, SoundSource.BLOCKS, 0.8F, 0.9F);
+	}
+
 	/** Lets go of every car of {@code cart}'s train; none docks at the track it is on, or at {@code track}, until it has left it. */
 	public static void releaseTrain(AbstractMinecart cart, BlockPos track) {
 		for (AbstractMinecart car : Couplings.consist(cart)) {

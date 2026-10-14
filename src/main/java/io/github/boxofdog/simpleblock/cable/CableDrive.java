@@ -13,6 +13,7 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
+import net.minecraft.util.Mth;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.vehicle.minecart.Minecart;
@@ -290,9 +291,32 @@ public final class CableDrive {
 	 * docked, off the rails, at the end of its track (M06), at an end of the line, about to leave its
 	 * rod's reach, or not all in (or about to run out of) entity-ticking chunks.
 	 */
-	/** Whether there is rail at {@code pos}, or just below or above it (a slope). */
-	private static boolean railAt(ServerLevel level, BlockPos pos) {
-		return BaseRailBlock.isRail(level, pos) || BaseRailBlock.isRail(level, pos.below()) || BaseRailBlock.isRail(level, pos.above());
+	/** Height of a cart on the rail at {@code rail} at the horizontal position of {@code at} (along a slope, part way up it). */
+	private static double railHeight(ServerLevel level, BlockPos rail, Vec3 at) {
+		double y = rail.getY() + 0.0625;
+		BlockState state = level.getBlockState(rail);
+		if (state.getBlock() instanceof BaseRailBlock block) {
+			double fx = Mth.clamp(at.x - rail.getX(), 0.0, 1.0);
+			double fz = Mth.clamp(at.z - rail.getZ(), 0.0, 1.0);
+			y += switch (state.getValue(block.getShapeProperty())) {
+				case ASCENDING_EAST -> fx;
+				case ASCENDING_WEST -> 1.0 - fx;
+				case ASCENDING_SOUTH -> fz;
+				case ASCENDING_NORTH -> 1.0 - fz;
+				default -> 0.0;
+			};
+		}
+		return y;
+	}
+
+	/** The rail at {@code pos}, or just below or above it (a slope), or null. */
+	private static @Nullable BlockPos railNear(ServerLevel level, BlockPos pos) {
+		for (BlockPos candidate : new BlockPos[] {pos, pos.below(), pos.above()}) {
+			if (BaseRailBlock.isRail(level, candidate)) {
+				return candidate;
+			}
+		}
+		return null;
 	}
 
 	/**
@@ -327,9 +351,13 @@ public final class CableDrive {
 			return "end";
 		}
 		Vec3 ahead = cart.position().add(grip.direction().scale(speed + Math.signum(speed) * 0.5));
-		if (!railAt(level, BlockPos.containing(ahead))) {
+		BlockPos aheadRail = railNear(level, BlockPos.containing(ahead));
+		if (aheadRail == null) {
 			return "track_end";
 		}
+		// BUG-004: judge the reach ahead from where the cart will be on the track there (up or down a
+		// climb), not from its present height.
+		ahead = new Vec3(ahead.x, railHeight(level, aheadRail, ahead), ahead.z);
 		CableIndex.Grip still = CableIndex.grip(level, ahead, ConnectingRods.TOLERANCE, ConnectingRods.reachMin(), ConnectingRods.reachMax());
 		if (!station && (still == null || !still.drum().equals(grip.drum()))) {
 			return "end";
