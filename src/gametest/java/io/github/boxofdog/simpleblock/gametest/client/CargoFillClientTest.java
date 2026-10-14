@@ -66,7 +66,11 @@ public class CargoFillClientTest implements FabricClientGameTest {
 	}
 
 	private static int yard(TestServerContext server) {
-		int g = server.computeOnServer(s -> s.overworld().getHeight(Heightmap.Types.MOTION_BLOCKING, X, Z));
+		// Generate the yard's chunk first: on a fresh dedicated server it may not exist yet (the height would read the world's bottom).
+		int g = server.computeOnServer(s -> {
+			s.overworld().getChunk(X >> 4, Z >> 4);
+			return s.overworld().getHeight(Heightmap.Types.MOTION_BLOCKING, X, Z);
+		});
 		server.runCommand("gamerule minecraft:advance_time false");
 		server.runCommand("gamerule minecraft:spawn_monsters false");
 		server.runCommand("time set noon");
