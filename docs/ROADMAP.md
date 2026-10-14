@@ -19,6 +19,7 @@
 | M09 | Hostile loitering, opportunistic doors, creeper retaliation, rare jockeys | **PLAYTESTING** | [M09 package](MILESTONE_09.md) | [Verification](MILESTONE_09.md#implementation-and-verification--2026-10-14) · [CI #37](https://github.com/boxofdog/simple_block/actions/runs/38501374609) |
 | M10 | Headlamp/Overalls/boots, workwear bonuses, Spelunker's Rope, armor retirement | **PLAYTESTING** | [M10 package](MILESTONE_10.md) | [Verification](MILESTONE_10.md#implementation-and-verification--2026-10-14) · [CI #46](https://github.com/boxofdog/simple_block/actions/runs/38535509454) |
 | M11 | Material-/shape-specific cart fills, progressive hopper transfer, cart text removal | **PLAYTESTING** | [M11 package](MILESTONE_11.md) | [Verification](MILESTONE_11.md#implementation-and-verification--2026-10-14) · [CI #52](https://github.com/boxofdog/simple_block/actions/runs/38597022406) |
+| M12 | Permanent four-monster effigies, 576-drop compression and directional fear | **PLANNED - READY** | [M12 handoff](MILESTONE_12.md) | Not implemented; owner authorization required to begin |
 
 **Unnumbered work:** ordinary 3D rails have been implemented (owner visual review pending). Revised villages, extreme grades, discovered enchanting and iron/diamond/netherite armor bonuses remain future [backlog](BACKLOG.md) ideas, **not implementation authorizations**.
 
