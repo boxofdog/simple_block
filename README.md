@@ -180,13 +180,13 @@ Counts reflect source files only, not proof of implemented or tested behavior.
 
 | Source set | First-level package | Java files |
 |---|---|---:|
-| client | client | 19 |
-| gametest | gametest | 42 |
+| client | client | 23 |
+| gametest | gametest | 44 |
 | main | (root) | 1 |
 | main | cable | 17 |
-| main | feature | 20 |
+| main | feature | 25 |
 | main | metallurgy | 12 |
-| main | mixin | 40 |
+| main | mixin | 46 |
 | main | network | 3 |
 | main | skip | 7 |
 | main | train | 6 |
