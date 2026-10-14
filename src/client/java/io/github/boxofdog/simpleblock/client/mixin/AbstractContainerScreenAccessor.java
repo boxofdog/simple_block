@@ -13,4 +13,7 @@ public interface AbstractContainerScreenAccessor {
 
 	@Accessor("topPos")
 	int simpleBlock$getTopPos();
+
+	@Accessor("imageHeight")
+	int simpleBlock$getImageHeight();
 }

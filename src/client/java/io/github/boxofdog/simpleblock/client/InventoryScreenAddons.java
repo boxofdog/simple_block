@@ -18,12 +18,16 @@ import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.gui.screens.inventory.InventoryScreen;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.entity.EquipmentSlot;
+import net.minecraft.world.entity.player.Inventory;
+import net.minecraft.world.inventory.ArmorSlot;
 import net.minecraft.world.inventory.Slot;
 
 import io.github.boxofdog.simpleblock.client.mixin.AbstractContainerScreenAccessor;
 import io.github.boxofdog.simpleblock.feature.HeavyLoad;
 import io.github.boxofdog.simpleblock.feature.InventorySlots;
 import io.github.boxofdog.simpleblock.network.SortInventoryPayload;
+import io.github.boxofdog.simpleblock.workwear.Workwear;
 
 /**
  * Client display for INV-01, INV-02 and INV-04. Every container screen that shows the player's
@@ -38,6 +42,11 @@ import io.github.boxofdog.simpleblock.network.SortInventoryPayload;
  * load past 64 (M08): the bar then rescales to the whole load and a white tick marks where 64 is.
  * Hovering over the bar shows the numbers: the total out of 64 and what each material contributes,
  * carried equipment included, and at the cap that only commodities are refused.
+ *
+ * <p>M10: with the Overalls on, the row is a backpack (usable slots), so the bar and the Sort button sit on
+ * a strip just under the panel instead; the bar's allowance is the player's own (more with Mining Boots).
+ * The armor slots the commodity-overload lock holds are greyed and outlined in red, and the legs slot
+ * the Overalls take is greyed: display only, the server enforces both.
  */
 public final class InventoryScreenAddons {
 	private static final int PANEL = 0xFFC6C6C6;
@@ -64,19 +73,34 @@ public final class InventoryScreenAddons {
 	private InventoryScreenAddons() {
 	}
 
-	/** Panel-relative bounds of the disabled row: {x0, y0, x1, y1}, or null if the screen has none. */
+	private static final int LOCKED_SHADE = 0x99606060;
+	private static final int LOCKED_OUTLINE = 0xFFE02020;
+	private static final int RESERVED_SHADE = 0x77808080;
+
+	/**
+	 * Panel-relative bounds of the strip the bar and Sort button sit on: the unusable row, or (Overalls
+	 * on, the row a backpack) a strip just under the panel; {x0, y0, x1, y1}, or null if the screen shows
+	 * no player inventory.
+	 */
 	static int[] disabledRow(AbstractContainerScreen<?> screen) {
 		int minX = Integer.MAX_VALUE;
 		int maxX = Integer.MIN_VALUE;
 		int y = Integer.MIN_VALUE;
 		for (Slot slot : screen.getMenu().slots) {
-			if (InventorySlots.isDisabled(slot)) {
+			if (InventorySlots.isRow(slot)) {
 				minX = Math.min(minX, slot.x);
 				maxX = Math.max(maxX, slot.x);
 				y = slot.y;
 			}
 		}
-		return y == Integer.MIN_VALUE ? null : new int[] {minX - 1, y - 1, maxX + 17, y + 17};
+		if (y == Integer.MIN_VALUE) {
+			return null;
+		}
+		if (Workwear.backpack(Minecraft.getInstance().player)) {
+			int below = ((AbstractContainerScreenAccessor) screen).simpleBlock$getImageHeight() + 1;
+			return new int[] {minX - 1, below, maxX + 17, below + 18};
+		}
+		return new int[] {minX - 1, y - 1, maxX + 17, y + 17};
 	}
 
 	public static void register() {
@@ -88,6 +112,7 @@ public final class InventoryScreenAddons {
 			// Tooltips are drawn when the screen's deferred elements are flushed, which happens before
 			// afterExtract; set it here so it is shown in this frame.
 			ScreenEvents.afterBackground(screen).register(InventoryScreenAddons::loadTooltip);
+			ScreenEvents.afterExtract(screen).register(InventoryScreenAddons::paintArmorSlots);
 			if (screen instanceof InventoryScreen inventoryScreen) {
 				SortButton sort = new SortButton();
 				sort.setTooltip(Tooltip.create(Component.translatable("simple_block.inventory.sort.tooltip")));
@@ -145,14 +170,17 @@ public final class InventoryScreenAddons {
 		int x = panel.simpleBlock$getLeftPos();
 		int y = panel.simpleBlock$getTopPos();
 		graphics.fill(x + row[0], y + row[1], x + row[2], y + row[3], PANEL);
+		if (Workwear.backpack(player)) {
+			graphics.outline(x + row[0] - 1, y + row[1] - 1, row[2] - row[0] + 2, row[3] - row[1] + 2, FRAME);
+		}
 		long[] units = HeavyLoad.carriedByMaterial(player);
 		long load = Arrays.stream(units).sum();
 		int[] bar = barBounds(container);
-		graphics.outline(bar[0], bar[1], bar[2] - bar[0], bar[3] - bar[1], load >= HeavyLoad.CAPACITY ? FRAME_FULL : FRAME);
+		graphics.outline(bar[0], bar[1], bar[2] - bar[0], bar[3] - bar[1], load >= HeavyLoad.capacity(player) ? FRAME_FULL : FRAME);
 		int left = bar[0] + 1;
 		int top = bar[1] + 1;
 		graphics.fill(left, top, left + BAR_WIDTH, top + BAR_HEIGHT, TRACK);
-		int[] widths = segmentWidths(units);
+		int[] widths = segmentWidths(units, HeavyLoad.capacity(player));
 		for (int i = 0; i < ORDER.length; i++) {
 			int width = widths[ORDER[i].ordinal()];
 			if (width > 0) {
@@ -163,6 +191,45 @@ public final class InventoryScreenAddons {
 		int tick = capTick(load);
 		if (tick >= 0) {
 			graphics.fill(bar[0] + 1 + tick, top - 1, bar[0] + 2 + tick, top + BAR_HEIGHT + 1, CAP_TICK);
+		}
+	}
+
+	/** The worn slot an armor slot of the player's inventory shows (inventory entries 36-39: feet, legs, chest, head). */
+	private static EquipmentSlot armorSlot(Slot slot) {
+		return switch (slot.getContainerSlot()) {
+			case 36 -> EquipmentSlot.FEET;
+			case 37 -> EquipmentSlot.LEGS;
+			case 38 -> EquipmentSlot.CHEST;
+			case 39 -> EquipmentSlot.HEAD;
+			default -> null;
+		};
+	}
+
+	/** M10: locked armor slots greyed with a red outline; the legs slot the Overalls take greyed. */
+	private static void paintArmorSlots(Screen screen, GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTick) {
+		Player player = Minecraft.getInstance().player;
+		if (player == null || !(screen instanceof AbstractContainerScreen<?> container)) {
+			return;
+		}
+		java.util.Set<EquipmentSlot> locked = Workwear.lockedSlots(player);
+		boolean reserved = Workwear.legsReserved(player);
+		if (locked.isEmpty() && !reserved) {
+			return;
+		}
+		AbstractContainerScreenAccessor panel = (AbstractContainerScreenAccessor) container;
+		for (Slot slot : container.getMenu().slots) {
+			if (!(slot instanceof ArmorSlot) || !(slot.container instanceof Inventory inventory) || inventory.player != player || !slot.isActive()) {
+				continue;
+			}
+			EquipmentSlot worn = armorSlot(slot);
+			int x = panel.simpleBlock$getLeftPos() + slot.x;
+			int y = panel.simpleBlock$getTopPos() + slot.y;
+			if (worn != null && locked.contains(worn)) {
+				graphics.fill(x, y, x + 16, y + 16, LOCKED_SHADE);
+				graphics.outline(x - 1, y - 1, 18, 18, LOCKED_OUTLINE);
+			} else if (worn == EquipmentSlot.LEGS && reserved) {
+				graphics.fill(x, y, x + 16, y + 16, RESERVED_SHADE);
+			}
 		}
 	}
 
@@ -205,7 +272,7 @@ public final class InventoryScreenAddons {
 			shownTooltip = null;
 			return;
 		}
-		List<Component> lines = tooltipLines(HeavyLoad.carriedByMaterial(player));
+		List<Component> lines = tooltipLines(HeavyLoad.carriedByMaterial(player), HeavyLoad.capacity(player));
 		shownTooltip = lines;
 		graphics.setComponentTooltipForNextFrame(Screens.getFont(screen), lines, mouseX, mouseY);
 	}
@@ -216,10 +283,14 @@ public final class InventoryScreenAddons {
 	 * each carried material in bar order with a swatch of its colour (rounded to the nearest 0.01).
 	 */
 	static List<Component> tooltipLines(long[] units) {
+		return tooltipLines(units, HeavyLoad.CAPACITY);
+	}
+
+	static List<Component> tooltipLines(long[] units, int capacity) {
 		long total = Arrays.stream(units).sum();
 		List<Component> lines = new ArrayList<>();
-		lines.add(Component.translatable("simple_block.inventory.load", ingots(total, RoundingMode.CEILING), HeavyLoad.CAPACITY_INGOTS)
-			.withColor(total >= HeavyLoad.CAPACITY ? 0xFFFF5555 : 0xFFFFFFFF));
+		lines.add(Component.translatable("simple_block.inventory.load", ingots(total, RoundingMode.CEILING), capacity / HeavyLoad.UNITS_PER_INGOT)
+			.withColor(total >= capacity ? 0xFFFF5555 : 0xFFFFFFFF));
 		for (int i = 0; i < ORDER.length; i++) {
 			long amount = units[ORDER[i].ordinal()];
 			if (amount > 0) {
@@ -228,7 +299,7 @@ public final class InventoryScreenAddons {
 					.withColor(0xFFAAAAAA)));
 			}
 		}
-		if (total >= HeavyLoad.CAPACITY) {
+		if (total >= capacity) {
 			lines.add(Component.translatable("simple_block.inventory.load.full").withColor(0xFFAAAAAA));
 		}
 		return lines;
@@ -240,7 +311,11 @@ public final class InventoryScreenAddons {
 	}
 
 	static int[] segmentWidths(long[] units) {
-		double scale = (double) BAR_WIDTH / Math.max(HeavyLoad.CAPACITY, Arrays.stream(units).sum());
+		return segmentWidths(units, HeavyLoad.CAPACITY);
+	}
+
+	static int[] segmentWidths(long[] units, int capacity) {
+		double scale = (double) BAR_WIDTH / Math.max(capacity, Arrays.stream(units).sum());
 		int[] widths = new int[units.length];
 		int total = 0;
 		for (int i = 0; i < units.length; i++) {

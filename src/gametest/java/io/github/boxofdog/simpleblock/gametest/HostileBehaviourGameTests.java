@@ -812,8 +812,19 @@ public class HostileBehaviourGameTests {
 				arena.tune("mob.jockey.recruit_chance", 1.0);
 				arena.tune("mob.jockey.check_ticks", 1);
 			})
-			.thenWaitUntil(() -> helper.assertTrue(running(mobs[0], SpiderJockeys.RecruitGoal.class), "waiting for the skeleton to set off"))
-			.thenExecute(() -> helper.assertTrue(!mobs[0].isPassenger() && mobs[0].distanceTo(mobs[1]) > 3, "the skeleton should set off from a distance"))
+			.thenWaitUntil(() -> {
+				// It must be on its way from a distance when it gets a target: if it strolled up to the spider (or onto it) first, start it again.
+				Mob skeleton = mobs[0];
+				if (skeleton.isPassenger()) {
+					skeleton.stopRiding();
+					arena.moveBack(skeleton, -6, 0);
+					goal(skeleton, SpiderJockeys.RecruitGoal.class).checkNow();
+				} else if (running(skeleton, SpiderJockeys.RecruitGoal.class) && skeleton.distanceTo(mobs[1]) <= 3) {
+					arena.moveBack(skeleton, -6, 0);
+				}
+				helper.assertTrue(running(skeleton, SpiderJockeys.RecruitGoal.class) && !skeleton.isPassenger() && skeleton.distanceTo(mobs[1]) > 3,
+					"waiting for the skeleton to set off from a distance");
+			})
 			.thenExecute(() -> {
 				player.setGameMode(GameType.SURVIVAL);
 				mobs[0].setTarget(player);

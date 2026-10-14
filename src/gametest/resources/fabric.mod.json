@@ -54,7 +54,8 @@
 			"io.github.boxofdog.simpleblock.gametest.client.BlastFurnaceClientTest",
 			"io.github.boxofdog.simpleblock.gametest.client.HostileClientTest",
 			"io.github.boxofdog.simpleblock.gametest.client.PlaytestFixesClientTest",
-			"io.github.boxofdog.simpleblock.gametest.client.TwoDrumClientTest"
+			"io.github.boxofdog.simpleblock.gametest.client.TwoDrumClientTest",
+			"io.github.boxofdog.simpleblock.gametest.client.WorkwearClientTest"
 		]
 	},
 	"depends": {

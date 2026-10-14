@@ -11,7 +11,8 @@
 		"MinecartRenderStateMixin",
 		"MultiPlayerGameModeMixin",
 		"SkeletonModelMixin",
-		"SkeletonRenderStateMixin"
+		"SkeletonRenderStateMixin",
+		"HumanoidArmorLayerMixin"
 	],
 	"injectors": {
 		"defaultRequire": 1

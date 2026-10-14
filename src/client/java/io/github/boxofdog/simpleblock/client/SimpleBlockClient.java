@@ -3,6 +3,8 @@ package io.github.boxofdog.simpleblock.client;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.rendering.v1.ModelLayerRegistry;
 
+import io.github.boxofdog.simpleblock.client.workwear.RearWarning;
+import io.github.boxofdog.simpleblock.client.workwear.TrailBlazerGhosts;
 import io.github.boxofdog.simpleblock.client.cable.CableDrumRenderer;
 import io.github.boxofdog.simpleblock.client.cable.CableHookRenderer;
 import io.github.boxofdog.simpleblock.client.metallurgy.BlastFurnaceScreen;
@@ -16,6 +18,8 @@ public class SimpleBlockClient implements ClientModInitializer {
 	public void onInitializeClient() {
 		InventoryScreenAddons.register();
 		SaturationHud.register();
+		TrailBlazerGhosts.register();
+		RearWarning.register();
 		// The owner's M07 cart redesign: every minecart's body (AbstractMinecartRendererModelMixin).
 		ModelLayerRegistry.registerModelLayer(GatedMinecartModel.LAYER, GatedMinecartModel::createBodyLayer);
 		CargoMinecartRenderer.register();

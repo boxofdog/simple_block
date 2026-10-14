@@ -57,7 +57,8 @@
 		"workwear.ClimbingMixin",
 		"workwear.PlayerMiningMixin",
 		"workwear.ServerPlayerGameModeMixin",
-		"workwear.SkeletonAimMixin"
+		"workwear.SkeletonAimMixin",
+		"workwear.BlockItemMixin"
 	],
 	"injectors": {
 		"defaultRequire": 1

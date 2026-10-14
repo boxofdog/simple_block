@@ -119,5 +119,6 @@ public final class WorkwearContent {
 		});
 		Workwear.register();
 		Headlamps.register();
+		TrailMarkers.register();
 	}
 }
