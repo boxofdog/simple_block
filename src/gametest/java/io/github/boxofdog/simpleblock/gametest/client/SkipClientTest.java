@@ -409,7 +409,7 @@ public class SkipClientTest implements FabricClientGameTest {
 		server.runCommand("tp @a " + (X + 1.9) + " " + (g + LOAD_RAIL - 0.9) + " " + (Z + 0.6) + " 140 8");
 		context.waitTicks(3);
 		context.takeScreenshot("m07p-load-cart-end-open-straight");
-		context.waitTicks(80);
+		context.waitTicks(200); // M11: 1 item a tick
 		float closed = gateSwing(context, g + LOAD_RAIL);
 		double y = skipY(server, g);
 		int skipCount = server.computeOnServer(s -> skip(s.overworld(), g).count());
@@ -532,7 +532,7 @@ public class SkipClientTest implements FabricClientGameTest {
 		server.runCommand("tp @a " + (X + 2.4) + " " + (y + 1.9) + " " + (Z - 2.9) + " 30 38");
 		context.waitTicks(3);
 		context.takeScreenshot("m07c-side-on-train-gate-up-above");
-		context.waitTicks(80);
+		context.waitTicks(230); // M11: 1 item a tick
 		int skipCount = server.computeOnServer(s -> skip(s.overworld(), g).count());
 		int[] cars = server.computeOnServer(s -> s.overworld().getEntitiesOfClass(Minecart.class, new AABB(X - 2, y - 1, Z - 2, X + 4, y + 2, Z)).stream()
 			.sorted(java.util.Comparator.comparingDouble(Minecart::getX)).mapToInt(c -> MinecartCargo.cart(c).simpleBlock$count()).toArray());
@@ -592,7 +592,7 @@ public class SkipClientTest implements FabricClientGameTest {
 		server.runCommand("tp @a " + (X + 0.5) + " " + (g - 0.4) + " " + (Z - 2.6) + " 0 8");
 		context.waitTicks(3);
 		context.takeScreenshot("m07p-unload-lip-on-rim-front");
-		context.waitTicks(100);
+		context.waitTicks(330); // M11: 1 item a tick
 		int left = server.computeOnServer(s -> skip(s.overworld(), g).count());
 		int bottomCart = server.computeOnServer(s -> MinecartCargo.cart(cart(s.overworld(), g)).simpleBlock$count());
 		SimpleBlockTestLog.info("CLIENT SKIP UNLOAD: FEED stopped at y {} (rail + 11/16: the chute's lip on the rim of the cart one level lower); client saw the "
@@ -637,7 +637,7 @@ public class SkipClientTest implements FabricClientGameTest {
 			Direction side = facing.getClockWise();
 			shot(context, server, "m07p-unload-lip-on-rim-" + facing.getSerializedName(), X + 0.5 + side.getStepX() * 2.9 + facing.getStepX() * 0.3,
 				g - 0.1, Z + 0.5 + side.getStepZ() * 2.9 + facing.getStepZ() * 0.3, side.getOpposite().toYRot(), 15);
-			context.waitTicks(40);
+			context.waitTicks(100); // M11: 1 item a tick
 			int got = server.computeOnServer(s -> MinecartCargo.cart(s.overworld().getEntitiesOfClass(Minecart.class, new AABB(rail)).getFirst())
 				.simpleBlock$count());
 			turns.add(facing + ": cart " + got);

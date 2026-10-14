@@ -124,7 +124,7 @@ public class SkipServerClientTest implements FabricClientGameTest {
 			server.runCommand("tp @a " + (X + 2.9) + " " + (g - 0.1) + " " + (Z - 0.2) + " 90 15");
 			context.waitTicks(5);
 			context.takeScreenshot("m07-server-skip-unloading");
-			context.waitTicks(60);
+			context.waitTicks(120); // M11: 1 item a tick
 			int cart = server.computeOnServer(s -> cartCount(s.overworld(), g));
 			int left = server.computeOnServer(s -> skip(s.overworld(), g).count());
 			SimpleBlockTestLog.info("CLIENT DEDICATED SERVER SKIP: placed by key over the network ({}); loaded by key: '{}'; remote screen shows {}; right-click on "
