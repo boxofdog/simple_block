@@ -43,18 +43,8 @@ Methods: **GT** = automated server game test (`./gradlew runGameTest`, also part
 - **Server:** optional dedicated development server for checking that restrictions aren't client-only.
 - Test elytra both through normal world content and by injecting an existing item. Test shulker boxes across all color variants, not just the default.
 
-## Final implementation report template
+## Historical M01 verification snapshot
 
-**Build/runtime:** Minecraft 26.3; loader Fabric Loader 0.19.5 + Fabric API 0.162.0+26.3; JDK Temurin 25.0.4.1; build command `./gradlew build`; dev-client result PASS (headless, Vulkan/lavapipe); dedicated-server result NOT RUN (server environment exercised by the game tests).
+This is **historical test evidence**, not a template for new reports. Current milestones record concise dated verification appendices in their own files (see [RULES.md](RULES.md)).
 
-**Implementation:** SF-01 night/storm skip disabled through vanilla's "nobody can sleep through the night" path, beds still set spawn; SF-02 phantom insomnia spawner disabled; SF-03 gliding refused server-side, End ship elytra frame removed; SF-04 17 recipes removed, placement/opening/hopper access refused.
-
-**Tests:** 22 PASS / 0 FAIL / 1 NOT RUN. Important gaps: no dedicated server + remote client session; no natural End city visited by playing; swimming and boats not exercised.
-
-**Fresh-world-only confirmation:** Yes. No migration, compatibility or recovery code. All tests used newly created worlds.
-
-**Changed files:** see [`MILESTONE_01_REPORT.md`](archive/milestone-reports/MILESTONE_01_REPORT.md).
-
-**How to reproduce:** `./gradlew build` (server game tests) and `./gradlew runClientGameTest` (client test; under Xvfb on a headless machine). See `README.md`.
-
-**Known issues / next action:** see [`MILESTONE_01_REPORT.md`](archive/milestone-reports/MILESTONE_01_REPORT.md).
+M01 ran on Minecraft 26.3 with Fabric Loader 0.19.5, Fabric API 0.162.0+26.3 and JDK 25. The recorded result was **22 PASS, 0 FAIL, 1 NOT RUN**. Remaining limits included no remote dedicated-server client session or natural End city playthrough; swimming and boats were not exercised. Tests used fresh worlds. Reproduce using `./gradlew build` and `./gradlew runClientGameTest`. See the [M01 verification](MILESTONE_01.md#implementation-and-verification--2026-10-11) and [archived original report](archive/milestone-reports/MILESTONE_01_REPORT.md) for the complete implementation context.
