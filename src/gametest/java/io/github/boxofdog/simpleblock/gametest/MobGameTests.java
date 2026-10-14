@@ -829,7 +829,12 @@ public class MobGameTests {
 				ensureClock(helper, true);
 				zombie[0] = arena.spawn(EntityTypes.ZOMBIE, 0, -4);
 			})
-			.thenWaitUntil(() -> helper.assertTrue(zombie[0].getTarget() == player, "waiting for the zombie to see the player"))
+			// Shut in its face: once it is chasing the player and about to come through the doorway. Shut
+			// at first sight (4 blocks off), the zombie sometimes lost the path before reaching the door.
+			.thenWaitUntil(() -> {
+				helper.assertTrue(zombie[0].getTarget() == player, "waiting for the zombie to see the player");
+				helper.assertTrue(zombie[0].position().distanceToSqr(Vec3.atBottomCenterOf(door)) < 2.5 * 2.5, "waiting for the zombie to reach the doorway");
+			})
 			.thenExecute(() -> {
 				setDoorOpen(arena, door, false);
 				times[0] = helper.getTick();
@@ -838,7 +843,9 @@ public class MobGameTests {
 				if (times[1] < 0 && running(zombie[0], ZombieDoors.PursuitDoorBreakGoal.class)) {
 					times[1] = helper.getTick();
 				}
-				helper.assertTrue(arena.level.getBlockState(door).isAir(), "waiting for the " + name + " to be broken");
+				helper.assertTrue(arena.level.getBlockState(door).isAir(), "waiting for the " + name + " to be broken (zombie at "
+					+ zombie[0].blockPosition().subtract(door) + " from the door, target " + zombie[0].getTarget() + ", pursuing "
+					+ ZombieDoors.isPursuingPlayer(zombie[0]) + ", breaking since " + times[1] + ")");
 			})
 			.thenExecute(() -> {
 				times[2] = helper.getTick();
