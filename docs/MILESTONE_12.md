@@ -1,6 +1,6 @@
 ---
 milestone: M12
-status: PLANNED - READY
+status: IMPLEMENTING
 ---
 
 # M12 — Monster Effigies: permanent directional fear wards
