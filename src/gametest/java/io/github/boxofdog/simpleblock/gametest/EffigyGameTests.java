@@ -637,6 +637,8 @@ public class EffigyGameTests {
 			// Its bounding box's centre 99 (101) blocks along the axis, on a stone pillar top.
 			zombie.snapTo(apex.x, apex.y - zombie.getBbHeight() / 2.0, apex.z + ahead, 0.0F, 0.0F);
 			level.setBlockAndUpdate(zombie.blockPosition().below(), Blocks.STONE.defaultBlockState());
+			// Far from every player: without this it would despawn at once.
+			zombie.setPersistenceRequired();
 			mobs.add(zombie);
 		}
 		helper.startSequence()

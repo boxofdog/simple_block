@@ -21,6 +21,7 @@ A Minecraft Java Edition overhaul about **hostile nights, meaningful mining, ind
 | M09 | Hostile light loitering and breach response, creeper retaliation, rare naturally recruited skeleton–spider jockeys. | [M09](docs/MILESTONE_09.md) |
 | M10 | Headlamp, inventory-expanding Overalls, two mining-boot paths and set bonuses, hanging rope, and retirement of gold/chainmail armor. | [M10](docs/MILESTONE_10.md) |
 | M11 | Material-specific cart loads at four visible fill heights, gradual hand/hopper freight transfers, side-gate unloading, and removal of mod-authored floating/action-bar text. | [M11](docs/MILESTONE_11.md) |
+| M12 | Four permanent **Monster Effigies** (zombie, skeleton, creeper, enderman) built from nine full stacks of a mob drop per block; placed through a confirmation screen, they send their own monster fleeing a 100-block forward cone. | [M12](docs/MILESTONE_12.md) |
 
 **Additional visual work:** Ordinary vanilla rails now use [3D models](docs/BACKLOG.md#i-013--3d-ordinary-rails) matching the Loading Rail profile; the block's physics, IDs, drops and crafting are unchanged. See [editable Blockbench sources](art/blockbench/README.md).
 
