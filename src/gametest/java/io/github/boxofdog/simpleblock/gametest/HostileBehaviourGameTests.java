@@ -802,10 +802,13 @@ public class HostileBehaviourGameTests {
 			})
 			.thenIdle(5)
 			.thenExecute(() -> {
+				// Waiting for the light, the skeleton may have wandered up to the spider: start it 7 blocks off again.
+				arena.moveBack(mobs[0], -6, 0);
 				arena.tune("mob.jockey.recruit_chance", 1.0);
 				arena.tune("mob.jockey.check_ticks", 1);
 			})
 			.thenWaitUntil(() -> helper.assertTrue(running(mobs[0], SpiderJockeys.RecruitGoal.class), "waiting for the skeleton to set off"))
+			.thenExecute(() -> helper.assertTrue(!mobs[0].isPassenger() && mobs[0].distanceTo(mobs[1]) > 3, "the skeleton should set off from a distance"))
 			.thenExecute(() -> {
 				player.setGameMode(GameType.SURVIVAL);
 				mobs[0].setTarget(player);
@@ -813,7 +816,8 @@ public class HostileBehaviourGameTests {
 			})
 			.thenIdle(2)
 			.thenExecute(() -> helper.assertTrue(!running(mobs[0], SpiderJockeys.RecruitGoal.class), "recruitment should stop at once"))
-			.thenExecuteFor(200, () -> helper.assertTrue(!mobs[0].isPassenger(), "the skeleton mounted while fighting"))
+			.thenExecuteFor(200, () -> helper.assertTrue(!mobs[0].isPassenger(), "the skeleton mounted while fighting (target " + mobs[0].getTarget()
+				+ ", recruiting " + running(mobs[0], SpiderJockeys.RecruitGoal.class) + ")"))
 			.thenExecute(() -> {
 				SimpleBlockTestLog.info("JOCK-03 combat: skeleton set off for a spider 7 blocks away, given a player target at tick {}: recruitment stopped "
 					+ "within 2 ticks, not mounted 200 ticks later, still targeting the player {}", times[0], mobs[0].getTarget() == player);

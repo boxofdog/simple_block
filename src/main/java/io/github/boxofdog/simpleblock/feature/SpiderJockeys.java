@@ -237,7 +237,8 @@ public final class SpiderJockeys {
 		public void tick() {
 			this.ticks++;
 			Spider spider = this.spider;
-			if (spider == null) {
+			// Running goals tick between continuation checks: a target that turned up since then still wins.
+			if (spider == null || this.skeleton.getTarget() != null) {
 				return;
 			}
 			this.skeleton.getLookControl().setLookAt(spider, 30.0F, 30.0F);
