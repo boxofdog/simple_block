@@ -1,0 +1,25 @@
+M07 change 2 (two drums), 2026-10-14, on cf081601b846657355b8738d2d6bfe14b2c6379e plus febfe33c9cede18f87085a326f2aca18138ce17c (message text only). Local ./gradlew build: All 198 required tests passed; local xvfb runClientGameTest: BUILD SUCCESSFUL (whole suite incl. TwoDrumClientTest).
+
+Server:
+TWIN-03: [drum off the line: refused, drum with a coil: refused, span of 6.3 with the longest at 5: refused, the one-drum loop closes as before]
+TWIN-01: [end made fast to the drum at x 26: no wheel or guides, barrel wound, facing west, one coil on the first drum, cart x 12.50 -> 14.72 (second drum's crank) -> 12.68 (first drum's) -> 14.72 (both, second last), sneak-use on the second drum: open route of 3 anchors, end back at x 23, coil kept]
+TWIN-02: [second drum: lever without motor; coal and furnace refused (coal at the winch 2), PULL at the second drum: x 12.50 -> 24.95, stopped (end), coal at the winch 1 + 1510 ticks, left-click at the second drum: back to x 20.30; then the last click from either end wins, second drum broken: end off, the winch keeps furnace and coil; drops: the drum only]
+All 3 required tests passed :)
+
+Client (singleplayer, then a dedicated server; screenshots/m07twin-*):
+CLIENT M07TWIN (m07twin): strand ends on the second drum true, its barrel wound true, lever shown true, motor false, client knows the end drum true
+CLIENT M07TWIN (m07twin): right-click on the second drum's lever: the client shows it at PULL and the winch's at FEED; cart x 28.5 -> 32.25
+CLIENT M07TWIN (m07twin-server): strand ends on the second drum true, its barrel wound true, lever shown true, motor false, client knows the end drum true
+CLIENT M07TWIN (m07twin-server): right-click on the second drum's lever: the client shows it at PULL and the winch's at FEED; cart x 28.5 -> 32.25
+
+Negative controls (FarDrums.java edited, restored byte-identical afterwards):
+== control 1: no attaching (the end is never made fast)
+2 required tests failed :(
+- simple_block-gametest:two_drum_game_tests_two_drums_crank_from_either_end: driven like a loop on tick 2
+- simple_block-gametest:two_drum_game_tests_coal_winch_works_from_the_second_drum: the second drum shows the lever, without the motor on tick 2
+== control 2: second drum's lever not turned into the winch's terms (no mirroring)
+1 required tests failed :(
+- simple_block-gametest:two_drum_game_tests_coal_winch_works_from_the_second_drum: Expected a right-click at the second drum is FEED at the winch to be FEED: was PULL on tick 7
+== control 3: no straight-route check
+1 required tests failed :(
+- simple_block-gametest:two_drum_game_tests_second_drum_refusals: a drum off the line is refused on tick 2
