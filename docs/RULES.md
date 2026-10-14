@@ -45,9 +45,9 @@ The former standalone `MILESTONE_01_REPORT.md` through `MILESTONE_07_REPORT.md` 
 
 ## Documentation maintenance boundaries
 
-- `ROADMAP.md` is a milestone index and current next-decision board. Never paste long scope briefs, code history, CI tables or report narratives into it.
+- `ROADMAP.md` is a milestone status and priority index. Below the milestone table, give **one brief line per milestone with current owner playtest feedback**, linking to its exact `## Playtesting Changes` heading in `MILESTONE_XX.md`. Do not repeat detailed requirements, evidence, bug diagnoses or lengthy next-step lists in the roadmap.
 - `BACKLOG.md` is **the only** unnumbered future-work list. Never recreate `FUTURE_WORK.md` or scatter independent brainstorm ledgers throughout docs.
-- Milestone-specific decisions and detailed plans belong in `MILESTONE_XX.md`. When Claude implements owner-authorized work, it appends its **short dated verification handoff to the end of the SAME milestone document**.
+- Milestone-specific decisions and detailed plans belong in `MILESTONE_XX.md`. Put owner playtest refinements and observations under **one `## Playtesting Changes` section per milestone**, adding concise subsections as needed; link bug IDs instead of duplicating bug descriptions. When Claude implements owner-authorized work, it appends its **short dated verification handoff to the end of the SAME milestone document**.
 - **DRY bug tracking:** `BUG_LOG.md` is the **only canonical record** of each bug's symptom, reproduction, suspected cause, fix, verification and open/resolved status. Milestone documents may link a `BUG-###` ID but must not copy its diagnostic description or maintain a second bug entry; retain genuinely new owner design requirements and milestone acceptance/CI evidence in the milestone. `ROADMAP.md` only links to these records and describes priority/next decisions, without repeating bug details.
 - The archived M01–M07 reports ([archive/milestone-reports/](archive/milestone-reports/)) and archived decisions/roadmap are historical evidence, not an instruction to resume producing separate reports or to implement old superseded proposals.
 - Owner-facing painting tasks go in [Joe's To-Do](Joe's%20To-Do/README.md); UX text issues go in [UX_TEXT_LOG.md](UX_TEXT_LOG.md). No document by itself authorizes coding.

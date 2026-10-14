@@ -120,10 +120,9 @@ A cable-hauled freight minecart approaching a **real Loading Rail near the far/t
 - Dock a winched cart on a Loading Rail under the last support.
 - Drive the lever: right-click PULL, left-click FEED, same click NEUTRAL.
 
-### Owner playtest findings — 2026-10-13 (after M09 Build #37)
+## Playtesting Changes
 
-**Owner observation, not implementation verification or acceptance.** The ore skip's hauling and cargo handling work extremely well in playtesting. M07 remains PLAYTESTING; defect details live in the bug log, while new operating requirements live here.
-
+**Owner feedback — 2026-10-13 (after M09 Build #37); not implementation verification or acceptance.** The ore skip's hauling and cargo handling work extremely well in playtesting. M07 remains PLAYTESTING; defect details live in the bug log, while new operating requirements live here.
 
 **Open bugs:** See [BUG-003–005 in the canonical bug log](BUG_LOG.md) for connecting-rod reach, incline travel and incline cable clipping, including symptoms, diagnostics, status and required tests. Do not duplicate their details here.
 
@@ -133,6 +132,7 @@ A cable-hauled freight minecart approaching a **real Loading Rail near the far/t
 2. **Two-ended winch operation (owner-directed redesign):** the current one-ended winch requires a player to run the entire route just to send a cart back. **Pivot to a double-winch arrangement with practical controls at both ends**, so an operator standing at either end can initiate travel toward the other end. The exact drive/route arrangement, how the two winches share control, conflict/priority resolution, fuel rules, hook and skip compatibility, and stop/loop behavior require an engineering proposal and real-client playtest. Preserve intentional manual operation; **not** an autonomous shuttle. Prevent opposed motors from fighting, item/cargo loss, duplicated cable, unsafe end-travel or bypassed Loading Rail stops.
 
 3. **Heavy suspended-skip drop (owner-directed):** when a suspended ore skip **loses its winch/cable attachment** (e.g., drum or support removal, route disconnect), it should **fall rapidly and visibly under gravity**, like a heavy anchor falling, then play a satisfying metallic **CLANG** **when it actually lands or strikes a solid obstruction**. Do not play the clang at the instant of disconnection or while still falling. The present implementation already settles an unhooked skip downward at a fixed `skip.fall_speed` of **0.25 blocks/tick** but has no landing impact sound; implement appropriately weighty fall acceleration/terminal speed and an impact event that works across client/server. Preserve collision-safe landing and all 512 cargo items; **do not turn detachment into deletion, duplication or automatic cargo spillage**. A skip deliberately unhooked while safely supported stays at rest. Test suspended disconnects, short and long falls, intermediate obstructions, supported unhooking, reload and multiplayer sound synchronization.
+
 **Exploratory design option — not yet approved:** for cable inclines, keep the anchor's mounting base fixed while shifting/tilting its roller toward the uphill corner. Any adopted geometry must agree across rendering, route clearance and connecting-rod grip. Investigate the actual defects under [BUG-004](BUG_LOG.md) and [BUG-005](BUG_LOG.md) before selecting an implementation; this candidate does not establish the cause.
 
 **Confirmed working — terminal Loading Rail approach:** In an actual owner playtest, a single cable-hauled freight cart approached a terminal Loading Rail with the **last cable anchor directly above the rail** and slid smoothly onto the station. The transition was unobtrusive and worked without extra cable beyond the last support. **This specific straight/single-cart end-of-line approach is owner-verified and needs no correction.** Curve/slope approaches, coupled-train approaches, partial-chunk conditions and sequential wagon redocking remain separate, unverified/open cases.

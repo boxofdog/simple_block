@@ -107,7 +107,9 @@ The original M02 system already samples and remembers lit ground and sometimes i
 - Leave skeletons and spiders near light; look for a rare jockey.
 - Watch a jockey climb under an overhang.
 
-### Owner in-game playtest feedback — 2026-10-13
+## Playtesting Changes
+
+**Owner feedback — 2026-10-13:**
 
 - **Creeper retaliation:** owner reports it **works great** in actual play, with no correction requested at this stage.
 - **Illuminated-area loitering and wooden-door breaking:** owner reports both **work great** and describes zombies frequently breaking doors; no correction requested at this stage.

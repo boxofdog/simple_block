@@ -22,19 +22,10 @@
 
 **Post-M10 and unnumbered plans:** ordinary 3D rails, revised villages, extreme-grade railway behavior, the Witch's Tome/discovered enchanting, and separate iron/diamond/netherite armor set bonuses live in [BACKLOG.md](BACKLOG.md). They are not an authorization or an extension of M08–M11.
 
-## Current handoff and next decisions
+## Playtesting Changes
 
-**M07 — owner playtesting.** The source patch is [`49d7add`](https://github.com/boxofdog/simple_block/commit/49d7add4a3793b1ac4bb61e1f7f54156eb4d5cbc), report update [`dbda956`](https://github.com/boxofdog/simple_block/commit/dbda9560b5ccb9901eead06dc02c77f03837c936). **Build #23 passed 152/152 required server game tests** and published `simple-block-mod`; committed evidence reports 9/9 client tests and 17/17 negative controls. ChatGPT has reviewed source/CI/evidence, **not rerun those client tests**.
+- **M07:** [Playtesting Changes](MILESTONE_07.md#playtesting-changes) — freight operating refinements; [open bugs](BUG_LOG.md).
+- **M08:** [Playtesting Changes](MILESTONE_08.md#playtesting-changes) — furnace naming and casting-animation polish.
+- **M09:** [Playtesting Changes](MILESTONE_09.md#playtesting-changes) — owner feedback on hostile behavior; rare jockeys still unobserved.
 
-- **Current corrections:** [Open defects BUG-003–005](BUG_LOG.md); [M07 operating/design changes and positive owner playtests](MILESTONE_07.md#owner-playtest-findings--2026-10-13-after-m09-build-37). No implementation or acceptance implied.
-- **Still open:** sequential wagon advancement/re-docking at a side-on Loading Rail after release. Preserve shipped M06 safe docking and get a specific solution/test before accepting M07.
-- **Owner-verified working:** a single freight cart glided onto the terminal Loading Rail with the final cable anchor directly overhead; no extra cable was needed. **Still untested:** terminal approaches on curves/slopes, coupled trains or partial chunk unloading; opening the generated cart model in Blockbench; further desktop-GPU and multiuser checks. The near-drum `idle` versus `docked` stop reason is a minor diagnostic to inspect.
-- **Acceptance:** M07's owner checkbox stays **unchecked** until the owner finishes playtesting and expressly accepts it. Details and negative controls: [M07 verification](MILESTONE_07.md#implementation-and-verification--2026-10-13); history in the [archived M07 report](archive/milestone-reports/MILESTONE_07_REPORT.md).
-
-**M08 — owner playtesting.** Built bulk industrial furnace (brick-and-iron, back-middle hopper, channel and block mold), commodity-only carrying limit and Block of Charcoal; [CI/evidence](MILESTONE_08.md#implementation-and-verification--2026-10-13). **Owner requests universal renaming of the custom furnace to “Blast Furnace,” including internal identifiers, with saved-world compatibility**; [rename requirements](MILESTONE_08.md#owner-playtest-naming-correction--2026-10-13). Not owner-accepted; village work remains in [BACKLOG.md](BACKLOG.md).
-
-**M09:** PLAYTESTING. Owner confirmed creeper retaliation, illuminated-area loitering and zombie door-breaking work well; rare natural jockeys still unobserved. **M10 and M11:** PLANNED - READY, neither implementation-authorized. Mining Boots/Mule/Old Pro remain M10; heavy-freight fill rendering and hopper mechanics remain M11.
-
-Documentation and handoff conventions (including the five canonical statuses): [RULES.md](RULES.md).
-
-**Provenance:** [Retired decisions ledger](archive/DECISIONS_PRE_RETIREMENT_2026-10-13.md) and [archived pre-consolidation roadmap (2026-10-13)](archive/ROADMAP_PRE_CONSOLIDATION_2026-10-13.md) preserves every original line, including older and now-superseded handoff instructions and acceptance snapshots. It is **not** authoritative for current status or implementation.
+See each milestone for requirements, verification and acceptance status. Documentation conventions: [RULES.md](RULES.md).

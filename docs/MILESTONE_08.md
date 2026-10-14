@@ -142,6 +142,10 @@ Full historical design context is archived in [ROADMAP_PRE_CONSOLIDATION_2026-10
 - Hoist a skip beside the hopper and empty it.
 - Fuel it, watch metal run and the mold show the cast block.
 
+## Playtesting Changes
+
+**Owner feedback — 2026-10-13:** Blast Furnace operation and commodity-weight mechanics both work perfectly in actual play; no functional or balance correction requested. The following refinements remain **requested, not implemented or validated**. M08 stays PLAYTESTING pending owner acceptance.
+
 ### Owner playtest naming correction — 2026-10-13
 
 **Required name: `Blast Furnace`** instead of **`Pre-Industrial Blast Furnace`**, **across the entire mod, including internal identities**, not just the tooltip or documentation heading. Claude should audit/rename the Simple Block item/block display names, translated keys, item/block identifiers (currently `simple_block:pre_industrial_blast_furnace`), internal code and asset/model/texture/recipe identifiers and references, generated sources, tests, documentation and any other remaining project-owned usages. Preserve meaningful distinctions from the **retired vanilla blast furnace**; do not accidentally reactivate its crafting recipe or placement. Existing worlds using the prior mod block/BE/item identifiers must be protected through an explicit compatibility/migration strategy and tested with saved-world fixtures; don't silently make placed furnaces or inventory items disappear. Internal class names already using `BlastFurnace` need not be renamed merely to churn.
@@ -149,8 +153,6 @@ Full historical design context is archived in [ROADMAP_PRE_CONSOLIDATION_2026-10
 **Status:** owner-requested rename; **not yet implemented or validated**. M08 remains PLAYTESTING; its ore/fuel/skip/cart mechanics are unchanged by this naming request.
 
 ### Owner playtest casting animation feedback — 2026-10-13
-
-**Owner playtest:** the **Blast Furnace's operation and M08 commodity-weight mechanics both work perfectly in actual play**, with no functional/balance correction requested. This is owner feedback, **not a blanket SHIPPED signoff**. The [universal Blast Furnace rename](#owner-playtest-naming-correction--2026-10-13) is still requested.
 
 **Owner-clarified visual requirement — continuous, rhythmic casting, NOT a persistent inventory display:** **Fill the mold gradually with molten metal during the actual time needed to cook each storage block** (currently `blast_furnace.cast_ticks = 300`, or 15 seconds); at completion, let the full molten mass resolve into a visible, satisfying solid metal block. **Do not make that finished block instantly pop out of view when the next casting cycle starts.** It needs a perceptible visual moment, followed by a smooth transition into the next rising molten pour. **The furnace should keep cooking consecutive blocks automatically**, including while previously completed blocks remain in the mold's 64-item inventory. The visible block is **the current/just-completed cast**, *not* a permanent depiction of all blocks in storage.
 
