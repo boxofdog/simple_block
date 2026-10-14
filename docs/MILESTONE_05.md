@@ -5,7 +5,7 @@ status: SHIPPED
 
 # Simple Block — Milestone 05: Working Haulage and Cobblestone Engine
 
-**Status:** Owner-requested implementation handoff; **not implemented**. Read the [M04 historical report](archive/milestone-reports/MILESTONE_04_REPORT.md), [M05 brief](MILESTONE_05.md) and [current roadmap](ROADMAP.md) first. The former decisions ledger is archived.
+**Status: SHIPPED (owner accepted).** This preserves the original M05 design requirements and dated implementation evidence. For later cable/winch and freight changes see [M06](MILESTONE_06.md) and [M07](MILESTONE_07.md); the [roadmap](ROADMAP.md) holds current lifecycle status. The former decisions ledger is archived.
 
 **Goal:** Make the existing M04 overhead cable infrastructure move minecarts reversibly, add an operable crank, introduce a bidirectional coal-powered Cobblestone Engine, and fix the known drum render artifact. **Preserve all existing M04 parts, placement gestures, models and save behavior.** Build additively; do not scrap or reimagine the system.
 

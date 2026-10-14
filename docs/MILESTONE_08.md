@@ -48,7 +48,7 @@ M08 contains **two scoped jobs** when eventually authorized:
 
 ## M08 furnace — owner-settled construction and freight handoff
 
-**Not implementation-authorized.** This section supersedes the earlier hopper/iron-block/cauldron crafting pattern previously recorded for M08. That superseded pattern remains available in the archived pre-consolidation roadmap; **do not implement it** as the final recipe.
+**Historical specification, now implemented and PLAYTESTING.** This section superseded an earlier furnace recipe retained in the archives; the later as-built geometry, model and migration behavior are documented in the verification appendices.
 
 ### Structure, recipe and village integration
 
@@ -107,13 +107,13 @@ Full historical design context is archived in [ROADMAP_PRE_CONSOLIDATION_2026-10
 
 ## Playtesting Changes
 
-**Owner feedback — 2026-10-13:** Blast Furnace operation and commodity-weight mechanics both work perfectly in actual play; no functional or balance correction requested. The following refinements remain **requested, not implemented or validated**. M08 stays PLAYTESTING pending owner acceptance.
+**Owner feedback — 2026-10-13:** Furnace operation and commodity-weight mechanics worked well in actual play. The two refinements below were **subsequently implemented and CI-tested** (see 2026-10-14 appendix); owner acceptance and visual playtest remain pending.
 
 ### Owner playtest naming correction — 2026-10-13
 
 **Required name: `Blast Furnace`** instead of **`Pre-Industrial Blast Furnace`**, **across the entire mod, including internal identities**, not just the tooltip or documentation heading. Claude should audit/rename the Simple Block item/block display names, translated keys, item/block identifiers (currently `simple_block:pre_industrial_blast_furnace`), internal code and asset/model/texture/recipe identifiers and references, generated sources, tests, documentation and any other remaining project-owned usages. Preserve meaningful distinctions from the **retired vanilla blast furnace**; do not accidentally reactivate its crafting recipe or placement. Existing worlds using the prior mod block/BE/item identifiers must be protected through an explicit compatibility/migration strategy and tested with saved-world fixtures; don't silently make placed furnaces or inventory items disappear. Internal class names already using `BlastFurnace` need not be renamed merely to churn.
 
-**Status:** owner-requested rename; **not yet implemented or validated**. M08 remains PLAYTESTING; its ore/fuel/skip/cart mechanics are unchanged by this naming request.
+**Delivered:** renamed to **Blast Furnace** with old-ID compatibility tests in Build #39; an entire pre-rename world has not yet been owner-tested. M08 remains PLAYTESTING.
 
 ### Owner playtest casting animation feedback — 2026-10-13
 
@@ -124,7 +124,7 @@ Full historical design context is archived in [ROADMAP_PRE_CONSOLIDATION_2026-10
 - **Inventory versus visual:** retained output stacks do **not** lock the animation to an unmoving solid block; successive casts visually restart and finish even with earlier blocks accumulated in that same mold. Preserve existing displayed metal identity and handle first cast, repeated casts, storage full, interrupted casts and partial/total withdrawals. Never imply an extra collectible block or change the real stored count.
 - **No gameplay changes:** preserve nine raw iron/copper/gold → one corresponding storage block, existing cast and fuel timings, 516 ore/64 finished-block capacities, safety/refusal logic and item conservation. Existing 30-tick **post-completion** pour effect alone is insufficient; move the primary fill animation into active processing and smoothly cycle into the next batch. Validate in a real client and dedicated/multiplayer connection.
 
-**Status:** animation polish **not yet implemented or verified**; M08 remains **PLAYTESTING**, not SHIPPED.
+**Delivered:** progressive pour and brief solid-block display passed Build #39 checks; its exact feel awaits owner playtest. M08 remains **PLAYTESTING**, not SHIPPED.
 
 ## Implementation and verification — 2026-10-13
 
