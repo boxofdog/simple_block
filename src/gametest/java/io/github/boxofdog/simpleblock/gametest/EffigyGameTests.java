@@ -526,23 +526,31 @@ public class EffigyGameTests {
 		Vec3 blast = Vec3.atCenterOf(helper.absolutePos(a.east()));
 		level.explode(null, blast.x, blast.y, blast.z, 6.0F, Level.ExplosionInteraction.TNT);
 		helper.setBlock(b.below(), Blocks.AIR);
-		helper.setBlock(c.west(2), Blocks.PISTON.defaultBlockState().setValue(PistonBaseBlock.FACING, Direction.EAST));
+		// Pistons against both halves (the upper half has no block entity, which alone would not stop vanilla's piston).
+		helper.setBlock(c.west(), Blocks.PISTON.defaultBlockState().setValue(PistonBaseBlock.FACING, Direction.EAST));
+		helper.setBlock(c.west().above(), Blocks.PISTON.defaultBlockState().setValue(PistonBaseBlock.FACING, Direction.EAST));
 		helper.setBlock(c.east(), Blocks.WATER);
 		helper.setBlock(c.above(3), Blocks.SAND);
 		helper.startSequence()
 			.thenIdle(2)
 			.thenExecute(() -> {
-				helper.setBlock(c.west(3), Blocks.REDSTONE_BLOCK);
-				helper.setBlock(c.west(), Blocks.AIR);
+				helper.setBlock(c.west(2), Blocks.REDSTONE_BLOCK);
+				helper.setBlock(c.west(2).above(), Blocks.REDSTONE_BLOCK);
 			})
 			.thenIdle(40)
 			.thenExecute(() -> {
 				helper.assertTrue(standing(helper, a), "effigy after a 6-power blast beside it");
 				helper.assertTrue(standing(helper, b), "effigy with nothing under it");
+				helper.assertTrue(helper.getBlockState(c.west()).is(Blocks.PISTON) && helper.getBlockState(c.west().above()).is(Blocks.PISTON)
+					&& !helper.getBlockState(c.west()).getValue(PistonBaseBlock.EXTENDED) && !helper.getBlockState(c.west().above()).getValue(PistonBaseBlock.EXTENDED),
+					"powered pistons stayed retracted: " + helper.getBlockState(c.west()) + " / " + helper.getBlockState(c.west().above())
+					+ ", powered " + helper.getLevel().hasNeighborSignal(helper.absolutePos(c.west())));
+				SimpleBlockTestLog.info("EFF-04 pistons: {} / {}, powered {} {}", helper.getBlockState(c.west()), helper.getBlockState(c.west().above()),
+					helper.getLevel().hasNeighborSignal(helper.absolutePos(c.west())), helper.getLevel().hasNeighborSignal(helper.absolutePos(c.west().above())));
 				helper.assertTrue(standing(helper, c), "effigy after a piston, water and falling sand: "
 					+ helper.getBlockState(c) + " / " + helper.getBlockState(c.above()));
-				helper.assertTrue(helper.getBlockState(c.west()).isAir() || helper.getBlockState(c.west()).is(Blocks.PISTON_HEAD)
-					? standing(helper, c) : false, "piston did not move it");
+				helper.assertTrue(helper.getBlockState(c.east(2)).getBlock() instanceof EffigyBlock == false
+					&& helper.getBlockState(c.east(2).above()).getBlock() instanceof EffigyBlock == false, "pistons did not move it");
 				helper.assertValueEqual(dropped(helper, a, EffigyContent.effigyItem(EffigyType.SKELETON)), 0, "effigies dropped by the blast");
 				clearDrops(helper, a);
 				clearDrops(helper, c);
