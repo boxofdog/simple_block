@@ -14,7 +14,9 @@
 
 ## Symptoms, evidence and verification
 
-### BUG-001 — M04 cable drum — side geometry
+### BUG-001
+
+**Area:** M04 cable drum — side geometry
 
 **Observed:** **Ghosting / flickering stripe-like texture artifacts** on the side of the drum/frame, particularly around the angled side panels.
 
@@ -22,7 +24,9 @@
 
 **Status:** **RESOLVED in M05 (visually verified on the test client's software renderer; owner check on a desktop GPU still welcome)**
 
-### BUG-002 — M06 coal winch — cannot reverse from near track endpoint
+### BUG-002
+
+**Area:** M06 coal winch — cannot reverse from near track endpoint
 
 **Observed:** **Owner playtest (2026-10-13):** with a gripped freight cart at the *near/winch end* of the track, attempts to select FEED instead repeatedly select PULL; the lever immediately returns to NEUTRAL and the cart is stuck until broken/reset. Normal cycling works away from the endpoint.
 
@@ -30,7 +34,9 @@
 
 **Status:** **FIX IMPLEMENTED AND TESTED** in M06 `fc8f99a`, Build #20 plus Build #23 regression. **M06 SHIPPED 2026-10-13**; no separate human re-reproduction asserted. Original owner-observed defect and investigation text retained for provenance.
 
-### BUG-003 — Cable-grip connecting rod / upper anchor height (M07 playtest)
+### BUG-003
+
+**Area:** Cable-grip connecting rod / upper anchor height (M07 playtest)
 
 **Observed:** **Owner observed:** a minecart connecting rod fails to connect to the routed cable when the vertical separation is greater than roughly three blocks. Needs another 1–2 blocks of usable height flexibility.
 
@@ -38,7 +44,9 @@
 
 **Status:** **OPEN — fix implemented and tested (local server suite 195/195 and client suite on `9cdadf7`; CI in the M07 appendix); awaiting owner in-game confirmation**
 
-### BUG-004 — Cable-driven cart on inclining route (M07 playtest)
+### BUG-004
+
+**Area:** Cable-driven cart on inclining route (M07 playtest)
 
 **Observed:** **Owner observed:** cart stops at the point an inclined cable section begins, apparently regardless of the incline height. Rod contacting overhead terrain is a possible hypothesis, **not a confirmed cause**.
 
@@ -46,7 +54,9 @@
 
 **Status:** **OPEN — fix implemented and tested (local server suite 195/195 and client suite on `9cdadf7`; CI in the M07 appendix); awaiting owner in-game confirmation**
 
-### BUG-005 — Inclined cable visual geometry (M07 playtest)
+### BUG-005
+
+**Area:** Inclined cable visual geometry (M07 playtest)
 
 **Observed:** **Owner observed:** cable segment on an incline visibly clips through the solid block immediately above the anchor.
 
