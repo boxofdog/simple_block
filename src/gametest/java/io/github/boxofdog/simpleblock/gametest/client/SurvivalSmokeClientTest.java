@@ -115,6 +115,7 @@ public class SurvivalSmokeClientTest implements FabricClientGameTest {
 		assertTrue(placed.size() == 1, "expected one minecart on the rails after using the item, found " + placed);
 
 		// M11: loading is gradual, a batch per use: hold the use key while each stack goes in.
+		CableClientTest.clearOverlay(context);
 		for (int stack = 0; stack < 3; stack++) {
 			server.runCommand("item replace entity @a weapon.mainhand with minecraft:raw_iron 64");
 			context.waitTicks(3);
@@ -274,6 +275,7 @@ public class SurvivalSmokeClientTest implements FabricClientGameTest {
 
 	/** FRT-10, FRT-11 in the real client: an ender chest and a chest minecart are refused with a message. */
 	private static void storageBypasses(ClientGameTestContext context, TestServerContext server, int ground) {
+		CableClientTest.clearOverlay(context);
 		server.runCommand("give @a minecraft:ender_chest");
 		context.waitTicks(5);
 		BlockPos floor = new BlockPos(1, ground - 1, 2);
@@ -335,8 +337,9 @@ public class SurvivalSmokeClientTest implements FabricClientGameTest {
 		server.runCommand("time set noon");
 	}
 
-	/** SF-04: right-clicking the ground with a shulker box does nothing except explain why. */
+	/** SF-04: right-clicking the ground with a shulker box does nothing (M11: and says nothing). */
 	private static void shulkerBox(ClientGameTestContext context, TestServerContext server, int ground) {
+		CableClientTest.clearOverlay(context);
 		server.runCommand("clear @a");
 		server.runCommand("give @a minecraft:red_shulker_box");
 		context.waitTicks(5);

@@ -363,6 +363,11 @@ public class CableClientTest implements FabricClientGameTest {
 		context.waitTicks(1);
 	}
 
+	/** Clears the action bar (what an earlier step left there), so a later {@link #overlayMessage} shows only what came since. */
+	static void clearOverlay(ClientGameTestContext context) {
+		context.runOnClient(client -> ((HudAccessor) client.gui.hud).simple_block$setOverlayMessage(null));
+	}
+
 	static String overlayMessage(ClientGameTestContext context) {
 		return context.computeOnClient(client -> {
 			Component message = ((HudAccessor) client.gui.hud).simple_block$getOverlayMessage();

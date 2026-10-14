@@ -1,4 +1,4 @@
-# Blockbench sources (Milestone 04 cable models, Milestone 05 haulage and engine models, Milestone 06 winch and station models, Milestone 07 remodels, Milestone 08 furnace)
+# Blockbench sources (Milestone 04 cable models, Milestone 05 haulage and engine models, Milestone 06 winch and station models, Milestone 07 remodels, Milestone 08 furnace, Milestone 11 cart loads)
 
 These are the editable sources of the cable and engine models. Open them in Blockbench (Java Block/Item format).
 The textures are **UV templates, not artwork**: every cube's faces are flat colour blocks, shaded by
@@ -21,6 +21,7 @@ lands on which face. Paint over them.
 | `connecting_rod_base`, `_shaft`, `_head_open`, `_head_closed`, `copper_connecting_rod` | `models/block/connecting_rod_*.json` (drawn on a minecart), `models/item/copper_connecting_rod.json` (the item) | `textures/block/connecting_rod.png` (32 x 32) |
 | `cable.bbmodel` | `models/item/cable.json` | `textures/item/cable.png` (16 x 16) |
 | `cable_coil.bbmodel` | `models/item/cable_coil.json` | `textures/item/cable_coil.png` (16 x 16) |
+| `cargo/<form>_<1-4>.bbmodel` (forms `ingots`, `gems`, `blocks`, `rocks`, `heap`, `covered`) | M11: a freight cart's load, by form and fill level, laid out in the cart's inside (x 0.25-15.75, z 2.25-13.75, y 0 on the floor, nothing above 7.5): `models/block/cargo/form/<form>_<n>.json`, texture variable `#cargo`; `models/block/cargo/<material>_<n>.json` give each material's texture. Made by `tools/models/generate_cargo_models.py` (never `--force` once painted). Keep the texture variable named `cargo` when exporting. | `textures/block/cargo/<material>.png` (16 x 16, one per material, all four levels; quarters A body top, B body sides, C piece tops, D piece sides: see Joe's To-Do) |
 
 Paths are under `src/main/resources/assets/simple_block/`. Each `.bbmodel` links its texture by a
 relative path to that file, so **saving the texture in Blockbench writes the game's texture

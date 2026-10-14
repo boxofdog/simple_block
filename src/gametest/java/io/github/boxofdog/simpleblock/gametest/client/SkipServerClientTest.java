@@ -69,6 +69,7 @@ public class SkipServerClientTest implements FabricClientGameTest {
 			server.runCommand("item replace entity @a weapon.mainhand with minecraft:raw_iron 64");
 			context.waitTicks(10);
 			lookAtPoint(context, new Vec3(X + 0.5, g + 1.5, Z + 0.1));
+			CableClientTest.clearOverlay(context);
 			context.getInput().pressKey(options -> options.keyUse);
 			context.waitTicks(10);
 			String loaded = overlayMessage(context);

@@ -148,6 +148,20 @@ See [`docs/MILESTONE_10.md`](docs/MILESTONE_10.md). M01–M09 work as before exc
 | Overload lock | While you carry more commodities than the ordinary 64 would allow, the pieces holding your bonus can't be taken off or swapped: the Mining Boots for Mule; Headlamp, Overalls and boots for Old Pro. Those slots show grey with a red outline. Equipment alone over 64 locks nothing. | `workwear/Workwear`, `mixin/inventory/ArmorSlotMixin`, `mixin/inventory/EquippableMixin`, client `InventoryScreenAddons` |
 | Rope and Spelunker's Rope | Rope: three string down the middle. Spelunker's Rope: a copper cable anchor over a Rope. Use it on the underside or side of a solid block: the anchor fixes there and 12 blocks of climbable rope hang straight down through open air. Each Rope used on the line lets it down 12 more; spare length lies coiled on the ground. Sneak-use any part to take it all back; breaking any part, or its support, drops it all. | `rope/*`, `#minecraft:climbable` |
 
+## What Milestone 11 adds
+
+See [`docs/MILESTONE_11.md`](docs/MILESTONE_11.md). M01–M10 work as before except where this table says otherwise.
+
+| Component | What it does | Where |
+|---|---|---|
+| More cargo | Carts (and skips) also carry iron, copper, gold and netherite ingots; iron, copper, gold, diamond and netherite blocks; sand, gravel and dirt. Everything they carried before still goes. | `#simple_block:minecart_cargo` |
+| Loads you can see | A freight cart shows what it carries and how full it is: bars, loose gems, stacked blocks, rough rocks or a heap, in the material's colours, at four heights (1-64, 65-128, 129-192, 193-256). Worked out only from the cart's own cargo, so every client agrees. Cushioned carts and engines show none. | `train/CargoLooks`, client `CargoMinecartRenderer`, models `block/cargo/*` |
+| Loading by hand, a bit at a time | Each use moves 4 items; holding use keeps going, about 1 item a tick. Sneak-use unloads the same way, within the inventory and heavy-load limits. Let go and it stops. | `feature/MinecartCargo` |
+| Hopper over a cart | A hopper pointing down, straight over a cart docked at a Loading Rail, fills it through its open top at the hopper's own pace (1 item every 8 ticks). Locked hoppers, wrong cargo and full carts move nothing. A cart filled to 256 this way is let go. | `train/FreightHoppers`, `mixin/train/HopperBlockEntityMixin` |
+| Cart into a hopper | A hopper beside a Loading Rail and one block down takes a docked cart's load through the gate on its side (a side gate swings up, an end gate folds down), 1 item a tick, with open air over the hopper. Order when several fit: right side, left side, front end, back end. A coupled train unloads car by car through its side gates. An emptied cart is let go. | `train/FreightHoppers` |
+| Slower skips | Skip and cart exchanges, and tipping into the blast furnace, move 1 item a tick (was 4). | tuning |
+| No floating text | The mod shows no action-bar messages and no label over a cart. Every removed message is listed in [`docs/UX_TEXT_LOG.md`](docs/UX_TEXT_LOG.md). | `feature/Feedback` |
+
 ## Toolchain
 
 | | |

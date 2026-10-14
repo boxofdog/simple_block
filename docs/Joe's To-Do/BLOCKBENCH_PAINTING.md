@@ -34,40 +34,63 @@ Each existing paint job below now has **direct links to its PNG texture atlas an
 ## Waiting for Claude's new geometry/UV templates
 
 - [ ] **3D ordinary rail remodel** — paint the future rail/sleeper UVs once a separate roadmap implementation supplies the model and templates. Match the Loading Rail's gauge, level and joints.
-- [ ] **M11 cart cargo fills** — paint after Claude supplies five actual silhouette families, fill-height geometry, unique material mapping and reusable UV templates. See material list below and [M11](../MILESTONE_11.md). Don't paint speculative layouts before their UVs exist.
+- [ ] **M11 cart cargo fills** — geometry and UV templates delivered 2026-10-14 (placeholders in game): see the checklist below and [M11](../MILESTONE_11.md).
 
 ## M11 — cargo material painting checklist
 
-**Each identity must look correct at LOW / MEDIUM / HIGH / FULL.** Empty carts expose their real floor. **Hopper-filling/unloading gradually crosses these levels in real time** (including after transferring by hand), so paint for recognizable level-to-level transitions; hoppers themselves are vanilla and need no new Joe painting task. Reuse geometry and atlases where sensible: **17 material identities x 4 fill levels = 68 render combinations, not necessarily 68 separate paintings.**
+**Each identity must look correct at LOW / MEDIUM / HIGH / FULL.** Empty carts expose their real floor. **Hopper-filling/unloading gradually crosses these levels in real time** (including after transferring by hand), so paint for recognizable level-to-level transitions; hoppers themselves are vanilla and need no new Joe painting task.
 
-### Ingot piles (bar shapes)
-- [ ] Gold ingots
-- [ ] Copper ingots
-- [ ] Iron ingots
-- [ ] Netherite ingots
+**What there is to paint: one 16 x 16 PNG per material, 31 in all** (the brief's 17, the 13 other cart cargoes the owner kept, and the covered fallback), in `src/main/resources/assets/simple_block/textures/block/cargo/<material>.png`. The four fill levels and all materials of a form share one geometry, so each PNG serves all four levels. Every PNG has the same layout:
 
-### Loose gem piles (not ingot bars or storage blocks)
-- [ ] Diamonds
+| Quarter | Pixels | Painted onto |
+|---|---|---|
+| A, top-left | 0-7, 0-7 | the top of the load's body (stretched over it) |
+| B, top-right | 8-15, 0-7 | the body's sides, from the top row down |
+| C, bottom-left | 0-7, 8-15 | the top of each piece (bar, gem, block, rock, lump), from its top-left corner |
+| D, bottom-right | 8-15, 8-15 | the sides and underside of each piece |
 
-### Neat cubic storage-block stacks
-- [ ] Gold blocks
-- [ ] Copper blocks
-- [ ] Iron blocks
-- [ ] Diamond blocks
-- [ ] Netherite blocks
+Geometry: `art/blockbench/cargo/<form>_<1-4>.bbmodel` (forms `ingots`, `gems`, `blocks`, `rocks`, `heap`, `covered`; levels 1-4), each opening with its form's first material. Placeholders: flat patterns in colours sampled from vanilla's own textures. **Never run `tools/models/generate_cargo_models.py --force` once a PNG is painted.**
 
-### Rough ore-rock piles (not refined cubes)
-- [ ] Gold ore
-- [ ] Copper ore
-- [ ] Iron ore
+### Ingot piles (bar shapes) — form `ingots`
+- [ ] Gold ingots — `gold_ingot.png`
+- [ ] Copper ingots — `copper_ingot.png`
+- [ ] Iron ingots — `iron_ingot.png`
+- [ ] Netherite ingots — `netherite_ingot.png`
 
-### Bulk loose material mounds
-- [ ] Sand
-- [ ] Gravel
-- [ ] Cobblestone
-- [ ] Dirt
+### Loose gem piles (not ingot bars or storage blocks) — form `gems`
+- [ ] Diamonds — `diamond.png`
+- [ ] Emeralds — `emerald.png` (kept cargo)
+- [ ] Lapis lazuli — `lapis_lazuli.png` (kept cargo)
 
-**Visual review:** Confirm all material forms differ in more than flat hue (e.g. iron ingot vs iron ore vs iron block); verify true pile shape at each height and no clipping through the four gates. Adjust actual texture list when Claude delivers the final paintable files.
+### Neat cubic storage-block stacks — form `blocks`
+- [ ] Gold blocks — `gold_block.png`
+- [ ] Copper blocks — `copper_block.png`
+- [ ] Iron blocks — `iron_block.png`
+- [ ] Diamond blocks — `diamond_block.png`
+- [ ] Netherite blocks — `netherite_block.png`
+- [ ] Stone — `stone.png` (kept cargo)
+- [ ] Deepslate — `deepslate.png` (kept cargo)
+
+### Rough ore-rock piles (not refined cubes) — form `rocks`
+- [ ] Gold ore — `gold_ore.png`
+- [ ] Copper ore — `copper_ore.png`
+- [ ] Iron ore — `iron_ore.png`
+- [ ] Deepslate gold, copper and iron ore — `deepslate_gold_ore.png`, `deepslate_copper_ore.png`, `deepslate_iron_ore.png` (kept cargo)
+- [ ] Raw gold, copper and iron — `raw_gold.png`, `raw_copper.png`, `raw_iron.png` (kept cargo; the commonest real loads)
+- [ ] Coal — `coal.png` (kept cargo)
+
+### Bulk loose material mounds — form `heap`
+- [ ] Sand — `sand.png`
+- [ ] Gravel — `gravel.png`
+- [ ] Cobblestone — `cobblestone.png`
+- [ ] Dirt — `dirt.png`
+- [ ] Cobbled deepslate — `cobbled_deepslate.png` (kept cargo)
+- [ ] Redstone — `redstone.png` (kept cargo)
+
+### Fallback — form `covered`
+- [ ] Covered load (olive tarpaulin, hemp tie ropes) — `covered.png`: shown only for a cargo item with no look of its own; names no material.
+
+**Visual review:** Confirm all material forms differ in more than flat hue (e.g. iron ingot vs iron ore vs iron block); verify true pile shape at each height and no clipping through the four gates. Fill heights and silhouettes are owner-reviewable before art freeze.
 
 ## Painting and safe editing workflow
 

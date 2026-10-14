@@ -208,6 +208,7 @@ public class CargoFillClientTest implements FabricClientGameTest {
 		server.runCommand("item replace entity @a weapon.mainhand with minecraft:raw_iron 64");
 		context.waitTicks(10);
 		lookAtPoint(context, Vec3.atBottomCenterOf(hand).add(0.0, 0.4, 0.0));
+		CableClientTest.clearOverlay(context);
 		context.getInput().holdKey(options -> options.keyUse);
 		List<Integer> fill = new ArrayList<>();
 		for (int t = 0; t < 6; t++) {

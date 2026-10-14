@@ -209,6 +209,7 @@ public class SkipClientTest implements FabricClientGameTest {
 		server.runCommand("tp @a " + (X + 0.5) + " " + g + " " + (Z - 2.0) + " 0 20");
 		hold(server, context, "minecraft:raw_iron 64");
 		lookAtPoint(context, new Vec3(X + 0.5, g + 1.5, Z + 0.5));
+		CableClientTest.clearOverlay(context);
 		use(context);
 		String loaded = overlayMessage(context);
 		int afterLoad = server.computeOnServer(s -> skip(s.overworld(), g).count());

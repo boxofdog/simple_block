@@ -208,6 +208,7 @@ public class FreightStationClientTest implements FabricClientGameTest {
 		int coal = server.computeOnServer(s -> CableLines.line(s.overworld(), drumPos).coal());
 		server.runCommand("clear @a");
 		context.waitTicks(5);
+		CableClientTest.clearOverlay(context);
 		use(context);
 		String inspect = overlayMessage(context);
 		CableLines.Lever afterInspect = server.computeOnServer(s -> CableLines.line(s.overworld(), drumPos).lever());

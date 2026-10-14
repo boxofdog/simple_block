@@ -11,6 +11,8 @@ status: IMPLEMENTING
 
 **Latest owner additions (2026-10-13):** Full hopper support and **progressive filling/draining that actually advances the visible fill steps**, not instant dump; remove **all freight-cart cargo/flavor status text when looked at AND when clicked**. This explicitly overrides the former instruction to preserve on-click exact-number text, and the former "no automatic unloading" exclusion in this brief. All work is still **M11 only when separately authorized**; it is not silently part of M07.
 
+**Owner decisions (2026-10-14, with the implementation authorization):** (1) Skips and minecarts should both **unload more slowly** than the M07/M08 4 items per tick. (2) Cargo eligibility: **add the 17 identities** of §1 (ingots, storage blocks, sand, gravel, dirt) to cart and skip cargo, **keep every item already eligible**, and give each current cargo item (raw metals, deepslate ores, coal, gems, stone, deepslate, redstone) its own look as well.
+
 ## 1. Exact visual inventory: material FORM matters
 
 | Different visible SHAPES | Cargo identities to support |
