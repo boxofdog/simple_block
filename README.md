@@ -122,6 +122,17 @@ See [`docs/MILESTONE_08.md`](docs/MILESTONE_08.md). M01–M07 work as before exc
 | Vanilla blast furnace retired | No recipe, not in the creative menu; new villages (and trail ruins) build an ordinary furnace where theirs had a blast furnace, facing the same way. Villagers, their jobs and trades are unchanged. | recipe/advancement overrides, `feature/RetiredItems`, `metallurgy/VillageFurnaces`, `mixin/metallurgy/SinglePoolElementMixin` |
 | Models | New editable sources: the furnace's brick body and iron front, its fire, its brick crown, the charging hopper, the channel (and its running metal), the mold (and its molten fill; the cast block uses the game's iron, copper and gold block textures); the Block of Charcoal. | `art/blockbench/`, `tools/models/generate_models.py` |
 
+## What Milestone 09 adds
+
+See [`docs/MILESTONE_09.md`](docs/MILESTONE_09.md). M01–M08 work as before except where this table says otherwise.
+
+| Component | What it does | Where |
+|---|---|---|
+| Persistent light interest | Light-drawn hostiles (M02) remember lit spots out to 28 blocks and forget them as soon as they go dark. One that can't reach the lit ground loiters along the outside wall. It goes through a reachable open door near where it is, and it breaks a closed wooden door right in its way (within 6 path steps; never a door round the far side; M02 pace, not on Peaceful, only with `mob_griefing`). This now applies to any ground hostile, not only zombies. A player to chase always comes first. | `feature/Entrancement`, `feature/LightRoutes`, `mixin/mobs/MobMixin`, `mixin/mobs/ZombieMixin` |
+| Breach redistribution | After any explosion or broken door, interested mobs within 24 blocks re-check their route at once and press into whatever space became reachable. | `Entrancement.reconsider`, `mixin/mobs/ServerExplosionMixin`, `feature/ZombieDoors` |
+| Creeper retaliation | A creeper shot with a player's arrow, by a player it can't walk to within 32 steps, goes to the nearest reachable door or trapdoor of any material within 10 blocks. Failing that, it goes to the nearest point it can reach under the shooter's X/Z, whatever the height. It explodes there with a vanilla explosion (`mob_griefing` as usual) and gives up after 400 ticks. Melee, other mobs' or dispensers' arrows, and a reachable shooter change nothing. | `feature/CreeperRetaliation`, `feature/HostileBehaviour` |
+| Skeleton-spider jockeys | Rarely (1% per 200-tick check, 5-minute cooldown), an idle ordinary skeleton walks to a reachable ordinary spider within 8 blocks and mounts it. A player target cancels it; cave spiders and skeleton variants never take part. When a jockey climbing a wall hits an overhang with the skeleton's head, the skeleton raises its arms to the lip and the pair is hauled out and up round it. The haul is collision-checked, so it never clips; it gives up if it is stuck. | `feature/SpiderJockeys`, `mixin/mobs/SpiderMixin`, `mixin/mobs/SkeletonMixin`, `mixin/mobs/LivingEntityMixin`, client `mixin/SkeletonModelMixin` |
+
 ## Toolchain
 
 | | |

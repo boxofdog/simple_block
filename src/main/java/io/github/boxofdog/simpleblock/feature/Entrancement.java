@@ -57,6 +57,13 @@ import io.github.boxofdog.simpleblock.tuning.Tuning;
  *       so it mills about the area rather than leaving it or homing in on the light source.</li>
  *   <li>Now and then (15%) it ignores the light altogether for one decision.</li>
  * </ul>
+ *
+ * <p>M09 makes the interest persistent and physical ({@link LightRoutes}): lit spots are remembered out
+ * to {@code mob.entrancement.memory_range} and dropped the moment they go dark; a mob whose lit spot
+ * cannot be reached goes through a reachable open door near it if there is one, breaks a closed
+ * wooden door it finds right in its way, or else loiters along the outside; and when an explosion or
+ * a broken door opens the way ({@link #reconsider}), mobs nearby re-check at once and press into the
+ * newly reachable space.
  */
 public final class Entrancement {
 	/** Locked by the design: how far from a mob a lit block can attract it. */
@@ -74,6 +81,9 @@ public final class Entrancement {
 	public static long decisions;
 	public static long steered;
 	public static long nanos;
+	/** M09: breaches seen ({@link #reconsider} calls) and mobs made to re-check their route by them; for the tests. */
+	public static long breaches;
+	public static long reconsidered;
 
 	private Entrancement() {
 	}
@@ -120,7 +130,11 @@ public final class Entrancement {
 		RandomSource random = mob.getRandom();
 		List<BlockPos> lit = MEMORY.computeIfAbsent(mob, m -> new ArrayList<>());
 		BlockPos here = mob.blockPosition();
-		lit.removeIf(pos -> !pos.closerThan(here, RADIUS) || !isLit(level, pos));
+		// M09: lit spots are remembered a little beyond the 20-block detection range (the mob that
+		// loitered outside a wall does not forget the building at once), and forgotten as soon as
+		// they go dark: an extinguished area attracts nothing.
+		int memoryRange = Math.max(RADIUS, Tuning.getInt("mob.entrancement.memory_range"));
+		lit.removeIf(pos -> !pos.closerThan(here, memoryRange) || !isLit(level, pos));
 
 		int samples = Tuning.getInt("mob.entrancement.samples");
 		int memory = Math.max(1, Tuning.getInt("mob.entrancement.memory"));
@@ -175,7 +189,44 @@ public final class Entrancement {
 			return wanted;
 		}
 		// Already there: stand about until the next wander decision.
-		return ground.closerToCenterThan(mob.position(), 1.5) ? null : Vec3.atBottomCenterOf(ground);
+		if (ground.closerToCenterThan(mob.position(), 1.5)) {
+			return null;
+		}
+		return LightRoutes.route(mob, level, ground);
+	}
+
+	/** M09: whether {@code mob} takes part in the attraction (and so in M09's door and breach behaviour). */
+	public static boolean participates(net.minecraft.world.entity.Mob mob) {
+		return mob instanceof PathfinderMob && mob instanceof Enemy && mob.getNavigation().canNavigateGround();
+	}
+
+	/** M09: whether {@code mob} remembers lit ground that is still lit (spots gone dark are forgotten here too). */
+	public static boolean isInterested(PathfinderMob mob) {
+		List<BlockPos> lit = MEMORY.get(mob);
+		if (lit == null) {
+			return false;
+		}
+		lit.removeIf(pos -> !isLit(mob.level(), pos));
+		return !lit.isEmpty();
+	}
+
+	/**
+	 * M09 breach: something just changed what can be reached around {@code center} (an explosion, a
+	 * broken door). Mobs nearby that are interested in lit ground and not busy with a player make
+	 * their next wander decision now, so they re-check their route and press into whatever space has
+	 * become reachable.
+	 */
+	public static void reconsider(ServerLevel level, Vec3 center, double radius) {
+		breaches++;
+		for (PathfinderMob mob : level.getEntitiesOfClass(PathfinderMob.class, new net.minecraft.world.phys.AABB(center, center).inflate(radius),
+			mob -> mob.isAlive() && mob.getTarget() == null && isInterested(mob))) {
+			for (var wrapped : ((io.github.boxofdog.simpleblock.mixin.mobs.MobAccessor) mob).simpleBlock$getGoalSelector().getAvailableGoals()) {
+				if (wrapped.getGoal() instanceof net.minecraft.world.entity.ai.goal.RandomStrollGoal stroll) {
+					stroll.trigger();
+					reconsidered++;
+				}
+			}
+		}
 	}
 
 	/** The standable position at or below a lit spot (spots are sampled in the air too), or null. */

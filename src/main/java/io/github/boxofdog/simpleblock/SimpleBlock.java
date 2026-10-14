@@ -9,6 +9,7 @@ import io.github.boxofdog.simpleblock.cable.CableContent;
 import io.github.boxofdog.simpleblock.feature.ChestMinecarts;
 import io.github.boxofdog.simpleblock.feature.EnderChests;
 import io.github.boxofdog.simpleblock.feature.HeavyLoad;
+import io.github.boxofdog.simpleblock.feature.HostileBehaviour;
 import io.github.boxofdog.simpleblock.feature.InventorySlots;
 import io.github.boxofdog.simpleblock.feature.InventorySort;
 import io.github.boxofdog.simpleblock.feature.MinecartCargo;
@@ -143,6 +144,17 @@ import io.github.boxofdog.simpleblock.worldgen.IronWorldgen;
  *       ({@link RetiredItems}), new villages build furnaces instead ({@code metallurgy/VillageFurnaces},
  *       {@code mixin/metallurgy/SinglePoolElementMixin})</li>
  * </ul>
+ *
+ * <p>Milestone 09, hostile attraction and intrusion (goals and damage hook in {@link HostileBehaviour}):
+ * <ul>
+ *   <li>persistent light interest, loitering, open doors, light-drawn wooden-door breaking and breach
+ *       redistribution — {@code feature/Entrancement}, {@code feature/LightRoutes},
+ *       {@code mixin/mobs/MobMixin}, {@code mixin/mobs/ServerExplosionMixin}</li>
+ *   <li>creeper retaliation against an unreachable player's arrows — {@code feature/CreeperRetaliation}</li>
+ *   <li>rare skeleton-spider recruitment and the jockey's ledge grab — {@code feature/SpiderJockeys},
+ *       {@code mixin/mobs/SpiderMixin}, {@code mixin/mobs/SkeletonMixin}, {@code mixin/mobs/LivingEntityMixin},
+ *       client {@code mixin/SkeletonModelMixin}</li>
+ * </ul>
  */
 public class SimpleBlock implements ModInitializer {
 	public static final String MOD_ID = "simple_block";
@@ -163,5 +175,6 @@ public class SimpleBlock implements ModInitializer {
 		InventorySort.register();
 		SaturationSync.register();
 		RetiredItems.register();
+		HostileBehaviour.register();
 	}
 }

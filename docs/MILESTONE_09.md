@@ -1,6 +1,6 @@
 ---
 milestone: M09
-status: PLANNED - READY
+status: IMPLEMENTING
 ---
 
 # M09 — Hostile attraction, opportunistic intrusion and rare spider jockeys

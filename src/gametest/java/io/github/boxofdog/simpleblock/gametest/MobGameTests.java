@@ -42,6 +42,7 @@ import net.fabricmc.fabric.api.gametest.v1.GameTest;
 import io.github.boxofdog.simpleblock.feature.CreeperEvaporation;
 import io.github.boxofdog.simpleblock.feature.Entrancement;
 import io.github.boxofdog.simpleblock.feature.LightLevels;
+import io.github.boxofdog.simpleblock.feature.LightRoutes;
 import io.github.boxofdog.simpleblock.feature.ZombieDoors;
 import io.github.boxofdog.simpleblock.mixin.mobs.MobAccessor;
 import io.github.boxofdog.simpleblock.tuning.Tuning;
@@ -283,7 +284,7 @@ public class MobGameTests {
 	}
 
 	/** The environment sets the clock, but the runner sometimes starts a batch on the previous one's time (see GameTestTiming). */
-	private static void ensureClock(GameTestHelper helper, boolean night) {
+	static void ensureClock(GameTestHelper helper, boolean night) {
 		if (Entrancement.isNight(helper.getLevel()) != night) {
 			SimpleBlockTestLog.info("test environment clock not in effect (overworld clock {}); setting {}", helper.getLevel().getOverworldClockTime(),
 				night ? "midnight" : "noon");
@@ -351,7 +352,7 @@ public class MobGameTests {
 		}
 	}
 
-	private static String pct(double part, double total) {
+	static String pct(double part, double total) {
 		return String.format("%.0f%%", total == 0 ? 0 : 100.0 * part / total);
 	}
 
@@ -769,7 +770,7 @@ public class MobGameTests {
 	// ---------------------------------------------------------------- MOB-02
 
 	/** A closed stone room on the +z side (x -4..4, z 0..6) whose north wall has a door at x = 0. */
-	private static BlockPos doorway(Arena arena, BlockState door, boolean open) {
+	static BlockPos doorway(Arena arena, BlockState door, boolean open) {
 		for (int x = -4; x <= 4; x++) {
 			for (int y = 1; y <= 3; y++) {
 				arena.set(x, y, 0, Blocks.STONE);
@@ -793,13 +794,13 @@ public class MobGameTests {
 		return arena.at(0, 1, 0);
 	}
 
-	private static void setDoorOpen(Arena arena, BlockPos door, boolean open) {
+	static void setDoorOpen(Arena arena, BlockPos door, boolean open) {
 		BlockState state = arena.level.getBlockState(door);
 		arena.level.setBlock(door, state.setValue(DoorBlock.OPEN, open), 2);
 		arena.level.setBlock(door.above(), arena.level.getBlockState(door.above()).setValue(DoorBlock.OPEN, open), 2);
 	}
 
-	private static boolean running(Mob mob, Class<?> goal) {
+	static boolean running(Mob mob, Class<?> goal) {
 		for (WrappedGoal wrapped : ((MobAccessor) mob).simpleBlock$getGoalSelector().getAvailableGoals()) {
 			if (wrapped.isRunning() && goal.isInstance(wrapped.getGoal())) {
 				return true;
@@ -808,7 +809,7 @@ public class MobGameTests {
 		return false;
 	}
 
-	private static Block block(String id) {
+	static Block block(String id) {
 		return BuiltInRegistries.BLOCK.getValue(Identifier.withDefaultNamespace(id));
 	}
 
@@ -914,15 +915,15 @@ public class MobGameTests {
 	}
 
 	/**
-	 * ZOMB-03 of the test plan: zombies that are not chasing anyone are drawn to a lit room behind a
-	 * closed oak door at night but never break it.
+	 * ZOMB-03 of the test plan: zombies that are not chasing anyone leave a closed oak door alone.
+	 * M02 tested this with a lit room behind the door; M09 (owner-approved) lets light-drawn mobs
+	 * break a wooden door right in their way to lit ground (HostileBehaviourGameTests HOST-01), so the
+	 * room is now dark: with neither a player nor light behind it, the door is never attacked.
 	 */
 	@GameTest(environment = "simple_block-gametest:door_unaware_night", skyAccess = true, maxTicks = 7200)
 	public void unawareZombiesLeaveDoorsAlone(GameTestHelper helper) {
 		Arena arena = new Arena(helper, 8, 16);
 		BlockPos door = doorway(arena, Blocks.OAK_DOOR.defaultBlockState(), false);
-		arena.torch(-2, 3);
-		arena.torch(2, 3);
 		arena.player(GameType.CREATIVE, -10, -10);
 		double[] nearDoor = new double[2];
 		int[] breaking = {0};
@@ -936,7 +937,7 @@ public class MobGameTests {
 			.thenExecuteFor(900, () -> {
 				helper.assertTrue(arena.level.getBlockState(door).is(Blocks.OAK_DOOR), "the oak door was broken");
 				for (Mob mob : arena.mobs) {
-					breaking[0] += running(mob, ZombieDoors.PursuitDoorBreakGoal.class) ? 1 : 0;
+					breaking[0] += running(mob, ZombieDoors.PursuitDoorBreakGoal.class) || running(mob, LightRoutes.LightDoorBreakGoal.class) ? 1 : 0;
 				}
 				if (helper.getTick() % 10 == 0) {
 					for (Mob mob : arena.mobs) {
@@ -946,7 +947,7 @@ public class MobGameTests {
 				}
 			})
 			.thenExecute(() -> {
-				SimpleBlockTestLog.info("ZOMB-03 unaware: 4 zombies outside a closed oak door with a torch-lit room behind it, 900 ticks at night: "
+				SimpleBlockTestLog.info("ZOMB-03 unaware: 4 zombies outside a closed oak door with a dark room behind it, 900 ticks at night: "
 					+ "door intact, door-breaking goal ran {} ticks, {} of zombie-samples within 4 blocks of the door", breaking[0], pct(nearDoor[0], nearDoor[1]));
 				helper.assertValueEqual(breaking[0], 0, "ticks of door breaking");
 			})

@@ -104,6 +104,12 @@ public final class ZombieDoors {
 			if (this.mob.getTarget() == null) {
 				this.mob.getNavigation().stop();
 			}
+			// M09 breach: the door is gone; light-drawn mobs around re-check what they can reach.
+			if (!(this.mob.level().getBlockState(this.doorPos).getBlock() instanceof DoorBlock)
+				&& this.mob.level() instanceof net.minecraft.server.level.ServerLevel level) {
+				Entrancement.reconsider(level, net.minecraft.world.phys.Vec3.atCenterOf(this.doorPos),
+					io.github.boxofdog.simpleblock.tuning.Tuning.getInt("mob.breach.radius"));
+			}
 		}
 	}
 

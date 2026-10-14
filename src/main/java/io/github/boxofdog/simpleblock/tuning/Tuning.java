@@ -133,6 +133,34 @@ public final class Tuning {
 		define("mob.entrancement.lose_interest_chance", 0.15);
 		// How far one wander step may go towards a lit spot, in blocks.
 		define("mob.entrancement.step", 10);
+		// M09 (provisional): how far from a remembered lit spot a mob may be before it forgets it (detection stays 20).
+		define("mob.entrancement.memory_range", 28);
+		// M09: a closed wooden door is only taken as the way in if the mob reaches it within this many path steps.
+		define("mob.light_door.notice_steps", 6);
+		// M09: an open door within this distance that the mob can reach draws it when the lit area itself can't be reached.
+		define("mob.light_door.open_notice", 12);
+		// M09: how long (ticks) a mob keeps a route through a closed wooden door before re-deciding.
+		define("mob.light_door.route_ticks", 400);
+		// M09: radius (blocks) in which an explosion or broken door makes light-drawn mobs re-check their route.
+		define("mob.breach.radius", 24);
+		// M09 creeper retaliation (provisional): a player is "readily reachable" with a complete path of at most
+		// this many steps; doors and trapdoors are looked for within door_radius blocks; a provoked creeper
+		// gives up after timeout_ticks.
+		define("mob.creeper_retaliation.reach_steps", 32);
+		define("mob.creeper_retaliation.door_radius", 10);
+		define("mob.creeper_retaliation.timeout_ticks", 400);
+		// M09 skeleton-spider jockeys (provisional; kept rare): an idle ordinary skeleton checks every
+		// check_ticks, with recruit_chance, for an ordinary spider within range blocks; walk_ticks to reach it;
+		// cooldown_ticks after any attempt. Ledge grab: haul_speed blocks per tick, given up after haul_ticks.
+		define("mob.jockey.check_ticks", 200);
+		define("mob.jockey.recruit_chance", 0.01);
+		define("mob.jockey.range", 8.0);
+		define("mob.jockey.walk_ticks", 300);
+		define("mob.jockey.cooldown_ticks", 6000);
+		define("mob.jockey.haul_speed", 0.25);
+		define("mob.jockey.haul_ticks", 60);
+		// M09: after giving up a haul (impassable overhang), a jockey doesn't try again for this many ticks.
+		define("mob.jockey.haul_retry_ticks", 100);
 
 		// MOB-03: how long a creeper smokes in direct sunlight before it is gone (ticks; 0.3-0.6 s target).
 		define("mob.creeper.evaporation_ticks", 10);

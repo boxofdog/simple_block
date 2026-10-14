@@ -7,8 +7,11 @@
 		"AbstractMinecartRendererAccessor",
 		"AbstractMinecartRendererMixin",
 		"AbstractMinecartRendererModelMixin",
+		"AbstractSkeletonRendererMixin",
 		"MinecartRenderStateMixin",
-		"MultiPlayerGameModeMixin"
+		"MultiPlayerGameModeMixin",
+		"SkeletonModelMixin",
+		"SkeletonRenderStateMixin"
 	],
 	"injectors": {
 		"defaultRequire": 1
