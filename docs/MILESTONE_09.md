@@ -5,7 +5,7 @@ status: PLAYTESTING
 
 # M09 — Hostile attraction, opportunistic intrusion and rare spider jockeys
 
-**Owner-approved design: 2026-10-13. Status: PLANNED - READY.** Complete behavioral handoff; **NOT implementation-authorized** until the owner explicitly requests M09 implementation. The owner has delegated technical tuning, pathfinding and edge-case handling to Claude within the observable rules below. Do not introduce siege waves, new species, village-AI work or the deferred iron gate.
+**Owner-approved design: 2026-10-13. Current status: PLAYTESTING (2026-10-14).** Implementation was owner-authorized and delivered; the verification appendix below documents code, CI, evidence and known gaps. **Not owner-accepted or SHIPPED.** The original behavioral constraints remain in force: no siege waves, new species, village-AI work or deferred iron gate.
 
 ## Core intent and existing M02 baseline
 
@@ -54,20 +54,20 @@ The original M02 system already samples and remembers lit ground and sometimes i
 - **Large winch-operated iron gate:** owner deferred it. Its former idea (two three-block-wide gate sections) is parked in [BACKLOG.md](BACKLOG.md), **not** part of this milestone. Do not confuse this with existing vanilla wooden/iron doors or rewrite those items by assumption.
 - No raid/wave subsystem, omniscient breach planning, new monsters, settlement architecture overhaul, villager profession/trade/scheduling work, or golem-AI redesign. Village-specific work remains in [BACKLOG.md](BACKLOG.md).
 
-## Implementation handoff — delegated engineering decisions, not readiness blockers
+## Original implementation handoff — settled design constraints
 
-**The owner has settled all four areas above. Claude is responsible for implementing and validating them, not asking for new game-design approval on routine technical choices.** Within the behavior and exclusions documented here:
+**The owner settled the four areas above before authorizing implementation.** These constraints informed M09's delivery and remain its acceptance criteria. Within the behavior and exclusions documented here:
 
 1. **Door attacks:** use M02-attracted, ground-navigating hostile eligibility as above; give eligible mobs a readable, physical door attack when a wooden door blocks their approach. Choose animations/attack cadence and path selection without treating ambient wandering as player pursuit or giving mobs omniscient base knowledge.
 2. **Creeper retaliation:** verify **arrow damage attributed to a player** and an attacker the creeper cannot readily path to; select the nearest nearby valid wood/iron/copper door or trapdoor first, otherwise the closest reachable position under the attacker's **X/Z** regardless of **Y**, and explode there. Set reasonable proximity, reachability, fuse/timeout and collision-safe fallback defaults. Retain ordinary explosion and `mobGriefing` semantics.
 3. **Jockeys:** keep ordinary skeleton → ordinary spider opportunistic recruitment **genuinely rare** and interruptible by player combat; tune low chance/cooldown and collision-safe reactive ledge-grab, arm animation, abort and dismount behavior. Do not introduce tactical recruitment or extra variants.
 4. **Performance and acceptance:** propose tunables and run focused server GameTests and actual-client checks for loitering, door use, extinction of lit areas, player combat priority, breach-driven redistribution, creeper target order, rare recruitment and the headroom-triggered jockey maneuver. Rate-limit path checks where sensible; measure or bound crowded-mob overhead. Do not turn test tuning into new gameplay scope.
 
-**Readiness is not permission to start implementing.** Await explicit owner authorization before code changes for M09.
+**Implementation authorization was subsequently granted and M09 was delivered for owner playtesting.** Future changes remain subject to the owner's playtest feedback and approval.
 
 **Required negative controls when authorized:** arrow damage from skeletons, dispensers or other non-player sources does not provoke creeper retaliation; player pursuit wins; darkened areas release ambient interest; closed inaccessible interior does not cause omniscient door navigation; valid wooden-door access behaves as approved; ordinary sword hits and reachable arrow hits do not provoke special creeper retaliation; **a provoked creeper prioritizes a nearby valid door/trapdoor over the X/Z fallback; absent a door it approaches the closest reachable horizontal position even when the shooter is vertically distant; post-explosion mobs occupy only genuinely reachable space**; **recruitment is exceptional, combat interrupts it, unmounted spiders climb normally, and no ledge-grab animation/boost happens without an obstructing overhang**; no out-of-scope custom iron gate or village changes. Check real client and dedicated-server behavior, alongside regression tests against M02's entrancement, zombie-door breaking and creeper evaporation.
 
-**M09: PLANNED - READY. No implementation authorization yet.**
+**M09: PLAYTESTING. Implemented and verified as documented below; owner acceptance is still pending.**
 
 ## Implementation and verification — 2026-10-14
 
