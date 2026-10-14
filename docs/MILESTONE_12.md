@@ -1,6 +1,6 @@
 ---
 milestone: M12
-status: IMPLEMENTING
+status: PLAYTESTING
 ---
 
 # M12 — Monster Effigies: permanent directional fear wards
@@ -73,3 +73,41 @@ Required acceptance coverage:
 7. Full regression suite, negative controls that deliberately disable key guards/behaviors and make the respective tests fail, real-client GUI/model/fear screenshots and dedicated-server/client proof. Record actual PASS/FAIL/NOT RUN numbers and CI artifact evidence, never infer them.
 
 **Owner playtest (after delivery):** Build one of each; cancel and confirm placement; try to reclaim one; check vertical/horizontal cone reach, dismounting, a fleeing creeper and the sprinting dust effect. Watch an attacking or newly spawned mob flee while projectiles from monsters outside the cone can still enter. **Keep M12 at PLAYTESTING after implementation until the owner explicitly accepts it.** Append the required concise dated [verification section](RULES.md#handoff-rules) at the bottom, not a standalone report.
+
+## Implementation and verification — 2026-10-14
+
+**Metadata:** M12 | PLAYTESTING | Monster Effigies, full-stack compression, confirmed placement, directional fear cone.
+
+**Implementation**
+- Commits: `dc2c5e6ae0bd44ec224a89f6ad99d2044b28d081` code; `43537769aa06c0d2fa63db6734c3e81d8787e198` assets, tests, crafter fix; `3c7da6715936c3cf8d1046ffb06adb154dbcca9f` client test; `7ab8d6e7bd4e8481ee1cfbf2783bd75ba8f06e39` piston test
+- Delivered: four compressed blocks (nine full stacks: 576, pearls 144), whole stacks taken by grid, shift-click and crafter; middle-column effigy recipes; tooltips; Place/Cancel screen with server rechecks; any-angle facing, saved and synced; obsidian hardness, blast-proof, no drops, immovable; cone: apex mid-monument, level axis, 45° half-angle, 100 long; priority fear goal, no target, dismount, fuse out, vanilla sprint, 4-block margin then 5 s retreat.
+- Deviations: crafter's count-blind recipe cache rechecked (closed a 575-item craft). Loaded effigies only; a cone whose effigy chunk is unloaded is inactive.
+
+**CI**
+- Build: #57 | Run ID: 38637606159 | PASS
+- Source SHA: `7ab8d6e7bd4e8481ee1cfbf2783bd75ba8f06e39`
+- URL: https://github.com/boxofdog/simple_block/actions/runs/38637606159
+- Artifact: `simple-block-mod` id 11929181475, available. Builds #54–#55 failed on intermediate commits (test fixes since).
+
+**Tests**
+
+| Category | Result | Passed/Total | Evidence / Notes |
+|---|---|---|---|
+| Server | PASS | 227/227 | local; 12 M12 tests (EFF-01–10); [log](evidence/milestone-12/m12-verification-2026-10-14.txt) |
+| Client | PASS | 17/17 | full suite; screen, placement, figures, fleeing; [screenshots](evidence/milestone-12/screenshots/) |
+| Dedicated server | PASS | 1/1 | confirm, place, angle sync, fear over a dedicated server |
+| Negative controls | PASS | 10/11 | 8 alone, 2 with second guard off; pistons: vanilla also refuses; [log](evidence/milestone-12/m12-verification-2026-10-14.txt) |
+
+**Known gaps**
+- GAP-01: MINOR — eight placeholder textures and figures; next: Joe paints (To-Do).
+- GAP-02: MINOR — wooden-door interest not tested separately; covered by goal priority check.
+- GAP-03: MINOR — spawner/portal spawns tested as spawner-reason and command spawns only.
+- GAP-04: MINOR — "no room" refusal is silent (no-text direction); next: owner feedback choice.
+- GAP-05: MINOR — retreat 5 s and margin 4 provisional; next: playtest.
+
+**Owner playtest**
+- Craft one effigy; try a stack of 63.
+- Cancel, then place at an angle.
+- Break it with Silk Touch.
+- Watch mobs flee; a skeleton outside still shoots.
+- Check jockeys, a lit creeper, sprint dust.

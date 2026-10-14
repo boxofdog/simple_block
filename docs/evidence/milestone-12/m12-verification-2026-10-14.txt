@@ -1,0 +1,63 @@
+M12 verification log, 2026-10-14. Source SHA 7ab8d6e7bd4e8481ee1cfbf2783bd75ba8f06e39 (local runs on the same tree).
+
+Server suite (./gradlew build):
+(simple_block-evidence) EFF-05b natural spawn rules in a dark cave: true before, true with a zombie effigy's cone over the spot
+(simple_block-evidence) EFF-08 skeleton left its spider, baby zombie its chicken, mounts unafraid; lit creeper's fuse put out, no explosion
+(simple_block-evidence) EFF-07 a skeleton outside the cone shot the player inside it: health 16.0 of 20.0, arrows 1
+(simple_block-evidence) EFF-06 fear: 6 mobs left the cone in 94 ticks, sprinting, no target and no other movement goal while afraid; husk targeted the player; spawner zombie despawnable
+(simple_block-evidence) EFF-09 trapped zombie: afraid, no target, stayed put, 10 searches in 200 ticks, pen intact
+(simple_block-evidence) EFF-10 overlapping cones: 3 zombies left both in 206 ticks
+(simple_block-evidence) EFF-01 compression: [ZOMBIE: 576 -> 1, SKELETON: 576 -> 1, CREEPER: 576 -> 1, ENDERMAN: 144 -> 1]; short, gap, wrong, renamed and single items refused
+(simple_block-evidence) EFF-02 effigy recipes (middle column only, matching head and blocks) and tooltips: [zombie: Scares away Zombies in a 100-block conical radius, skeleton: Scares away Skeletons in a 100-block conical radius, creeper: Scares away Creepers in a 100-block conical radius, enderman: Scares away Endermen in a 100-block conical radius]
+(simple_block-evidence) EFF-03 placement: [cancel: nothing, item changed: refused, blocked: refused, item kept, walked off: refused, placed once at 37.5 degrees, one item used, angles 0, 90, 180, 270, -123.25, 301 kept with their types, disconnect: nothing placed, creative: confirmed, item kept]
+(simple_block-evidence) EFF-05 cone geometry: [yaw 0.0: 19 points, yaw 37.5: 19 points, zombies at 99 (afraid) and 101 (not)]
+(simple_block-evidence) EFF-01b crafter: 575 refused and kept; 576 -> 1 Creeper Block, crafter empty; 575 again (recipe remembered) refused
+(simple_block-evidence) EFF-04 pistons: Block{minecraft:piston}[extended=false,facing=east] / Block{minecraft:piston}[extended=false,facing=east], powered true true
+(simple_block-evidence) EFF-04 permanence: obsidian hardness, blast-proof, needs no support, piston/water/sand safe; broken with silk touch, by its upper half or plainly: gone, nothing dropped
+(Minecraft) All 227 required tests passed :)
+
+Client suite (runClientGameTest, 17 classes incl. dedicated server):
+(simple_block-evidence) CLIENT M12 TOOLTIPS: [Zombie Effigy | Scares away Zombies in a 100-block conical radius, Skeleton Effigy | Scares away Skeletons in a 100-block conical radius, Creeper Effigy | Scares away Creepers in a 100-block conical radius, Enderman Effigy | Scares away Endermen in a 100-block conical radius]
+(simple_block-evidence) CLIENT M12 CONFIRM (m12): use-key opened 'Zombie Effigy' (ZOMBIE); cancel: effigy false -> false, item 1 kept, screen closed true; place at the player's look 18.43496: server angle 18.43496, client angle 18.43496, item used true
+(simple_block-evidence) CLIENT M12 MODELS: [zombie=simple_block:block/effigy/zombie_effigy block=simple_block:block/effigy/zombie_effigy compressed=simple_block:block/zombie_block, skeleton=simple_block:block/effigy/skeleton_effigy block=simple_block:block/effigy/skeleton_effigy compressed=simple_block:block/skeleton_block, creeper=simple_block:block/effigy/creeper_effigy block=simple_block:block/effigy/creeper_effigy compressed=simple_block:block/creeper_block, enderman=simple_block:block/effigy/enderman_effigy block=simple_block:block/effigy/enderman_effigy compressed=simple_block:block/enderman_block]
+(simple_block-evidence) CLIENT M12 FEAR (m12): 3 zombies in a zombie effigy's cone; client saw sprinting true; 3 of 3 out of the cone
+(simple_block-evidence) CLIENT M12 CONFIRM (m12-server): use-key opened 'Zombie Effigy' (ZOMBIE); cancel: effigy false -> false, item 1 kept, screen closed true; place at the player's look 18.43496: server angle 18.43496, client angle 18.43496, item used true
+(simple_block-evidence) CLIENT M12 FEAR (m12-server): 3 zombies in a zombie effigy's cone; client saw sprinting true; 3 of 3 out of the cone
+BUILD SUCCESSFUL in 12m 43s
+
+Negative controls (each source edited, effigy tests run, source restored; git status src/main clean afterwards):
+== whole-stack take off (one item per cell)
+1 required tests failed :(
+   - simple_block-gametest:effigy_game_tests_compression_takes_nine_full_stacks: Expected ZOMBIE: items left in the grid after a click to be 0: was 567 on tick 0
+== any stack size compresses
+2 required tests failed :(
+   - simple_block-gametest:effigy_game_tests_compression_takes_nine_full_stacks: ZOMBIE: a stack of 63 makes nothing on tick 0
+   - simple_block-gametest:effigy_game_tests_crafter_compresses_whole_stacks: Expected items kept with one stack of 63 to be 575: was 0 on tick 10
+== crafter cache not rechecked
+1 required tests failed :(
+   - simple_block-gametest:effigy_game_tests_crafter_compresses_whole_stacks: Expected items left in the crafter after crafting to be 0: was 576 on tick 24
+== Place skips the room recheck
+1 required tests failed :(
+   - simple_block-gametest:effigy_game_tests_placement_needs_confirmation: Expected blocks placed into a built-over spot to be 0: was 2 on tick 0
+== fear at an ordinary priority (3)
+1 required tests failed :(
+   - simple_block-gametest:effigy_game_tests_jockeys_dismount_and_fuses_go_out: creeper fuse out on tick 6
+== riders keep their mounts
+1 required tests failed :(
+   - simple_block-gametest:effigy_game_tests_jockeys_dismount_and_fuses_go_out: skeleton got off on tick 6
+== creeper fuses left lit
+1 required tests failed :(
+   - simple_block-gametest:effigy_game_tests_jockeys_dismount_and_fuses_go_out: creeper fuse out on tick 6
+== cone 1.2x wider
+1 required tests failed :(
+   - simple_block-gametest:effigy_game_tests_cone_geometry: yaw 0.0, 99 ahead, 99.5 left: inside true on tick 0
+
+Controls first run with one guard of two removed (both passed, so each was re-run with both guards off):
+== Place skips the held-item recheck only: all 12 passed (the menu's stillValid also checks the held item; the server ignores clicks on an invalid menu)
+== held-item recheck off in Place and stillValid: 1 failed
+   - effigy_game_tests_placement_needs_confirmation: Expected blocks placed with another item held to be 0: was 2
+== targets kept while afraid (setTarget mixin only): all 12 passed (the fear goal also clears the target every tick)
+== targets kept while afraid (mixin and per-tick clear off): 1 failed
+   - effigy_game_tests_matching_mobs_flee_the_cone: while afraid: [skeleton targeted while afraid, zombie targeted while afraid, ...]
+== effigy pushable by pistons (push reaction PUSH_PULL): all 12 passed. Not a test gap: both halves are block-entity blocks, which vanilla pistons never push (PistonBaseBlock.isPushable). The piston check was moved against both halves (commit 7ab8d6e); powered pistons stay retracted.
+Summary: 11 rules broken; 10 made the effigy tests fail (8 alone, 2 with their second guard also off); the piston rule has a vanilla second guard that cannot be switched off from the mod.
