@@ -108,7 +108,7 @@ public class CableAnchorBlockEntity extends BlockEntity {
 		BlockPos pos = this.getBlockPos();
 		CableLines.Line line = this.drum == null ? null : CableLines.line(level, this.drum);
 		boolean routed = line != null && line.anchors.contains(pos);
-		boolean wheelHere = routed && line.looped && line.anchors.getLast().equals(pos);
+		boolean wheelHere = routed && line.looped && line.far == null && line.anchors.getLast().equals(pos);
 		if (this.drum != null && !routed) {
 			this.setDrum(null);
 		}
@@ -116,7 +116,7 @@ public class CableAnchorBlockEntity extends BlockEntity {
 			this.setWheel(false);
 		}
 		BlockState state = level.getBlockState(pos);
-		boolean looped = routed && line.looped;
+		boolean looped = routed && line.looped && line.far == null;
 		// M07 playtest patch §4: the head anchor stays a pulley only while a skip hangs from it.
 		boolean pulleyHere = routed && line.hoist != null && line.anchors.getLast().equals(pos);
 		if (pulleyHere && state.hasProperty(CableAnchorBlock.RETURN) && state.getValue(CableAnchorBlock.RETURN) == CableAnchorBlock.Return.PULLEY) {

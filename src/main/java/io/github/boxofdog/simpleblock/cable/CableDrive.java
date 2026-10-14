@@ -100,7 +100,10 @@ public final class CableDrive {
 		}
 		BlockState state = level.getBlockState(pos);
 		if (state.is(CableContent.CABLE_DRUM) && CableDrumBlock.isCrank(state, pos, hit)) {
-			if (level.getBlockEntity(pos) instanceof CableDrumBlockEntity drum && drum.powered()) {
+			if (level.getBlockEntity(pos) instanceof CableDrumBlockEntity drum && drum.farFrom() != null) {
+				// M07 playtest change 2: a loop's far drum; left-click sends the cart away from it.
+				FarDrums.work(level, drum, player, false);
+			} else if (level.getBlockEntity(pos) instanceof CableDrumBlockEntity drum && drum.powered()) {
 				// A coal winch's lever: a left-click sets FEED (again: NEUTRAL).
 				CoalWinch.setLever(level, pos, player, CableLines.Lever.FEED);
 			} else {
@@ -121,14 +124,22 @@ public final class CableDrive {
 	/** Keeps the crank turning: +1 feeds the working strand away from the drum, -1 pulls it towards it. A coal winch has no crank. */
 	private static void crank(Level level, BlockPos pos, Player player, int direction) {
 		if (level instanceof ServerLevel serverLevel && level.getBlockEntity(pos) instanceof CableDrumBlockEntity drum && !drum.powered()) {
-			CableLines.Line line = CableLines.get(serverLevel).getOrCreate(pos);
-			boolean starting = line.crankTicks <= 0;
-			line.crankTicks = CRANK_HOLD;
-			line.crankDirection = direction;
-			if (starting && !line.drivable() && !drum.route().isEmpty()) {
-				serverLevel.playSound(null, pos, SoundEvents.WOODEN_BUTTON_CLICK_ON, SoundSource.BLOCKS, 0.8F, 0.6F);
-				CableRoutes.tell(player, CableRoutes.message("crank_locked", "Close the loop, or hang a skip on the cable end, to haul"));
-			}
+			crank(serverLevel, CableLines.get(serverLevel).getOrCreate(pos), pos, player, direction, !drum.route().isEmpty());
+		}
+	}
+
+	/**
+	 * Keeps the crank of {@code line} turning, from a crank at {@code at}: the drum's own, or (M07 playtest
+	 * change 2) its loop's far drum, whose direction is already in the home drum's terms. The last turn
+	 * from either end wins.
+	 */
+	static void crank(ServerLevel level, CableLines.Line line, BlockPos at, Player player, int direction, boolean routed) {
+		boolean starting = line.crankTicks <= 0;
+		line.crankTicks = CRANK_HOLD;
+		line.crankDirection = direction;
+		if (starting && !line.drivable() && routed) {
+			level.playSound(null, at, SoundEvents.WOODEN_BUTTON_CLICK_ON, SoundSource.BLOCKS, 0.8F, 0.6F);
+			CableRoutes.tell(player, CableRoutes.message("crank_locked", "Close the loop, or hang a skip on the cable end, to haul"));
 		}
 	}
 

@@ -57,6 +57,15 @@ public final class CableLines extends SavedData {
 			this.sign = sign;
 		}
 
+		/** The same setting seen from the loop's other end (M07 playtest change 2): PULL and FEED swap. */
+		public Lever mirrored() {
+			return switch (this) {
+				case NEUTRAL -> NEUTRAL;
+				case PULL -> FEED;
+				case FEED -> PULL;
+			};
+		}
+
 		/** The owner's cycle: NEUTRAL, PULL, FEED, NEUTRAL. */
 		public Lever next() {
 			return switch (this) {
@@ -95,6 +104,11 @@ public final class CableLines extends SavedData {
 		 * blocks (0 = the hook's ordinary place just under the anchor). The drive winds it in and out.
 		 */
 		double drop;
+		/**
+		 * M07 playtest change 2: the second drum the cable runs to (a two-drum line, worked from both
+		 * ends, with no return strand), or null ({@link FarDrums}).
+		 */
+		@Nullable BlockPos far;
 
 		// Not saved: a line loads standing still.
 		float speed;
@@ -128,8 +142,9 @@ public final class CableLines extends SavedData {
 		java.util.Set<Integer> blockedCarts = java.util.Set.of();
 
 		Line(List<BlockPos> anchors, List<Vec3> points, boolean looped, Optional<Direction> outward, boolean powered, int coal, int burn, int cut,
-			Optional<UUID> hoist, double drop) {
+			Optional<UUID> hoist, double drop, Optional<BlockPos> far) {
 			this.hoist = hoist.orElse(null);
+			this.far = far.orElse(null);
 			this.drop = Math.max(0.0, drop);
 			this.anchors = List.copyOf(anchors);
 			this.points = List.copyOf(points);
@@ -143,7 +158,7 @@ public final class CableLines extends SavedData {
 		}
 
 		static Line empty() {
-			return new Line(List.of(), List.of(), false, Optional.empty(), false, 0, 0, -1, Optional.empty(), 0.0);
+			return new Line(List.of(), List.of(), false, Optional.empty(), false, 0, 0, -1, Optional.empty(), 0.0, Optional.empty());
 		}
 
 		public List<Vec3> points() {
@@ -209,6 +224,11 @@ public final class CableLines extends SavedData {
 			return this.looped || this.hoist != null || !this.anchors.isEmpty();
 		}
 
+		/** M07 playtest change 2: the second drum of a two-drum line, or null. */
+		public @Nullable BlockPos far() {
+			return this.far;
+		}
+
 		/** Cable paid out below the last anchor to the free hook (0 = its ordinary place). */
 		public double drop() {
 			return this.drop;
@@ -224,7 +244,8 @@ public final class CableLines extends SavedData {
 			Codec.INT.optionalFieldOf("burn", 0).forGetter(line -> line.burn),
 			Codec.INT.optionalFieldOf("cut", -1).forGetter(line -> line.cut),
 			UUIDUtil.CODEC.optionalFieldOf("hoist").forGetter(line -> Optional.ofNullable(line.hoist)),
-			Codec.DOUBLE.optionalFieldOf("drop", 0.0).forGetter(line -> line.drop)
+			Codec.DOUBLE.optionalFieldOf("drop", 0.0).forGetter(line -> line.drop),
+			BlockPos.CODEC.optionalFieldOf("far").forGetter(line -> Optional.ofNullable(line.far))
 		).apply(i, Line::new));
 	}
 
@@ -289,6 +310,8 @@ public final class CableLines extends SavedData {
 		line.points = drum.hasCoil() ? List.copyOf(drum.points()) : List.of();
 		line.looped = drum.looped();
 		line.outward = drum.looped() ? CableLoops.outward(drum) : null;
+		// M07 playtest change 2: the drum the cable ends on, if it runs drum to drum.
+		line.far = drum.looped() ? drum.endDrum() : null;
 		if (!line.looped) {
 			line.speed = 0.0F;
 		}
@@ -309,6 +332,10 @@ public final class CableLines extends SavedData {
 		}
 		drum.linked = true;
 		applyCut(level, drum, line);
+		if (drum.endDrum() != null && drum.looped() && line.far == null) {
+			// The cable was taken off its second drum (or that drum broken) while this one was unloaded.
+			CableLoops.open(level, drum, null);
+		}
 		mirror(level, drum);
 	}
 
@@ -356,6 +383,7 @@ public final class CableLines extends SavedData {
 		line.points = List.copyOf(new ArrayList<>(line.points.subList(0, Math.min(line.points.size(), index + 1))));
 		line.looped = false;
 		line.outward = null;
+		line.far = null;
 		line.speed = 0.0F;
 		line.lever = Lever.NEUTRAL;
 		// M07: a skip hung on the cable end is let go (it comes down onto whatever is under it).

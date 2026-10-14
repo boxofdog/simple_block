@@ -20,6 +20,8 @@ import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
 import net.minecraft.world.phys.Vec3;
 
+import org.jspecify.annotations.Nullable;
+
 /**
  * A drum's cable installation (M06): whether a cable coil is fitted ({@link #hasCoil}), and the anchors
  * the cable runs through, in order from the drum ({@link #route}). The route's length is geometric only:
@@ -56,6 +58,16 @@ public class CableDrumBlockEntity extends BlockEntity {
 	boolean checked;
 	/** Whether this drum has met its line since loading (applied a cut, copied its geometry). */
 	boolean linked;
+	/**
+	 * M07 playtest change 2, on the drum holding the cable: the second drum its cable runs to (a two-drum
+	 * line; {@link #looped} is then set too, and there is no return strand), or null; and whether that drum hangs.
+	 */
+	private @Nullable BlockPos endDrum;
+	private boolean endHanging;
+	/** On that second drum: the drum whose cable it holds the end of, or null ({@link FarDrums}). */
+	private @Nullable BlockPos farFrom;
+	/** The second drum's copy of whether the first is a coal winch: it then shows a lever (no motor), not a crank. */
+	private boolean farLever;
 
 	public CableDrumBlockEntity(BlockPos pos, BlockState state) {
 		super(CableContent.CABLE_DRUM_ENTITY, pos, state);
@@ -75,6 +87,21 @@ public class CableDrumBlockEntity extends BlockEntity {
 
 	public float speed() {
 		return this.speed;
+	}
+
+	/** M07 playtest change 2: the second drum this drum's cable runs to, or null. */
+	public @Nullable BlockPos endDrum() {
+		return this.endDrum;
+	}
+
+	/** M07 playtest change 2: the drum whose cable this drum holds the end of, or null. */
+	public @Nullable BlockPos farFrom() {
+		return this.farFrom;
+	}
+
+	/** Whether a lever is shown where the crank is: a coal winch, or the far drum of a coal winch's loop (no motor). */
+	public boolean showsLever() {
+		return this.powered || this.farLever;
 	}
 
 	/** M06: whether a furnace is fitted (the coal winch). */
@@ -114,12 +141,15 @@ public class CableDrumBlockEntity extends BlockEntity {
 		return CableRoutes.drumPoint(this.getBlockPos(), this.hanging());
 	}
 
-	/** The working strand: the drum's exit, then each anchor's roller. */
+	/** The working strand: the drum's exit, then each anchor's roller, then (two drums) the second drum's exit. */
 	public List<Vec3> points() {
 		List<Vec3> points = new ArrayList<>();
 		points.add(this.exitPoint());
 		for (BlockPos anchor : this.route) {
 			points.add(CableRoutes.point(anchor, false));
+		}
+		if (this.endDrum != null) {
+			points.add(CableRoutes.drumPoint(this.endDrum, this.endHanging));
 		}
 		return points;
 	}
@@ -152,13 +182,21 @@ public class CableDrumBlockEntity extends BlockEntity {
 		return removed;
 	}
 
-	/** Closes or opens the loop (the return strand costs nothing: M06). */
+	/** Closes or opens the loop (the return strand costs nothing: M06). Opening also takes the cable off a second drum. */
 	void setLoop(boolean looped) {
 		this.looped = looped;
 		if (!looped) {
 			this.speed = 0.0F;
+			this.endDrum = null;
 		}
 		this.changed();
+	}
+
+	/** M07 playtest change 2: the cable's end is made fast to the second drum at {@code end}; the line is driven like a loop. */
+	void setEndDrum(BlockPos end, boolean hanging) {
+		this.endDrum = end.immutable();
+		this.endHanging = hanging;
+		this.setLoop(true);
 	}
 
 	/** Copies the line's drive state for drawing; tells clients when it changes visibly. */
@@ -187,6 +225,41 @@ public class CableDrumBlockEntity extends BlockEntity {
 		}
 	}
 
+	/** Makes this drum the far drum of the loop of the drum at {@code home}, or (null) a plain drum again. */
+	void setFarFrom(@Nullable BlockPos home) {
+		this.farFrom = home == null ? null : home.immutable();
+		if (home == null) {
+			this.farLever = false;
+			this.lever = CableLines.Lever.NEUTRAL;
+			this.setSpeed(0.0F);
+		}
+		this.setChanged();
+		if (this.level instanceof ServerLevel serverLevel) {
+			// Its barrel shows cable wound on while it holds the end.
+			BlockState state = this.getBlockState();
+			boolean wound = this.hasCable() || home != null;
+			if (state.hasProperty(CableDrumBlock.WOUND) && state.getValue(CableDrumBlock.WOUND) != wound) {
+				serverLevel.setBlock(this.getBlockPos(), state.setValue(CableDrumBlock.WOUND, wound), Block.UPDATE_ALL);
+			}
+			serverLevel.sendBlockUpdated(this.getBlockPos(), this.getBlockState(), this.getBlockState(), Block.UPDATE_CLIENTS);
+		}
+	}
+
+	/**
+	 * A far drum shows its loop's drive from its own end: the lever (if the loop's drum is a coal winch)
+	 * mirrored, PULL bringing the cart here; the barrel turning the other way.
+	 */
+	void copyFar(CableLines.Line line) {
+		CableLines.Lever shown = line.powered ? line.lever.mirrored() : CableLines.Lever.NEUTRAL;
+		boolean visible = this.farLever != line.powered || this.lever != shown;
+		this.farLever = line.powered;
+		this.lever = shown;
+		if (visible && this.level instanceof ServerLevel serverLevel) {
+			serverLevel.sendBlockUpdated(this.getBlockPos(), this.getBlockState(), this.getBlockState(), Block.UPDATE_CLIENTS);
+		}
+		this.setSpeed(-line.shownSpeed());
+	}
+
 	/** This drum's backup of the drive, for a line that is missing (lost saved data). */
 	void restoreDrive(CableLines.Line line) {
 		line.powered = this.powered;
@@ -200,8 +273,9 @@ public class CableDrumBlockEntity extends BlockEntity {
 		this.setChanged();
 		if (this.level instanceof ServerLevel serverLevel) {
 			BlockState state = this.getBlockState();
-			if (state.hasProperty(CableDrumBlock.WOUND) && state.getValue(CableDrumBlock.WOUND) != this.hasCable()) {
-				serverLevel.setBlock(this.getBlockPos(), state.setValue(CableDrumBlock.WOUND, this.hasCable()), Block.UPDATE_ALL);
+			boolean wound = this.hasCable() || this.farFrom != null;
+			if (state.hasProperty(CableDrumBlock.WOUND) && state.getValue(CableDrumBlock.WOUND) != wound) {
+				serverLevel.setBlock(this.getBlockPos(), state.setValue(CableDrumBlock.WOUND, wound), Block.UPDATE_ALL);
 			}
 			serverLevel.sendBlockUpdated(this.getBlockPos(), this.getBlockState(), this.getBlockState(), Block.UPDATE_ALL);
 			if (this.linked) {
@@ -222,8 +296,11 @@ public class CableDrumBlockEntity extends BlockEntity {
 		CableLines.Line line = CableLines.line(serverLevel, pos);
 		if (line != null) {
 			CableLines.applyCut(serverLevel, drum, line);
-			drum.copyDrive(line);
+			if (drum.farFrom == null) {
+				drum.copyDrive(line);
+			}
 		}
+		FarDrums.tick(serverLevel, drum);
 	}
 
 	public static void clientTick(Level level, BlockPos pos, BlockState state, CableDrumBlockEntity drum) {
@@ -247,6 +324,13 @@ public class CableDrumBlockEntity extends BlockEntity {
 			output.putInt("coal", line != null ? line.coal() : this.coal);
 			output.putInt("burn", line != null ? line.burn() : this.burn);
 		}
+		if (this.endDrum != null) {
+			output.store("end_drum", BlockPos.CODEC, this.endDrum);
+			output.putBoolean("end_hanging", this.endHanging);
+		}
+		if (this.farFrom != null) {
+			output.store("far_from", BlockPos.CODEC, this.farFrom);
+		}
 	}
 
 	@Override
@@ -261,6 +345,14 @@ public class CableDrumBlockEntity extends BlockEntity {
 		this.coal = Math.max(0, input.getIntOr("coal", 0));
 		this.burn = Math.max(0, input.getIntOr("burn", 0));
 		this.speed = input.getFloatOr("speed", 0.0F);
+		this.endDrum = input.read("end_drum", BlockPos.CODEC).orElse(null);
+		this.endHanging = input.getBooleanOr("end_hanging", false);
+		this.farFrom = input.read("far_from", BlockPos.CODEC).orElse(null);
+		// Sent to clients only: a far drum's lever (its own is never saved; it is copied from the loop).
+		this.farLever = this.farFrom != null && input.getBooleanOr("far_lever", false);
+		if (this.farLever) {
+			this.lever = input.read("far_setting", CableLines.Lever.CODEC).orElse(CableLines.Lever.NEUTRAL);
+		}
 	}
 
 	@Override
@@ -273,6 +365,10 @@ public class CableDrumBlockEntity extends BlockEntity {
 		TagValueOutput output = TagValueOutput.createWithContext(ProblemReporter.DISCARDING, registries);
 		this.saveAdditional(output);
 		output.putFloat("speed", this.speed);
+		if (this.farLever) {
+			output.putBoolean("far_lever", true);
+			output.store("far_setting", CableLines.Lever.CODEC, this.lever);
+		}
 		return output.buildResult();
 	}
 
@@ -281,6 +377,7 @@ public class CableDrumBlockEntity extends BlockEntity {
 	public void preRemoveSideEffects(BlockPos pos, BlockState state) {
 		super.preRemoveSideEffects(pos, state);
 		if (this.level instanceof ServerLevel serverLevel) {
+			FarDrums.removed(serverLevel, this);
 			CableRoutes.drumRemoved(serverLevel, this);
 		}
 	}

@@ -198,6 +198,16 @@ public final class CableLoops {
 		if (!drum.looped()) {
 			return;
 		}
+		BlockPos end = drum.endDrum();
+		if (end != null) {
+			// M07 playtest change 2: a two-drum line has no return strand or wheel; its end comes off the second drum.
+			drum.setLoop(false);
+			if (level.isLoaded(end) && level.getBlockEntity(end) instanceof CableDrumBlockEntity far && drum.getBlockPos().equals(far.farFrom())) {
+				far.setFarFrom(null);
+			}
+			level.playSound(null, drum.getBlockPos(), SoundEvents.CHAIN_PLACE, SoundSource.BLOCKS, 1.0F, 0.7F);
+			return;
+		}
 		drum.setLoop(false);
 		List<BlockPos> route = drum.route();
 		for (BlockPos anchor : route) {
@@ -244,8 +254,19 @@ public final class CableLoops {
 		return path;
 	}
 
-	/** The direction a drum's straight route runs from it, or null. */
+	/** The direction a drum's straight route (to its second drum, if it has one) runs from it, or null. */
 	public static @Nullable Direction outward(CableDrumBlockEntity drum) {
-		return straightDirection(drum.getBlockPos(), drum.route());
+		List<BlockPos> route = new ArrayList<>(drum.route());
+		if (drum.endDrum() != null) {
+			route.add(drum.endDrum());
+		}
+		return straightDirection(drum.getBlockPos(), route);
+	}
+
+	/** What a player is told when a loop is opened, or the cable taken off a second drum. */
+	static net.minecraft.network.chat.Component openedMessage(boolean twoDrums) {
+		return twoDrums
+			? CableRoutes.message("two_drum_unhooked", "Cable taken off the second drum: the end is back at the last support")
+			: CableRoutes.message("loop_opened", "Loop opened: the return cable is back on the drum");
 	}
 }

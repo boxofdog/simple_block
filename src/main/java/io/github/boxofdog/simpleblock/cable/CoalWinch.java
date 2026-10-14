@@ -84,26 +84,37 @@ public final class CoalWinch {
 	 */
 	static InteractionResult setLever(Level level, BlockPos pos, Player player, CableLines.Lever wanted) {
 		if (level instanceof ServerLevel serverLevel && level.getBlockEntity(pos) instanceof CableDrumBlockEntity drum && drum.powered()) {
-			CableLines lines = CableLines.get(serverLevel);
-			CableLines.Line line = lines.getOrCreate(pos);
-			CableLines.Lever next = line.lever == wanted ? CableLines.Lever.NEUTRAL : wanted;
-			if (next != CableLines.Lever.NEUTRAL && !line.drivable()) {
-				CableRoutes.tell(player, CableRoutes.message("crank_locked", "Close the loop, or hang a skip on the cable end, to haul"));
-				level.playSound(null, pos, SoundEvents.WOODEN_BUTTON_CLICK_ON, SoundSource.BLOCKS, 0.8F, 0.6F);
-				return InteractionResult.SUCCESS;
-			}
-			line.lever = next;
-			line.idleTicks = 0;
-			line.stallTicks = 0;
-			if (next == CableLines.Lever.NEUTRAL) {
-				line.speed = 0.0F;
-			}
-			lines.changed();
-			drum.copyDrive(line);
-			level.playSound(null, pos, SoundEvents.LEVER_CLICK, SoundSource.BLOCKS, 0.6F, next == CableLines.Lever.NEUTRAL ? 0.5F : 0.6F);
-			CableRoutes.tell(player, message("lever", "Lever: %s", leverName(next)));
+			setLever(serverLevel, pos, CableLines.get(serverLevel).getOrCreate(pos), pos, player, wanted, false);
 		}
 		return InteractionResult.SUCCESS;
+	}
+
+	/**
+	 * The same click on the line of the winch at {@code home}, made at {@code at}: the winch itself, or
+	 * (M07 playtest change 2, {@code far}) its loop's far drum, whose lever {@code wanted} is already turned
+	 * into the winch's own terms. One line, one lever: the last click from either end wins. The winch need
+	 * not be loaded.
+	 */
+	static void setLever(ServerLevel level, BlockPos home, CableLines.Line line, BlockPos at, Player player, CableLines.Lever wanted, boolean far) {
+		CableLines.Lever next = line.lever == wanted ? CableLines.Lever.NEUTRAL : wanted;
+		if (next != CableLines.Lever.NEUTRAL && !line.drivable()) {
+			CableRoutes.tell(player, CableRoutes.message("crank_locked", "Close the loop, or hang a skip on the cable end, to haul"));
+			level.playSound(null, at, SoundEvents.WOODEN_BUTTON_CLICK_ON, SoundSource.BLOCKS, 0.8F, 0.6F);
+			return;
+		}
+		line.lever = next;
+		line.idleTicks = 0;
+		line.stallTicks = 0;
+		if (next == CableLines.Lever.NEUTRAL) {
+			line.speed = 0.0F;
+		}
+		CableLines.get(level).changed();
+		if (level.isLoaded(home) && level.getBlockEntity(home) instanceof CableDrumBlockEntity drum) {
+			drum.copyDrive(line);
+		}
+		FarDrums.show(level, line);
+		level.playSound(null, at, SoundEvents.LEVER_CLICK, SoundSource.BLOCKS, 0.6F, next == CableLines.Lever.NEUTRAL ? 0.5F : 0.6F);
+		CableRoutes.tell(player, message("lever", "Lever: %s", leverName(far ? next.mirrored() : next)));
 	}
 
 	/** Coal used on a coal winch's body: one goes in. */
@@ -155,6 +166,8 @@ public final class CoalWinch {
 		line.idleTicks = 0;
 		line.stallTicks = 0;
 		line.lastStop = reason;
+		// M07 playtest change 2: a second drum's lever goes back with it.
+		FarDrums.show(level, line);
 		if (level.isLoaded(pos)) {
 			level.playSound(null, pos, SoundEvents.LEVER_CLICK, SoundSource.BLOCKS, 0.6F, 0.5F);
 		}

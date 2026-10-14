@@ -33,6 +33,7 @@
 			"io.github.boxofdog.simpleblock.gametest.RecipeGameTests",
 			"io.github.boxofdog.simpleblock.gametest.LoadingTrackGameTests",
 			"io.github.boxofdog.simpleblock.gametest.CoalWinchGameTests",
+			"io.github.boxofdog.simpleblock.gametest.TwoDrumGameTests",
 			"io.github.boxofdog.simpleblock.gametest.RetiredItemsGameTests",
 			"io.github.boxofdog.simpleblock.gametest.SkipGameTests",
 			"io.github.boxofdog.simpleblock.gametest.BlastFurnaceGameTests",
@@ -50,7 +51,8 @@
 			"io.github.boxofdog.simpleblock.gametest.client.MinecartBodyClientTest",
 			"io.github.boxofdog.simpleblock.gametest.client.BlastFurnaceClientTest",
 			"io.github.boxofdog.simpleblock.gametest.client.HostileClientTest",
-			"io.github.boxofdog.simpleblock.gametest.client.PlaytestFixesClientTest"
+			"io.github.boxofdog.simpleblock.gametest.client.PlaytestFixesClientTest",
+			"io.github.boxofdog.simpleblock.gametest.client.TwoDrumClientTest"
 		]
 	},
 	"depends": {

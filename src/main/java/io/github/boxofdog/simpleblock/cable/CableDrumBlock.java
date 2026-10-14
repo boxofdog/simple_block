@@ -2,6 +2,7 @@ package io.github.boxofdog.simpleblock.cable;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
@@ -131,6 +132,17 @@ public class CableDrumBlock extends BaseEntityBlock {
 	@Override
 	protected InteractionResult useItemOn(ItemStack itemStack, BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand,
 		BlockHitResult hitResult) {
+		if (level.getBlockEntity(pos) instanceof CableDrumBlockEntity far && far.farFrom() != null) {
+			// M07 playtest change 2: the far drum of a two-drum line works it from this end; it takes no coal, furnace or cable.
+			if (hand == InteractionHand.MAIN_HAND && isCrank(state, pos, hitResult.getLocation())) {
+				return level instanceof ServerLevel serverLevel ? FarDrums.work(serverLevel, far, player, true) : InteractionResult.SUCCESS;
+			}
+			String refused = CoalWinch.isCoal(itemStack) ? "coal" : itemStack.is(Items.FURNACE) ? "furnace" : itemStack.is(CableContent.CABLE_COIL) ? "coil" : null;
+			if (refused != null) {
+				return level instanceof ServerLevel serverLevel ? FarDrums.refuse(serverLevel, far, player, refused) : InteractionResult.SUCCESS;
+			}
+			return InteractionResult.TRY_WITH_EMPTY_HAND;
+		}
 		boolean powered = level.getBlockEntity(pos) instanceof CableDrumBlockEntity drum && drum.powered();
 		if (hand == InteractionHand.MAIN_HAND && isCrank(state, pos, hitResult.getLocation())) {
 			return powered ? CoalWinch.setLever(level, pos, player, CableLines.Lever.PULL) : CableDrive.pull(level, pos, player);
@@ -149,6 +161,15 @@ public class CableDrumBlock extends BaseEntityBlock {
 
 	@Override
 	protected InteractionResult useWithoutItem(BlockState state, Level level, BlockPos pos, Player player, BlockHitResult hitResult) {
+		if (level.getBlockEntity(pos) instanceof CableDrumBlockEntity far && far.farFrom() != null) {
+			if (!(level instanceof ServerLevel serverLevel)) {
+				return InteractionResult.SUCCESS;
+			}
+			if (isCrank(state, pos, hitResult.getLocation())) {
+				return FarDrums.work(serverLevel, far, player, true);
+			}
+			return player.isSecondaryUseActive() ? FarDrums.unhook(serverLevel, far, player) : FarDrums.inspect(serverLevel, far, player);
+		}
 		boolean powered = level.getBlockEntity(pos) instanceof CableDrumBlockEntity drum && drum.powered();
 		if (isCrank(state, pos, hitResult.getLocation())) {
 			return powered ? CoalWinch.setLever(level, pos, player, CableLines.Lever.PULL) : CableDrive.pull(level, pos, player);

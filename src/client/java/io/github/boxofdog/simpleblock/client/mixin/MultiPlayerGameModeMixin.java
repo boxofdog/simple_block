@@ -67,7 +67,7 @@ abstract class MultiPlayerGameModeMixin {
 		if (!state.is(CableContent.CABLE_DRUM) || !CableDrumBlock.isCrank(state, pos, hit.getLocation())) {
 			return false;
 		}
-		boolean lever = this.minecraft.level.getBlockEntity(pos) instanceof CableDrumBlockEntity drum && drum.powered();
+		boolean lever = this.minecraft.level.getBlockEntity(pos) instanceof CableDrumBlockEntity drum && drum.showsLever();
 		long now = this.minecraft.level.getGameTime();
 		if (lever ? start : now - this.simpleBlock$lastCrank >= 4 || now < this.simpleBlock$lastCrank) {
 			this.simpleBlock$lastCrank = now;

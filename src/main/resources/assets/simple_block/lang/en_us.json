@@ -95,5 +95,17 @@
 	"simple_block.blast_furnace.too_heavy": "Too heavy: you can't carry any more %s",
 	"simple_block.blast_furnace.no_room": "The furnace needs a clear space 3 blocks wide, 5 deep and 4 high (the mold where you click)",
 	"block.simple_block.blast_furnace_channel": "Blast Furnace",
-	"block.simple_block.blast_furnace_mold": "Blast Furnace"
+	"block.simple_block.blast_furnace_mold": "Blast Furnace",
+	"simple_block.far_drum.hoisting": "A skip hangs on this cable: take it off first",
+	"simple_block.far_drum.not_empty": "The second drum must be empty: no cable and no furnace",
+	"simple_block.far_drum.not_straight": "Drum to drum, the cable must run straight",
+	"simple_block.far_drum.attached_winch": "Cable made fast to this drum: work the coal winch from either end (right-click pulls the cart towards you)",
+	"simple_block.far_drum.attached": "Cable made fast to this drum: crank from either end (right-click pulls the cart towards you)",
+	"simple_block.far_drum.status_winch": "Second drum of the coal winch at %s: lever %s; coal at the winch: %s",
+	"simple_block.far_drum.status": "Second drum of the cable from %s: crank from either end",
+	"simple_block.far_drum.coal_at_home": "Coal goes in the coal winch at %s",
+	"simple_block.far_drum.no_furnace": "This drum holds the end of the cable from %s: it needs no furnace",
+	"simple_block.far_drum.no_coil": "This drum holds the end of the cable from %s: it needs no coil",
+	"simple_block.cable.two_drum_unhooked": "Cable taken off the second drum: the end is back at the last support",
+	"simple_block.cable.drum_two": "Cable to the drum at %s: %s blocks through %s anchors, worked from both ends"
 }

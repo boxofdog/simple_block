@@ -135,13 +135,17 @@ public final class CableRoutes {
 		}
 		CableHook held = heldHook(level, player);
 		if (player.isSecondaryUseActive() && drum.looped()) {
+			boolean twoDrums = drum.endDrum() != null;
 			CableLoops.open(serverLevel, drum, player);
-			tell(player, message("loop_opened", "Loop opened: the return cable is back on the drum"));
+			tell(player, CableLoops.openedMessage(twoDrums));
 		} else if (player.isSecondaryUseActive()) {
 			tell(player, dismantle(serverLevel, drum, player));
 		} else if (held != null && held.drumPos().equals(pos)) {
 			held.release();
 			tell(player, message("put_down", "Cable end put down"));
+		} else if (held != null) {
+			// M07 playtest change 2: the end made fast to a second drum, to work the line from both ends.
+			tell(player, FarDrums.attach(serverLevel, held, drum));
 		} else {
 			tell(player, status(drum));
 		}
@@ -151,6 +155,10 @@ public final class CableRoutes {
 	static Component status(CableDrumBlockEntity drum) {
 		if (!drum.hasCable()) {
 			return message("drum_empty", "Empty cable drum: use a cable coil on it");
+		}
+		if (drum.looped() && drum.endDrum() != null) {
+			return message("drum_two", "Cable to the drum at %s: %s blocks through %s anchors, worked from both ends", drum.endDrum().toShortString(),
+				drum.laidOut(), drum.route().size());
 		}
 		if (drum.looped()) {
 			return message("drum_loop", "Cable loop: %s blocks through %s anchors", drum.laidOut(), drum.route().size());
@@ -190,8 +198,9 @@ public final class CableRoutes {
 			if (owner == null) {
 				tell(player, message("not_routed", "No cable runs through this anchor"));
 			} else if (owner.looped()) {
+				boolean twoDrums = owner.endDrum() != null;
 				CableLoops.open(serverLevel, owner, player);
-				tell(player, message("loop_opened", "Loop opened: the return cable is back on the drum"));
+				tell(player, CableLoops.openedMessage(twoDrums));
 			} else {
 				int freed = disconnect(serverLevel, owner, owner.route().indexOf(pos));
 				level.playSound(null, pos, SoundEvents.CHAIN_PLACE, SoundSource.BLOCKS, 1.0F, 0.7F);

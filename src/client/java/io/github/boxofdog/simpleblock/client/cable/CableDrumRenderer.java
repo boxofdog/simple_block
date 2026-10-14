@@ -102,7 +102,7 @@ public class CableDrumRenderer implements BlockEntityRenderer<CableDrumBlockEnti
 			AbstractMinecartRenderer.BLOCK_DISPLAY_CONTEXT);
 		this.blockModelResolver.update(state.crank, part(CableDrumPartBlock.Part.CRANK), AbstractMinecartRenderer.BLOCK_DISPLAY_CONTEXT);
 		this.blockModelResolver.update(state.lever, part(CableDrumPartBlock.Part.LEVER), AbstractMinecartRenderer.BLOCK_DISPLAY_CONTEXT);
-		state.powered = drum.powered();
+		state.powered = drum.showsLever();
 		state.leverAngle = switch (drum.lever()) {
 			case NEUTRAL -> 0.0F;
 			case PULL -> LEVER_TILT;
@@ -117,7 +117,8 @@ public class CableDrumRenderer implements BlockEntityRenderer<CableDrumBlockEnti
 		}
 		Vec3 origin = Vec3.atLowerCornerOf(drum.getBlockPos());
 		List<Vec3> path = new ArrayList<>(CableGeometry.drawnPath(drum.getLevel(), drum.points()));
-		Direction outward = drum.looped() ? CableLoops.outward(drum) : null;
+		// A two-drum line (M07 playtest change 2) ends on its second drum: no wheel, no return strand.
+		Direction outward = drum.looped() && drum.endDrum() == null ? CableLoops.outward(drum) : null;
 		// The texture moves with the cable's travel, on a loop and (M07 patch §9) on an open route too.
 		double v = -travel;
 		if (outward != null) {
