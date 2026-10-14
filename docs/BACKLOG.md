@@ -9,16 +9,16 @@
 | I-001 | Smithy tools made from forged parts at an anvil, assembled at crafting table | Concept; avoid blocking early iron tools behind a 31-ingot anvil |
 | I-002 | Durable, effectively permanent anvils | Concept; tune cost and connect with I-001 |
 | I-003 | Broader block/inventory-content cleanup | Parked; identify exact additions to the removed families |
-| I-004 | Copper Headlamp, dual-slot Overalls, Spiked/Mining Boots, full workwear bonuses | **Assigned to [M10](MILESTONE_10.md)**; recipes and exact behavior belong there |
-| I-005 | Rope and hanging Spelunker's Rope | **Assigned to [M10](MILESTONE_10.md)**; settled recipes, behavior and implementation handoff now live there |
+| I-004 | Copper Headlamp, dual-slot Overalls, Spiked/Mining Boots, full workwear bonuses | **Delivered in [M10](MILESTONE_10.md)**; see the milestone for recipes and behavior |
+| I-005 | Rope and hanging Spelunker's Rope | **Delivered in [M10](MILESTONE_10.md)**; see the milestone |
 | I-006 | Faster normal ladders | Unnumbered balance question; consider I-005/M10 interactions |
 | I-007 | Alluvial iron sand and iron gravel at riverbanks | Owner-directed concept; finite deposits, extraction, textures, iron scarcity |
 | I-008 | Steel with a purposeful manufacturing chain | Owner-directed concept; decide role, production and smithy/anvil relationship |
 | I-009 | In-world recipe/discovery guidebook | Owner-directed; avoid automatic new crafting/progression gates |
 | I-010 | Named full-set effects for vanilla iron/diamond/netherite armor | **Owner-settled POST-M10, unnumbered**; detailed below |
-| I-011 | Persistent hostile attraction, entrance behavior, rare spider jockeys and provoked creepers | **Assigned to [M09](MILESTONE_09.md)**; detailed rules belong there |
+| I-011 | Persistent hostile attraction, entrance behavior, rare spider jockeys and provoked creepers | **Delivered in [M09](MILESTONE_09.md)**; pending owner acceptance |
 | I-012 | Witch's Tome and exploration-gated enchanting | Owner-directed POST-M10; detailed below |
-| I-013 | Three-dimensional ordinary rails matching Loading Rail | Owner-requested separate visual task; detailed below |
+| I-013 | Three-dimensional ordinary rails matching Loading Rail | **Implemented** as an owner-authorized visual task; details below |
 | I-014 | Extreme grade rails, runaways, collision/cart damage | Design geometry, thresholds, safe cargo drops |
 | I-015 | Train coupling/operation, sequential coupled-wagon unloading | Related to open **M07 playtest decision**; no silent M06 revision |
 | I-016 | Full mine-to-smelter logistics playtest | Future integrated owner playtest, not a new mod system |
@@ -28,11 +28,11 @@
 
 ## I-019 — Deferred industrial iron gate
 
-Owner deferred the large iron gate from M09 on 2026-10-13. Earlier concept: a substantial winch-operated gate with **two sections, each three blocks wide**, building on existing cable/winch mechanisms. No recipe, final dimensions, operation, durability or relationship with hostile behavior is settled. Do not implement or reconnect it to creeper retaliationecks. This is not M04–M07's moving hoisting cable.
+Owner deferred the large iron gate from M09 on 2026-10-13. Earlier concept: a substantial winch-operated gate with **two sections, each three blocks wide**, building on existing cable/winch mechanisms. No recipe, final dimensions, operation, durability or relationship with hostile behavior is settled. Do not implement or reconnect it to creeper retaliation. This is not M04–M07's moving hoisting cable.
 
 ## I-010 — Post-M10 combat armor identities
 
-This is a **separate, unnumbered post-M10 workstream**, not additional M10 scope. Keep the original vanilla **iron, diamond and netherite armor items**; each of the following activates **only with all four pieces of its matching set**. M10's workwear bonuses **Trail Blazer** and **Old Pro** remain separate, and gold/chainmail retirement remains an M10 task.
+This is a **separate, unnumbered post-M10 workstream**, not additional M10 scope. Keep the original vanilla **iron, diamond and netherite armor items**; each of the following activates **only with all four pieces of its matching set**. M10's delivered workwear bonuses **Trail Blazer** and **Old Pro** remain separate; gold/chainmail retirement was completed in M10.
 
 | Complete vanilla armor set | Named bonus | Owner-settled behavior |
 |---|---|---|
@@ -48,15 +48,13 @@ Place witch huts on remote mountain peaks and in deep deepslate caverns. Each fe
 
 ## I-013 — 3D ordinary rails
 
-**Owner request (2026-10-13):** Replace visually flat ordinary vanilla rail models with 3D rails/sleepers flush with the Loading Rail in railhead height, gauge, thickness and joints. Support straight, curved, ascending and adjacent orientations. **Do not change rail physics, recipes, IDs, placement or drops.** Claude must supply editable Blockbench sources/UV templates and real-client comparison tests when this unnumbered task is authorized separately. It is **not M06 or M07 scope**.
-
-**Implemented 2026-10-14 on the owner's direct instruction ("change rails to a 3D model with the same exact profile as the loading rail, so it sits flush with it and connects; retain every single existing functionality").** Only the look of `minecraft:rail` changed: its blockstate (`assets/minecraft/blockstates/rail.json`) points every shape at `simple_block:block/rail/{straight,curve,ascending}`, turned as vanilla turns its own. The profile is the Loading Rail's exactly (sleepers 14 x 1 x 2 px every 4 px, railheads 1 x 1 px at x 3-4 and 12-13, tops 2 px up), on the Loading Rail's texture and UVs; curves follow the railheads' quarter circles in 22.5-degree pieces; slopes are the straight tilted 45 degrees with layers kept 1 px upright so railheads meet the flat track. Block, shapes, collision, physics, placement, recipe, drops and item are vanilla's (the item keeps vanilla's flat icon). Sources: `tools/models/generate_rail_models.py`, `art/blockbench/rail_*.bbmodel`. Verified: client test `RailModelClientTest` (every shape on the 3D model; joint, loop, curve and slope screenshots in [evidence/rails-3d](evidence/rails-3d/screenshots/)); all 215 server tests unchanged. Owner playtest pending.
+**Implemented 2026-10-14 after explicit owner instruction; visual change only.** `minecraft:rail` uses 3D straight, curved and ascending models matching the Loading Rail's gauge, sleeper profile and shared `loading_track.png` texture. No vanilla rail block behavior, recipe, physics, placement, collision or drops were replaced. Editable sources: `art/blockbench/rail_*.bbmodel`; generator: `tools/models/generate_rail_models.py`. [Client screenshots](evidence/rails-3d/screenshots/), [commit](https://github.com/boxofdog/simple_block/commit/e49ba32616d0847047a02dbafb13e5f143b551bb), [Build #53](https://github.com/boxofdog/simple_block/actions/runs/38601099542) (215/215 server tests). Owner visual acceptance pending.
 
 ## I-014–I-016 — Later railway operation and testing
 
 - **Extreme grades:** Investigate rails as steep as three-block rises/drops, dangerous downhill runaways, crash damage and item-conserving drops. These are not claims about existing vanilla rails.
-- **Whole-train operation:** Investigate loops around curves, coupling slack and grade transitions. Under current **M06** release behavior, a released coupled consist's later wagons do not re-dock at one Loading Rail. **M07 playtesting must decide whether/how to advance and unload individual cars in sequence**. See [M07 report §12](archive/milestone-reports/MILESTONE_07_REPORT.md); do not silently change already-SHIPPED M06.
-- **Integrated playtest:** Validate mine → hoist/skip → freight wagon → hopper/furnace once those stages exist. No extra autonomous system is implied.
+- **Whole-train operation:** Investigate loops, coupling slack and grade transitions. [M11](MILESTONE_11.md) implemented side-gate, cart-by-cart hopper unloading; owner playtesting and the broader M07 station decision remain open. Do not change SHIPPED M06 behavior without authorization.
+- **Integrated playtest:** Validate the now-implemented mine → hoist/skip → freight wagon → hopper/furnace route end-to-end. No extra autonomous system is implied.
 
 ## Future design backlog — inhabited villages
 

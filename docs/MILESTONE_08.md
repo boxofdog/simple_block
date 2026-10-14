@@ -32,7 +32,7 @@ M08 contains **two scoped jobs** when eventually authorized:
 - No-boot players cannot take further restricted cargo above the limit even though they can keep acquiring equipment. Taking boots off while already over the ordinary threshold must **not delete or auto-drop anything**; prevent only new restricted material pickups until back under allowance. Protect all multiplayer, death, save/load and shift-click transitions from loss/duplication.
 - Exact Mule slowdown curve, whether there is a hard boots-assisted upper bound, and how it interacts with other movement modifiers remain **M10 tuning/open questions**. Don't invent numerical penalties in M08.
 
-## Required implementation checks (when M08 is authorized)
+## Original implementation checks (historical handoff)
 
 - **At the cap:** fill inventory weight to exactly 64 ingot-equivalents; iron ingots/ore/blocks are refused as before, **but rail, bucket, lantern, minecart and pickaxe pickup/shift-click/crafting succeed** wherever ordinary item rules allow. Their weights correctly raise the bar above 64.
 - **Already over capacity by equipment:** keep picking up normal mining equipment without artificial rejection; verify adding a qualifying ingot/ore/metal block is rejected until sufficient capacity is freed. Partial stacks of restricted commodities accept only as many as fit.
@@ -42,7 +42,7 @@ M08 contains **two scoped jobs** when eventually authorized:
 - **Physical freight remains valuable:** the normal 64-equivalent allowance and one-way resource-intake restriction stay meaningful; this change must not increase cart/skip capacity, remove cargo item restrictions, globally make metals weightless, or alter furnace throughput.
 - Test integrated-client load bar at **under, exactly at, and above** 64, real inventory/container item movement, dedicated server as relevant; required server game tests should fail on the old blanket-blocking behavior. Separate M08 code/CI/artifact/report only after implementation authorization; preserve all historical M02 tests/reports as history and update current baselines rather than pretending old enforcement rules still hold.
 
-**Scope status:** M08 is **PLANNED - READY**, with construction, recipe, inventories, freight alignment, retirement rules and weight classification settled. Initial processing/fuel rates remain deliberately tunable at Claude's discretion and do not block handoff. **No implementation authorization is granted.** M10 still owns Mining Boots/Mule/Old Pro.
+**Scope record:** These requirements were settled before implementation. M08 is now **PLAYTESTING**; its verified delivery and pending owner checks are in the appendices below. Processing/fuel rates remain playtest-tunable. Mining Boots/Mule/Old Pro were delivered separately in [M10](MILESTONE_10.md).
 
 ---
 
@@ -95,7 +95,7 @@ M08 contains **two scoped jobs** when eventually authorized:
 - Exercise regular-furnace raw-ore slowdown and compare large-batch industrial throughput. Claude chooses and reports initial testable processing/fuel constants; playtesting determines final balance.
 - No steelmaking, new metal refining stages or charcoal-block reverse recipe are part of M08. Future steel and village-profession redesign remain backlog work.
 
-**Handoff gate:** design is complete for PLANNED - READY. Claude may choose initial tunable fuel/processing constants when implementation is explicitly authorized, recording them for playtesting. **Do not begin M08 implementation merely because this document says READY.**
+**Historical handoff:** Claude was allowed to select initial tunable processing/fuel constants and document them for playtesting. Implementation is recorded in the verification appendices; the current lifecycle state comes from the YAML header.
 
 Full historical design context is archived in [ROADMAP_PRE_CONSOLIDATION_2026-10-13.md](archive/ROADMAP_PRE_CONSOLIDATION_2026-10-13.md); the active requirements are above. Other future ideas remain in [BACKLOG.md](BACKLOG.md).
 

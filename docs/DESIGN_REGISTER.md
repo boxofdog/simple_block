@@ -1,6 +1,6 @@
 # Consolidated Design Register
 
-**Decision-record labels (not milestone lifecycle states):** **DECIDED** = user explicitly established the direction; **DIRECTION** = strong preference, needs specifics; **EXPLORATORY** = floated idea or assistant suggestion, not approved; **OPEN** = unspecified. The five allowed **milestone** status labels live in [RULES.md](RULES.md). This file is design context, not permission to code.
+**Decision-record labels (not milestone lifecycle states):** **DECIDED** = user explicitly established the direction; **DIRECTION** = strong preference, needs specifics; **EXPLORATORY** = floated idea or assistant suggestion, not approved; **OPEN** = unspecified. The five allowed **milestone** status labels live in [RULES.md](RULES.md). This is a **historical decision record**, not a live implementation checklist or permission to code. Some OPEN/DIRECTION entries were resolved by later milestone briefs. For present behavior and acceptance, use [ROADMAP.md](ROADMAP.md) and the relevant milestone; for future proposals use [BACKLOG.md](BACKLOG.md).
 
 ## A. Survival, monsters, lighting
 
@@ -74,7 +74,7 @@
 
 ## Critical distinction
 
-The exact numeric proposals made during discussion (e.g., a 27-slot inventory, 64 heavy units, 10–12 blocks/sec locomotives, 10–15 minutes/coal) are **not decisions**. They are potential test baselines requiring player approval or playtesting.
+These numbers were **proposals when recorded**, not approvals in this historical register. Some were subsequently implemented or adjusted. Use the relevant milestone and its verification appendix for current figures; owner playtesting still controls acceptance.
 
 ## Current authorized implementation
 

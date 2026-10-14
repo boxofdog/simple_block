@@ -29,7 +29,7 @@ M08 makes weighted mining supplies obtainable even above 64 ingot-equivalents, b
 
 ---
 
-## Exact shaped workwear recipes — owner-settled, not implemented
+## Exact shaped workwear recipes — owner-settled
 
 All four recipes are **shaped 3×3 crafting layouts**. The specified positions and empty slots matter; do not convert these to shapeless crafting recipes. "Chest" means the **ordinary vanilla chest block/item**; "leather pants" means **vanilla leather leggings**. Reuse vanilla copper ingot, lantern, string, leather armor, pointed dripstone and iron ingot; no additional intermediate ingredients.
 
