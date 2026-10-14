@@ -196,16 +196,16 @@ Counts reflect source files only, not proof of implemented or tested behavior.
 | Source set | First-level package | Java files |
 |---|---|---:|
 | client | client | 26 |
-| gametest | gametest | 52 |
+| gametest | gametest | 56 |
 | main | (root) | 1 |
 | main | cable | 18 |
-| main | feature | 26 |
+| main | feature | 27 |
 | main | metallurgy | 12 |
-| main | mixin | 56 |
+| main | mixin | 57 |
 | main | network | 4 |
 | main | rope | 7 |
 | main | skip | 7 |
-| main | train | 6 |
+| main | train | 9 |
 | main | tuning | 1 |
 | main | workwear | 4 |
 | main | worldgen | 7 |
