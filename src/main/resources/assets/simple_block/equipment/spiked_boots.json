@@ -1,0 +1,9 @@
+{
+	"layers": {
+		"humanoid": [
+			{
+				"texture": "simple_block:spiked_boots"
+			}
+		]
+	}
+}

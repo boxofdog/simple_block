@@ -1,0 +1,15 @@
+{
+	"type": "minecraft:crafting_shaped",
+	"category": "equipment",
+	"key": {
+		"B": "minecraft:leather_boots",
+		"I": "minecraft:iron_ingot"
+	},
+	"pattern": [
+		"B",
+		"I"
+	],
+	"result": {
+		"id": "simple_block:mining_boots"
+	}
+}

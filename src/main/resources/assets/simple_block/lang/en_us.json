@@ -107,5 +107,18 @@
 	"simple_block.far_drum.no_furnace": "This drum holds the end of the cable from %s: it needs no furnace",
 	"simple_block.far_drum.no_coil": "This drum holds the end of the cable from %s: it needs no coil",
 	"simple_block.cable.two_drum_unhooked": "Cable taken off the second drum: the end is back at the last support",
-	"simple_block.cable.drum_two": "Cable to the drum at %s: %s blocks through %s anchors, worked from both ends"
+	"simple_block.cable.drum_two": "Cable to the drum at %s: %s blocks through %s anchors, worked from both ends",
+	"item.simple_block.headlamp": "Headlamp",
+	"item.simple_block.overalls": "Overalls",
+	"item.simple_block.spiked_boots": "Spiked Boots",
+	"item.simple_block.mining_boots": "Mining Boots",
+	"effect.simple_block.spelunkers_speed": "Spelunker's Speed",
+	"effect.simple_block.trail_blazer": "Trail Blazer",
+	"effect.simple_block.mule": "Mule",
+	"effect.simple_block.old_pro": "Old Pro",
+	"item.simple_block.rope": "Rope",
+	"item.simple_block.spelunker_rope": "Spelunker's Rope",
+	"block.simple_block.spelunker_rope_anchor": "Spelunker's Rope Anchor",
+	"block.simple_block.spelunker_rope": "Spelunker's Rope",
+	"block.simple_block.spelunker_rope_coil": "Spelunker's Rope Coil"
 }

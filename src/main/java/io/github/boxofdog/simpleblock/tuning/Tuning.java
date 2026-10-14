@@ -182,6 +182,15 @@ public final class Tuning {
 		define("cable.grade_load", 1.0);
 		// How close to the drum's exit or the return wheel (along the track) a hauled cart stops.
 		define("cable.end_clearance", 1.5);
+		// M10 workwear.
+		define("workwear.headlamp_light", 13);
+		define("workwear.climb_speed", 1.6);
+		define("workwear.mule_extra_ingots", 64.0);
+		define("workwear.mule_max_slowdown", 0.5);
+		define("workwear.trail_blazer_aim_penalty", 8.0);
+		define("workwear.trail_blazer_range", 24);
+		define("workwear.rear_warning_range", 20.0);
+		define("workwear.rear_warning_angle", 100.0);
 		// M06 coal winch (provisional). Working-strand speed with the lever at PULL or FEED, blocks per
 		// tick (0.15 = 3 blocks a second, 2.5x the hand crank), before the uphill load.
 		define("winch.powered_speed", 0.15);

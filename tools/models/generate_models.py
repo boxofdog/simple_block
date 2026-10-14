@@ -491,6 +491,35 @@ MOLD_FILL_STEPS = 8
 CHARCOAL_BLOCK = [Cube('charcoal_block', [0, 0, 0], [16, 16, 16])]
 
 # Texture groups: models that share one texture (and one UV layout).
+# ---- M10 workwear and rope ----
+
+# The Headlamp, worn and as an item (vanilla draws a head item's model like a carved pumpkin's: a
+# 16-pixel model covers the head with a pixel or so to spare). A copper mining helmet with a vanilla-style
+# lantern upright on its crown, under a copper cap in place of the hanging hook.
+HEADLAMP = [
+    Cube('helmet_shell', [1, 10, 1], [15, 16.5, 15]),
+    Cube('helmet_brim', [0.5, 9.5, 0.5], [15.5, 10.5, 15.5]),
+    Cube('lamp_mount', [6, 11, 0], [10, 15, 1]),
+    Cube('lantern_collar', [5.5, 16.5, 5.5], [10.5, 17, 10.5]),
+    Cube('lantern_body', [5, 17, 5], [11, 24, 11]),
+    Cube('lantern_top', [6, 24, 6], [10, 26, 10]),
+    Cube('copper_cap', [5.5, 26, 5.5], [10.5, 27, 10.5]),
+    Cube('cap_knob', [7, 27, 7], [9, 28, 9]),
+]
+ROPE_LINE = [Cube('rope', [7, 0, 7], [9, 16, 9])]
+ROPE_COIL = [Cube('rope', [7, 4, 7], [9, 16, 9])] + ring_y('coil', 8, 8, 0, 4, 5, 2)
+ROPE_ANCHOR = [
+    Cube('anchor_plate', [5, 15, 5], [11, 16, 11]),
+    Cube('anchor_eye', [7, 11, 7], [9, 15, 9]),
+    Cube('rope', [7, 0, 7], [9, 11, 9]),
+]
+ROPE_ANCHOR_SIDE = [
+    Cube('anchor_plate_side', [5, 8, 0], [11, 14, 1]),
+    Cube('anchor_arm', [7, 12, 1], [9, 14, 8]),
+    Cube('anchor_eye', [7, 10, 7], [9, 12, 9]),
+    Cube('rope', [7, 0, 7], [9, 10, 9]),
+]
+
 GROUPS = {
     'block/cable_anchor': {'cable_anchor': ANCHOR, 'cable_anchor_guide': ANCHOR_GUIDE, 'cable_anchor_wheel_front': ANCHOR_WHEEL_FRONT,
                            'cable_anchor_wheel_back': ANCHOR_WHEEL_BACK},
@@ -522,13 +551,16 @@ GROUPS = {
                                            'blast_furnace_channel_pour': CHANNEL_POUR,
                                            'blast_furnace_mold': MOLD,
                                            'blast_furnace_mold_molten': MOLD_MOLTEN},
+    'item/headlamp': {'headlamp': HEADLAMP},
+    'block/spelunker_rope': {'spelunker_rope': ROPE_LINE, 'spelunker_rope_coil': ROPE_COIL, 'spelunker_rope_anchor': ROPE_ANCHOR,
+                             'spelunker_rope_anchor_side': ROPE_ANCHOR_SIDE},
     'block/charcoal_block': {'charcoal_block': CHARCOAL_BLOCK},
 }
 # Where each model's JSON goes (block models are used by blockstates, block items and renderers).
-MODEL_PATHS = {name: ('item/' if name in ('copper_connecting_rod', 'cable', 'cable_coil', 'ore_skip') else 'block/') + name
+MODEL_PATHS = {name: ('item/' if name in ('copper_connecting_rod', 'cable', 'cable_coil', 'ore_skip', 'headlamp') else 'block/') + name
                for models in GROUPS.values() for name in models}
 # Models also shown as items (they get the standard block display transforms).
-ITEM_DISPLAY = {'cable_anchor', 'cable_drum', 'copper_connecting_rod', 'cable', 'cable_coil', 'loading_track', 'ore_skip', 'charcoal_block'}
+ITEM_DISPLAY = {'headlamp', 'cable_anchor', 'cable_drum', 'copper_connecting_rod', 'cable', 'cable_coil', 'loading_track', 'ore_skip', 'charcoal_block'}
 
 # ---- UV layout ----
 
@@ -646,6 +678,13 @@ def model_json(name, cubes, texture_id, regions, size, item):
     }
     if not item:
         del model['parent']
+    if name == 'headlamp':
+        # The lantern stands above the helmet: show the whole of it in slots and on the ground.
+        model['display'] = {
+            'gui': {'rotation': [30, 225, 0], 'translation': [0, -3, 0], 'scale': [0.48, 0.48, 0.48]},
+            'ground': {'rotation': [0, 0, 0], 'translation': [0, 2, 0], 'scale': [0.22, 0.22, 0.22]},
+            'fixed': {'rotation': [0, 0, 0], 'translation': [0, -2.5, 0], 'scale': [0.42, 0.42, 0.42]},
+        }
     return model
 
 
@@ -813,9 +852,15 @@ def main():
                     'firstperson_righthand': {'rotation': [0, 45, 0], 'translation': [0, 0, 0], 'scale': [0.2, 0.2, 0.2]},
                     'firstperson_lefthand': {'rotation': [0, 225, 0], 'translation': [0, 0, 0], 'scale': [0.2, 0.2, 0.2]}}})
     write_json(os.path.join(ASSETS, 'blockstates', 'charcoal_block.json'), {'variants': {'': m('block/charcoal_block')}})
+    # M10: the rope anchor hangs under a block (support=up) or on a side (the side model faces north, its support).
+    write_json(os.path.join(ASSETS, 'blockstates', 'spelunker_rope_anchor.json'), {'variants': dict(
+        [('support=up', m('block/spelunker_rope_anchor'))]
+        + [(f'support={side}', m('block/spelunker_rope_anchor_side', y=y)) for side, y in (('north', 0), ('east', 90), ('south', 180), ('west', 270))])})
+    write_json(os.path.join(ASSETS, 'blockstates', 'spelunker_rope.json'), {'variants': {'': m('block/spelunker_rope')}})
+    write_json(os.path.join(ASSETS, 'blockstates', 'spelunker_rope_coil.json'), {'variants': {'': m('block/spelunker_rope_coil')}})
     for item, path in (('cable', 'item/cable'), ('cable_coil', 'item/cable_coil'), ('copper_connecting_rod', 'item/copper_connecting_rod'),
                        ('cable_anchor', 'block/cable_anchor'), ('cable_drum', 'block/cable_drum'), ('loading_track', 'block/loading_track'), ('ore_skip', 'item/ore_skip'),
-                       ('blast_furnace', 'item/blast_furnace'), ('charcoal_block', 'block/charcoal_block')):
+                       ('blast_furnace', 'item/blast_furnace'), ('charcoal_block', 'block/charcoal_block'), ('headlamp', 'item/headlamp')):
         write_json(os.path.join(ASSETS, 'items', item + '.json'), {'model': {'type': 'minecraft:model', 'model': f'{NAMESPACE}:{path}'}})
 
     print('written:', *written, sep='\n  ')

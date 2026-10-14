@@ -49,7 +49,15 @@
 		"sleep.ServerLevelMixin",
 		"train.AbstractMinecartMixin",
 		"train.MinecartFurnaceMixin",
-		"train.VehicleEntityMixin"
+		"train.VehicleEntityMixin",
+		"armor.AbstractVillagerMixin",
+		"armor.MobEquipmentMixin",
+		"armor.PiglinMixin",
+		"inventory.ArmorSlotMixin",
+		"workwear.ClimbingMixin",
+		"workwear.PlayerMiningMixin",
+		"workwear.ServerPlayerGameModeMixin",
+		"workwear.SkeletonAimMixin"
 	],
 	"injectors": {
 		"defaultRequire": 1

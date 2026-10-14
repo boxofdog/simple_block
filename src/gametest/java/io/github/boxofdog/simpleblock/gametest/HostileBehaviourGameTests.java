@@ -466,7 +466,9 @@ public class HostileBehaviourGameTests {
 				// only when it ends, so not all of them do at once (Build #41 saw 3).
 				helper.assertTrue(marks[5] >= 2 && marks[5] * 3 >= interested.size(), "the zombies that knew of the light should re-check at once: "
 					+ marks[5] + " decisions for " + interested.size());
-				helper.assertTrue(marks[3] >= 0 && marks[3] - marks[2] <= 300, "the first zombie should be in the breached room soon after the explosion");
+				// Alone it takes 25-120 ticks; a loaded test server (the full suite) can more than double it.
+				helper.assertTrue(marks[3] >= 0 && marks[3] - marks[2] <= 600, "the first zombie should be in the breached room soon after the explosion: "
+					+ (marks[3] - marks[2]) + " ticks");
 				helper.assertTrue(interestedIn * 3 >= interestedAlive, "at least a third of the zombies that knew of the light should press into the breached room");
 				helper.assertTrue(!enteredB[0], "the sealed room must stay empty");
 			})

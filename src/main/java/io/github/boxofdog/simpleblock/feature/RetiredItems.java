@@ -25,6 +25,12 @@ import net.minecraft.world.level.block.ShulkerBoxBlock;
  *       are disabled by data overrides, and they are taken out of every chest and other non-block
  *       loot (abandoned mineshafts were the only vanilla source; no structure places them). Placed
  *       ones (commands, old structures) keep working. Ordinary rails are untouched.</li>
+ *   <li>M10: golden and chainmail armor. The golden pieces' recipes and recipe-book advancements are
+ *       disabled by data overrides (chainmail has none); both sets are taken out of all loot (chests,
+ *       mob drops, archaeology), out of villagers' offers ({@code mixin/armor/AbstractVillagerMixin}),
+ *       and no mob spawns wearing them ({@code mixin/armor/MobEquipmentMixin}: those tiers become
+ *       copper; {@code mixin/armor/PiglinMixin}). Gold itself is untouched. Piglins, which spare a
+ *       player wearing gold, are therefore always hostile; bartering still works.</li>
  *   <li>M08: the vanilla blast furnace. Its recipe and recipe-book advancement are disabled by
  *       data overrides, and new villages build ordinary furnaces instead
  *       ({@code metallurgy/VillageFurnaces}); the blast furnace replaces it.</li>
@@ -33,6 +39,10 @@ import net.minecraft.world.level.block.ShulkerBoxBlock;
 public final class RetiredItems {
 	/** The redstone rails retired in M06. */
 	public static final Set<Item> RAILS = Set.of(Items.POWERED_RAIL, Items.DETECTOR_RAIL, Items.ACTIVATOR_RAIL);
+
+	/** The armor sets retired in M10. */
+	public static final Set<Item> ARMOR = Set.of(Items.GOLDEN_HELMET, Items.GOLDEN_CHESTPLATE, Items.GOLDEN_LEGGINGS, Items.GOLDEN_BOOTS,
+		Items.CHAINMAIL_HELMET, Items.CHAINMAIL_CHESTPLATE, Items.CHAINMAIL_LEGGINGS, Items.CHAINMAIL_BOOTS);
 
 	private static final Set<Item> OTHERS = Set.of(Items.ELYTRA, Items.ENDER_CHEST, Items.CHEST_MINECART, Items.FURNACE_MINECART,
 		Items.BLAST_FURNACE);
@@ -43,7 +53,7 @@ public final class RetiredItems {
 	/** Whether {@code stack} is a retired item. */
 	public static boolean isRetired(ItemStack stack) {
 		Item item = stack.getItem();
-		return RAILS.contains(item) || OTHERS.contains(item) || RemovedRocks.items().contains(item)
+		return RAILS.contains(item) || ARMOR.contains(item) || OTHERS.contains(item) || RemovedRocks.items().contains(item)
 			|| item instanceof BlockItem block && block.getBlock() instanceof ShulkerBoxBlock;
 	}
 
@@ -57,6 +67,7 @@ public final class RetiredItems {
 			if (!blockLoot) {
 				drops.removeIf(stack -> RAILS.contains(stack.getItem()));
 			}
+			drops.removeIf(stack -> ARMOR.contains(stack.getItem()));
 		});
 	}
 }

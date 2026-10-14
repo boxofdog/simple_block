@@ -1,0 +1,15 @@
+{
+	"type": "minecraft:crafting_shaped",
+	"category": "misc",
+	"key": {
+		"A": "simple_block:cable_anchor",
+		"R": "simple_block:rope"
+	},
+	"pattern": [
+		"A",
+		"R"
+	],
+	"result": {
+		"id": "simple_block:spelunker_rope"
+	}
+}

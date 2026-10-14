@@ -1,0 +1,7 @@
+{
+	"replace": false,
+	"values": [
+		"simple_block:spelunker_rope",
+		"simple_block:spelunker_rope_coil"
+	]
+}

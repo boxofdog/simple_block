@@ -90,11 +90,13 @@
 			"minecraft:tropical_fish_bucket": "3",
 			"minecraft:warped_hanging_sign": "11/27",
 			"minecraft:water_bucket": "3",
+			"simple_block:blast_furnace": "21",
 			"simple_block:cable": "1/6",
 			"simple_block:cable_coil": "1/2",
 			"simple_block:cable_drum": "2",
-			"simple_block:ore_skip": "67/6",
-			"simple_block:blast_furnace": "21"
+			"simple_block:headlamp": "8/9",
+			"simple_block:mining_boots": "1",
+			"simple_block:ore_skip": "67/6"
 		},
 		"gold": {
 			"minecraft:clock": "4",
@@ -271,7 +273,9 @@
 			"minecraft:weathered_cut_copper_stairs": "9/4",
 			"minecraft:weathered_lightning_rod": "3",
 			"simple_block:cable_anchor": "1/6",
-			"simple_block:copper_connecting_rod": "19/9"
+			"simple_block:copper_connecting_rod": "19/9",
+			"simple_block:headlamp": "5",
+			"simple_block:spelunker_rope": "1/6"
 		},
 		"diamond": {
 			"minecraft:deepslate_diamond_ore": "1",

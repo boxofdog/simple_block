@@ -7,7 +7,12 @@ import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 
+import org.jspecify.annotations.Nullable;
+
+import net.minecraft.world.entity.player.Player;
+
 import io.github.boxofdog.simpleblock.SimpleBlock;
+import io.github.boxofdog.simpleblock.workwear.Workwear;
 
 /**
  * INV-01: exactly 27 usable carrying slots, the 9 hotbar slots plus 18 storage slots.
@@ -25,6 +30,9 @@ import io.github.boxofdog.simpleblock.SimpleBlock;
  * </ul>
  * The client paints over the row and uses the space for the Sort button and the heavy-load
  * indicator.
+ *
+ * <p>M10: a player wearing the Overalls ({@code workwear/Workwear#backpack}) has the row as a backpack:
+ * 36 carrying slots. Taking them off makes it unusable again, and {@link #evict} moves what is in it.
  */
 public final class InventorySlots {
 	public static final int FIRST_DISABLED = 9;
@@ -39,12 +47,37 @@ public final class InventorySlots {
 		return inventorySlot >= FIRST_DISABLED && inventorySlot <= LAST_DISABLED;
 	}
 
-	public static boolean isDisabled(Slot slot) {
+	/** Whether the slot shows the row, whoever's inventory it is (for drawing). */
+	public static boolean isRow(Slot slot) {
 		return slot.container instanceof Inventory && isDisabled(slot.getContainerSlot());
+	}
+
+	/** Whether {@code inventorySlot} is unusable for {@code player}: the row, unless they wear the Overalls. */
+	public static boolean isDisabled(@Nullable Player player, int inventorySlot) {
+		return isDisabled(inventorySlot) && !Workwear.backpack(player);
+	}
+
+	public static boolean isDisabled(Slot slot) {
+		return slot.container instanceof Inventory inventory && isDisabled(inventory.player, slot.getContainerSlot());
+	}
+
+	/** The sort order for this player: with the backpack row, it comes first (the top row). */
+	public static int[] sortOrder(@Nullable Player player) {
+		if (!Workwear.backpack(player)) {
+			return SORT_ORDER;
+		}
+		int[] order = new int[27];
+		for (int i = 0; i < 27; i++) {
+			order[i] = FIRST_DISABLED + i;
+		}
+		return order;
 	}
 
 	/** Moves anything in the disabled row to usable slots, or drops it. Returns how many stacks moved. */
 	public static int evict(ServerPlayer player) {
+		if (Workwear.backpack(player)) {
+			return 0;
+		}
 		Inventory inventory = player.getInventory();
 		int moved = 0;
 		for (int slot = FIRST_DISABLED; slot <= LAST_DISABLED; slot++) {

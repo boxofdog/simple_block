@@ -1,0 +1,18 @@
+{
+	"type": "minecraft:crafting_shaped",
+	"category": "equipment",
+	"key": {
+		"S": "minecraft:string",
+		"H": "minecraft:chest",
+		"C": "minecraft:leather_chestplate",
+		"L": "minecraft:leather_leggings"
+	},
+	"pattern": [
+		"SHS",
+		" C ",
+		" L "
+	],
+	"result": {
+		"id": "simple_block:overalls"
+	}
+}

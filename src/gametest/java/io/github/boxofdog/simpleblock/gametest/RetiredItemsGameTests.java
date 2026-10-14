@@ -55,13 +55,15 @@ public class RetiredItemsGameTests {
 		items.addAll(List.of(Items.ENDER_CHEST, Items.CHEST_MINECART, Items.FURNACE_MINECART, Items.POWERED_RAIL, Items.DETECTOR_RAIL,
 			Items.ACTIVATOR_RAIL, Items.BLAST_FURNACE));
 		items.addAll(RemovedRocks.items());
+		// M10: golden and chainmail armor.
+		items.addAll(io.github.boxofdog.simpleblock.feature.RetiredItems.ARMOR);
 		return items;
 	}
 
 	/**
 	 * RET-01: built as the client builds it, no creative tab and not the search shows a retired item,
 	 * while their ids are still registered; rails, the loading track, furnaces, minecarts, chests and
-	 * the items later milestones may retire (gold and chainmail armor) and M08's blast
+	 * iron armor, gold itself (M10 retires only gold and chainmail armor) and M08's blast
 	 * furnace and Block of Charcoal are still there. (M08 retired the vanilla blast furnace.)
 	 */
 	@GameTest
@@ -93,7 +95,7 @@ public class RetiredItemsGameTests {
 		}
 		List<Item> kept = List.of(Items.RAIL, TrainContent.LOADING_TRACK_ITEM, Items.FURNACE, Items.MINECART, Items.CHEST,
 			io.github.boxofdog.simpleblock.metallurgy.MetallurgyContent.BLAST_FURNACE_ITEM,
-			io.github.boxofdog.simpleblock.metallurgy.MetallurgyContent.CHARCOAL_BLOCK_ITEM, Items.GOLDEN_CHESTPLATE, Items.CHAINMAIL_CHESTPLATE, Items.STONE, Items.REDSTONE, Items.COAL);
+			io.github.boxofdog.simpleblock.metallurgy.MetallurgyContent.CHARCOAL_BLOCK_ITEM, Items.IRON_CHESTPLATE, Items.GOLD_INGOT, Items.STONE, Items.REDSTONE, Items.COAL);
 		for (Item item : kept) {
 			helper.assertTrue(CreativeModeTabs.searchTab().getSearchTabDisplayItems().stream().anyMatch(stack -> stack.is(item)), "still in creative search: " + item);
 		}

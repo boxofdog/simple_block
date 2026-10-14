@@ -34,8 +34,10 @@ public final class InventorySort {
 	}
 
 	public static void sort(Inventory inventory) {
+		// M10: with the Overalls' backpack row, it is sorted too (first, as the top row).
+		int[] order = InventorySlots.sortOrder(inventory.player);
 		List<ItemStack> stacks = new ArrayList<>();
-		for (int slot : InventorySlots.SORT_ORDER) {
+		for (int slot : order) {
 			ItemStack stack = inventory.getItem(slot);
 			if (!stack.isEmpty()) {
 				stacks.add(stack.copy());
@@ -64,8 +66,8 @@ public final class InventorySort {
 		merged.sort(Comparator.<ItemStack>comparingInt(stack -> BuiltInRegistries.ITEM.getId(stack.getItem()))
 			.thenComparing(stack -> BuiltInRegistries.ITEM.getKey(stack.getItem()).toString()));
 
-		for (int i = 0; i < InventorySlots.SORT_ORDER.length; i++) {
-			inventory.setItem(InventorySlots.SORT_ORDER[i], i < merged.size() ? merged.get(i) : ItemStack.EMPTY);
+		for (int i = 0; i < order.length; i++) {
+			inventory.setItem(order[i], i < merged.size() ? merged.get(i) : ItemStack.EMPTY);
 		}
 	}
 

@@ -1,0 +1,14 @@
+{
+	"layers": {
+		"humanoid": [
+			{
+				"texture": "simple_block:overalls"
+			}
+		],
+		"humanoid_leggings": [
+			{
+				"texture": "simple_block:overalls"
+			}
+		]
+	}
+}

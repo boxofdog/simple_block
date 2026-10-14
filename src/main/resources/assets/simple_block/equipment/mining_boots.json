@@ -1,0 +1,9 @@
+{
+	"layers": {
+		"humanoid": [
+			{
+				"texture": "simple_block:mining_boots"
+			}
+		]
+	}
+}

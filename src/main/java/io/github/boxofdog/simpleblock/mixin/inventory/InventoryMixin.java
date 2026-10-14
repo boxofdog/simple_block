@@ -37,7 +37,7 @@ abstract class InventoryMixin {
 	@Inject(method = "getFreeSlot", at = @At("HEAD"), cancellable = true)
 	private void simpleBlock$skipDisabledRow(CallbackInfoReturnable<Integer> cir) {
 		for (int i = 0; i < this.items.size(); i++) {
-			if (!InventorySlots.isDisabled(i) && this.items.get(i).isEmpty()) {
+			if (!InventorySlots.isDisabled(this.player, i) && this.items.get(i).isEmpty()) {
 				cir.setReturnValue(i);
 				return;
 			}
@@ -47,7 +47,7 @@ abstract class InventoryMixin {
 
 	@WrapOperation(method = "getSlotWithRemainingSpace", at = @At(value = "INVOKE", target = "Lnet/minecraft/core/NonNullList;get(I)Ljava/lang/Object;"))
 	private Object simpleBlock$noStackingIntoDisabledRow(NonNullList<?> list, int index, Operation<Object> original) {
-		return InventorySlots.isDisabled(index) ? ItemStack.EMPTY : original.call(list, index);
+		return InventorySlots.isDisabled(this.player, index) ? ItemStack.EMPTY : original.call(list, index);
 	}
 
 	@WrapMethod(method = "add(ILnet/minecraft/world/item/ItemStack;)Z")

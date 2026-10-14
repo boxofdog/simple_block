@@ -27,6 +27,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.component.BundleContents;
 
 import io.github.boxofdog.simpleblock.SimpleBlock;
+import io.github.boxofdog.simpleblock.workwear.Workwear;
 
 /**
  * INV-04: one shared carrying allowance of 64 ingot-equivalents for iron, gold, copper, diamond
@@ -286,9 +287,14 @@ public final class HeavyLoad {
 		return stacks;
 	}
 
+	/** The cap for this player: 64 ingots, more with Mining Boots (M10 Mule). */
+	public static int capacity(Player player) {
+		return CAPACITY + Workwear.capacityBonus(player);
+	}
+
 	/** Room left under the cap; negative when over it. */
 	public static int remaining(Player player) {
-		return CAPACITY - carried(player);
+		return capacity(player) - carried(player);
 	}
 
 	/**

@@ -1,0 +1,22 @@
+{
+	"variants": {
+		"support=up": {
+			"model": "simple_block:block/spelunker_rope_anchor"
+		},
+		"support=north": {
+			"model": "simple_block:block/spelunker_rope_anchor_side"
+		},
+		"support=east": {
+			"model": "simple_block:block/spelunker_rope_anchor_side",
+			"y": 90
+		},
+		"support=south": {
+			"model": "simple_block:block/spelunker_rope_anchor_side",
+			"y": 180
+		},
+		"support=west": {
+			"model": "simple_block:block/spelunker_rope_anchor_side",
+			"y": 270
+		}
+	}
+}

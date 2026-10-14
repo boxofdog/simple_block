@@ -18,10 +18,12 @@ import io.github.boxofdog.simpleblock.feature.RemovedRocks;
 import io.github.boxofdog.simpleblock.feature.RetiredItems;
 import io.github.boxofdog.simpleblock.feature.SaturationSync;
 import io.github.boxofdog.simpleblock.metallurgy.MetallurgyContent;
+import io.github.boxofdog.simpleblock.rope.RopeContent;
 import io.github.boxofdog.simpleblock.skip.SkipContent;
 import io.github.boxofdog.simpleblock.train.TrainContent;
 import io.github.boxofdog.simpleblock.tuning.Tuning;
 import io.github.boxofdog.simpleblock.worldgen.IronWorldgen;
+import io.github.boxofdog.simpleblock.workwear.WorkwearContent;
 
 /**
  * Simple Block entrypoint.
@@ -155,6 +157,18 @@ import io.github.boxofdog.simpleblock.worldgen.IronWorldgen;
  *       {@code mixin/mobs/SpiderMixin}, {@code mixin/mobs/SkeletonMixin}, {@code mixin/mobs/LivingEntityMixin},
  *       client {@code mixin/SkeletonModelMixin}</li>
  * </ul>
+ *
+ * <p>Milestone 10, workwear, spelunking rope and armor retirement ({@code workwear/}; registrations in
+ * {@link WorkwearContent}):
+ * <ul>
+ *   <li>golden and chainmail armor retired — {@link RetiredItems}, {@code mixin/armor}, recipe and
+ *       advancement overrides</li>
+ *   <li>Headlamp, Overalls, Spiked and Mining Boots; the backpack row, the named bonuses, the
+ *       commodity-overload lock — {@code workwear/Workwear}, {@code workwear/Headlamps},
+ *       {@code mixin/workwear}, {@code mixin/inventory/ArmorSlotMixin}, {@code feature/InventorySlots},
+ *       {@code feature/HeavyLoad}</li>
+ *   <li>Rope and Spelunker's Rope — {@code rope/}, {@link RopeContent}</li>
+ * </ul>
  */
 public class SimpleBlock implements ModInitializer {
 	public static final String MOD_ID = "simple_block";
@@ -167,6 +181,8 @@ public class SimpleBlock implements ModInitializer {
 		TrainContent.register();
 		SkipContent.register();
 		MetallurgyContent.register();
+		WorkwearContent.register();
+		RopeContent.register();
 		NoElytraFlight.register();
 		RemovedRocks.register();
 		IronWorldgen.register();

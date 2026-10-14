@@ -34,6 +34,8 @@
 			"io.github.boxofdog.simpleblock.gametest.LoadingTrackGameTests",
 			"io.github.boxofdog.simpleblock.gametest.CoalWinchGameTests",
 			"io.github.boxofdog.simpleblock.gametest.TwoDrumGameTests",
+			"io.github.boxofdog.simpleblock.gametest.WorkwearGameTests",
+			"io.github.boxofdog.simpleblock.gametest.RopeGameTests",
 			"io.github.boxofdog.simpleblock.gametest.RetiredItemsGameTests",
 			"io.github.boxofdog.simpleblock.gametest.SkipGameTests",
 			"io.github.boxofdog.simpleblock.gametest.BlastFurnaceGameTests",
