@@ -119,3 +119,16 @@ A cable-hauled freight minecart approaching a **real Loading Rail near the far/t
 - Unload a coupled car side-on at a Loading Rail.
 - Dock a winched cart on a Loading Rail under the last support.
 - Drive the lever: right-click PULL, left-click FEED, same click NEUTRAL.
+
+### Owner playtest findings — 2026-10-13 (after M09 Build #37)
+
+**Owner observation, not implementation verification or acceptance.** The **ore skip itself works extremely well** in playtesting; owner reports **no skip-specific changes needed**. M07 as a whole remains PLAYTESTING because the connected rail/cable machinery still needs corrections:
+
+1. **Connecting rod height (BUG-003):** beyond approximately a three-block vertical gap to the cable, the rod no longer grips; increase practical height flexibility by approximately **one or two blocks**. Verify actual engagement and rendering across successive heights, not merely a stretched cosmetic rod.
+2. **Incline travel failure (BUG-004):** a gripped minecart refuses to proceed right where a cable incline begins, apparently **independent of height**. Cause is unknown; overhead block/rod collision is an owner's hypothesis, not a finding. Diagnose before choosing a fix and regression-test both incline entry and continued travel.
+3. **Incline cable clipping (BUG-005):** inclined cable passes visually through the block **directly above the anchor**. Redesign the incline's visible cable/anchor geometry without changing physical support/drive semantics just to mask the error.
+4. **Loading Rail stop and ore transfers (owner-requested change):** **automatically lower the hinged rail stop after a minecart load/unload transfer completes**, so a still-docked receiving cart cannot inadvertently receive the same ore again when the hoisted skip is raised past it. Keep the cart held during the actual transfer and maintain all inventory/alignment/refusal safeguards. Clarify in implementation how this interacts with coupled carts and the separately open sequential-wagon redocking problem; do **not** undo M06's already-shipped safety rules or lower the stop on unsuccessful/refused transfer attempts.
+5. **Two-ended winch operation (owner-directed redesign):** the current one-ended winch requires a player to run the entire route just to send a cart back. **Pivot to a double-winch arrangement with practical controls at both ends**, so an operator standing at either end can initiate travel toward the other end. The exact drive/route arrangement, how the two winches share control, conflict/priority resolution, fuel rules, hook and skip compatibility, and stop/loop behavior require an engineering proposal and real-client playtest. Preserve intentional manual operation; **not** an autonomous shuttle. Prevent opposed motors from fighting, item/cargo loss, duplicated cable, unsafe end-travel or bypassed Loading Rail stops.
+
+**Implementation/acceptance gate:** These are fixes and a new owner-directed operating requirement, **not evidence they have been coded, tested or approved**. The earlier sequential coupled-wagon redocking issue remains open. Update verification with new build/test evidence after Claude implements a correction; **do not mark M07 SHIPPED** on the strength of the working skip alone.
+

@@ -141,3 +141,10 @@ Full historical design context is archived in [ROADMAP_PRE_CONSOLIDATION_2026-10
 - Tip a cart from a rail behind the hopper; try a copper cart into iron.
 - Hoist a skip beside the hopper and empty it.
 - Fuel it, watch metal run and the mold show the cast block.
+
+### Owner playtest naming correction — 2026-10-13
+
+**Required name: `Blast Furnace`** instead of **`Pre-Industrial Blast Furnace`**, **across the entire mod, including internal identities**, not just the tooltip or documentation heading. Claude should audit/rename the Simple Block item/block display names, translated keys, item/block identifiers (currently `simple_block:pre_industrial_blast_furnace`), internal code and asset/model/texture/recipe identifiers and references, generated sources, tests, documentation and any other remaining project-owned usages. Preserve meaningful distinctions from the **retired vanilla blast furnace**; do not accidentally reactivate its crafting recipe or placement. Existing worlds using the prior mod block/BE/item identifiers must be protected through an explicit compatibility/migration strategy and tested with saved-world fixtures; don't silently make placed furnaces or inventory items disappear. Internal class names already using `BlastFurnace` need not be renamed merely to churn.
+
+**Status:** owner-requested rename; **not yet implemented or validated**. M08 remains PLAYTESTING; its ore/fuel/skip/cart mechanics are unchanged by this naming request.
+
