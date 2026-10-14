@@ -1,6 +1,6 @@
 # Simple Block — Bug log
 
-**Canonical bug register (moved from ROADMAP.md on 2026-10-13).** Record defects and factual repro/fix evidence here; keep milestone implementation and CI evidence in the individual [M04](archive/milestone-reports/MILESTONE_04_REPORT.md), [M05](archive/milestone-reports/MILESTONE_05_REPORT.md), [M06](archive/milestone-reports/MILESTONE_06_REPORT.md), and [M07](archive/milestone-reports/MILESTONE_07_REPORT.md) reports, and current priority/acceptance in [ROADMAP.md](ROADMAP.md). Historical bug notes below may describe investigation *before* later fixes.
+**Canonical bug register (moved from ROADMAP.md on 2026-10-13).** Keep each bug's symptoms, reproduction, diagnosis, resolution and status here. Milestones link bug IDs and record separate design requirements, implementation/CI evidence and acceptance; the roadmap is a short index and priority board. Historical bug notes may describe investigation *before* later fixes.
 
 Record reproducible defects here as they are noticed. This list is **not** permission to change active milestone scope. Use a new `BUG-###` ID for each distinct issue; keep the symptom, location, reproduction/evidence, status, and eventual fix/verification concise. Maintain player-facing *wording* cleanup separately in [UX_TEXT_LOG.md](UX_TEXT_LOG.md).
 
@@ -15,9 +15,3 @@ Record reproducible defects here as they are noticed. This list is **not** permi
 | BUG-005 | Inclined cable visual geometry (M07 playtest) | **Owner observed:** cable segment on an incline visibly clips through the solid block immediately above the anchor. | Reproduce and alter only the inclined-segment rendering/geometry or anchor exit treatment so it clears the overhead block; keep mechanical travel, support and proper visual cable continuity intact. Verify in real client from multiple angles. | **OPEN — owner playtest; visual redesign needed** |
 
 Keep bugs open until the fix is observed in game. Do not conflate completion of tests with confirmation that a visual defect is gone.
-
-## Current correction/status notes (2026-10-13)
-
-- **BUG-001:** fixed in M05 and visually validated as recorded; M05 is SHIPPED.
-- **BUG-002:** table now shows the later FIX IMPLEMENTED / M06 SHIPPED disposition; the original OPEN wording is preserved in the [dated roadmap archive](archive/ROADMAP_PRE_CONSOLIDATION_2026-10-13.md). The fix `fc8f99a` passed CI Build #20 and subsequent Build #23 regressions; **M06 has since been labeled SHIPPED after explicit owner signoff on 2026-10-13**. That is milestone signoff, not a claim of an additional unrecorded human reproduction test. Do not reopen the old M06 milestone simply because the historical row says OPEN.
-- **M07 terminal-rail early-stop:** addressed in `49d7add` (Build #23); curve/slope/coupled/partial-chunk scenarios remain unrun. See [MILESTONE_07_REPORT.md §12](archive/milestone-reports/MILESTONE_07_REPORT.md). This note tracks an already recorded M07 corrective defect, not a new auto-authorized task.
