@@ -1,6 +1,6 @@
 ---
 milestone: M10
-status: IMPLEMENTING
+status: PLAYTESTING
 ---
 
 # M10 — Modular workwear, spelunking rope, armor retirement and set effects
@@ -100,4 +100,42 @@ Recipe layouts and components are settled. Claude may use ordinary single-item c
 
 **Required test/evidence focus:** Headlamp emits light while equipped without fuel, independently of full workwear; stops emitting when removed and leaves no stranded light after movement, logout or death; wearable model clearly shows the upright lantern with copper cap and no hanging hook. Verify all four shaped recipes (including wrong placements); retired gold/chain armor acquisition and piglin compatibility; Overalls atomically reserve both slots and preserve inventory without duplication; correct Spiked/Mining Boots names and effects alone versus sets; intentional Old Pro offhand mining without interfering with combat; rear-warning eye-line obstruction and behind-only checks; Trail Blazer ghost-color/provenance and skeleton-accuracy tuning; equipment weights and overload behavior remain consistent with M08. **Test commodity-overload equipment locking:** without Mule-level commodity overload, removal works normally even when equipment weight alone exceeds 64; with standalone Mule commodity overload, Mining Boots cannot be removed or swapped; with Old Pro commodity overload, Headlamp, both Overalls slots and Mining Boots are grayed out, non-interactable and red-outlined, and attempts to break the set are rejected server-side via clicks, shift-clicks, hotkeys and replacement actions without duplicating/deleting items; unloading commodities automatically unlocks those slots, and forced death/breakage cases preserve inventory invariants. Verify both Rope shaped crafting grids and their negative cases; place anchors on block bottoms/sides, lower the line only through open air in resource-funded 12-block increments, coil spare length visibly on solid ground, conserve resources on retrieval/breakage, avoid terrain penetration or unsupported infinite rope, and verify Spiked Boots / Trail Blazer rope climbing. Include dedicated-server and real-client/multiplayer checks where relevant.
 
-**Status: IMPLEMENTING. Owner authorization confirmed; coding, CI verification and owner playtesting are still pending.**
+**Status: PLAYTESTING. Implemented and CI-verified (see appendix); owner playtesting pending; not SHIPPED.**
+
+## Implementation and verification — 2026-10-14
+
+**Metadata:** M10 | PLAYTESTING | Gold/chainmail armor retired; Headlamp, Overalls, Spiked/Mining Boots with Spelunker's Speed, Trail Blazer, Mule, Old Pro; overload lock; Rope and Spelunker's Rope.
+
+**Implementation**
+- Commits: `5db77dd2f9883371145c7d00f9ce02aa78635358` armor retirement, workwear, effects, ropes; `0f36ef7f9a06eb9d533508228ec6e2e22dd852d9` Trail Blazer ghosts, rear warning, locked-slot UI, client test; `d1212bad3c4cc447fb98dcfddd74fffcce3c8e76`, `348e0a059550b2f7f803fa02f79e2d5ad2725cf8` flaky M02 test fixes
+- Delivered: Headlamp light 13 (moving light block, crash-safe); Overalls clear legs and open backpack row; climb x1.6; Mule +64 ingots, up to 50% slower; Old Pro offhand-pickaxe mining; overload locks slots server-side; skeleton aim +8° at Trail Blazers; ghosts 24 blocks, warning 20 blocks/100°; Spelunker's Rope 12 blocks, Rope +12, spare coiled.
+- Deviations: piglins no longer get golden armor, so they stay hostile to everyone.
+
+**CI**
+- Build: #46 | Run ID: 38535509454 | PASS
+- Source SHA: `348e0a059550b2f7f803fa02f79e2d5ad2725cf8`
+- URL: https://github.com/boxofdog/simple_block/actions/runs/38535509454
+- Artifact: `simple-block-mod` id 11879569350, available. Build #46 log: all 208 required server tests passed.
+
+**Tests**
+
+| Category | Result | Passed/Total | Evidence / Notes |
+|---|---|---|---|
+| Server | PASS | 208/208 | local and CI; 10 M10 tests; [log](evidence/milestone-10/m10-verification-2026-10-14.txt) |
+| Client | PASS | 14/14 | full suite; ghost colours, light 13, rear warning, 4 locked slots; [screenshots](evidence/milestone-10/screenshots/) |
+| Dedicated server | PASS | 1/1 | same M10 client checks against a dedicated server |
+| Negative controls | PASS | 8/8 | 8 features disabled, 8 expected failures; [log](evidence/milestone-10/m10-verification-2026-10-14.txt) |
+
+**Known gaps**
+- GAP-01: MINOR — all M10 art is flat placeholder; next: Joe paints (To-Do).
+- GAP-02: MINOR — Headlamp light can draw M09 light-seeking mobs; next: playtest.
+- GAP-03: MINOR — torches of unknown origin show blue (world-made).
+- GAP-04: MINOR — removing Overalls with a full inventory drops the backpack row at the feet.
+- GAP-05: MINOR — vanilla shaped recipes match anywhere in the grid, so "wrong placement" means wrong arrangement.
+
+**Owner playtest**
+- Craft the outfit; wear pieces singly and together; check effect names.
+- Walk a dark cave with the Headlamp; log out and back.
+- Carry raw iron over 64 in Mining Boots; try to remove pieces.
+- Hang a Spelunker's Rope down a shaft, extend, climb, retrieve.
+- As Trail Blazer, look for torch ghosts; as Old Pro, the rear warning.
