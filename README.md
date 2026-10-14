@@ -181,9 +181,9 @@ Counts reflect source files only, not proof of implemented or tested behavior.
 | Source set | First-level package | Java files |
 |---|---|---:|
 | client | client | 23 |
-| gametest | gametest | 47 |
+| gametest | gametest | 49 |
 | main | (root) | 1 |
-| main | cable | 17 |
+| main | cable | 18 |
 | main | feature | 26 |
 | main | metallurgy | 12 |
 | main | mixin | 47 |
