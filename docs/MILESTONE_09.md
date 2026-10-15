@@ -69,15 +69,8 @@ The original M02 system already samples and remembers lit ground and sometimes i
 
 **M09: PLAYTESTING. Implemented and verified as documented below; owner acceptance is still pending.**
 
-## Playtesting Changes
+**Playtest-driven follow-ups transferred to [M13](MILESTONE_13.md).** M09 retains its original delivered scope and dated implementation/verification evidence; owner acceptance and outstanding corrections are not implied.
 
-**Owner feedback — 2026-10-13:**
-
-- **Creeper retaliation:** owner reports it **works great** in actual play, with no correction requested at this stage.
-- **Illuminated-area loitering and wooden-door breaking:** owner reports both **work great** and describes zombies frequently breaking doors; no correction requested at this stage.
-- **Rare spider jockeys / ledge grabs:** **not yet observed by the owner**, consistent with intentionally rare recruitment; **not a reported failure and not owner-verified**. Keep the existing natural-jockey playtest gap open.
-
-**M09 remains PLAYTESTING**, not SHIPPED; positive feedback on the observed behaviors does not count as blanket milestone acceptance.
 
 ## Implementation and verification — 2026-10-14
 
