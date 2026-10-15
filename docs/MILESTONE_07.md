@@ -101,6 +101,17 @@ A cable-hauled freight minecart approaching a **real Loading Rail near the far/t
 
 **Confirmed working — terminal Loading Rail approach:** In an actual owner playtest, a single cable-hauled freight cart approached a terminal Loading Rail with the **last cable anchor directly above the rail** and slid smoothly onto the station. The transition was unobtrusive and worked without extra cable beyond the last support. **This specific straight/single-cart end-of-line approach is owner-verified and needs no correction.** Curve/slope approaches, coupled-train approaches, partial-chunk conditions and sequential wagon redocking remain separate, unverified/open cases.
 
+### Owner playtest follow-up — 2026-10-14 (unverified)
+
+The owner reports additional issues and operating refinements in [BUG-006–008, BUG-013, BUG-018–021](BUG_LOG.md). Each bug's observed symptom and reproduction requirements remain in that single register; this section records the intended operating design, **not a completed implementation**.
+
+- **Freight and controls:** a correctly positioned cart should feed a skip from either short end, deliberate chain coupling should not accidentally place a chain above the rail, and the protruding winch lever must be targetable from useful oblique angles.
+- **Coal winch inspection:** clicking the **engine box** should open a small coal-input inventory screen; the existing lever controls remain separate and reliable. Do not add a new fuel type or a second engine at the receiving drum.
+- **Two-drum connection:** an empty receiving drum accepts a routed cable end whether it is grounded or hanging and regardless of receiver facing. One original coil suffices; **no coil is required on the receiver**, and attempting an attachment to an already coiled receiver must not create, lose, or spuriously eject cable materials. Maintain actual route obstruction, one-cable conservation and mirrored winch command semantics.
+- **Selective routing and inclines:** using a held cable end on a chosen previously routed anchor should retract the appropriate existing section and leave a hanging end at that anchor, rather than forcing a full unroute. Investigate a **bounded**, physically credible lowering of an incline's receiving anchor/roller to clear local obstructions; the exact allowable extension remains to be tuned, and no solid-block bypass is authorized.
+
+**Patch gate:** diagnose, implement, run focused client/server checks and obtain owner retesting. None of these observations changes M07's PLAYTESTING status or proves the behavior shipped.
+
 **Implementation/acceptance gate:** These are fixes and a new owner-directed operating requirement, **not evidence they have been coded, tested or approved**. The earlier sequential coupled-wagon redocking issue remains open. Update verification with new build/test evidence after Claude implements a correction; **do not mark M07 SHIPPED** on the strength of the working skip alone.
 
 ## Implementation and verification — 2026-10-13
