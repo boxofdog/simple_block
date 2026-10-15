@@ -28,5 +28,7 @@
 - **M07:** [Playtesting Changes](MILESTONE_07.md#playtesting-changes) — freight operating refinements; [open bugs](BUG_LOG.md).
 - **M08:** [Playtesting Changes](MILESTONE_08.md#playtesting-changes) — furnace naming and casting-animation polish.
 - **M09:** [Playtesting Changes](MILESTONE_09.md#playtesting-changes) — owner feedback on hostile behavior; rare jockeys still unobserved.
+- **M10:** [Playtesting Changes](MILESTONE_10.md#playtesting-changes) — rope art, overalls load-bar visibility, Trail Blazer outline, Old Pro offhand input.
+- **M11:** [Playtesting Changes](MILESTONE_11.md#playtesting-changes) — new read-only cart cargo inspection GUI request; earlier no-GUI rule superseded only for intentional inspection.
 
 See each milestone for requirements, verification and acceptance status. Documentation conventions: [RULES.md](RULES.md).
