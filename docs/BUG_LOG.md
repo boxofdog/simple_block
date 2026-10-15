@@ -82,7 +82,7 @@
 
 ## Owner playtest observations — 2026-10-14
 
-The entries below are **16 separate owner findings** across M07/M08/M10/M11 and existing train/winch behavior. Some are reproducible symptoms; others are explicit UI, art or operation requests. **All remain unimplemented/unverified until a later, SHA-backed patch and owner retest say otherwise.** The milestone `## Playtesting Changes` sections link here for detail. Do not treat a REQUESTED entry as a proven underlying software defect or silently implement alternative behavior.
+The entries below are **16 separate owner findings** across M07/M08/M10/M11 and existing train/winch behavior. Some are reproducible symptoms; others are explicit UI, art or operation requests. **All remain unimplemented/unverified until a later, SHA-backed patch and owner retest say otherwise.** [M13](MILESTONE_13.md) consolidates these owner playtest changes and links here for canonical defect details; former per-milestone `## Playtesting Changes` sections were transferred to M13. Do not treat a REQUESTED entry as a proven underlying software defect or silently implement alternative behavior.
 
 ### BUG-006
 
