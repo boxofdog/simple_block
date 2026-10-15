@@ -90,7 +90,9 @@ The entries below are **16 separate owner findings** across M07/M08/M10/M11 and 
 
 **Classification:** Defect. **Owner playtest (2026-10-14):** A freight minecart unloads into the ore skip from its front end, but not when approaching/loading from the cart's rear end.
 
-**Expected / reproduction and acceptance:** Test both short end gates, orientations, rail/skip levels, bridle/intake alignment and docked Loading Rail conditions. The eligible geometry should work from either end when physically lined up; preserve transfer direction, gating, capacity and item conservation.
+**Owner addendum (2026-10-15):** Replace the skip's one-sided top lid with **two separate lid doors** that open **outward to the left and right sides** of the skip, leaving a clear central receiving opening for ore dumped from **either the front or the rear**. The lid halves visibly open for a valid cart-to-skip intake and close when the transfer ends or is interrupted. This is an owner-directed geometry/animation change as well as a transfer-direction fix; do not simply loosen an invisible acceptance check while the lid still blocks one approach.
+
+**Expected / reproduction and acceptance:** Test both short end gates, orientations, rail/skip levels, bridle/intake alignment and docked Loading Rail conditions. A correctly positioned cart can pour into the skip from **either end**, with the matching minecart end gate and **both lateral-opening skip lid doors** visibly clearing the cargo path. Check opened lid clearance against neighboring blocks, hoist bridle, support cables and station structures; preserve the skip's lower discharge chute, transfer direction, capacities and item conservation. Close/restore the lid appropriately on successful finish, refusal, interruption, reload and client/server sync.
 
 **Status:** **OPEN — owner-observed, not yet independently diagnosed, fixed or verified**. No CI, client test or owner acceptance is claimed.
 
