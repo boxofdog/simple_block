@@ -71,7 +71,9 @@ The prior M03 behavior (see `CargoMinecartRenderer.shouldShowName/getNameTag` an
 - Looking at a freight cart shows **no automatically generated cargo nameplate, debug count or floating fill status**. Leave vanilla **player-assigned custom names** intact, but never append a cargo counter to a name tag.
 - Clicking, right-clicking, feeding a held item, sneak-unloading or using an empty hand must **not produce cart-originated cargo text, status strings, tutorial narration or on-click action-bar overlays**. Do not replace them with a new GUI/counter/tooltip. Visual material and fill depth, visibly opening gates and actual cargo movement become the player's normal feedback.
 - **Interactions still work**: cargo transfers, cushions, engines, rods, coupling and special deliberate behaviors continue to function according to their existing rules. Do not remove important unrelated **Loading Rail or winch** status/failure feedback by broadly muting all game overlays.
-- This **overrides M11's earlier demand for exact on-click count inspection**, and [UX-004](UX_TEXT_LOG.md). Exact quantities remain internal/server/queryable in tests; no replacement numerical cart text is required. Make sure all former automatically displayed `MinecartCargo.status()` usages are audited, not merely hidden for one camera angle.
+- **Later owner direction:** [M13](MILESTONE_13.md) now allows a deliberately opened, read-only cargo inspection window; all no-floating-nameplate and no-action-bar-narration rules remain. The no-GUI language above is retained as historical M11 delivery scope.
+
+This **overrides M11's earlier demand for exact on-click count inspection**, and [UX-004](UX_TEXT_LOG.md). Exact quantities remain internal/server/queryable in tests; no replacement numerical cart text is required. Make sure all former automatically displayed `MinecartCargo.status()` usages are audited, not merely hidden for one camera angle.
 
 ## 6. Claude deliverables and tests
 
@@ -85,13 +87,8 @@ The prior M03 behavior (see `CargoMinecartRenderer.shouldShowName/getNameTag` an
 
 This brief is **not** an instruction for Claude to paint all those cargo piles. It **does** commit Claude to implement real hopper logistics, progressive cargo movement, correctly differentiated fill-state selection, and removal of cart flavor text **once the owner authorizes M11**. No new hopper textures are required: vanilla hoppers remain vanilla; Joe only paints material fills.
 
-## Playtesting Changes
+**Playtest-driven follow-ups transferred to [M13](MILESTONE_13.md).** M11 retains its original delivered scope and dated implementation/verification evidence; owner acceptance and outstanding corrections are not implied.
 
-### Owner cargo-inspection amendment — 2026-10-14 (unverified)
-
-**Newer owner direction supersedes only the historical M11 ban on a replacement GUI in section 5.** Provide a deliberately opened, **small read-only freight-cart inventory window with exactly one disabled/grayed-out cargo slot** showing the actual current material and quantity. Do **not** display the player's own inventory or allow inserting, extracting, dragging, or changing cargo through this screen. Keep the no-floating-nameplate, no-hover-status and no-action-bar-narration rules, and keep cargo fills/gates visible. Choose a clear inspection interaction that does not interfere with normal hand loading/unloading, cushion fitting, coupling or engine/rod actions. See [BUG-014](BUG_LOG.md) for the owner request and test focus.
-
-**Patch gate:** the previous M11 implementation evidence documents behavior *before* this amendment. The GUI has not been implemented, tested or accepted. M11 stays PLAYTESTING.
 
 ## Implementation and verification — 2026-10-14
 
