@@ -126,6 +126,10 @@ Full historical design context is archived in [ROADMAP_PRE_CONSOLIDATION_2026-10
 
 **Delivered:** progressive pour and brief solid-block display passed Build #39 checks; its exact feel awaits owner playtest. M08 remains **PLAYTESTING**, not SHIPPED.
 
+### Owner visual playtest follow-up — 2026-10-14 (unverified)
+
+[BUG-011, BUG-012 and BUG-015](BUG_LOG.md) record three new furnace observations/requests: active casting should visibly illuminate the **mold and front heat grates**, active filling should produce small, restrained **cinder particles** comparable to lava, and flickering/z-fighting at the **front metal plate and mold** needs investigation. Visual effects follow actual casting progress and interruption; neither changes the furnace's contents or timings. Preserve the owner's **hand-painted PNGs and UV mapping**—do not solve overlapping geometry by regenerating/repainting the asset. These are pending patch work and owner retest, not evidence of implementation.
+
 ## Implementation and verification — 2026-10-13
 
 **Metadata:** M08 | PLAYTESTING | Commodity-only carrying cap; pre-industrial blast furnace with cart and skip intake; charcoal block; vanilla blast furnace retired.
