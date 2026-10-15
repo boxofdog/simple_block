@@ -105,30 +105,8 @@ Full historical design context is archived in [ROADMAP_PRE_CONSOLIDATION_2026-10
 
 **M10 COMPATIBILITY:** Mining Boots/Mule, **introduced in M10 rather than M08**, let the wearer carry **more of the cap-restricted ingots/blocks/ore** in exchange for **progressively slower walking** as weighted overload increases; equipment still counts toward burden. Full-set Old Pro keeps Mule's overload benefit without stacking it twice. M08 supplies a compatible classification/eligibility rule but **does not preemptively add the boots, recipe or movement modifier**. No change to freight carts/skips or M08's furnace design. [Detailed M08 design note and future test matrix](MILESTONE_08.md).
 
-## Playtesting Changes
+**Playtest-driven follow-ups transferred to [M13](MILESTONE_13.md).** M08 retains its original delivered scope and dated implementation/verification evidence; owner acceptance and outstanding corrections are not implied.
 
-**Owner feedback — 2026-10-13:** Furnace operation and commodity-weight mechanics worked well in actual play. The two refinements below were **subsequently implemented and CI-tested** (see 2026-10-14 appendix); owner acceptance and visual playtest remain pending.
-
-### Owner playtest naming correction — 2026-10-13
-
-**Required name: `Blast Furnace`** instead of **`Pre-Industrial Blast Furnace`**, **across the entire mod, including internal identities**, not just the tooltip or documentation heading. Claude should audit/rename the Simple Block item/block display names, translated keys, item/block identifiers (currently `simple_block:pre_industrial_blast_furnace`), internal code and asset/model/texture/recipe identifiers and references, generated sources, tests, documentation and any other remaining project-owned usages. Preserve meaningful distinctions from the **retired vanilla blast furnace**; do not accidentally reactivate its crafting recipe or placement. Existing worlds using the prior mod block/BE/item identifiers must be protected through an explicit compatibility/migration strategy and tested with saved-world fixtures; don't silently make placed furnaces or inventory items disappear. Internal class names already using `BlastFurnace` need not be renamed merely to churn.
-
-**Delivered:** renamed to **Blast Furnace** with old-ID compatibility tests in Build #39; an entire pre-rename world has not yet been owner-tested. M08 remains PLAYTESTING.
-
-### Owner playtest casting animation feedback — 2026-10-13
-
-**Owner-clarified visual requirement — continuous, rhythmic casting, NOT a persistent inventory display:** **Fill the mold gradually with molten metal during the actual time needed to cook each storage block** (currently `blast_furnace.cast_ticks = 300`, or 15 seconds); at completion, let the full molten mass resolve into a visible, satisfying solid metal block. **Do not make that finished block instantly pop out of view when the next casting cycle starts.** It needs a perceptible visual moment, followed by a smooth transition into the next rising molten pour. **The furnace should keep cooking consecutive blocks automatically**, including while previously completed blocks remain in the mold's 64-item inventory. The visible block is **the current/just-completed cast**, *not* a permanent depiction of all blocks in storage.
-
-- **Continuous loop:** progressively fill over one cast; show the completed solid block long enough to read it; on the next cast, briefly retain or gracefully transition/cover that solid appearance as the new molten fill begins, without a sudden empty-mold jump. Claude may tune the short visual hold/crossfade/occlusion against the existing cast-progress timeline. **No extra cooking delay, collection requirement or second production timer:** the next nine-ore batch progresses at the normal rate even during the solid-block visual hold, and the new fill catches up to its true progress.
-- **Idle/blocked:** if no further batch can cook, the most recently completed block **may remain visibly in the mold while stored**. If the output is collected, it **may disappear immediately**—the owner explicitly does *not* require a removal fade, sink animation or delay. If a cast pauses midway (e.g., missing fuel or blocked output), its molten fill holds and resumes in sync with real progress; save/load and multiplayer must reproduce the correct stage.
-- **Inventory versus visual:** retained output stacks do **not** lock the animation to an unmoving solid block; successive casts visually restart and finish even with earlier blocks accumulated in that same mold. Preserve existing displayed metal identity and handle first cast, repeated casts, storage full, interrupted casts and partial/total withdrawals. Never imply an extra collectible block or change the real stored count.
-- **No gameplay changes:** preserve nine raw iron/copper/gold → one corresponding storage block, existing cast and fuel timings, 516 ore/64 finished-block capacities, safety/refusal logic and item conservation. Existing 30-tick **post-completion** pour effect alone is insufficient; move the primary fill animation into active processing and smoothly cycle into the next batch. Validate in a real client and dedicated/multiplayer connection.
-
-**Delivered:** progressive pour and brief solid-block display passed Build #39 checks; its exact feel awaits owner playtest. M08 remains **PLAYTESTING**, not SHIPPED.
-
-### Owner visual playtest follow-up — 2026-10-14 (unverified)
-
-[BUG-011, BUG-012 and BUG-015](BUG_LOG.md) record three new furnace observations/requests: active casting should visibly illuminate the **mold and front heat grates**, active filling should produce small, restrained **cinder particles** comparable to lava, and flickering/z-fighting at the **front metal plate and mold** needs investigation. Visual effects follow actual casting progress and interruption; neither changes the furnace's contents or timings. Preserve the owner's **hand-painted PNGs and UV mapping**—do not solve overlapping geometry by regenerating/repainting the asset. These are pending patch work and owner retest, not evidence of implementation.
 
 ## Implementation and verification — 2026-10-13
 
