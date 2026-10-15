@@ -102,6 +102,19 @@ Recipe layouts and components are settled. Claude may use ordinary single-item c
 
 **Status: PLAYTESTING. Implemented and CI-verified (see appendix); owner playtesting pending; not SHIPPED.**
 
+## Playtesting Changes
+
+### Owner playtest follow-up — 2026-10-14 (unverified)
+
+See [BUG-009, BUG-010, BUG-016 and BUG-017](BUG_LOG.md) for the canonical observations and acceptance checks.
+
+- **Rope appearance:** make the surplus bundle look like actual coiled rope rather than a tube, with a thicker hanging strand and a sturdier anchor. Leave climbing, extension and item conservation intact.
+- **Inventory layout:** the weighted-cargo bar must remain visible when the Overalls' extra inventory row is expanded, including the over-cap condition.
+- **Trail Blazer:** explore an actual object-following outline instead of the current unconvincing highlight. **Do not silently remove the effect**: the owner offered removal as a fallback if accurate silhouettes are impractical; confirm the choice before deleting visual feedback or related mechanics.
+- **Old Pro:** off-hand pickaxe mining is **a complete Headlamp + Overalls + Mining Boots set benefit**, not an unconditional offhand mechanic. First establish the intended controls and reproduce with the actual set active; only classify it as a functional regression after that check.
+
+All four items await investigation, implementation where needed and owner retest. M10 remains PLAYTESTING.
+
 ## Implementation and verification — 2026-10-14
 
 **Metadata:** M10 | PLAYTESTING | Gold/chainmail armor retired; Headlamp, Overalls, Spiked/Mining Boots with Spelunker's Speed, Trail Blazer, Mule, Old Pro; overload lock; Rope and Spelunker's Rope.
