@@ -20,12 +20,12 @@
 | M10 | Headlamp/Overalls/boots, workwear bonuses, Spelunker's Rope, armor retirement | **PLAYTESTING** | [M10 package](MILESTONE_10.md) | [Verification](MILESTONE_10.md#implementation-and-verification--2026-10-14) · [CI #46](https://github.com/boxofdog/simple_block/actions/runs/38535509454) |
 | M11 | Material-/shape-specific cart fills, progressive hopper transfer, cart text removal | **PLAYTESTING** | [M11 package](MILESTONE_11.md) | [Verification](MILESTONE_11.md#implementation-and-verification--2026-10-14) · [CI #52](https://github.com/boxofdog/simple_block/actions/runs/38597022406) |
 | M12 | Permanent four-monster effigies, 576-drop compression and directional fear | **PLAYTESTING** | [M12 handoff](MILESTONE_12.md) | Not implemented; owner authorization required to begin |
-| M13 | Integration bug fixes, cross-milestone refinement and arrowless-bow Spelunker's Rope | **PLANNED - NOT READY** | [M13 patch package](MILESTONE_13.md) | Planning only; no M13 implementation or verification |
+| M13 | Integration bug fixes, cross-milestone refinement and offhand-rope-priority bow launching | **PLANNED - NOT READY** | [M13 patch package](MILESTONE_13.md) | Planning only; no M13 implementation or verification |
 
 **Unnumbered work:** ordinary 3D rails have been implemented (owner visual review pending). Revised villages, extreme grades, discovered enchanting and iron/diamond/netherite armor bonuses remain future [backlog](BACKLOG.md) ideas, **not implementation authorizations**.
 
 ## Consolidated playtesting and feature refinement
 
-[M13](MILESTONE_13.md) is the **single worklist** for M07–M11 owner playtesting amendments, cross-milestone bug fixes and broad M01–M12 regression, including the new dry-fired bow/Spelunker's Rope interaction. [BUG_LOG.md](BUG_LOG.md) retains canonical defect records. Existing milestone specifications, dated evidence and status headers remain intact. M13 planning is **not** implementation authorization.
+[M13](MILESTONE_13.md) is the **single worklist** for M07–M11 owner playtesting amendments, cross-milestone bug fixes and broad M01–M12 regression, including the new Spelunker's Rope bow-launch interaction (offhand rope overrides arrow ammo). [BUG_LOG.md](BUG_LOG.md) retains canonical defect records. Existing milestone specifications, dated evidence and status headers remain intact. M13 planning is **not** implementation authorization.
 
 See each milestone for requirements, verification and acceptance status. Documentation conventions: [RULES.md](RULES.md).
