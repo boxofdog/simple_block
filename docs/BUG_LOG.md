@@ -27,6 +27,7 @@
 | BUG-019 | [M07 two-drum cables — receiver facing restriction](#bug-019) | **OPEN — owner playtest 2026-10-14** |
 | BUG-020 | [M07 cable anchors — selective mid-route detach](#bug-020) | **REQUESTED — owner playtest 2026-10-14** |
 | BUG-021 | [M07 cable anchors — inclined-span obstruction clearance](#bug-021) | **REQUESTED — owner playtest 2026-10-14** |
+| BUG-022 | [M07 Ore Skip — z-fighting / overlapping rendered faces](#bug-022) | **OPEN — owner report 2026-10-17** |
 
 ## Symptoms, evidence and verification
 
@@ -245,5 +246,15 @@ The entries below are **16 separate owner findings** across M07/M08/M10/M11 and 
 **Expected / reproduction and acceptance:** Investigate obstruction cases and a bounded downward roller/hanger offset while the mounting block stays fixed. Establish a conservative maximum drop and tests for clearance, diagonal spans, rod reach, anchor rendering and support validity; do not auto-route through solid blocks or silently extend cable beyond physical constraints.
 
 **Status:** **REQUESTED — owner-directed refinement, not yet implemented or verified**. No CI, client test or owner acceptance is claimed.
+
+### BUG-022
+
+**Area:** M07 Ore Skip — z-fighting / overlapping rendered faces
+
+**Classification:** Visual defect. **Owner report (2026-10-17):** The **Ore Skip** exhibits z-fighting (visually flickering/interfering faces). The specific affected surfaces, camera angles, and exact reproduction conditions have **not yet been documented**; do not confuse this with the separate M08 Blast Furnace [BUG-015](#bug-015).
+
+**Expected / reproduction and acceptance:** Inspect the Ore Skip's assembled model and each relevant component/animated state (bin, chute, gates, lid, bridle) in the real client from multiple camera angles and during operation to **identify which overlapping/copanar faces actually flicker**. Check geometry overlap, face visibility, depth separation and render layering before selecting the smallest geometry/render fix. Eliminate visible flicker without changing freight behavior, removing intended detail, shifting owner-approved UVs, or overwriting the owner's hand-painted `ore_skip.png` texture or editable Blockbench sources. Capture before/after client evidence and obtain owner visual retest. This defect is within [M13's M07 visual regression work](MILESTONE_13.md); it does not claim implementation authorization.
+
+**Status:** **OPEN — owner-reported, not yet independently reproduced, diagnosed, fixed or verified**. No CI, client test or owner acceptance is claimed.
 
 Keep a defect open until its specific owner-observed symptom has been checked in game. Historical analysis can describe hypotheses that were later disproved; don't mistake them for the final cause.
