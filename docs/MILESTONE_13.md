@@ -5,7 +5,7 @@ status: PLANNED - NOT READY
 
 # M13 — Widespread bug-fixing, playtesting and feature-refinement patch
 
-**Owner scoped 2026-10-15; documentation change only, not implementation authorization.** M13 centralizes playtest-driven corrections, cross-milestone regressions and usability refinements from M07–M11, with a newly requested bow-launched Spelunker's Rope mechanic. It does **not** reimplement or change the lifecycle states of original M01–M12 features. Their original requirements, implementation appendices and CI evidence remain in their milestone files. [BUG_LOG.md](BUG_LOG.md) is the sole authority for bug symptoms, diagnoses, status and fix verification.
+**Owner scoped 2026-10-15; additional owner-directed feature refinements recorded 2026-10-17. Documentation change only, not implementation authorization.** M13 centralizes playtest-driven corrections, cross-milestone regressions and usability refinements from M07–M11, plus the bow-launched Spelunker's Rope, useful nighttime bed rest, window-focus behavior and inventory drag-to-transfer. It does **not** reimplement or change the lifecycle states of original M01–M12 features. Their original requirements, implementation appendices and CI evidence remain in their milestone files. [BUG_LOG.md](BUG_LOG.md) is the sole authority for bug symptoms, diagnoses, status and fix verification.
 
 ## Patch scope
 
@@ -16,6 +16,9 @@ status: PLANNED - NOT READY
 | M09/M12 mobs and defenses | Verify light attraction, doors, creeper retaliation, rare jockey occurrence and effigy interactions. **No M12 defect has been reported in the moved notes.** |
 | M10 access and workwear | Rope/coil visual refinements, weighted load bar, Trail Blazer silhouettes, Old Pro offhand control and bow-launched rope. [BUG-009/010/016/017](BUG_LOG.md). |
 | M11 cargo UX | A read-only, one-disabled-slot cargo inspection window, with no player inventory or return of hover/action-bar narration. [BUG-014](BUG_LOG.md). |
+| M01 nighttime survival | Beds permit nighttime rest to recover health by consuming hunger, but **never skip time or weather**; valid spawn-setting continues unchanged. |
+| M02/M08/M10 inventory QoL | Shift + right-click drag across occupied inventory/container slots to quick-move each eligible stack, retaining shift-click destination priority, weight/carrying limits and slot protections. |
+| Client window focus | Alt-Tab away without opening the Escape/Game Menu or injecting Escape; keep ordinary manual pause/menu controls. |
 | M01–M12 overall | Broad regression of resource conservation, survival, weight/inventory, hostile AI, freight systems, ropes, art, client/server and saved-world behavior. |
 
 The present repair/retest pool is open or requested BUG-003–021; resolved/tested BUG-001 and BUG-002 warrant regressions, not reopening by assumption. Track defects and triage in BUG_LOG. Protect owner-painted textures, UV coordinates and editable Blockbench models. No unrelated systems, items or progression gates are authorized.
@@ -31,6 +34,38 @@ The present repair/retest pool is open or requested BUG-003–021; resolved/test
 - **Verification:** Partial/full draw, valid underside and side hits, misses, physical obstructions; **offhand rope overriding stocked arrows without consuming them**, no-arrow rope shots, **normal arrow firing once rope is removed**; enchantments, charged limits, offhand stacks, placement denial, line/coil extension and recovery, save/reload, multiplayer and real client, damage/grappling negative controls, and no rope duplication.
 
 Unresolved numeric/visual defaults require a documented proposal and owner review; adding this design to M13 is **not permission to implement**.
+
+## New owner-requested feature — nighttime bed rest heals at a hunger cost
+
+**Owner direction — 2026-10-17; refinement of M01's no-sleep-skipping rule, not a reversal.** Beds currently function as spawn setters without sleep-time advancement. Make **lying in a bed at night** a useful, vulnerable recovery action: **restore health gradually while consuming actual hunger**, without skipping the night or changing the weather.
+
+- **Night-only rest:** Players may enter and remain in a bed for the healing/rest interaction only **at night** under the ordinary safe bed conditions; no daytime healing by beds. Preserve bed respawn-point setting and normal leave-bed behavior. Respect M01's original **Nether/End bed behavior** and existing bed types (including straw beds); do not create safe beds in dimensions where vanilla beds are dangerous.
+- **Never skip time:** Even if every player rests simultaneously, the Overworld clock, weather and hostile activity continue normally. Rest is neither a hidden time skip nor a time-speed multiplier. No phantom/insomnia penalty or mandatory daily sleep.
+- **Exchange rate:** **Healing an entire empty health bar (10 hearts / 20 health points) consumes 2½ visible hunger drumsticks (5 food points)**, proportionally: each heart restored costs **¼ drumstick (½ food point)**. Use a fractional accumulator or other exact server-side accounting so partial healing cannot evade the hunger cost due to integer rounding. Healing must actually deplete the hunger meter; invisible saturation/exhaustion alone must not replace the specified visible cost.
+- **Recovery pace:** Heal over time *while the player is actually resting*, not instantaneously on clicking a bed. **Initial playtest proposal:** 1 heart per 2 seconds, so 10 hearts take about 20 seconds; adjust only after owner feedback. Stop at full health, on leaving bed, on interruption/death or once available hunger cannot pay for more recovery. Never heal or consume additional hunger when rest is not active, and never create food or health through repeated enter/exit.
+- **Food-pressure design:** Rest remains useful when ordinary natural regeneration would not trigger because hunger is low, **provided some hunger remains to spend**. Honor hunger availability for partial healing instead of offering free full recovery; keep existing M02 food/saturation UI, food rules and other healing methods otherwise intact.
+- **Verification:** Day vs night; full, partial and zero health deficits; full, low and zero hunger; fractional cost and enter/exit interruption; multiplayer simultaneous resting with time/weather unchanged; valid spawn setting; hostile mobs continuing to act; bed obstruction/leave/death; straw bed; Nether/End safety; dedicated server, save/reload, and no free-heal/food-accounting negative controls.
+
+## New owner-requested feature — Alt-Tab without Escape/Game Menu
+
+**Owner direction — 2026-10-17.** Switching focus from Minecraft to another application via **Alt-Tab** must work directly **without first opening the Escape menu** and **without Alt-Tab/focus loss automatically opening the Escape/Game Menu or acting as an Escape keypress**.
+
+- Preserve normal, explicit **Escape** input to open/close the Game Menu, and preserve normal operating-system task switching. Do not require a special new keybinding to Alt-Tab.
+- Keep mouse capture and keyboard state safe on focus loss/return: do not leave movement, mining, inventory drag or use held down, synthesize stray clicks, or block regaining mouse control when refocusing.
+- The intended convenience is leaving the game running without going into the pause menu. If Minecraft's existing **Pause on Lost Focus** preference already controls a portion of this, respect or configure that native behavior rather than duplicating controls or silently overriding an intentional user preference. Do not conflate the Game Menu opening with server pause rules (particularly multiplayer).
+- **Verification:** Alt-Tab from ordinary gameplay and inventory screens, focus return, explicit Escape, single-player vs multiplayer, fullscreen vs windowed/borderless, lost focus during held input, and negative tests for stuck keys or unintended inventory actions.
+
+## New owner-requested feature — Shift + right-click glide to transfer items
+
+**Owner direction — 2026-10-17.** While an inventory or transfer-capable container interface is open, **hold Shift and hold right mouse button, then glide the cursor across item slots** to **quick-move items out of each visited eligible occupied slot**. The player should not need to separately click each stack.
+
+- On entering each **new eligible slot** during the held gesture, invoke the same **server-authoritative quick-move/shift-click stack transfer** that the menu supports. Transfer whole eligible stacks, **not** one item per slot and **not** vanilla right-drag item distribution. A slot should act at most once per continuous gesture; dragging over empty/blocked slots is harmless, and releasing Shift or right mouse button stops further transfers.
+- Respect the screen's normal **source-to-destination rules** and existing M02 **hotbar-first shift-click priority**, M08 commodity admission, M10 Overalls slot availability/weight and capacity constraints, M11 protected/read-only cargo-inspection slot, and all locked, output, crafting, equipment, or otherwise restricted slots. Never bypass restrictions just because the player is dragging.
+- Preserve unmodified right-click splitting/distribution, normal left-click, ordinary one-off Shift-click, and cursor-held-item behavior. If vanilla drag/quick-craft or another mouse gesture conflicts, this explicit **Shift + right-button drag** takes precedence **only when valid**; do not create a stuck drag state when the menu closes, focus is lost, or modifiers change.
+- Each attempted move must be atomic, reconciled against the authoritative slot contents, and harmless if the destination is full or items are rejected. No lost/duplicated stacks, slot desync, unintended trashing or duplicate triggers on repeated mouse-over events.
+- **Verification:** Multiple neighboring stacks transferred in one glide in player/container interfaces; slot re-entry once per gesture; empty/blocked/ineligible slots; hotbar-first priority; near-full container, incompatible stacks and weight caps; Overalls-equipped/un-equipped layouts; M11 disabled slot; vanilla right-drag/Shift-click unchanged; shift/release/focus loss mid-gesture; dedicated server, multiplayer and negative controls for duplication/slot bypass.
+
+**Unsettled implementation details:** Precise rest healing tick interval, native focus/pause integration across platforms, and any exceptional screens not exposing ordinary quick-move actions should be documented and owner-playtested; do not silently alter earlier milestone constraints. These M13 requests are **planning, not implementation authorization**.
 
 ## Transferred playtesting changes from original milestones
 
@@ -145,7 +180,7 @@ All four items await investigation, implementation where needed and owner retest
 ## Patch verification and owner acceptance
 
 1. Reproduce and triage each still-open or requested BUG entry; fix or record owner-approved deferral, with status and evidence in BUG_LOG. Do not treat a REQUESTED visual improvement as proof of a code defect.
-2. Execute broad **M01–M12 regression**, especially cable/skip/cart/winch safety; metallurgical cargo/fuel state; commodity weights and workwear; rope; hostile AI and effigies; user interfaces and rendering. Include negative controls that expose known regressions and server-authoritative no-duplication/refusal tests.
+2. Execute broad **M01–M12 regression**, especially cable/skip/cart/winch safety; metallurgical cargo/fuel state; commodity weights and workwear; rope; hostile AI and effigies; **nighttime rest, focus-loss handling and Shift + right-click drag-to-transfer**; user interfaces and rendering. Include negative controls that expose known regressions and server-authoritative no-duplication/refusal tests.
 3. Validate changed UI, VFX and models in actual clients at multiple perspectives and GUI scales. Cover dedicated server, multiplayer, chunk/save/reload and interrupted transfers. Preserve hand-painted artwork and UVs.
 4. Previously implemented M07/M08 follow-ups are not to be blindly reimplemented; obtain actual owner retest. Obtain the owner's decision before dropping Trail Blazer's ghost outline or materially redefining the new rope launch.
 5. After **separate, explicit implementation authorization**, place a dated `## Implementation and verification — YYYY-MM-DD` appendix at this file's **end** per [REPORTING_POLICY.json](REPORTING_POLICY.json), citing actual tested full SHA, CI artifact, test counts and gaps. No CI result alone makes M13 **SHIPPED**; only explicit owner signoff does.
