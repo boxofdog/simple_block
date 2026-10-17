@@ -21,6 +21,7 @@
 | M11 | Material-/shape-specific cart fills, progressive hopper transfer, cart text removal | **PLAYTESTING** | [M11 package](MILESTONE_11.md) | [Verification](MILESTONE_11.md#implementation-and-verification--2026-10-14) · [CI #52](https://github.com/boxofdog/simple_block/actions/runs/38597022406) |
 | M12 | Permanent four-monster effigies, 576-drop compression and directional fear | **PLAYTESTING** | [M12 handoff](MILESTONE_12.md) | Not implemented; owner authorization required to begin |
 | M13 | Integration bug fixes, cross-milestone refinement and offhand-rope-priority bow launching | **PLANNED - NOT READY** | [M13 patch package](MILESTONE_13.md) | Planning only; no M13 implementation or verification |
+| M14 | Old Coot: abandoned-mineshaft miner and spider guardian | **PLANNED - NOT READY** | [M14 brief](MILESTONE_14.md) | Not implemented; owner authorization required |
 
 **Unnumbered work:** ordinary 3D rails have been implemented (owner visual review pending). Revised villages, extreme grades, discovered enchanting and iron/diamond/netherite armor bonuses remain future [backlog](BACKLOG.md) ideas, **not implementation authorizations**.
 
