@@ -33,7 +33,7 @@ Each existing paint job below now has **direct links to its PNG texture atlas an
 
 ## Waiting for Claude's new geometry/UV templates
 
-- [ ] **M14 Old Coot — future painting, awaiting authorized model/UV template.** Squat dwarf-like villager with a **prominent villager nose**, large white beard, battered miner's hat, worn clothes and iron pickaxe. Claude provides editable Blockbench entity model, UVs and placeholder textures after M14 implementation is authorized; Joe owns final paint and approval. Add actual file links once delivered. [M14 brief](../MILESTONE_14.md).
+- [ ] **M14 Old Coot — future painting, awaiting authorized model/UV template.** Approximately **1¼ blocks tall (1.25 blocks)**, squat dwarf-like villager with a **prominent villager nose**, large white beard, battered miner's hat, worn clothes and iron pickaxe. Model/animation handoff must show **his pickaxe-holding arm visibly swinging while mining AND attacking**. Claude provides editable Blockbench entity model, UVs, placeholder textures and animations after M14 implementation is authorized; Joe owns final paint and approval. Add actual file links once delivered. [M14 brief](../MILESTONE_14.md).
 
 - [ ] **M12 Monster Effigies — waiting for templates.** Four impaled monster monuments (zombie, skeleton, creeper, enderman) plus four compressed monster blocks. Claude supplies distinct editable Blockbench models, UVs and placeholder PNGs during M12; add exact asset links here once delivered. Joe paints final art after the geometry is stable. [M12 brief](../MILESTONE_12.md).
 
