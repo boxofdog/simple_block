@@ -23,6 +23,7 @@ A Minecraft Java Edition overhaul about **hostile nights, meaningful mining, ind
 | M11 | Material-specific cart loads at four visible fill heights, gradual hand/hopper freight transfers, side-gate unloading, and removal of mod-authored floating/action-bar text. | [M11](docs/MILESTONE_11.md) |
 | M12 | Four permanent **Monster Effigies** (zombie, skeleton, creeper, enderman) built from nine full stacks of a mob drop per block; placed through a confirmation screen, they send their own monster fleeing a 100-block forward cone. | [M12](docs/MILESTONE_12.md) |
 | M13 | Planned broad bug-fixing, playtesting and feature-refining patch, including bow-launching Spelunker's Rope from the offhand, taking priority over arrows. | [M13](docs/MILESTONE_13.md) |
+| M14 | Planned Old Coot: rare squat, bearded villager-like mineshaft miner that excavates stone, lights tunnels, and protects nearby ore and cave spiders. | [M14](docs/MILESTONE_14.md) |
 
 **Additional visual work:** Ordinary vanilla rails now use [3D models](docs/BACKLOG.md#i-013--3d-ordinary-rails) matching the Loading Rail profile; the block's physics, IDs, drops and crafting are unchanged. See [editable Blockbench sources](art/blockbench/README.md).
 
