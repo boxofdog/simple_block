@@ -5,7 +5,7 @@ status: PLANNED - NOT READY
 
 # M13 — Widespread bug-fixing, playtesting and feature-refinement patch
 
-**Owner scoped 2026-10-15; additional owner-directed feature refinements recorded 2026-10-17. Documentation change only, not implementation authorization.** M13 centralizes playtest-driven corrections, cross-milestone regressions and usability refinements from M07–M11, plus the bow-launched Spelunker's Rope, useful nighttime bed rest, window-focus behavior and inventory drag-to-transfer. It does **not** reimplement or change the lifecycle states of original M01–M12 features. Their original requirements, implementation appendices and CI evidence remain in their milestone files. [BUG_LOG.md](BUG_LOG.md) is the sole authority for bug symptoms, diagnoses, status and fix verification.
+**Owner scoped 2026-10-15; additional owner-directed feature refinements recorded 2026-10-17. Documentation change only, not implementation authorization.** M13 centralizes playtest-driven corrections, cross-milestone regressions and usability refinements from M07–M11, plus the bow-launched Spelunker's Rope, useful nighttime bed rest, window-focus behavior, inventory drag-to-transfer and chest sorting. It does **not** reimplement or change the lifecycle states of original M01–M12 features. Their original requirements, implementation appendices and CI evidence remain in their milestone files. [BUG_LOG.md](BUG_LOG.md) is the sole authority for bug symptoms, diagnoses, status and fix verification.
 
 ## Patch scope
 
@@ -17,7 +17,7 @@ status: PLANNED - NOT READY
 | M10 access and workwear | Rope/coil visual refinements, weighted load bar, Trail Blazer silhouettes, Old Pro offhand control and bow-launched rope. [BUG-009/010/016/017](BUG_LOG.md). |
 | M11 cargo UX | A read-only, one-disabled-slot cargo inspection window, with no player inventory or return of hover/action-bar narration. [BUG-014](BUG_LOG.md). |
 | M01 nighttime survival | Beds permit nighttime rest to recover health by consuming hunger, but **never skip time or weather**; valid spawn-setting continues unchanged. |
-| M02/M08/M10 inventory QoL | Shift + right-click drag across occupied inventory/container slots to quick-move each eligible stack, retaining shift-click destination priority, weight/carrying limits and slot protections. |
+| M02/M08/M10 inventory QoL | Shift + right-click drag across occupied inventory/container slots to quick-move each eligible stack, retaining shift-click destination priority, weight/carrying limits and slot protections; add a Sort button to chest screens without sorting the player's inventory. |
 | Client window focus | Alt-Tab away without opening the Escape/Game Menu or injecting Escape; keep ordinary manual pause/menu controls. |
 | M01–M12 overall | Broad regression of resource conservation, survival, weight/inventory, hostile AI, freight systems, ropes, art, client/server and saved-world behavior. |
 
@@ -66,6 +66,19 @@ Unresolved numeric/visual defaults require a documented proposal and owner revie
 - **Verification:** Multiple neighboring stacks transferred in one glide in player/container interfaces; slot re-entry once per gesture; empty/blocked/ineligible slots; hotbar-first priority; near-full container, incompatible stacks and weight caps; Overalls-equipped/un-equipped layouts; M11 disabled slot; vanilla right-drag/Shift-click unchanged; shift/release/focus loss mid-gesture; dedicated server, multiplayer and negative controls for duplication/slot bypass.
 
 **Unsettled implementation details:** Precise rest healing tick interval, native focus/pause integration across platforms, and any exceptional screens not exposing ordinary quick-move actions should be documented and owner-playtested; do not silently alter earlier milestone constraints. These M13 requests are **planning, not implementation authorization**.
+
+## New owner-requested feature — Sort button for chests
+
+**Owner direction — 2026-10-17.** Add a visible, clickable **Sort** button to ordinary chest storage screens. Players should be able to tidy a chest in one click without moving its items into their personal inventory first.
+
+- **Chest scope:** Support **single and double chests**, including their normal trapped-chest counterparts where they use the same chest inventory screen. This is **chest storage only**; no automatic sorting of barrels, hoppers, minecarts, custom machinery, or disabled/read-only inspection windows is authorized by this request.
+- **One-click result:** Sort **only the chest's own storage slots** (27 or 54 as appropriate), *not* the player's inventory, hotbar, equipment, cursor stack or unrelated container. Leave the chest's accessible size, capacity, slots, item types and quantities unchanged. Sort on demand only, **not automatically** every time the chest opens or its contents change.
+- **Match existing inventory sorting:** Reuse the M02 [InventorySort](../src/main/java/io/github/boxofdog/simpleblock/feature/InventorySort.java) semantics: safely merge only mutually compatible stacks with **identical item components**, respect per-item maximum stack sizes, then sort by item registry order with namespaced ID tie-breaks; fill rows **left to right from the top row** with empty slots at the end. Never combine enchanted, damaged, renamed or otherwise component-distinct stacks. The chest sort is a separate inventory target, **not** permission to invoke the player inventory's existing sort payload against a container.
+- **Button/UI:** Show a small icon-style Sort control with a clear tooltip, visually consistent with the existing player-inventory button. Place it **without overlapping chest slots, player slots, the heavy-load bar, tooltips, screen bounds or other controls** at supported GUI scales, including double-chest screens. Avoid accidental activation when clicking slots.
+- **Server authority and safety:** Request sorting through the actual open chest menu; server verifies the player's currently open, valid chest and operates atomically on its **current** inventory state. Reject stale/closed/incorrect screen requests and spectator/unauthorized actions. Support simultaneous viewers and double-chest halves without desync, dropping, duplication, race conditions or hidden storage. Respect ordinary access restrictions. Repeated clicks must be safe and idempotent.
+- **Verification:** Real client single, double and trapped chests; occupied/mixed/empty/full inventories, stack consolidation, nonstackables and custom item components; repeated clicks; no player-inventory changes; opening/closing, concurrent viewers, client/server synchronization, save/reload, varying GUI scales, and negative tests for loss/dupes, stale-menu commands and invalid chest targets.
+
+This addition **does not alter** M02's existing player-inventory sorting or M13's Shift + right-click item-transfer gesture. Implementation and test evidence require separate owner authorization; the current change is documentation only.
 
 ## Transferred playtesting changes from original milestones
 
@@ -180,7 +193,7 @@ All four items await investigation, implementation where needed and owner retest
 ## Patch verification and owner acceptance
 
 1. Reproduce and triage each still-open or requested BUG entry; fix or record owner-approved deferral, with status and evidence in BUG_LOG. Do not treat a REQUESTED visual improvement as proof of a code defect.
-2. Execute broad **M01–M12 regression**, especially cable/skip/cart/winch safety; metallurgical cargo/fuel state; commodity weights and workwear; rope; hostile AI and effigies; **nighttime rest, focus-loss handling and Shift + right-click drag-to-transfer**; user interfaces and rendering. Include negative controls that expose known regressions and server-authoritative no-duplication/refusal tests.
+2. Execute broad **M01–M12 regression**, especially cable/skip/cart/winch safety; metallurgical cargo/fuel state; commodity weights and workwear; rope; hostile AI and effigies; **nighttime rest, focus-loss handling, Shift + right-click drag-to-transfer and chest sorting**; user interfaces and rendering. Include negative controls that expose known regressions and server-authoritative no-duplication/refusal tests.
 3. Validate changed UI, VFX and models in actual clients at multiple perspectives and GUI scales. Cover dedicated server, multiplayer, chunk/save/reload and interrupted transfers. Preserve hand-painted artwork and UVs.
 4. Previously implemented M07/M08 follow-ups are not to be blindly reimplemented; obtain actual owner retest. Obtain the owner's decision before dropping Trail Blazer's ghost outline or materially redefining the new rope launch.
 5. After **separate, explicit implementation authorization**, place a dated `## Implementation and verification — YYYY-MM-DD` appendix at this file's **end** per [REPORTING_POLICY.json](REPORTING_POLICY.json), citing actual tested full SHA, CI artifact, test counts and gaps. No CI result alone makes M13 **SHIPPED**; only explicit owner signoff does.
