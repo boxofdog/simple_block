@@ -22,6 +22,7 @@
 | M12 | Permanent four-monster effigies, 576-drop compression and directional fear | **PLAYTESTING** | [M12 handoff](MILESTONE_12.md) | Not implemented; owner authorization required to begin |
 | M13 | Integration fixes, rope bow launch, bed recovery, chest sorting and inventory QoL | **PLANNED - NOT READY** | [M13 patch package](MILESTONE_13.md) | Planning only; no M13 implementation or verification |
 | M14 | Old Coot: abandoned-mineshaft miner and spider guardian | **PLANNED - NOT READY** | [M14 brief](MILESTONE_14.md) | Not implemented; owner authorization required |
+| M15 | Cobblestone Engine rear three-position Through/Load/Unload lever and conditional Loading Rail service | **PLANNED - NOT READY** | [M15 brief](MILESTONE_15.md) | Planning only; no implementation or verification |
 
 **Unnumbered work:** ordinary 3D rails have been implemented (owner visual review pending). Revised villages, extreme grades, discovered enchanting and iron/diamond/netherite armor bonuses remain future [backlog](BACKLOG.md) ideas, **not implementation authorizations**.
 
