@@ -19,6 +19,7 @@ File names and counts only. Presence does not prove execution, PASS, or owner ap
 | [milestone-11](milestone-11/) | 16 | 1 | 0 | [m11-verification-2026-10-14.txt](milestone-11/m11-verification-2026-10-14.txt) |
 | [milestone-12](milestone-12/) | 12 | 1 | 0 | [m12-verification-2026-10-14.txt](milestone-12/m12-verification-2026-10-14.txt) |
 | [milestone-14](milestone-14/) | 0 | 0 | 0 | — |
+| [milestone-15](milestone-15/) | 0 | 0 | 0 | — |
 | [rails-3d](rails-3d/) | 5 | 0 | 0 | — |
 
 Regenerate using tools/docs/automation.py evidence --write
