@@ -49,6 +49,7 @@ public class InventoryUiClientTest implements FabricClientGameTest {
 			context.waitTicks(10);
 			glide(context, server, chest, "m13");
 			loadBar(context, server, chest, "m13");
+			sortButton(context, server, chest, "m13");
 		}
 		try (TestDedicatedServerContext server = context.worldBuilder().createServer();
 			TestDedicatedServerConnection connection = server.connect()) {
@@ -233,6 +234,45 @@ public class InventoryUiClientTest implements FabricClientGameTest {
 		});
 		server.runCommand("clear @a");
 		SimpleBlockTestLog.info("CLIENT M13 BUG-010 LOAD BAR ({}): {}", shots, log);
+	}
+
+	/** The chest Sort button, clicked with the real mouse: the chest is sorted, the player's inventory is not. */
+	private static void sortButton(ClientGameTestContext context, TestServerContext server, BlockPos chest, String shots) {
+		String c = chest.getX() + " " + chest.getY() + " " + chest.getZ();
+		server.runCommand("clear @a");
+		server.runCommand("data merge block " + c + " {Items:[]}");
+		server.runCommand("item replace block " + c + " container.20 with minecraft:cobblestone 40");
+		server.runCommand("item replace block " + c + " container.7 with minecraft:dirt 3");
+		server.runCommand("item replace block " + c + " container.11 with minecraft:cobblestone 40");
+		server.runCommand("item replace entity @a container.22 with minecraft:dirt 5");
+		server.runCommand("item replace entity @a container.19 with minecraft:cobblestone 5");
+		open(context, chest);
+		double[] at = context.computeOnClient(client -> {
+			AbstractContainerScreen<?> screen = (AbstractContainerScreen<?>) client.gui.screen();
+			AbstractContainerScreenAccessor panel = (AbstractContainerScreenAccessor) screen;
+			int[] button = InventoryScreenAddons.chestSortButton(screen);
+			for (var slot : screen.getMenu().slots) {
+				if (slot.isActive() && button[0] < slot.x + 17 && slot.x - 1 < button[0] + button[2] && button[1] < slot.y + 17 && slot.y - 1 < button[1] + button[3]) {
+					throw new AssertionError("the Sort button overlaps slot " + slot.index);
+				}
+			}
+			double scale = client.getWindow().getGuiScale();
+			return new double[] {(panel.simpleBlock$getLeftPos() + button[0] + button[2] / 2.0) * scale,
+				(panel.simpleBlock$getTopPos() + button[1] + button[3] / 2.0) * scale};
+		});
+		context.getInput().setCursorPos(at[0], at[1]);
+		context.waitTicks(3);
+		context.takeScreenshot(shots + "-chest-sort-hover");
+		context.getInput().pressMouse(InputConstants.MOUSE_BUTTON_LEFT);
+		context.waitTicks(5);
+		String sorted = contents(server, chest, 0, 4);
+		String mine = playerContents(server, 19, 23);
+		close(context);
+		SimpleBlockTestLog.info("CLIENT M13 CHEST SORT ({}): chest {} | player 19-22 {}", shots, sorted, mine);
+		assertTrue(sorted.equals("3 dirt,64 cobblestone,16 cobblestone,-"), "the chest sorted: " + sorted);
+		assertTrue(mine.equals("5 cobblestone,-,-,5 dirt"), "the player's inventory untouched: " + mine);
+		server.runCommand("clear @a");
+		server.runCommand("data merge block " + c + " {Items:[]}");
 	}
 
 	/** Asserts the load bar is on screen and clear of every active slot (and, in the label row, of the label); describes where it is. */
