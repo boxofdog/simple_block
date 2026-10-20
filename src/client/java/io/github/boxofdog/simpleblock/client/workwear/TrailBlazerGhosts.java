@@ -22,7 +22,6 @@ import net.minecraft.client.resources.model.geometry.BakedQuad;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.gizmos.Gizmos;
-import net.minecraft.world.level.block.LadderBlock;
 import net.minecraft.core.SectionPos;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.chunk.LevelChunk;
@@ -43,8 +42,8 @@ import io.github.boxofdog.simpleblock.workwear.Workwear;
  *
  * <p>M13 BUG-016 (owner direction): the lines follow the block's own model, not its hit box: every edge of the
  * model's boxes (the torch's stick, upright or leaning from a wall; the rope, its anchor and the turns of its
- * coil), found with the block. The ladder's model is one flat textured sheet, so it is outlined as the
- * rails and rungs its texture shows ({@link #LADDER}).
+ * coil), found with the block. The ladder's 3D model (stiles and rungs, tools/models/generate_ladder_models.py)
+ * is traced the same way.
  */
 public final class TrailBlazerGhosts {
 	private static final int YELLOW = 0xFFE0B020;
@@ -53,12 +52,6 @@ public final class TrailBlazerGhosts {
 	/** A ghost: where, its outline (line segments from-to, in the block's own 0-1 space), and whether a player placed it. */
 	public record Ghost(BlockPos pos, List<Vec3[]> lines, boolean placed) {
 	}
-
-	/**
-	 * The vanilla ladder (facing north, on the block to the south) as boxes, from its texture's solid pixels:
-	 * two rails and four rungs (the rungs drawn between and outside the rails), a pixel thick on the wall.
-	 */
-	private static final double[][] LADDER = ladderBoxes();
 
 	private static LongSet placed = new LongOpenHashSet();
 	private static List<Ghost> ghosts = List.of();
@@ -105,21 +98,9 @@ public final class TrailBlazerGhosts {
 		}
 	}
 
-	/** The outline of a marker: its model's box edges, or for a ladder the rails and rungs. */
+	/** The outline of a marker: its model's box edges. */
 	static List<Vec3[]> outline(BlockState state, BlockPos pos, BlockStateModelSet models) {
 		Map<String, Vec3[]> edges = new LinkedHashMap<>();
-		if (state.getBlock() instanceof LadderBlock) {
-			int turns = switch (state.getValue(LadderBlock.FACING)) {
-				case EAST -> 1;
-				case SOUTH -> 2;
-				case WEST -> 3;
-				default -> 0;
-			};
-			for (double[] box : LADDER) {
-				boxEdges(edges, box, turns);
-			}
-			return List.copyOf(edges.values());
-		}
 		List<BlockStateModelPart> parts = new ArrayList<>();
 		models.get(state).collectParts(RandomSource.create(state.getSeed(pos)), parts);
 		Vec3 offset = state.getOffset(pos);
@@ -152,42 +133,6 @@ public final class TrailBlazerGhosts {
 
 	private static String key(Vec3 v) {
 		return Math.round(v.x * 1024) + "," + Math.round(v.y * 1024) + "," + Math.round(v.z * 1024);
-	}
-
-	/** A box's 12 edges, its pixel bounds {x0, y0, z0, x1, y1, z1} turned {@code turns} quarter turns about the block's vertical axis. */
-	private static void boxEdges(Map<String, Vec3[]> edges, double[] box, int turns) {
-		Vec3[] c = new Vec3[8];
-		for (int i = 0; i < 8; i++) {
-			double x = ((i & 1) == 0 ? box[0] : box[3]) / 16.0;
-			double y = ((i & 2) == 0 ? box[1] : box[4]) / 16.0;
-			double z = ((i & 4) == 0 ? box[2] : box[5]) / 16.0;
-			for (int t = 0; t < turns; t++) {
-				double nx = 1.0 - z;
-				z = x;
-				x = nx;
-			}
-			c[i] = new Vec3(x, y, z);
-		}
-		for (int i = 0; i < 8; i++) {
-			for (int bit : new int[] {1, 2, 4}) {
-				if ((i & bit) == 0) {
-					edge(edges, c[i], c[i | bit]);
-				}
-			}
-		}
-	}
-
-	private static double[][] ladderBoxes() {
-		List<double[]> boxes = new ArrayList<>();
-		boxes.add(new double[] {2, 0, 14.7, 4, 16, 15.7});
-		boxes.add(new double[] {12, 0, 14.7, 14, 16, 15.7});
-		// Texture rows 1-2, 5-6, 9-10 and 13-14 from the top.
-		for (int top : new int[] {15, 11, 7, 3}) {
-			boxes.add(new double[] {1, top - 2, 14.7, 2, top, 15.7});
-			boxes.add(new double[] {4, top - 2, 14.7, 12, top, 15.7});
-			boxes.add(new double[] {14, top - 2, 14.7, 15, top, 15.7});
-		}
-		return boxes.toArray(double[][]::new);
 	}
 
 	private static List<Ghost> scan(ClientLevel level, BlockPos centre, int range) {

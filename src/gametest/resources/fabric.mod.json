@@ -66,6 +66,7 @@
 			"io.github.boxofdog.simpleblock.gametest.client.WorkwearClientTest",
 			"io.github.boxofdog.simpleblock.gametest.client.CargoFillClientTest",
 			"io.github.boxofdog.simpleblock.gametest.client.RailModelClientTest",
+			"io.github.boxofdog.simpleblock.gametest.client.LadderModelClientTest",
 			"io.github.boxofdog.simpleblock.gametest.client.EffigyClientTest",
 			"io.github.boxofdog.simpleblock.gametest.client.M13ClientTest",
 			"io.github.boxofdog.simpleblock.gametest.client.M14ClientTest",

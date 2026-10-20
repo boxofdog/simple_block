@@ -1,0 +1,500 @@
+{
+	"meta": {
+		"format_version": "4.10",
+		"model_format": "java_block",
+		"box_uv": false
+	},
+	"name": "ladder",
+	"model_identifier": "",
+	"parent": "",
+	"ambientocclusion": false,
+	"front_gui_light": false,
+	"visible_box": [
+		1,
+		1,
+		0
+	],
+	"export_path": "../../src/main/resources/assets/simple_block/models/block/ladder.json",
+	"resolution": {
+		"width": 16,
+		"height": 16
+	},
+	"elements": [
+		{
+			"name": "stile_east",
+			"box_uv": false,
+			"rescale": false,
+			"locked": false,
+			"render_order": "default",
+			"from": [
+				2,
+				0,
+				14
+			],
+			"to": [
+				4,
+				16,
+				16
+			],
+			"autouv": 0,
+			"color": 0,
+			"origin": [
+				8,
+				8,
+				8
+			],
+			"rotation": [
+				0,
+				0,
+				0
+			],
+			"faces": {
+				"north": {
+					"uv": [
+						12,
+						0,
+						14,
+						16
+					],
+					"texture": 0
+				},
+				"south": {
+					"uv": [
+						12,
+						0,
+						14,
+						16
+					],
+					"texture": 0
+				},
+				"east": {
+					"uv": [
+						12,
+						0,
+						14,
+						16
+					],
+					"texture": 0
+				},
+				"west": {
+					"uv": [
+						12,
+						0,
+						14,
+						16
+					],
+					"texture": 0
+				},
+				"up": {
+					"uv": [
+						12,
+						0,
+						14,
+						2
+					],
+					"texture": 0
+				},
+				"down": {
+					"uv": [
+						12,
+						14,
+						14,
+						16
+					],
+					"texture": 0
+				}
+			},
+			"type": "cube",
+			"uuid": "ac11e790-2fa6-536a-a182-f658a39c1a9a"
+		},
+		{
+			"name": "stile_west",
+			"box_uv": false,
+			"rescale": false,
+			"locked": false,
+			"render_order": "default",
+			"from": [
+				12,
+				0,
+				14
+			],
+			"to": [
+				14,
+				16,
+				16
+			],
+			"autouv": 0,
+			"color": 1,
+			"origin": [
+				8,
+				8,
+				8
+			],
+			"rotation": [
+				0,
+				0,
+				0
+			],
+			"faces": {
+				"north": {
+					"uv": [
+						2,
+						0,
+						4,
+						16
+					],
+					"texture": 0
+				},
+				"south": {
+					"uv": [
+						2,
+						0,
+						4,
+						16
+					],
+					"texture": 0
+				},
+				"east": {
+					"uv": [
+						2,
+						0,
+						4,
+						16
+					],
+					"texture": 0
+				},
+				"west": {
+					"uv": [
+						2,
+						0,
+						4,
+						16
+					],
+					"texture": 0
+				},
+				"up": {
+					"uv": [
+						2,
+						0,
+						4,
+						2
+					],
+					"texture": 0
+				},
+				"down": {
+					"uv": [
+						2,
+						14,
+						4,
+						16
+					],
+					"texture": 0
+				}
+			},
+			"type": "cube",
+			"uuid": "5cac9b0d-9f26-529b-86df-3f06ea0c639a"
+		},
+		{
+			"name": "rung_1",
+			"box_uv": false,
+			"rescale": false,
+			"locked": false,
+			"render_order": "default",
+			"from": [
+				4,
+				1,
+				14.5
+			],
+			"to": [
+				12,
+				3,
+				15.5
+			],
+			"autouv": 0,
+			"color": 2,
+			"origin": [
+				8,
+				8,
+				8
+			],
+			"rotation": [
+				0,
+				0,
+				0
+			],
+			"faces": {
+				"north": {
+					"uv": [
+						4,
+						13,
+						12,
+						15
+					],
+					"texture": 0
+				},
+				"south": {
+					"uv": [
+						4,
+						13,
+						12,
+						15
+					],
+					"texture": 0
+				},
+				"up": {
+					"uv": [
+						4,
+						13,
+						12,
+						14
+					],
+					"texture": 0
+				},
+				"down": {
+					"uv": [
+						4,
+						13,
+						12,
+						14
+					],
+					"texture": 0
+				}
+			},
+			"type": "cube",
+			"uuid": "4380e85a-8cca-5ca5-bade-4457f6864248"
+		},
+		{
+			"name": "rung_2",
+			"box_uv": false,
+			"rescale": false,
+			"locked": false,
+			"render_order": "default",
+			"from": [
+				4,
+				5,
+				14.5
+			],
+			"to": [
+				12,
+				7,
+				15.5
+			],
+			"autouv": 0,
+			"color": 3,
+			"origin": [
+				8,
+				8,
+				8
+			],
+			"rotation": [
+				0,
+				0,
+				0
+			],
+			"faces": {
+				"north": {
+					"uv": [
+						4,
+						9,
+						12,
+						11
+					],
+					"texture": 0
+				},
+				"south": {
+					"uv": [
+						4,
+						9,
+						12,
+						11
+					],
+					"texture": 0
+				},
+				"up": {
+					"uv": [
+						4,
+						9,
+						12,
+						10
+					],
+					"texture": 0
+				},
+				"down": {
+					"uv": [
+						4,
+						9,
+						12,
+						10
+					],
+					"texture": 0
+				}
+			},
+			"type": "cube",
+			"uuid": "b50dd984-25eb-5b7b-aae4-c0553f3f2a5a"
+		},
+		{
+			"name": "rung_3",
+			"box_uv": false,
+			"rescale": false,
+			"locked": false,
+			"render_order": "default",
+			"from": [
+				4,
+				9,
+				14.5
+			],
+			"to": [
+				12,
+				11,
+				15.5
+			],
+			"autouv": 0,
+			"color": 4,
+			"origin": [
+				8,
+				8,
+				8
+			],
+			"rotation": [
+				0,
+				0,
+				0
+			],
+			"faces": {
+				"north": {
+					"uv": [
+						4,
+						5,
+						12,
+						7
+					],
+					"texture": 0
+				},
+				"south": {
+					"uv": [
+						4,
+						5,
+						12,
+						7
+					],
+					"texture": 0
+				},
+				"up": {
+					"uv": [
+						4,
+						5,
+						12,
+						6
+					],
+					"texture": 0
+				},
+				"down": {
+					"uv": [
+						4,
+						5,
+						12,
+						6
+					],
+					"texture": 0
+				}
+			},
+			"type": "cube",
+			"uuid": "f0657fd9-1d65-5d67-a112-9d93b468af30"
+		},
+		{
+			"name": "rung_4",
+			"box_uv": false,
+			"rescale": false,
+			"locked": false,
+			"render_order": "default",
+			"from": [
+				4,
+				13,
+				14.5
+			],
+			"to": [
+				12,
+				15,
+				15.5
+			],
+			"autouv": 0,
+			"color": 5,
+			"origin": [
+				8,
+				8,
+				8
+			],
+			"rotation": [
+				0,
+				0,
+				0
+			],
+			"faces": {
+				"north": {
+					"uv": [
+						4,
+						1,
+						12,
+						3
+					],
+					"texture": 0
+				},
+				"south": {
+					"uv": [
+						4,
+						1,
+						12,
+						3
+					],
+					"texture": 0
+				},
+				"up": {
+					"uv": [
+						4,
+						1,
+						12,
+						2
+					],
+					"texture": 0
+				},
+				"down": {
+					"uv": [
+						4,
+						1,
+						12,
+						2
+					],
+					"texture": 0
+				}
+			},
+			"type": "cube",
+			"uuid": "a374c859-d48f-51e4-a4bc-e74566696e26"
+		}
+	],
+	"outliner": [
+		"ac11e790-2fa6-536a-a182-f658a39c1a9a",
+		"5cac9b0d-9f26-529b-86df-3f06ea0c639a",
+		"4380e85a-8cca-5ca5-bade-4457f6864248",
+		"b50dd984-25eb-5b7b-aae4-c0553f3f2a5a",
+		"f0657fd9-1d65-5d67-a112-9d93b468af30",
+		"a374c859-d48f-51e4-a4bc-e74566696e26"
+	],
+	"textures": [
+		{
+			"path": "",
+			"name": "ladder.png",
+			"folder": "block",
+			"namespace": "minecraft",
+			"id": "texture",
+			"width": 16,
+			"height": 16,
+			"uv_width": 16,
+			"uv_height": 16,
+			"particle": true,
+			"render_mode": "default",
+			"visible": true,
+			"saved": true,
+			"uuid": "4903ec6f-42c2-5fca-a5f5-3a11bcfdd574"
+		}
+	]
+}

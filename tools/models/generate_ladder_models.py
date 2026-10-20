@@ -1,0 +1,115 @@
+#!/usr/bin/env python3
+"""Scaffolds the 3D ladder: its model, Blockbench source and the ladder's blockstate.
+
+The vanilla ladder is one flat sheet. This draws the same ladder as real wood: two 2 x 2 px stiles standing
+against the wall (x 2-4 and 12-14, z 14-16) and four 2 px tall, 1 px thick rungs between them, set into the
+stiles' middle (z 14.5-15.5), at the heights the texture paints them (y 1-3, 5-7, 9-11, 13-15). Every face
+takes the pixels of vanilla's own ladder texture that it stands in front of, so resource packs keep working
+and nothing transparent is sampled. Only the look changes: the block, its shapes, climbing, placement,
+recipe, drops and the item stay vanilla's.
+
+  assets/simple_block/models/block/ladder.json   facing north (on the block to the south)
+  assets/minecraft/blockstates/ladder.json       vanilla's facings -> this model, turned
+  art/blockbench/ladder.bbmodel                  editable source (load vanilla's ladder texture onto it)
+
+The Trail Blazer outline (client/workwear/TrailBlazerGhosts) traces this model's boxes.
+
+It never overwrites an existing file unless run with --force.
+
+usage: python3 tools/models/generate_ladder_models.py [--force]
+"""
+import json
+import os
+import sys
+import uuid
+
+ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))
+ASSETS = os.path.join(ROOT, 'src', 'main', 'resources', 'assets')
+ART = os.path.join(ROOT, 'art', 'blockbench')
+FORCE = '--force' in sys.argv
+TEXTURE = 'minecraft:block/ladder'
+written, skipped = [], []
+
+STILES = ((2, 4), (12, 14))
+STILE_Z = (14, 16)
+RUNGS = ((1, 3), (5, 7), (9, 11), (13, 15))
+RUNG_Z = (14.5, 15.5)
+
+
+def write_json(path, obj):
+    rel = os.path.relpath(path, ROOT)
+    if os.path.exists(path) and not FORCE:
+        skipped.append(rel)
+        return
+    os.makedirs(os.path.dirname(path), exist_ok=True)
+    with open(path, 'w') as f:
+        f.write(json.dumps(obj, indent='\t') + '\n')
+    written.append(rel)
+
+
+def front_uv(x0, x1, y0, y1):
+    """The texture under a north face (vanilla's sheet: u = 16 - x, v = 16 - y)."""
+    return [16 - x1, 16 - y1, 16 - x0, 16 - y0]
+
+
+def element(name, frm, to, faces):
+    return {'name': name, 'from': frm, 'to': to, 'faces': {k: dict(v, texture='#texture') for k, v in faces.items()}}
+
+
+def elements():
+    els = []
+    for side, (x0, x1) in zip(('east', 'west'), STILES):
+        u = front_uv(x0, x1, 0, 16)
+        # The stile's sides and ends reuse its own column (2 px wide, as deep as the stile).
+        column = [u[0], 0, u[2], 16]
+        els.append(element(f'stile_{side}', [x0, 0, STILE_Z[0]], [x1, 16, STILE_Z[1]], {
+            'north': {'uv': u}, 'south': {'uv': u, 'cullface': 'south'},
+            'east': {'uv': column}, 'west': {'uv': column},
+            'up': {'uv': [u[0], 0, u[2], 2], 'cullface': 'up'}, 'down': {'uv': [u[0], 14, u[2], 16], 'cullface': 'down'}}))
+    x0, x1 = STILES[0][1], STILES[1][0]
+    for i, (y0, y1) in enumerate(RUNGS):
+        u = front_uv(x0, x1, y0, y1)
+        edge = [u[0], u[1], u[2], u[1] + 1]
+        # No end faces: the rung's ends sit against the stiles.
+        els.append(element(f'rung_{i + 1}', [x0, y0, RUNG_Z[0]], [x1, y1, RUNG_Z[1]], {
+            'north': {'uv': u}, 'south': {'uv': u}, 'up': {'uv': edge}, 'down': {'uv': edge}}))
+    return els
+
+
+def bbmodel(els):
+    """A Blockbench (Java Block/Item) project of the same elements; vanilla's texture is not in this repository."""
+    out, outliner = [], []
+    for i, e in enumerate(els):
+        uid = str(uuid.uuid5(uuid.NAMESPACE_URL, f'simple_block/ladder/{i}/{e["name"]}'))
+        faces = {k: {'uv': f['uv'], 'texture': 0} for k, f in e['faces'].items()}
+        out.append({'name': e['name'], 'box_uv': False, 'rescale': False, 'locked': False, 'render_order': 'default', 'from': e['from'], 'to': e['to'],
+                    'autouv': 0, 'color': i % 8, 'origin': [8, 8, 8], 'rotation': [0, 0, 0], 'faces': faces, 'type': 'cube', 'uuid': uid})
+        outliner.append(uid)
+    return {
+        'meta': {'format_version': '4.10', 'model_format': 'java_block', 'box_uv': False},
+        'name': 'ladder', 'model_identifier': '', 'parent': '', 'ambientocclusion': False, 'front_gui_light': False,
+        'visible_box': [1, 1, 0], 'export_path': '../../src/main/resources/assets/simple_block/models/block/ladder.json',
+        'resolution': {'width': 16, 'height': 16}, 'elements': out, 'outliner': outliner,
+        'textures': [{'path': '', 'name': 'ladder.png', 'folder': 'block', 'namespace': 'minecraft', 'id': 'texture', 'width': 16, 'height': 16,
+                      'uv_width': 16, 'uv_height': 16, 'particle': True, 'render_mode': 'default', 'visible': True, 'saved': True,
+                      'uuid': str(uuid.uuid5(uuid.NAMESPACE_URL, 'simple_block/ladder/texture'))}],
+    }
+
+
+def main():
+    els = elements()
+    write_json(os.path.join(ASSETS, 'simple_block', 'models', 'block', 'ladder.json'), {
+        'credit': 'Generated by tools/models/generate_ladder_models.py; editable source art/blockbench/ladder.bbmodel',
+        'ambientocclusion': False,
+        'textures': {'texture': TEXTURE, 'particle': TEXTURE},
+        'elements': els,
+    })
+    write_json(os.path.join(ART, 'ladder.bbmodel'), bbmodel(els))
+    m = lambda y=0: dict({'model': 'simple_block:block/ladder'}, **({'y': y} if y else {}))
+    write_json(os.path.join(ASSETS, 'minecraft', 'blockstates', 'ladder.json'), {'variants': {
+        'facing=north': m(), 'facing=east': m(90), 'facing=south': m(180), 'facing=west': m(270)}})
+    print(f'{len(written)} written, {len(skipped)} kept (exists; --force overwrites)')
+
+
+if __name__ == '__main__':
+    main()
