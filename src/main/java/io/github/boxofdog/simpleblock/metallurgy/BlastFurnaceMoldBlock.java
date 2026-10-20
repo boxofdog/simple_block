@@ -1,13 +1,18 @@
 package io.github.boxofdog.simpleblock.metallurgy;
 
+import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.particles.ParticleTypes;
+import net.minecraft.util.RandomSource;
 import net.minecraft.util.StringRepresentable;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
+import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import net.minecraft.world.level.block.state.properties.EnumProperty;
 import net.minecraft.world.level.block.state.properties.IntegerProperty;
 
@@ -52,14 +57,31 @@ public class BlastFurnaceMoldBlock extends BlastFurnaceAttachmentBlock {
 	public static final EnumProperty<Content> CONTENT = EnumProperty.create("content", Content.class);
 	/** Eighths of the cavity filled with molten metal (0: none). */
 	public static final IntegerProperty FILL = IntegerProperty.create("fill", 0, 8);
+	/** M13 BUG-011: metal is running into the mold now (the furnace pours): the mold glows ({@link MetallurgyContent}). */
+	public static final BooleanProperty POURING = BlastFurnaceBlock.POURING;
 
 	public BlastFurnaceMoldBlock(BlockBehaviour.Properties properties) {
 		super(properties, 2);
-		this.registerDefaultState(this.stateDefinition.any().setValue(FACING, Direction.NORTH).setValue(CONTENT, Content.EMPTY).setValue(FILL, 0));
+		this.registerDefaultState(this.stateDefinition.any().setValue(FACING, Direction.NORTH).setValue(CONTENT, Content.EMPTY).setValue(FILL, 0)
+			.setValue(POURING, false));
 	}
 
 	@Override
 	protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
-		builder.add(FACING, CONTENT, FILL);
+		builder.add(FACING, CONTENT, FILL, POURING);
+	}
+
+	/**
+	 * M13 BUG-012: while metal pours in, a cinder now and then rises from the molten surface, as from lava.
+	 */
+	@Override
+	public void animateTick(BlockState state, Level level, BlockPos pos, RandomSource random) {
+		// About one or two a second near the mold (a real client measured 46 in 10 s for every display tick, 6 for one in three).
+		if (!state.getValue(POURING) || random.nextInt(2) != 0) {
+			return;
+		}
+		double surface = pos.getY() + (1.0 + 14.0 * Math.max(1, state.getValue(FILL)) / BlastFurnaceBlockEntity.FILL_STEPS) / 16.0;
+		level.addParticle(ParticleTypes.LAVA, pos.getX() + 0.25 + random.nextDouble() * 0.5, surface, pos.getZ() + 0.25 + random.nextDouble() * 0.5,
+			0.0, 0.0, 0.0);
 	}
 }

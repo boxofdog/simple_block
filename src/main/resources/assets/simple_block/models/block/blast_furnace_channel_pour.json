@@ -76,7 +76,8 @@
 					],
 					"texture": "#0"
 				}
-			}
+			},
+			"light_emission": 15
 		},
 		{
 			"name": "molten_lower",
@@ -145,7 +146,8 @@
 					],
 					"texture": "#0"
 				}
-			}
+			},
+			"light_emission": 15
 		},
 		{
 			"name": "molten_step",
@@ -214,7 +216,8 @@
 					],
 					"texture": "#0"
 				}
-			}
+			},
+			"light_emission": 15
 		},
 		{
 			"name": "molten_fall",
@@ -283,7 +286,8 @@
 					],
 					"texture": "#0"
 				}
-			}
+			},
+			"light_emission": 15
 		}
 	]
 }

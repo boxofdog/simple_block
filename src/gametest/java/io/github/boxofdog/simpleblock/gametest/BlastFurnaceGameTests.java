@@ -507,6 +507,65 @@ public class BlastFurnaceGameTests {
 		helper.succeed();
 	}
 
+	/**
+	 * M13 BUG-011: the channel and mold give light only while metal runs (channel 9, mold 11): through a cast
+	 * yes; while the finished block shows (the hold) no; with the fuel out mid-cast (the fill held) no, and
+	 * back with the fuel. The lit furnace itself still gives 13. Then, with the light engine run, the block
+	 * light at the mold is 11 while pouring and back to the ambient once it stops.
+	 */
+	@GameTest(structure = SHAFT, maxTicks = 400)
+	public void castingGlowsOnlyWhilePouring(GameTestHelper helper) {
+		floor(helper);
+		BlastFurnaceBlockEntity furnace = build(helper, CONTROLLER);
+		int cast = Tuning.getInt("blast_furnace.cast_ticks");
+		int hold = Tuning.getInt("blast_furnace.cast_hold_ticks");
+		BlockPos moldPos = BlastFurnaceStructure.mold(furnace.getBlockPos(), Direction.NORTH);
+		BlockPos channelPos = BlastFurnaceStructure.channel(furnace.getBlockPos(), Direction.NORTH);
+		java.util.function.IntSupplier mold = () -> helper.getLevel().getBlockState(moldPos).getLightEmission();
+		java.util.function.IntSupplier channel = () -> helper.getLevel().getBlockState(channelPos).getLightEmission();
+		java.util.function.IntSupplier fill = () -> helper.getLevel().getBlockState(moldPos).getValue(BlastFurnaceMoldBlock.FILL);
+		List<String> log = new ArrayList<>();
+		helper.assertTrue(mold.getAsInt() == 0 && channel.getAsInt() == 0, "cold: no light");
+		furnace.setOre(Items.RAW_IRON, 18);
+		furnace.items().setItem(BlastFurnaceBlockEntity.FUEL_SLOT, new ItemStack(Items.COAL_BLOCK, 2));
+		run(helper, furnace, cast / 2);
+		helper.assertTrue(mold.getAsInt() == MetallurgyContent.MOLD_POUR_LIGHT && channel.getAsInt() == MetallurgyContent.CHANNEL_POUR_LIGHT
+			&& helper.getLevel().getBlockState(furnace.getBlockPos()).getLightEmission() == 13, "pouring: mold 11, channel 9, furnace 13: "
+			+ mold.getAsInt() + "/" + channel.getAsInt());
+		log.add("pouring at fill " + fill.getAsInt() + "/8: mold " + mold.getAsInt() + ", channel " + channel.getAsInt());
+		run(helper, furnace, cast - cast / 2 + 1);
+		helper.assertTrue(fill.getAsInt() == 0 && mold.getAsInt() == 0 && channel.getAsInt() == 0, "the cast block showing (hold): no light: "
+			+ mold.getAsInt() + "/" + channel.getAsInt());
+		log.add("cast done, block shown: mold " + mold.getAsInt() + ", channel " + channel.getAsInt());
+		run(helper, furnace, hold + cast / 2);
+		int held = fill.getAsInt();
+		furnace.items().setItem(BlastFurnaceBlockEntity.FUEL_SLOT, ItemStack.EMPTY);
+		furnace.setBurnForTest(0);
+		run(helper, furnace, 5);
+		helper.assertTrue(fill.getAsInt() == held && held > 0 && mold.getAsInt() == 0 && channel.getAsInt() == 0,
+			"fuel out mid-cast: the fill " + held + " holds, no light: " + mold.getAsInt() + "/" + channel.getAsInt());
+		log.add("fuel out at fill " + held + "/8: mold " + mold.getAsInt() + ", channel " + channel.getAsInt());
+		furnace.items().setItem(BlastFurnaceBlockEntity.FUEL_SLOT, new ItemStack(Items.COAL_BLOCK, 1));
+		run(helper, furnace, 2);
+		helper.assertTrue(mold.getAsInt() == MetallurgyContent.MOLD_POUR_LIGHT, "fuel back: the mold glows again");
+		java.util.function.IntSupplier light = () -> helper.getLevel().getBrightness(net.minecraft.world.level.LightLayer.BLOCK, moldPos);
+		helper.startSequence()
+			// The light engine works on its own thread: wait for it.
+			.thenWaitUntil(() -> helper.assertValueEqual(light.getAsInt(), MetallurgyContent.MOLD_POUR_LIGHT, "block light at the pouring mold"))
+			.thenExecute(() -> {
+				log.add("block light at the pouring mold " + light.getAsInt());
+				furnace.items().setItem(BlastFurnaceBlockEntity.FUEL_SLOT, ItemStack.EMPTY);
+				furnace.setBurnForTest(0);
+				run(helper, furnace, 2);
+			})
+			.thenWaitUntil(() -> helper.assertTrue(light.getAsInt() < MetallurgyContent.MOLD_POUR_LIGHT, "stopped: the mold's light goes: " + light.getAsInt()))
+			.thenExecute(() -> {
+				log.add("stopped: " + light.getAsInt());
+				SimpleBlockTestLog.info("M13 BUG-011 casting light: {}", log);
+			})
+			.thenSucceed();
+	}
+
 	/** M08-F5: save and load keep the reservoir, the burning fuel, the progress, the fuel stack and the mold exactly. */
 	@GameTest(structure = SHAFT)
 	public void saveAndLoadKeepEverything(GameTestHelper helper) {

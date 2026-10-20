@@ -76,7 +76,8 @@
 					],
 					"texture": "#0"
 				}
-			}
+			},
+			"light_emission": 15
 		},
 		{
 			"name": "fire_left_1",
@@ -145,7 +146,8 @@
 					],
 					"texture": "#0"
 				}
-			}
+			},
+			"light_emission": 15
 		},
 		{
 			"name": "fire_left_2",
@@ -214,7 +216,8 @@
 					],
 					"texture": "#0"
 				}
-			}
+			},
+			"light_emission": 15
 		},
 		{
 			"name": "fire_right_0",
@@ -283,7 +286,8 @@
 					],
 					"texture": "#0"
 				}
-			}
+			},
+			"light_emission": 15
 		},
 		{
 			"name": "fire_right_1",
@@ -352,7 +356,8 @@
 					],
 					"texture": "#0"
 				}
-			}
+			},
+			"light_emission": 15
 		},
 		{
 			"name": "fire_right_2",
@@ -421,7 +426,8 @@
 					],
 					"texture": "#0"
 				}
-			}
+			},
+			"light_emission": 15
 		},
 		{
 			"name": "fire_tap",
@@ -490,7 +496,8 @@
 					],
 					"texture": "#0"
 				}
-			}
+			},
+			"light_emission": 15
 		}
 	]
 }

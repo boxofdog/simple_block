@@ -45,12 +45,17 @@ public final class MetallurgyContent {
 	public static final Block BLAST_FURNACE_PART = block("blast_furnace_part", BlastFurnacePartBlock::new,
 		BlockBehaviour.Properties.of().mapColor(MapColor.COLOR_RED).instrument(NoteBlockInstrument.BASEDRUM).requiresCorrectToolForDrops()
 			.strength(3.5F, 6.0F).sound(SoundType.STONE).noOcclusion().noLootTable().pushReaction(PushReaction.IMMOVEABLE));
+	/** M13 BUG-011: the channel and mold glow while metal runs through them (light 9 and 11), and only then. */
+	public static final int CHANNEL_POUR_LIGHT = 9;
+	public static final int MOLD_POUR_LIGHT = 11;
 	public static final Block BLAST_FURNACE_CHANNEL = block("blast_furnace_channel", BlastFurnaceChannelBlock::new,
 		BlockBehaviour.Properties.of().mapColor(MapColor.METAL).requiresCorrectToolForDrops().strength(3.5F, 6.0F).sound(SoundType.METAL)
-			.noOcclusion().noLootTable().pushReaction(PushReaction.IMMOVEABLE));
+			.noOcclusion().noLootTable().pushReaction(PushReaction.IMMOVEABLE)
+			.lightLevel(state -> state.getValue(BlastFurnaceChannelBlock.POURING) ? CHANNEL_POUR_LIGHT : 0));
 	public static final Block BLAST_FURNACE_MOLD = block("blast_furnace_mold", BlastFurnaceMoldBlock::new,
 		BlockBehaviour.Properties.of().mapColor(MapColor.METAL).requiresCorrectToolForDrops().strength(3.5F, 6.0F).sound(SoundType.METAL)
-			.noOcclusion().noLootTable().pushReaction(PushReaction.IMMOVEABLE));
+			.noOcclusion().noLootTable().pushReaction(PushReaction.IMMOVEABLE)
+			.lightLevel(state -> state.getValue(BlastFurnaceMoldBlock.POURING) ? MOLD_POUR_LIGHT : 0));
 	public static final Item BLAST_FURNACE_ITEM = register("blast_furnace",
 		key -> new BlastFurnaceItem(BLAST_FURNACE, new Item.Properties().stacksTo(1).useBlockDescriptionPrefix().setId(key)));
 

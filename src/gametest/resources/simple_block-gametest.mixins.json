@@ -8,7 +8,8 @@
 	"client": [
 		"HudAccessor",
 		"SoundManagerMixin",
-		"TestMouseModifiersMixin"
+		"TestMouseModifiersMixin",
+		"ClientParticleCountMixin"
 	],
 	"injectors": {
 		"defaultRequire": 1

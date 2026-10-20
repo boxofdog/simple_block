@@ -334,7 +334,63 @@ public class M13ClientTest implements FabricClientGameTest {
 			context.takeScreenshot(shots + "-zfight-" + view[0]);
 		}
 		server.runCommand("kill @e[type=simple_block:ore_skip]");
+		casting(context, server, front, shots);
 		server.runCommand("tp @a " + (X + 0.5) + " " + g + " " + (Z + 0.5) + " 180 30");
+	}
+
+	/**
+	 * BUG-011 and BUG-012 at night: while the furnace pours, the client sees the mold's light (11) and the
+	 * channel's (9), and lava cinders rise from the mold; with the fuel out mid-cast, no light there and no
+	 * cinders. Screenshots of both.
+	 */
+	private static void casting(ClientGameTestContext context, TestServerContext server, BlockPos front, String shots) {
+		BlockPos controller = io.github.boxofdog.simpleblock.metallurgy.BlastFurnaceStructure.controllerFor(front, net.minecraft.core.Direction.NORTH);
+		BlockPos moldPos = io.github.boxofdog.simpleblock.metallurgy.BlastFurnaceStructure.mold(controller, net.minecraft.core.Direction.NORTH);
+		BlockPos channelPos = io.github.boxofdog.simpleblock.metallurgy.BlastFurnaceStructure.channel(controller, net.minecraft.core.Direction.NORTH);
+		server.runCommand("time set midnight");
+		io.github.boxofdog.simpleblock.tuning.Tuning.set("blast_furnace.cast_ticks", 2000);
+		server.runOnServer(s -> {
+			var furnace = (io.github.boxofdog.simpleblock.metallurgy.BlastFurnaceBlockEntity) s.overworld().getBlockEntity(controller);
+			furnace.setOre(net.minecraft.world.item.Items.RAW_IRON, 100);
+			furnace.items().setItem(io.github.boxofdog.simpleblock.metallurgy.BlastFurnaceBlockEntity.FUEL_SLOT,
+				new net.minecraft.world.item.ItemStack(net.minecraft.world.item.Items.COAL_BLOCK, 4));
+		});
+		server.runCommand("tp @a " + (front.getX() + 3.5) + " " + front.getY() + " " + (front.getZ() - 4.5) + " 30 25");
+		context.waitTicks(40);
+		lookAtPoint(context, Vec3.atCenterOf(moldPos));
+		PlayedSounds.LAVA_PARTICLES.set(0);
+		context.waitTicks(200);
+		int pouringCinders = PlayedSounds.LAVA_PARTICLES.get();
+		int[] pouringLight = context.computeOnClient(client -> new int[] {
+			client.level.getBrightness(net.minecraft.world.level.LightLayer.BLOCK, moldPos),
+			client.level.getBrightness(net.minecraft.world.level.LightLayer.BLOCK, channelPos),
+			client.level.getBlockState(moldPos).getValue(io.github.boxofdog.simpleblock.metallurgy.BlastFurnaceMoldBlock.FILL)});
+		context.takeScreenshot(shots + "-casting-glow");
+		// The fuel out mid-cast: the fill holds, but nothing runs.
+		server.runOnServer(s -> {
+			var furnace = (io.github.boxofdog.simpleblock.metallurgy.BlastFurnaceBlockEntity) s.overworld().getBlockEntity(controller);
+			furnace.items().setItem(io.github.boxofdog.simpleblock.metallurgy.BlastFurnaceBlockEntity.FUEL_SLOT, net.minecraft.world.item.ItemStack.EMPTY);
+			furnace.setBurnForTest(0);
+		});
+		context.waitTicks(40);
+		PlayedSounds.LAVA_PARTICLES.set(0);
+		context.waitTicks(200);
+		int stoppedCinders = PlayedSounds.LAVA_PARTICLES.get();
+		int[] stoppedLight = context.computeOnClient(client -> new int[] {
+			client.level.getBrightness(net.minecraft.world.level.LightLayer.BLOCK, moldPos),
+			client.level.getBrightness(net.minecraft.world.level.LightLayer.BLOCK, channelPos),
+			client.level.getBlockState(moldPos).getValue(io.github.boxofdog.simpleblock.metallurgy.BlastFurnaceMoldBlock.FILL)});
+		context.takeScreenshot(shots + "-casting-stopped");
+		io.github.boxofdog.simpleblock.tuning.Tuning.reset("blast_furnace.cast_ticks");
+		server.runCommand("time set noon");
+		SimpleBlockTestLog.info("CLIENT M13 BUG-011/012 CASTING (midnight, 200 ticks each): pouring: mold light {}, channel light {}, fill {}/8, "
+			+ "{} cinders; fuel out: mold light {}, channel light {}, fill {}/8, {} cinders", pouringLight[0], pouringLight[1], pouringLight[2],
+			pouringCinders, stoppedLight[0], stoppedLight[1], stoppedLight[2], stoppedCinders);
+		assertTrue(pouringLight[0] == 11 && pouringLight[1] >= 9, "pouring: the client sees the mold's and channel's light: "
+			+ pouringLight[0] + "/" + pouringLight[1]);
+		assertTrue(pouringCinders > 0 && pouringCinders < 200, "a few cinders while pouring: " + pouringCinders);
+		assertTrue(stoppedLight[0] < 11 && stoppedCinders == 0 && stoppedLight[2] > 0, "stopped mid-cast: no light at the mold, no cinders: "
+			+ stoppedLight[0] + ", " + stoppedCinders + " (fill " + stoppedLight[2] + ")");
 	}
 
 	/**

@@ -236,9 +236,10 @@ public class BlastFurnaceBlockEntity extends BlockEntity {
 		BlockPos moldPos = BlastFurnaceStructure.mold(pos, facing);
 		BlockState mold = level.getBlockState(moldPos);
 		BlastFurnaceMoldBlock.Content content = BlastFurnaceMoldBlock.Content.of(furnace.mold());
-		if (mold.is(MetallurgyContent.BLAST_FURNACE_MOLD)
-			&& (mold.getValue(BlastFurnaceMoldBlock.CONTENT) != content || mold.getValue(BlastFurnaceMoldBlock.FILL) != fill)) {
-			level.setBlock(moldPos, mold.setValue(BlastFurnaceMoldBlock.CONTENT, content).setValue(BlastFurnaceMoldBlock.FILL, fill), Block.UPDATE_CLIENTS);
+		if (mold.is(MetallurgyContent.BLAST_FURNACE_MOLD) && (mold.getValue(BlastFurnaceMoldBlock.CONTENT) != content
+			|| mold.getValue(BlastFurnaceMoldBlock.FILL) != fill || mold.getValue(BlastFurnaceMoldBlock.POURING) != pouring)) {
+			level.setBlock(moldPos, mold.setValue(BlastFurnaceMoldBlock.CONTENT, content).setValue(BlastFurnaceMoldBlock.FILL, fill)
+				.setValue(BlastFurnaceMoldBlock.POURING, pouring), Block.UPDATE_CLIENTS);
 		}
 	}
 
