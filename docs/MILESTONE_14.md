@@ -1,6 +1,6 @@
 ---
 milestone: M14
-status: PLANNED - READY
+status: IMPLEMENTING
 ---
 
 # M14 — The Old Coot: a territorial abandoned-mineshaft miner
@@ -54,6 +54,12 @@ status: PLANNED - READY
 - **1–3 emeralds** on death (owner-accepted starting drop proposal); maintain the intended modest handful, never a large renewable emerald fountain.
 - **Exactly one iron pickaxe**, with randomized **5–50% durability REMAINING** (i.e., 50–95% used), not 5–50% damage taken and not an undamaged pickaxe. Clamp rounding to a valid non-broken item, and verify tooltip/durability-bar display.
 - Death starts the home mineshaft's **7-day minimum respawn cooldown**. Kill-and-reload, chunk boundaries and multiple attackers must not duplicate the reward or the living resident.
+
+## Owner clarifications — 2026-10-20 (implementation authorization)
+
+- **Copper ore counts:** mining copper ore or deepslate copper ore within hearing range also provokes him, alongside the ores listed above.
+- **Voice:** his ambient/grumbling sounds are villager sounds pitched higher, between a villager's and a witch's register (a touch below a witch).
+- **Sound and VFX polish** is an end-of-development sweeping pass; M14 implements functional sounds tied to real actions (mining impacts, footsteps, voice), not final audio design.
 
 ## Implementation handoff — staged and bounded (owner-settled 2026-10-20)
 
