@@ -329,6 +329,49 @@ public class FreightFixesGameTests {
 			.thenSucceed();
 	}
 
+	/**
+	 * BUG-020: with the end of a line routed through three anchors in hand, using it on the first anchor
+	 * winds the cable back to that anchor: the two after it are freed, the route ends there and the end
+	 * hangs from it (no longer held). The coil stays on the drum and nothing drops. Used again on the
+	 * route's last anchor (now the first), the end is just put down, as before.
+	 */
+	@GameTest(structure = "simple_block-gametest:cable_yard", maxTicks = 200)
+	public void heldEndWindsBackToAnEarlierAnchor(GameTestHelper helper) {
+		ServerPlayer player = TestPlayers.create(helper, GameType.SURVIVAL, new BlockPos(12, 1, 6));
+		io.github.boxofdog.simpleblock.cable.CableDrumBlockEntity home = CableLoopGameTests.line(helper, player, 1);
+		helper.startSequence()
+			.thenIdle(2)
+			.thenExecute(() -> {
+				TwoDrumGameTests.pickUp(helper, player);
+				for (BlockPos anchor : CableLoopGameTests.ANCHORS) {
+					CableGameTests.useBlock(helper, player, anchor, false);
+				}
+				helper.assertValueEqual(home.route().size(), 3, "anchors routed");
+				CableGameTests.useBlock(helper, player, CableLoopGameTests.ANCHORS[0], false);
+			})
+			.thenIdle(2)
+			.thenExecute(() -> {
+				helper.assertTrue(home.route().size() == 1 && home.route().getFirst().equals(helper.absolutePos(CableLoopGameTests.ANCHORS[0])),
+					"route wound back to the first anchor: " + home.route());
+				for (int i = 1; i < 3; i++) {
+					var anchor = (io.github.boxofdog.simpleblock.cable.CableAnchorBlockEntity) helper.getLevel().getBlockEntity(
+						helper.absolutePos(CableLoopGameTests.ANCHORS[i]));
+					helper.assertTrue(anchor.drum() == null, "anchor " + i + " freed");
+				}
+				var hook = CableGameTests.hook(helper, CableLoopGameTests.DRUM);
+				helper.assertTrue(!hook.isHeld(), "the end is no longer held");
+				helper.assertTrue(hook.position().distanceTo(net.minecraft.world.phys.Vec3.atCenterOf(helper.absolutePos(CableLoopGameTests.ANCHORS[0]))) < 4.0,
+					"the end hangs at the first anchor: " + hook.position());
+				helper.assertTrue(home.hasCoil(), "the coil stays on the drum");
+				int dropped = helper.getLevel().getEntitiesOfClass(net.minecraft.world.entity.item.ItemEntity.class,
+					new net.minecraft.world.phys.AABB(helper.absolutePos(CableLoopGameTests.DRUM)).inflate(40.0)).size();
+				helper.assertValueEqual(dropped, 0, "items dropped");
+				SimpleBlockTestLog.info("BUG-020: held end used on the first of three routed anchors: wound back to it, two anchors freed, end hanging there");
+				TestPlayers.remove(player);
+			})
+			.thenSucceed();
+	}
+
 	static void rail(GameTestHelper helper, BlockPos rail, Direction facing) {
 		helper.setBlock(rail.below(), Blocks.STONE);
 		helper.setBlock(rail, TrainContent.LOADING_TRACK.defaultBlockState().setValue(LoadingTrackBlock.FACING, facing)

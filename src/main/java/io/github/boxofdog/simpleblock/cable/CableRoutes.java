@@ -238,7 +238,11 @@ public final class CableRoutes {
 				hook.release();
 				return message("put_down", "Cable end put down");
 			}
-			return message("already_routed", "The cable already runs through this anchor");
+			// M13 (BUG-020): the end used on an earlier anchor of its own route winds the cable back to it:
+			// the anchors after it are freed, the cable comes off them onto the drum, and the end hangs here.
+			int freed = disconnect(level, drum, drum.route().indexOf(pos) + 1);
+			level.playSound(null, pos, SoundEvents.CHAIN_PLACE, SoundSource.BLOCKS, 1.0F, 0.7F);
+			return message("wound_back", "Cable wound back to this anchor from %s anchors", freed);
 		}
 		if (anchor.drum() != null) {
 			return message("anchor_taken", "This anchor already carries a cable");
