@@ -1,0 +1,32 @@
+# M15 freight stations — verification log, 2026-10-20
+
+Local runs: full server build on e0004aa (257/257); station tests 7/7 on 2072136 (lever moved); full client suite 21/21 on ab03335. CI Build #96, run 39484956437, PASS on 2072136.
+
+## Server game tests (FreightStationGameTests, 7/7)
+M15 BLOCKED: a stray cart on a berth stops the line-up; cleared, it lines up
+M15 AMBIGUOUS SEAT: a seat between two engines works neither
+M15 CONTROLS: [Space from the coupled seat: THROUGH -> NEUTRAL -> SERVICE -> THROUGH, one step a press; the far seat none, the only seat of a train works its engine across a wagon, by hand: use steps right (ends stay), hit steps left, the front end does nothing to it, saved and loaded; a new engine starts at THROUGH]
+M15 REACH AND BINDING: [1 and 3 clear blocks load, 4 do not; a redstone-powered freight hopper still feeds, binding: a shared lever caps both (fail closed); a lever beside one governs only it; a button marks its hopper]
+M15 PASSING: [SERVICE, no work: passed, THROUGH, work waiting: passed, NEUTRAL, work waiting: passed, SERVICE, only the engine on a rail: passed]
+M15 HAND: [hand docking with every hopper capped: lined up, waits armed, button: A loaded all 20, lid closed, NEUTRAL, lever on: B unloaded to 150; lever off shut it at once; NEUTRAL after the grace, NEUTRAL mid-transfer: stopped at 144, held, nothing resumed in 40 ticks, SERVICE flicked on to THROUGH inside the arming delay: nothing moved, released]
+M15 STATION: [docked with the engine on the terminal rail, berths [22.50, 20.50, 18.50, 16.50] (2.0 apart), A loaded 40, B unloaded 30, C untouched; NEUTRAL by itself after 338 ticks, still held, THROUGH: let go, stops folded, nothing moved in 30 ticks]
+All 7 required tests passed (station filter, after the lever move).
+
+Full server build: All 257 required tests passed (before the lever move; the move changed models and the control test only).
+
+## Negative controls (each broken temporarily, reverted, never committed)
+- caps: freight_station_game_tests_hand_docking_buttons_levers_and_cancelling failed: all capped: nothing moved (A 0, B 170) on tick 62
+- latch: freight_station_game_tests_station_serves_wagons_together_at_the_terminal_rail failed: Expected A done to be DONE: was NONE on tick 440
+- clearance: freight_station_game_tests_hopper_reach_redstone_and_control_binding failed: four clear blocks: too far, 5 on tick 79
+- snap: freight_station_game_tests_hand_docking_buttons_levers_and_cancelling failed: lined up 2 apart: [20.50, 18.50, 17.10] on tick 2
+- cancel: freight_station_game_tests_hand_docking_buttons_levers_and_cancelling failed: Expected NEUTRAL stops the transfer to be DONE: was UNLOAD on tick 380
+- terminal: freight_station_game_tests_station_serves_wagons_together_at_the_terminal_rail failed: car 0 on its berth: [20.50, 18.50, 16.50, 14.50] on tick 92
+- arming: freight_station_game_tests_hand_docking_buttons_levers_and_cancelling failed: nor loaded anything: A 22 on tick 392
+- broken: caps ignored; direction latch cleared on grace; clearance 4; berth spacing 1.6 kept; NEUTRAL not cancelling; first Loading Rail treated as terminal; arming delay removed.
+
+## Client game tests (full suite 21/21, exit 0, on ab03335)
+CLIENT TRAIN: started east; docked after 100 ticks, cars at [40.5, 42.5, 44.5] (40 ticks later [40.5, 42.5, 44.5]), engine running false
+CLIENT TRAIN: post used: cars [40.5, 42.5, 44.5] (did not move); started again: cars at [46.784304511278215, 48.384304511278216, 49.98430451127821], docked false
+CLIENT M15: [lever THROUGH: the client shows THROUGH, lever NEUTRAL: the client shows NEUTRAL, lever SERVICE: the client shows SERVICE, Space from the seat (server/client): [NEUTRAL/NEUTRAL, SERVICE/SERVICE, THROUGH/THROUGH], SERVICE by hand over the station: [8.5, 10.5, 12.5D, 14.5D] stops true/true, dedicated server: Space from the seat -> server NEUTRAL, remote client NEUTRAL]
+
+Screenshots: screenshots/ (lever THROUGH, NEUTRAL, SERVICE; station lids; docked train).

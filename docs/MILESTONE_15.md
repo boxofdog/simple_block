@@ -1,6 +1,6 @@
 ---
 milestone: M15
-status: IMPLEMENTING
+status: PLAYTESTING
 ---
 
 # M15 — Cobblestone Engine selector and multi-wagon freight stations
@@ -107,3 +107,40 @@ For either direction, **resumed legitimate material flow resets the grace countd
 ## Lifecycle and handoff
 
 **PLANNED - READY (owner design agreed 2026-10-20).** This document replaces M15's earlier separate LOAD versus UNLOAD modes and earlier "any seated cart controls the engine" proposal. All requirements above are ready for a bounded Claude Code implementation **only after the owner separately authorizes START**. Unspecified numerical tuning (e.g. exact few-tick grace) and safe fail-closed ambiguity handling are implementation choices, not permission to add features; escalate any unavoidable tradeoff that changes player-visible behavior. When implemented, record commits, exact tested SHA, CI, test counts, gaps and owner playtest steps in one dated appendix to this file per [RULES.md](RULES.md). Do not promote to SHIPPED without explicit owner acceptance.
+
+## Implementation and verification — 2026-10-20
+
+**Metadata:** M15 | PLAYTESTING | Engine selector, multi-wagon Loading Rail stations, hopper controls and lids.
+
+**Implementation**
+- Commits: `d5ed49c349e610270c18d44f744f1f379df28012` (selector, stations, transfers, lids), `7c9c0f735437ce45d73e44ea957062a8bc2bfd79` (tests, re-line-up), `43d3219455090ba77463a9679ddaf40a253fd2e3` (Space input, client test), `e0004aaf5f242e1eba62edc51b44d317e8b74c20` (no-shove line-up, Blockbench lever), `e4d4b2353c0afde94c5a7b91ab2b91ba86f4e312` (lever inside wall), `ab03335c21875798d8366cbf5621b959dc5b9639` (M06 client test to M15 rules).
+- Delivered: rear lever THROUGH/NEUTRAL/SERVICE (Space from coupled or sole seat, use/hit steps); terminal-rail docking, 2-block berths, simultaneous per-wagon load-first transfers, grace, auto-NEUTRAL; 0–3 clear blocks (M11's hopper directly above kept); lever/button controls failing closed; freight-opening lids; redstone lock bypass on freight hoppers.
+- Deviation: SERVICE arms after 1 s, so Space cycling through it starts nothing.
+
+**CI**
+- Build: #97 | Run ID: 39486340114 | PASS (one unrelated rope-range test failed first; passed on re-run)
+- Source SHA: `ab03335c21875798d8366cbf5621b959dc5b9639`
+- URL: https://github.com/boxofdog/simple_block/actions/runs/39486340114
+- Artifact: `simple-block-mod` id 12293769501, available.
+
+**Tests**
+
+| Category | Result | Passed/Total | Evidence / Notes |
+|---|---|---|---|
+| Server | PASS | 257/257 | local `e0004aaf5f242e1eba62edc51b44d317e8b74c20`; stations 7/7 after lever move; [log](evidence/milestone-15/m15-verification-2026-10-20.txt) |
+| Client | PASS | 21/21 | lever detents, Space, lids, hand docking; [screenshots](evidence/milestone-15/screenshots/) |
+| Dedicated server | PASS | 1/1 | Space from the seat over network |
+| Negative controls | PASS | 7/7 | caps, latch, clearance, snap, cancel, terminal, arming |
+
+**Known gaps**
+- GAP-01: MINOR — curved and unloaded-edge line-ups covered by code only; next: playtest.
+- GAP-02: MINOR — grace (24 ticks) and arming (1 s) provisional; next: playtest.
+- GAP-03: MINOR — station FPS not measured; next: owner hardware check.
+- GAP-04: MINOR — lever placeholder colours; next: Joe paints.
+- GAP-05: MINOR — trains on a cable keep single-cart rules; next: owner decision if wanted.
+
+**Owner playtest**
+- Build a 3–4 rail station with supplying and receiving hoppers; arrive in SERVICE, then THROUGH.
+- Cycle the lever with Space and by clicking; check it reads clearly.
+- Cap every hopper, dock by hand, then press a button or pull a lever.
+- Flick NEUTRAL mid-transfer; confirm nothing is lost.
