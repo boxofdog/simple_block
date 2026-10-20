@@ -191,6 +191,7 @@ public class SimpleBlock implements ModInitializer {
 		HeavyLoad.load();
 		InventorySlots.register();
 		InventorySort.register();
+		io.github.boxofdog.simpleblock.feature.ChestSort.register();
 		SaturationSync.register();
 		RetiredItems.register();
 		HostileBehaviour.register();

@@ -64,7 +64,9 @@
 		"effigy.CreeperAccessor",
 		"effigy.EndermanFearMixin",
 		"effigy.MobFearMixin",
-		"effigy.ResultSlotMixin"
+		"effigy.ResultSlotMixin",
+		"inventory.ChestMenuMixin",
+		"inventory.CompoundContainerAccessor"
 	],
 	"injectors": {
 		"defaultRequire": 1

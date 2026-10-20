@@ -138,5 +138,6 @@
 	"simple_block.effigy.confirm": "Are you sure? Monster Effigies cannot be picked back up after being destroyed.",
 	"simple_block.effigy.place": "Place",
 	"container.simple_block.coal_winch": "Coal Winch",
-	"container.simple_block.freight_cart": "Freight Cart"
+	"container.simple_block.freight_cart": "Freight Cart",
+	"simple_block.chest.sort.tooltip": "Sort this chest by item: top row first, left to right. Your inventory is left alone."
 }

@@ -44,6 +44,18 @@ public final class InventorySort {
 			}
 		}
 
+		List<ItemStack> merged = sorted(stacks, inventory);
+
+		for (int i = 0; i < order.length; i++) {
+			inventory.setItem(order[i], i < merged.size() ? merged.get(i) : ItemStack.EMPTY);
+		}
+	}
+
+	/**
+	 * {@code stacks} (copies) merged where compatible, up to {@code container}'s limit for each, and put
+	 * in the sort order (M13: shared with the chest Sort, {@link ChestSort}).
+	 */
+	static List<ItemStack> sorted(List<ItemStack> stacks, net.minecraft.world.Container container) {
 		List<ItemStack> merged = new ArrayList<>();
 		for (ItemStack stack : stacks) {
 			for (ItemStack into : merged) {
@@ -51,7 +63,7 @@ public final class InventorySort {
 					break;
 				}
 				if (into.isStackable() && ItemStack.isSameItemSameComponents(into, stack)) {
-					int move = Math.min(stack.getCount(), inventory.getMaxStackSize(into) - into.getCount());
+					int move = Math.min(stack.getCount(), container.getMaxStackSize(into) - into.getCount());
 					if (move > 0) {
 						into.grow(move);
 						stack.shrink(move);
@@ -65,10 +77,7 @@ public final class InventorySort {
 
 		merged.sort(Comparator.<ItemStack>comparingInt(stack -> BuiltInRegistries.ITEM.getId(stack.getItem()))
 			.thenComparing(stack -> BuiltInRegistries.ITEM.getKey(stack.getItem()).toString()));
-
-		for (int i = 0; i < order.length; i++) {
-			inventory.setItem(order[i], i < merged.size() ? merged.get(i) : ItemStack.EMPTY);
-		}
+		return merged;
 	}
 
 	static void handle(ServerPlayer player) {

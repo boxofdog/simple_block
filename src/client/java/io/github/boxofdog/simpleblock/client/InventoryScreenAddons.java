@@ -103,7 +103,31 @@ public final class InventoryScreenAddons {
 		return new int[] {minX - 1, y - 1, maxX + 17, y + 17};
 	}
 
+	/** M13: the chest menu the server last said can be sorted ({@link io.github.boxofdog.simpleblock.network.SortableChestPayload}). */
+	private static int sortableChest = Integer.MIN_VALUE;
+
+	/** Panel-relative position of the chest Sort button: right-aligned on the title's row, clear of every slot. */
+	public static int[] chestSortButton(AbstractContainerScreen<?> screen) {
+		int width = ((AbstractContainerScreenAccessor) screen).simpleBlock$getImageWidth();
+		return new int[] {width - 8 - BUTTON_WIDTH, 5, BUTTON_WIDTH, BUTTON_HEIGHT};
+	}
+
 	public static void register() {
+		net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking.registerGlobalReceiver(
+			io.github.boxofdog.simpleblock.network.SortableChestPayload.TYPE, (payload, context) -> sortableChest = payload.containerId());
+		ScreenEvents.AFTER_INIT.register((client, screen, width, height) -> {
+			// M13: a chest's screen gets its own Sort button, for the chest's slots only.
+			if (screen instanceof AbstractContainerScreen<?> chest && chest.getMenu() instanceof net.minecraft.world.inventory.ChestMenu menu
+				&& menu.containerId == sortableChest) {
+				SortButton sort = new SortButton(button -> ClientPlayNetworking.send(new io.github.boxofdog.simpleblock.network.SortChestPayload(menu.containerId)));
+				sort.setTooltip(Tooltip.create(Component.translatable("simple_block.chest.sort.tooltip")));
+				AbstractContainerScreenAccessor panel = (AbstractContainerScreenAccessor) chest;
+				int[] at = chestSortButton(chest);
+				sort.setX(panel.simpleBlock$getLeftPos() + at[0]);
+				sort.setY(panel.simpleBlock$getTopPos() + at[1]);
+				Screens.getWidgets(screen).add(sort);
+			}
+		});
 		ScreenEvents.AFTER_INIT.register((client, screen, width, height) -> {
 			if (!(screen instanceof AbstractContainerScreen<?> container) || disabledRow(container) == null) {
 				return;
@@ -138,8 +162,11 @@ public final class InventoryScreenAddons {
 	 */
 	private static final class SortButton extends Button {
 		SortButton() {
-			super(0, 0, BUTTON_WIDTH, BUTTON_HEIGHT, Component.translatable("simple_block.inventory.sort"),
-				button -> ClientPlayNetworking.send(new SortInventoryPayload()), DEFAULT_NARRATION);
+			this(button -> ClientPlayNetworking.send(new SortInventoryPayload()));
+		}
+
+		SortButton(Button.OnPress press) {
+			super(0, 0, BUTTON_WIDTH, BUTTON_HEIGHT, Component.translatable("simple_block.inventory.sort"), press, DEFAULT_NARRATION);
 		}
 
 		@Override
