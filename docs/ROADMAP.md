@@ -28,7 +28,7 @@
 | M18 | Reliable Iron Golem defenders and village guardians | **PLANNED - NOT READY** | [M18 concept](MILESTONE_18.md) | Preliminary golem AI/defense brief; follows M16–M17 |
 | M19 | Villager homesickness, settlement adoption and wellbeing | **PLANNED - NOT READY** | [M19 concept](MILESTONE_19.md) | Five-condition settlement wellbeing; depends on M16–M18 |
 
-**Unnumbered work:** ordinary 3D rails have been implemented (owner visual review pending). Village design/size ([M16](MILESTONE_16.md)), jobs/commerce ([M17](MILESTONE_17.md)), golem guardians ([M18](MILESTONE_18.md)) and villager wellbeing ([M19](MILESTONE_19.md)) are now four sequential preliminary milestones, **not implementation authorizations**. Extreme grades, discovered enchanting and iron/diamond/netherite armor bonuses remain in the [backlog](BACKLOG.md).
+**Unnumbered work:** ordinary 3D rails and 3D ladders have been implemented (owner visual review pending). Village design/size ([M16](MILESTONE_16.md)), jobs/commerce ([M17](MILESTONE_17.md)), golem guardians ([M18](MILESTONE_18.md)) and villager wellbeing ([M19](MILESTONE_19.md)) are now four sequential preliminary milestones, **not implementation authorizations**. Extreme grades, discovered enchanting and iron/diamond/netherite armor bonuses remain in the [backlog](BACKLOG.md).
 
 ## Consolidated playtesting and feature refinement
 

@@ -25,6 +25,7 @@
 | I-017 | Selective redstone redesign while retaining useful devices | No blanket removal of worthwhile standalone mechanisms |
 | I-018 | Village overhaul ideas (assigned to milestones) | Moved to [M16](MILESTONE_16.md) village design, [M17](MILESTONE_17.md) commerce/jobs, [M18](MILESTONE_18.md) golems and [M19](MILESTONE_19.md) wellbeing |
 | I-019 | Large winch-operated iron defense gate | **Deferred from M09 by owner**; unnumbered future design, not authorized |
+| I-020 | Three-dimensional ladders | **Implemented** as an owner-authorized visual task; details below |
 
 ## I-019 — Deferred industrial iron gate
 
@@ -49,6 +50,10 @@ Place witch huts on remote mountain peaks and in deep deepslate caverns. Each fe
 ## I-013 — 3D ordinary rails
 
 **Implemented 2026-10-14 after explicit owner instruction; visual change only.** `minecraft:rail` uses 3D straight, curved and ascending models matching the Loading Rail's gauge, sleeper profile and shared `loading_track.png` texture. No vanilla rail block behavior, recipe, physics, placement, collision or drops were replaced. Editable sources: `art/blockbench/rail_*.bbmodel`; generator: `tools/models/generate_rail_models.py`. [Client screenshots](evidence/rails-3d/screenshots/), [commit](https://github.com/boxofdog/simple_block/commit/e49ba32616d0847047a02dbafb13e5f143b551bb), [Build #53](https://github.com/boxofdog/simple_block/actions/runs/38601099542) (215/215 server tests). Owner visual acceptance pending.
+
+## I-020 — 3D ladders
+
+**Implemented 2026-10-20 after explicit owner instruction; visual change only.** `minecraft:ladder` is drawn as two 2 × 2 px stiles against the wall and four rungs between them, on vanilla's own ladder texture (each face takes the pixels it stands in front of, so resource packs still apply). Block, hit box, climbing, placement, recipe, drops and the inventory item stay vanilla's. Trail Blazer's outline now traces this model (the hand-traced flat-ladder outline from M13 BUG-016 is gone): 72 lines per ladder instead of up to 168. Editable source `art/blockbench/ladder.bbmodel`; generator `tools/models/generate_ladder_models.py`. [Client screenshots](evidence/ladder-3d/screenshots/). Owner visual acceptance pending.
 
 ## I-014–I-016 — Later railway operation and testing
 
