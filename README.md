@@ -72,7 +72,7 @@ Counts reflect source files only, not proof of implemented or tested behavior.
 
 | Source set | First-level package | Java files |
 |---|---|---:|
-| client | client | 36 |
+| client | client | 37 |
 | gametest | gametest | 71 |
 | main | (root) | 1 |
 | main | cable | 19 |
@@ -84,7 +84,7 @@ Counts reflect source files only, not proof of implemented or tested behavior.
 | main | network | 6 |
 | main | rope | 9 |
 | main | skip | 7 |
-| main | train | 10 |
+| main | train | 14 |
 | main | tuning | 1 |
 | main | workwear | 4 |
 | main | worldgen | 7 |
