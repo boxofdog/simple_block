@@ -256,6 +256,79 @@ public class FreightFixesGameTests {
 			.thenSucceed();
 	}
 
+	/**
+	 * BUG-018/019: the held end of a routed line is made fast to an empty drum whichever way that drum
+	 * faces and whichever face is clicked (its crank side included, which used to crank it instead), on
+	 * the ground or hung under a beam; it needs no coil of its own. A drum with its own coil is refused and
+	 * keeps it: nothing is dropped, the first drum keeps its coil. Each time the end is taken off again
+	 * (sneak-use) for the next case.
+	 */
+	@GameTest(structure = "simple_block-gametest:cable_yard", maxTicks = 400)
+	public void secondDrumTakesTheEndAnyWay(GameTestHelper helper) {
+		ServerPlayer player = TestPlayers.create(helper, GameType.SURVIVAL, new BlockPos(12, 1, 6));
+		io.github.boxofdog.simpleblock.cable.CableDrumBlockEntity home = CableLoopGameTests.line(helper, player, 1);
+		BlockPos far = new BlockPos(26, 1, 4);
+		BlockPos hung = new BlockPos(26, 3, 4);
+		List<String> log = new ArrayList<>();
+		boolean[] failed = {false};
+		int[] made = new int[2];
+		var sequence = helper.startSequence().thenIdle(2);
+		for (boolean hanging : new boolean[] {false, true}) {
+			BlockPos at = hanging ? hung : far;
+			for (Direction facing : List.of(Direction.NORTH, Direction.EAST, Direction.SOUTH, Direction.WEST)) {
+				for (Direction face : List.of(Direction.UP, facing.getClockWise(), facing.getCounterClockWise(), facing)) {
+					Direction clicked = hanging && face == Direction.UP ? Direction.DOWN : face;
+					String name = (hanging ? "hung" : "ground") + " drum facing " + facing + ", clicked on its " + clicked + " face";
+					sequence = sequence.thenExecute(CableGameTests.step(failed, () -> {
+						if (hanging) {
+							helper.setBlock(at.above(), Blocks.OAK_PLANKS);
+						} else {
+							helper.setBlock(at.below(), Blocks.STONE);
+						}
+						helper.setBlock(at, io.github.boxofdog.simpleblock.cable.CableContent.CABLE_DRUM.defaultBlockState()
+							.setValue(io.github.boxofdog.simpleblock.cable.CableDrumBlock.FACING, facing)
+							.setValue(io.github.boxofdog.simpleblock.cable.CableDrumBlock.HANGING, hanging));
+						TwoDrumGameTests.pickUp(helper, player);
+						// Taken off a second drum, the end stays routed through the anchors.
+						if (home.route().size() < CableLoopGameTests.ANCHORS.length) {
+							for (BlockPos anchor : CableLoopGameTests.ANCHORS) {
+								CableGameTests.useBlock(helper, player, anchor, false);
+							}
+						}
+						CableGameTests.useBlock(helper, player, at, clicked);
+						io.github.boxofdog.simpleblock.cable.CableDrumBlockEntity second = CableGameTests.drum(helper, at);
+						helper.assertTrue(home.looped() && helper.absolutePos(at).equals(home.endDrum()) && second.farFrom() != null,
+							name + ": the end should be made fast");
+						helper.assertTrue(home.hasCoil() && !second.hasCoil(), name + ": one coil, on the first drum");
+						CableGameTests.useBlock(helper, player, at, true);
+						helper.assertTrue(!home.looped() && second.farFrom() == null, name + ": taken off again");
+						helper.setBlock(at, Blocks.AIR);
+						made[hanging ? 1 : 0]++;
+					})).thenIdle(3);
+				}
+			}
+		}
+		sequence.thenExecute(CableGameTests.step(failed, () -> {
+				log.add("ground: " + made[0] + "/16 and hung: " + made[1] + "/16 facings x faces made fast");
+				// A drum with its own coil: refused, its coil kept, nothing dropped.
+				helper.setBlock(far.below(), Blocks.STONE);
+				io.github.boxofdog.simpleblock.cable.CableDrumBlockEntity withCoil = TwoDrumGameTests.placeDrum(helper, far);
+				player.setItemInHand(net.minecraft.world.InteractionHand.MAIN_HAND, new ItemStack(io.github.boxofdog.simpleblock.cable.CableContent.CABLE_COIL));
+				CableGameTests.useBlock(helper, player, far, Direction.UP);
+				player.setItemInHand(net.minecraft.world.InteractionHand.MAIN_HAND, ItemStack.EMPTY);
+				TwoDrumGameTests.pickUp(helper, player);
+				CableGameTests.useBlock(helper, player, far, Direction.EAST);
+				helper.assertTrue(!home.looped() && withCoil.farFrom() == null && withCoil.hasCoil() && home.hasCoil(), "coiled drum refused, both coils kept");
+				int dropped = helper.getLevel().getEntitiesOfClass(net.minecraft.world.entity.item.ItemEntity.class,
+					new net.minecraft.world.phys.AABB(helper.absolutePos(far)).inflate(30.0)).size();
+				helper.assertValueEqual(dropped, 0, "items dropped");
+				log.add("drum with its own coil: refused, both coils kept, nothing dropped");
+				SimpleBlockTestLog.info("BUG-018/019 second drum: {}", log);
+				TestPlayers.remove(player);
+			}))
+			.thenSucceed();
+	}
+
 	static void rail(GameTestHelper helper, BlockPos rail, Direction facing) {
 		helper.setBlock(rail.below(), Blocks.STONE);
 		helper.setBlock(rail, TrainContent.LOADING_TRACK.defaultBlockState().setValue(LoadingTrackBlock.FACING, facing)

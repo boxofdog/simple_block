@@ -195,6 +195,11 @@ public class CableDrumBlock extends BaseEntityBlock {
 			return InteractionResult.TRY_WITH_EMPTY_HAND;
 		}
 		boolean powered = level.getBlockEntity(pos) instanceof CableDrumBlockEntity drum && drum.powered();
+		if (itemStack.isEmpty() && !player.isSecondaryUseActive() && CableRoutes.heldHook(level, player) instanceof CableHook held
+			&& !held.drumPos().equals(pos)) {
+			// M13 (BUG-018/019): holding another drum's cable end, see useWithoutItem.
+			return InteractionResult.TRY_WITH_EMPTY_HAND;
+		}
 		if (hand == InteractionHand.MAIN_HAND && isCrank(state, pos, hitResult.getLocation())) {
 			return powered ? CoalWinch.setLever(level, pos, player, CableLines.Lever.PULL) : CableDrive.pull(level, pos, player);
 		}
@@ -222,6 +227,12 @@ public class CableDrumBlock extends BaseEntityBlock {
 			return player.isSecondaryUseActive() ? FarDrums.unhook(serverLevel, far, player) : FarDrums.inspect(serverLevel, far, player);
 		}
 		boolean powered = level.getBlockEntity(pos) instanceof CableDrumBlockEntity drum && drum.powered();
+		// M13 (BUG-018/019): holding another drum's cable end, any click on this drum (its crank side
+		// included, whichever way it faces) is for making the end fast to it.
+		CableHook held = player.isSecondaryUseActive() ? null : CableRoutes.heldHook(level, player);
+		if (held != null && !held.drumPos().equals(pos)) {
+			return CableRoutes.useDrum(level, pos, player);
+		}
 		if (isCrank(state, pos, hitResult.getLocation())) {
 			return powered ? CoalWinch.setLever(level, pos, player, CableLines.Lever.PULL) : CableDrive.pull(level, pos, player);
 		}

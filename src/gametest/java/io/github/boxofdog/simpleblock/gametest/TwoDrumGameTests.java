@@ -42,7 +42,7 @@ public class TwoDrumGameTests {
 	private static final BlockPos FAR = new BlockPos(26, 1, 4);
 
 	/** An empty drum at {@code pos}, as a player would place it. */
-	private static CableDrumBlockEntity placeDrum(GameTestHelper helper, BlockPos pos) {
+	static CableDrumBlockEntity placeDrum(GameTestHelper helper, BlockPos pos) {
 		helper.setBlock(pos.below(), Blocks.STONE);
 		helper.setBlock(pos, CableContent.CABLE_DRUM.defaultBlockState());
 		return CableGameTests.drum(helper, pos);
@@ -58,7 +58,7 @@ public class TwoDrumGameTests {
 	}
 
 	/** Walks to the first drum's cable end and picks it up (a held end is found within 4 blocks of its holder). */
-	private static void pickUp(GameTestHelper helper, ServerPlayer player) {
+	static void pickUp(GameTestHelper helper, ServerPlayer player) {
 		CableHook hook = CableGameTests.hook(helper, HOME);
 		player.teleportTo(hook.getX(), hook.getY(), hook.getZ() + 1.0);
 		player.setItemInHand(InteractionHand.MAIN_HAND, ItemStack.EMPTY);
