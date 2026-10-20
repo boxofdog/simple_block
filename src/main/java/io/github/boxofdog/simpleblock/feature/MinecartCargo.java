@@ -117,8 +117,16 @@ public final class MinecartCargo {
 			return InteractionResult.PASS;
 		}
 		if (hand == InteractionHand.MAIN_HAND && !unloading && held.isEmpty()) {
-			// M13 (BUG-014): an empty main hand inspects the cargo (read-only).
+			// M13 (BUG-014): an empty main hand inspects the cargo (read-only). Not while the use key is still held
+			// from loading a stack that has just run out: a batch within HOLD_TICKS (and every repeat after it
+			// while held) is the same hold, and opening the window would stop the player loading the next stack.
 			if (player instanceof ServerPlayer serverPlayer) {
+				long now = serverPlayer.level().getGameTime();
+				Long last = LAST_BATCH.get(serverPlayer);
+				if (last != null && now >= last && now - last <= HOLD_TICKS) {
+					LAST_BATCH.put(serverPlayer, now);
+					return InteractionResult.SUCCESS;
+				}
 				serverPlayer.openMenu(new net.minecraft.world.SimpleMenuProvider((id, inventory, p) -> io.github.boxofdog.simpleblock.train.CargoInspectMenu
 					.server(id, minecart), net.minecraft.network.chat.Component.translatableWithFallback("container.simple_block.freight_cart", "Freight Cart")));
 			}
@@ -133,6 +141,9 @@ public final class MinecartCargo {
 		}
 		return InteractionResult.SUCCESS;
 	}
+
+	/** Ticks after a batch (or a held repeat) in which an empty-hand use continues the hold rather than inspecting. */
+	public static final int HOLD_TICKS = 10;
 
 	/** Whether this player may move another batch now (and notes that they do). */
 	private static boolean batchDue(ServerPlayer player) {

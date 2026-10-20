@@ -78,10 +78,32 @@ public class UiFixesGameTests {
 				// (the unloaded iron went to the empty main hand)
 				player.getInventory().clearContent();
 				player.setItemInHand(InteractionHand.OFF_HAND, new ItemStack(Items.RAW_IRON, 4));
+				MinecartCargo.forgetPace(player);
 				player.interactOn(cart, InteractionHand.MAIN_HAND, Vec3.ZERO);
 				helper.assertTrue(player.containerMenu instanceof CargoInspectMenu, "empty main hand with cargo in the off hand: the window");
 				player.closeContainer();
 				log.add("held cargo loads, sneak unloads, empty main hand with off-hand cargo inspects");
+
+				// Holding use while loading: the stack runs out, the hand is empty, the held use repeats: no window.
+				player.getInventory().clearContent();
+				player.setItemInHand(InteractionHand.MAIN_HAND, new ItemStack(Items.RAW_IRON, 4));
+				MinecartCargo.forgetPace(player);
+				player.interactOn(cart, InteractionHand.MAIN_HAND, Vec3.ZERO);
+				helper.assertTrue(player.getMainHandItem().isEmpty(), "the stack loaded");
+				player.interactOn(cart, InteractionHand.MAIN_HAND, Vec3.ZERO);
+				helper.assertFalse(player.containerMenu instanceof CargoInspectMenu, "a held use right after loading opens no window");
+			})
+			.thenIdle(4)
+			.thenExecute(() -> {
+				player.interactOn(cart, InteractionHand.MAIN_HAND, Vec3.ZERO);
+				helper.assertFalse(player.containerMenu instanceof CargoInspectMenu, "still held (a repeat 4 ticks on): no window");
+			})
+			.thenIdle(MinecartCargo.HOLD_TICKS + 5)
+			.thenExecute(() -> {
+				player.interactOn(cart, InteractionHand.MAIN_HAND, Vec3.ZERO);
+				helper.assertTrue(player.containerMenu instanceof CargoInspectMenu, "a fresh press afterwards: the window");
+				player.closeContainer();
+				log.add("held use after a stack runs out: no window (and on its repeats); a fresh press later: the window");
 				SimpleBlockTestLog.info("BUG-014 cargo window: {}", log);
 				cart.discard();
 				TestPlayers.remove(player);
