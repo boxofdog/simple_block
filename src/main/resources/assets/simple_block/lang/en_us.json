@@ -137,5 +137,6 @@
 	"block.simple_block.effigy_figure": "Effigy Figure",
 	"simple_block.effigy.confirm": "Are you sure? Monster Effigies cannot be picked back up after being destroyed.",
 	"simple_block.effigy.place": "Place",
-	"container.simple_block.coal_winch": "Coal Winch"
+	"container.simple_block.coal_winch": "Coal Winch",
+	"container.simple_block.freight_cart": "Freight Cart"
 }

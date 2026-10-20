@@ -100,9 +100,10 @@ public final class MinecartCargo {
 
 	/**
 	 * Replaces riding. Sneak + use unloads, whatever is in hand. Otherwise the main hand loads what it
-	 * holds; an empty main hand does nothing; a main hand holding something that isn't cargo passes to
-	 * the off hand if that holds cargo, which then loads. Client and server choose the same hand; only
-	 * the server moves items, a batch at a time.
+	 * holds; an empty main hand opens the read-only cargo window (M13, BUG-014:
+	 * {@link io.github.boxofdog.simpleblock.train.CargoInspectMenu}); a main hand holding something that
+	 * isn't cargo passes to the off hand if that holds cargo, which then loads. Client and server choose
+	 * the same hand; only the server moves items, a batch at a time.
 	 */
 	public static InteractionResult interact(Minecart minecart, Player player, InteractionHand hand) {
 		ItemStack held = player.getItemInHand(hand);
@@ -114,6 +115,14 @@ public final class MinecartCargo {
 			}
 		} else if (!unloading && !held.isEmpty() && !isCargo(held) && isCargo(player.getOffhandItem())) {
 			return InteractionResult.PASS;
+		}
+		if (hand == InteractionHand.MAIN_HAND && !unloading && held.isEmpty()) {
+			// M13 (BUG-014): an empty main hand inspects the cargo (read-only).
+			if (player instanceof ServerPlayer serverPlayer) {
+				serverPlayer.openMenu(new net.minecraft.world.SimpleMenuProvider((id, inventory, p) -> io.github.boxofdog.simpleblock.train.CargoInspectMenu
+					.server(id, minecart), net.minecraft.network.chat.Component.translatableWithFallback("container.simple_block.freight_cart", "Freight Cart")));
+			}
+			return InteractionResult.SUCCESS;
 		}
 		if (player instanceof ServerPlayer serverPlayer && (unloading || isCargo(held)) && batchDue(serverPlayer)) {
 			Cart cart = cart(minecart);

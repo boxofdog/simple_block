@@ -12,6 +12,7 @@ import io.github.boxofdog.simpleblock.client.effigy.EffigyPlacementScreen;
 import io.github.boxofdog.simpleblock.client.effigy.EffigyRenderer;
 import io.github.boxofdog.simpleblock.client.metallurgy.BlastFurnaceScreen;
 import io.github.boxofdog.simpleblock.client.skip.OreSkipRenderer;
+import io.github.boxofdog.simpleblock.client.train.CargoInspectScreen;
 import io.github.boxofdog.simpleblock.client.train.CobblestoneEngineRenderer;
 import io.github.boxofdog.simpleblock.client.train.GatedMinecartModel;
 
@@ -32,6 +33,7 @@ public class SimpleBlockClient implements ClientModInitializer {
 		OreSkipRenderer.register();
 		BlastFurnaceScreen.register();
 		CoalWinchScreen.register();
+		CargoInspectScreen.register();
 		EffigyPlacementScreen.register();
 		EffigyRenderer.register();
 	}

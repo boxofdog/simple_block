@@ -35,6 +35,10 @@ public final class TrainContent {
 	public static final Block LOADING_TRACK = block("loading_track", LoadingTrackBlock::new,
 		BlockBehaviour.Properties.of().noCollision().noOcclusion().strength(0.7F).sound(SoundType.METAL));
 	public static final Item LOADING_TRACK_ITEM = item("loading_track", LOADING_TRACK);
+	/** M13 (BUG-014): the read-only cargo inspection screen. */
+	public static final net.minecraft.world.inventory.MenuType<CargoInspectMenu> CARGO_INSPECT_MENU = Registry.register(BuiltInRegistries.MENU,
+		Identifier.fromNamespaceAndPath(SimpleBlock.MOD_ID, "cargo_inspect"),
+		new net.minecraft.world.inventory.MenuType<>(CargoInspectMenu::new, net.minecraft.world.flag.FeatureFlags.VANILLA_SET));
 
 	private TrainContent() {
 	}
