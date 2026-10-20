@@ -39,6 +39,8 @@ import io.github.boxofdog.simpleblock.gametest.SimpleBlockTestLog;
 public class M13ClientTest implements FabricClientGameTest {
 	private static final int X = 110;
 	private static final int Z = 20;
+	/** Where the Trail Blazer benchmark's markers go (BUG-016). */
+	private static final int TRAIL_X = 200;
 	/** Where the M13 Blast Furnace and Ore Skip go (BUG-011/012/015/022). */
 	private static final int FURNACE_X = 150;
 
@@ -55,6 +57,7 @@ public class M13ClientTest implements FabricClientGameTest {
 			oldPro(context, server, chest);
 			ropeScene(context, server, chest);
 			furnaceScene(context, server, "m13");
+			trailBlazerBenchmark(context, server, "m13");
 		}
 		try (TestDedicatedServerContext server = context.worldBuilder().createServer();
 			TestDedicatedServerConnection connection = server.connect()) {
@@ -336,6 +339,69 @@ public class M13ClientTest implements FabricClientGameTest {
 		server.runCommand("kill @e[type=simple_block:ore_skip]");
 		casting(context, server, front, shots);
 		server.runCommand("tp @a " + (X + 0.5) + " " + g + " " + (Z + 0.5) + " 180 30");
+	}
+
+	/**
+	 * BUG-016 performance: frame render times (median, 95th percentile, worst) and frames per second over 300
+	 * ticks, looking at a wall with 121 torches, 4 ladder columns and 2 rope lines behind it (all within the 24
+	 * blocks Trail Blazer shows), with the Trail Blazer outfit off and on; then on with only a row of torches left.
+	 * Logged for the before/after comparison.
+	 */
+	private static void trailBlazerBenchmark(ClientGameTestContext context, TestServerContext server, String shots) {
+		int g = server.computeOnServer(s -> {
+			s.overworld().getChunk(TRAIL_X >> 4, 0);
+			return s.overworld().getHeight(Heightmap.Types.MOTION_BLOCKING, TRAIL_X, 0);
+		});
+		server.runCommand("fill " + (TRAIL_X - 14) + " " + (g - 1) + " -26 " + (TRAIL_X + 14) + " " + (g - 1) + " 8 minecraft:stone");
+		server.runCommand("fill " + (TRAIL_X - 14) + " " + g + " -26 " + (TRAIL_X + 14) + " " + (g + 10) + " 8 minecraft:air");
+		server.runCommand("fill " + (TRAIL_X - 12) + " " + g + " -2 " + (TRAIL_X + 12) + " " + (g + 6) + " -2 minecraft:stone");
+		for (int x = -10; x <= 10; x += 2) {
+			for (int z = -4; z >= -24; z -= 2) {
+				server.runCommand("setblock " + (TRAIL_X + x) + " " + g + " " + z + " minecraft:torch");
+			}
+		}
+		for (int i = 0; i < 4; i++) {
+			int x = TRAIL_X - 9 + i * 6;
+			server.runCommand("fill " + x + " " + g + " -26 " + x + " " + (g + 5) + " -26 minecraft:stone");
+			server.runCommand("fill " + x + " " + g + " -25 " + x + " " + (g + 5) + " -25 minecraft:ladder[facing=south]");
+		}
+		for (int i = 0; i < 2; i++) {
+			int x = TRAIL_X - 5 + i * 10;
+			server.runCommand("setblock " + x + " " + (g + 9) + " -14 minecraft:stone");
+			server.runCommand("setblock " + x + " " + (g + 8) + " -14 simple_block:spelunker_rope_anchor[support=up]");
+			server.runCommand("fill " + x + " " + g + " -14 " + x + " " + (g + 7) + " -14 simple_block:spelunker_rope");
+		}
+		server.runCommand("clear @a");
+		server.runCommand("tp @a " + (TRAIL_X + 0.5) + " " + g + " 3.5 180 10");
+		context.waitTicks(20);
+		List<String> log = new ArrayList<>();
+		for (int run = 0; run < 3; run++) {
+			boolean outfit = run > 0;
+			if (run == 2) {
+				// Sparse: all but a row of 6 torches gone (ladders and ropes too).
+				server.runCommand("fill " + (TRAIL_X - 12) + " " + g + " -26 " + (TRAIL_X + 12) + " " + (g + 9) + " -5 minecraft:air");
+			}
+			if (outfit) {
+				server.runCommand("item replace entity @a armor.head with simple_block:headlamp");
+				server.runCommand("item replace entity @a armor.chest with simple_block:overalls");
+				server.runCommand("item replace entity @a armor.feet with simple_block:spiked_boots");
+			} else {
+				server.runCommand("clear @a");
+			}
+			context.waitTicks(40);
+			lookAtPoint(context, new Vec3(TRAIL_X + 0.5, g + 1.5, -12.0));
+			int ghosts = context.computeOnClient(client -> io.github.boxofdog.simpleblock.client.workwear.TrailBlazerGhosts.ghosts().size());
+			FrameTimes.record();
+			long t0 = System.nanoTime();
+			context.waitTicks(300);
+			double seconds = (System.nanoTime() - t0) / 1e9;
+			double[] frames = FrameTimes.stop();
+			context.takeScreenshot(shots + "-trail-blazer-" + (run == 0 ? "off" : run == 1 ? "on" : "on-sparse"));
+			log.add(String.format(java.util.Locale.ROOT, "Trail Blazer %s (%d ghosts): %d frames in %.1f s (%.1f fps), render median %.2f ms, p95 %.2f ms, worst %.2f ms",
+				outfit ? "on" : "off", ghosts, (int) frames[0], seconds, frames[0] / seconds, frames[1], frames[2], frames[3]));
+		}
+		server.runCommand("clear @a");
+		SimpleBlockTestLog.info("CLIENT M13 BUG-016 TRAIL BLAZER BENCHMARK: {}", log);
 	}
 
 	/**

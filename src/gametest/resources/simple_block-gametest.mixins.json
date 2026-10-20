@@ -9,7 +9,8 @@
 		"HudAccessor",
 		"SoundManagerMixin",
 		"TestMouseModifiersMixin",
-		"ClientParticleCountMixin"
+		"ClientParticleCountMixin",
+		"FrameTimerMixin"
 	],
 	"injectors": {
 		"defaultRequire": 1
