@@ -1,0 +1,32 @@
+# M14 Old Coot — verification log, 2026-10-20
+
+Local runs on 3d7417a (server Coot tests, client suite) and 69bb979 (full server build). CI Build #89, run 39460215698, PASS on 3d7417a.
+
+## Server game tests (OldCootGameTests, 7/7)
+M14 HOMES: 2010 of 3000 mineshafts are homes (0.67)
+M14 NATURAL RESIDENTS: [spots lit 111, dark 89, after the wait, 36 checks missed before a new resident]
+M14 COST: a check round (one player in a mineshaft) 6.714 us; a look for a face to dig 7.03 us
+M14 LIVE CHECK: resident after 8 checks, 1 Coots after 1000 more, 24.020824 blocks from the player
+M14 ANGER: [coal 14 away: near true, 18 away false, copper Coot false, spider hit: watcher true, walled false, spider health 11.792]
+M14 DROPS: 3 emeralds, 1 iron pickaxes (0.228 left)
+M14 CHASE: hit for 4.0 on NORMAL, swung true
+M14 MINING: 2 passages begun, 6 blocks mined, swung true, removed [9,2,6 Block{minecraft:stone}, 9,2,14 Block{minecraft:stone}, 9,1,13 Block{minecraft:stone}, 9,2,13 Block{minecraft:stone}, 9,1,12 Block{minecraft:stone}, 9,2,12 Block{minecraft:stone}], items 0, orbs 0
+M14 TORCHES: in the light false, in the dark true, straight after false; 5 left
+All 7 required tests passed :)
+
+Full server build: All 250 required tests passed (69bb979). Earlier full runs each hit one known intermittent test: long_line_works_where_it_is_loaded (M08 GAP-01) and hostile_behaviour_breach_redistributes (statistical; passed alone twice).
+
+## Negative controls (each broken temporarily, reverted, never committed)
+simple_block-gametest:old_coot_game_tests_anger_at_ore_theft_spider_hits_and_blows failed: one hit out of his sight does not on tick 1
+simple_block-gametest:old_coot_game_tests_drops_emeralds_and_one_worn_pickaxe_once failed: 5-50% left: 0.732 on tick 0
+simple_block-gametest:old_coot_game_tests_natural_residents_one_per_mineshaft failed: the cave is not the mineshaft's on tick 20
+simple_block-gametest:old_coot_game_tests_mines_only_stone_and_deepslate_with_no_drops failed: cobbled deepslate is never dug on tick 562
+simple_block-gametest:old_coot_game_tests_natural_residents_one_per_mineshaft failed: no second resident on tick 0
+simple_block-gametest:old_coot_game_tests_natural_residents_one_per_mineshaft failed: nobody new within seven days on tick 1
+simple_block-gametest:old_coot_game_tests_natural_residents_one_per_mineshaft failed: no resident in a mineshaft that is no home on tick 7
+- broken: piece check removed from spawn spots; spider sight gate removed; cobbled deepslate made mineable; pickaxe durability 0-100%; resident check removed; 7-day wait removed; home choice ignored.
+
+## Client game tests (full suite 20/20, exit 0)
+CLIENT M14 OLD COOT: [client swing progress at the swing picture 0.16666667, egg "Old Coot Spawn Egg" in the spawn-egg tab true; a use-key press spawned 1 Coot; hit box 1.25 tall, 0.75 wide; iron pickaxe in hand true]
+CLIENT M14 OLD COOT AT WORK: [out of sight (true) in 300 ticks he mined 3 blocks; the listener's client played 19 pickaxe blows and 3 breaks, mid-swing at the stone face: true (0 blocks mined), swinging at the player: true; the player hurt by him: true, no Coots: 529 frames in 10.0 s (52.9 fps), render median 0.45 ms, p95 0.62 ms, worst 2.57 ms, 12 Coots: 412 frames in 10.0 s (41.2 fps), render median 1.08 ms, p95 1.73 ms, worst 3.76 ms]
+CLIENT M14 WORLD: [home: minecraft:mineshaft started in chunk [-17, -15], 171 pieces, first BoundingBox{minX=-270, minY=-45, minZ=-238, maxX=-261, maxY=-36, maxZ=-231}, natural resident after 300 ticks: at BlockPos{x=-234, y=-45, z=-263} (block light 7, sky light 0), in a piece of his mineshaft true, after save and reload and 50 more checks: same resident true, residents of the home 1, the ledger names him true, dedicated server: client sees him with his pickaxe true; after the player's blow he is angry true, swung true, hurt the player 1.2000008; drops seen by the client [3 minecraft:emerald, 1 minecraft:iron_pickaxe]]

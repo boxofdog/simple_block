@@ -1,6 +1,6 @@
 ---
 milestone: M14
-status: IMPLEMENTING
+status: PLAYTESTING
 ---
 
 # M14 — The Old Coot: a territorial abandoned-mineshaft miner
@@ -91,3 +91,40 @@ Required server, negative-control and real-client coverage after authorization:
 **Ready-to-implement defaults and permitted tuning:** Approximately **two-thirds of mineshafts chosen once as possible homes**; initial **24–32 block mining radius** about a persistent home anchor; no mining drops; **1–3 emeralds** and one 5–50%-remaining-durability iron pickaxe; **20 HP**, optional **24 HP** only with playtest evidence; **~15-block ore-hearing radius through walls**, zombie-speed idle and spider-speed aggro; Enderman-sticky pursuit without teleportation or permanent hostility. Claude may tune initial spawn timing/respawn chance, exact radius within the stated approximate band, safe navigation, intermittent mining and torch placement, chase/leash/cooldown distances, attack cadence, sound attenuation, animation timing and broader model proportions during implementation, recording chosen values for playtest. **The villager nose, scraggly geometric beard, ~1.25-block height, real swings for mining AND attack, real audible tunneling, strict material-only mining, no item drops and no special player-built-stone carve-out are not negotiable tuning points.** No further owner design decision is needed for PLANNED - READY.
 
 **Lifecycle:** M14 is **PLANNED - READY**; no M14 code, art, tests, CI, acceptance or release is claimed. Implementation begins only on **fresh, explicit owner authorization**. Once implemented, append a concise dated verification section **at the end of this file** following [RULES.md](RULES.md), then wait for owner playtest/acceptance before SHIPPED.
+
+## Implementation and verification — 2026-10-20
+
+**Metadata:** M14 | PLAYTESTING | The Old Coot: model, egg, mineshaft residents, tunnelling, anger, chase and drops.
+
+**Implementation**
+- Commits: `daf81039d6e1334dc324e7259a259f2ee1dfdab9` (model, egg), `b0d7e53139af37b9df38736128752817bf24588d` (homes, mining, anger, drops), `69bb979068f4a471c91383f9d0ed0e00041d6e15` (torches, client proof), `3d7417a19caee6beacf00a6115fa55fc2c7409ab` (overlapping mineshafts).
+- Delivered: hunched model per owner direction (villager nose, scraggly tufted beard, upturned-brim hat); per-mineshaft ledger, ~⅔ homes, one natural resident, any light, 7-day wait then 2% retries; 28-block stone/deepslate-only passages, no drops, capped torches; ore (copper included) within 15 blocks, seen spider hits and blows anger him; spider-pace chase, calm after escape; 4 damage, 20 HP; 1–3 emeralds, 5–50% pickaxe.
+- Deviations: height to head top 1.16 blocks (hat ~1.45); hitbox 1.25 kept.
+
+**CI**
+- Build: #89 | Run ID: 39460215698 | PASS
+- Source SHA: `3d7417a19caee6beacf00a6115fa55fc2c7409ab`
+- URL: https://github.com/boxofdog/simple_block/actions/runs/39460215698
+- Artifact: `simple-block-mod` id 12283265795, available.
+
+**Tests**
+
+| Category | Result | Passed/Total | Evidence / Notes |
+|---|---|---|---|
+| Server | PASS | 250/250 | local `69bb979068f4a471c91383f9d0ed0e00041d6e15`; Coot 7/7 on `3d7417a19caee6beacf00a6115fa55fc2c7409ab`; [log](evidence/milestone-14/m14-verification-2026-10-20.txt) |
+| Client | PASS | 20/20 | real mineshaft resident, reload; [screenshots](evidence/milestone-14/screenshots/) |
+| Dedicated server | PASS | 1/1 | M14 fight and drops over network |
+| Negative controls | PASS | 7/7 | [log](evidence/milestone-14/m14-verification-2026-10-20.txt) |
+
+**Known gaps**
+- GAP-01: MINOR — spawn/retry chances, mining pace, torch cap provisional; next: playtest.
+- GAP-02: MINOR — FPS measured in software rendering only; next: owner hardware check.
+- GAP-03: MINOR — voice pitch and blows not listened to (headless); next: sound pass.
+- GAP-04: MINOR — two older server tests flaked once each in full runs; next: watch CI.
+- GAP-05: MINOR — placeholder colours; next: Joe paints.
+
+**Owner playtest**
+- Spawn him by egg; watch him dig and listen from a corridor away.
+- Explore real mineshafts; most should have a resident.
+- Mine ore near him, hit a cave spider in view, then run.
+- Kill him; check emeralds and pickaxe durability.
