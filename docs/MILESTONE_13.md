@@ -1,6 +1,6 @@
 ---
 milestone: M13
-status: PLANNED - READY
+status: IMPLEMENTING
 ---
 
 # M13 — Widespread bug-fixing, playtesting and feature-refinement patch
