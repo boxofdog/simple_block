@@ -23,8 +23,10 @@
 | M13 | Integration fixes, rope bow launch, bed recovery, chest sorting and inventory QoL | **PLAYTESTING** | [M13 patch package](MILESTONE_13.md) | [Implementation verification](MILESTONE_13.md#implementation-and-verification--2026-10-20) · [CI Build #85](https://github.com/boxofdog/simple_block/actions/runs/39413117425); owner playtest pending |
 | M14 | Old Coot: abandoned-mineshaft miner and spider guardian | **PLAYTESTING** | [M14 brief](MILESTONE_14.md) | Design settled; staged handoff ready; explicit implementation authorization required |
 | M15 | Three-position engine selector, multi-wagon stations and hopper control lids | **IMPLEMENTING** | [M15 brief](MILESTONE_15.md) | Owner design settled 2026-10-20; ready for separate START authorization; no implementation |
+| M16 | Iron Golem village defense and guardian reliability | **PLANNED - NOT READY** | [M16 concept](MILESTONE_16.md) | Preliminary brief; defense and replacement mechanics not yet settled |
+| M17 | Villager homesickness, settlement adoption and wellbeing | **PLANNED - NOT READY** | [M17 concept](MILESTONE_17.md) | Five settlement conditions agreed; implementation details still open |
 
-**Unnumbered work:** ordinary 3D rails have been implemented (owner visual review pending). Revised villages, extreme grades, discovered enchanting and iron/diamond/netherite armor bonuses remain future [backlog](BACKLOG.md) ideas, **not implementation authorizations**.
+**Unnumbered work:** ordinary 3D rails have been implemented (owner visual review pending). [M16](MILESTONE_16.md) now covers Iron Golem defense and [M17](MILESTONE_17.md) villager wellbeing. The remaining village-architecture, pubs and commerce ideas, extreme grades, discovered enchanting and iron/diamond/netherite armor bonuses remain future [backlog](BACKLOG.md) ideas, **not implementation authorizations**.
 
 ## Consolidated playtesting and feature refinement
 

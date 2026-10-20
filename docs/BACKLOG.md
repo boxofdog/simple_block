@@ -23,7 +23,7 @@
 | I-015 | Train coupling/operation, sequential coupled-wagon unloading | Related to open **M07 playtest decision**; no silent M06 revision |
 | I-016 | Full mine-to-smelter logistics playtest | Future integrated owner playtest, not a new mod system |
 | I-017 | Selective redstone redesign while retaining useful devices | No blanket removal of worthwhile standalone mechanisms |
-| I-018 | Inhabited villages, stores, pubs and responsive golem defense | Owner-directed workstream; details below |
+| I-018 | Inhabited villages, stores, pubs and settlement architecture | Future work; guardian improvement and wellbeing now have separate [M16](MILESTONE_16.md)/[M17](MILESTONE_17.md) briefs |
 | I-019 | Large winch-operated iron defense gate | **Deferred from M09 by owner**; unnumbered future design, not authorized |
 
 ## I-019 — Deferred industrial iron gate
@@ -58,7 +58,7 @@ Place witch huts on remote mountain peaks and in deep deepslate caverns. Each fe
 
 ## Future design backlog — inhabited villages
 
-**Status: OWNER-APPROVED DIRECTION / NOT IMPLEMENTATION-AUTHORIZED.** These are desired outcomes, not permission to modify village generation or AI before a dedicated milestone.
+**Status: OWNER-APPROVED DIRECTION / NOT IMPLEMENTATION-AUTHORIZED.** These remain future ideas for settlement generation, architecture, routines, shops and services. Guardian defense and villager wellbeing now have their own early [M16](MILESTONE_16.md) and [M17](MILESTONE_17.md) briefs; neither is implementation-authorized.
 
 ### Settlement geography and architecture
 
@@ -82,7 +82,7 @@ Place witch huts on remote mountain peaks and in deep deepslate caverns. Each fe
 
 ### Real protection and sensible nighttime survival
 
-- **Iron golems must actually defend villagers:** Golems should notice and urgently respond when a monster attacks a villager, with reliable target prioritization and meaningful patrols near populated or vulnerable parts of the village.
+- **Golem guardian improvements now belong to [M16](MILESTONE_16.md):** Villager protection-dependent settlement behavior belongs to [M17](MILESTONE_17.md).
 - **Monsters should threaten villagers appropriately:** Existing hostile behaviors and new light-entrancement rules must interact coherently with village safety, rather than golems ignoring attacks or villages being routinely depopulated.
 - **Safe gathering:** A pub that draws villagers together at night must have plausible protection. Avoid designing social routines that simply turn villagers into helpless victims.
 
