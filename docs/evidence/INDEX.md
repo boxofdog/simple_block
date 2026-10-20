@@ -4,6 +4,7 @@ File names and counts only. Presence does not prove execution, PASS, or owner ap
 
 | Location | Images | Text/logs | Other | Primary text evidence |
 |---|---:|---:|---:|---|
+| [ladder-3d](ladder-3d/) | 5 | 0 | 0 | — |
 | [milestone-01](milestone-01/) | 3 | 1 | 0 | [test-output.txt](milestone-01/test-output.txt) |
 | [milestone-02](milestone-02/) | 25 | 4 | 6 | [baseline-build.txt](milestone-02/baseline-build.txt), [gametest-evidence.md](milestone-02/gametest-evidence.md), [negative-controls.md](milestone-02/negative-controls.md), [ore-sampling-summary.md](milestone-02/ore-sampling/ore-sampling-summary.md) |
 | [milestone-03](milestone-03/) | 10 | 3 | 0 | [baseline-build.txt](milestone-03/baseline-build.txt), [gametest-evidence.md](milestone-03/gametest-evidence.md), [negative-controls.md](milestone-03/negative-controls.md) |
