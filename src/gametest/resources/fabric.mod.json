@@ -46,7 +46,8 @@
 			"io.github.boxofdog.simpleblock.gametest.FreightTransferGameTests",
 			"io.github.boxofdog.simpleblock.gametest.BlastFurnaceGameTests",
 			"io.github.boxofdog.simpleblock.gametest.HostileBehaviourGameTests",
-			"io.github.boxofdog.simpleblock.gametest.OldCootGameTests"
+			"io.github.boxofdog.simpleblock.gametest.OldCootGameTests",
+			"io.github.boxofdog.simpleblock.gametest.FreightStationGameTests"
 		],
 		"fabric-client-gametest": [
 			"io.github.boxofdog.simpleblock.gametest.client.SurvivalSmokeClientTest",

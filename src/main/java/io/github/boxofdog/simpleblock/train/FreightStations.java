@@ -306,19 +306,26 @@ public final class FreightStations {
 		if (lead == null) {
 			return;
 		}
-		boolean docked = false;
 		for (AbstractMinecart car : train) {
 			if (Couplings.coupled(car).simpleBlock$dock() != null) {
-				docked = true;
 				LoadingTracks.freight(car).simpleBlock$setService(Service.NONE);
 				LoadingTracks.freight(car).simpleBlock$setPort(null);
 			}
 		}
-		if (docked || CobblestoneEngine.engine(lead).simpleBlock$speed() > 1.0E-3 || mode(train) != EngineSelector.Mode.SERVICE) {
+		if (CobblestoneEngine.engine(lead).simpleBlock$speed() > 1.0E-3 || mode(train) != EngineSelector.Mode.SERVICE) {
 			return;
 		}
+		// A standing train lines up on the station under it (also one whose wagons were docked one by one
+		// before they were coupled to the engine).
 		Plan plan = handPlan(level, lead, train);
 		if (plan != null) {
+			for (AbstractMinecart car : train) {
+				BlockPos old = Couplings.coupled(car).simpleBlock$dock();
+				if (old != null && !plan.berths().contains(old)) {
+					LoadingTracks.setStop(level, old, false);
+				}
+				Couplings.coupled(car).simpleBlock$setDock(null);
+			}
 			plan.dock(level);
 		}
 	}
