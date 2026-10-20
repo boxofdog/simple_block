@@ -20,6 +20,10 @@ public class SkipPartBlock extends Block {
 		GATE_OPEN("gate_open"),
 		LID_CLOSED("lid_closed"),
 		LID_OPEN("lid_open"),
+		/** M13 (BUG-006): the lid as two doors opening to the sides, and the fixed rim at the back. */
+		LID_LEFT("lid_left"),
+		LID_RIGHT("lid_right"),
+		LID_RIM("lid_rim"),
 		BRIDLE("bridle");
 
 		private final String name;

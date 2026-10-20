@@ -43,7 +43,7 @@ import io.github.boxofdog.simpleblock.tuning.Tuning;
  * opens; the furnace takes only raw metal of the kind it holds, up to its 516).
  *
  * <p>A station is a Loading Rail in front of the skip ({@link OreSkip#facing()}) at one of those two
- * positions, whichever way the rail runs: end-on (a docked cart's end gate towards the skip) or side-on
+ * positions (M13, BUG-006: for loading, behind it too: its lid's two doors open to the sides), whichever way the rail runs: end-on (a docked cart's end gate towards the skip) or side-on
  * (its long side gate towards it, so each car of a coupled train can be worked without uncoupling),
  * with a freight cart docked on it ({@link Couplings.Coupled#simpleBlock$dock()}), and only for a skip hung on
  * its cable (it has its bridle then). Any other height, side or rail, a cart only passing, a cart beside
@@ -74,7 +74,7 @@ public final class SkipStations {
 	}
 
 	/** A station: the rail and its docked cart, or for {@link Mode#FURNACE} the hopper block (no cart), and the direction. */
-	public record Station(BlockPos rail, @Nullable Minecart cart, Mode mode) {
+	public record Station(BlockPos rail, @Nullable Minecart cart, Mode mode, Direction side) {
 	}
 
 	/** A skip's exchange in progress (not saved: after loading it starts again if there is still something to move). */
@@ -147,11 +147,17 @@ public final class SkipStations {
 		Mode mode;
 		BlockPos rail;
 		if (Math.abs(bottomY - Math.rint(bottomY)) < 1.0E-6) {
-			mode = Mode.LOAD;
-			rail = BlockPos.containing(skip.getX(), Math.rint(bottomY) + LOAD_OFFSET, skip.getZ()).relative(front);
-			if (LoadingTrackBlock.front(level.getBlockState(rail)) == null) {
-				return furnaceStation(level, skip, bottomY);
+			// M13 (BUG-006): a cart tips in over either short end of the skip, in front or behind (the lid's
+			// two doors open to the sides, leaving both ends clear); the front is tried first.
+			BlockPos bridle = BlockPos.containing(skip.getX(), Math.rint(bottomY) + LOAD_OFFSET, skip.getZ());
+			for (Direction side : new Direction[] {front, front.getOpposite()}) {
+				Station found = docked(level, bridle.relative(side), Mode.LOAD, side);
+				if (found != null) {
+					return found;
+				}
 			}
+			return LoadingTrackBlock.front(level.getBlockState(bridle.relative(front))) == null
+				&& LoadingTrackBlock.front(level.getBlockState(bridle.relative(front.getOpposite()))) == null ? furnaceStation(level, skip, bottomY) : null;
 		} else if (Math.abs(bottomY - UNLOAD_OFFSET - Math.rint(bottomY - UNLOAD_OFFSET)) < 1.0E-6) {
 			mode = Mode.UNLOAD;
 			rail = BlockPos.containing(skip.getX(), Math.rint(bottomY - UNLOAD_OFFSET), skip.getZ()).relative(front);
@@ -161,14 +167,21 @@ public final class SkipStations {
 		} else {
 			return null;
 		}
-		// Any Loading Rail there, end-on or side-on to the skip: the cart's gate on the skip's side opens
-		// (every cart has four: the owner's cart redesign).
+		return docked(level, rail, mode, front);
+	}
+
+	/**
+	 * The station at {@code rail} ({@code side} of the skip), if a Loading Rail is there with a freight cart
+	 * docked on it. Any Loading Rail, end-on or side-on to the skip: the cart's gate on the skip's side
+	 * opens (every cart has four: the owner's cart redesign).
+	 */
+	private static @Nullable Station docked(Level level, BlockPos rail, Mode mode, Direction side) {
 		if (LoadingTrackBlock.front(level.getBlockState(rail)) == null) {
 			return null;
 		}
 		List<Minecart> carts = level.getEntitiesOfClass(Minecart.class, new AABB(rail).inflate(0.5),
 			cart -> cart.isAlive() && LoadingTracks.isFreight(cart) && rail.equals(Couplings.coupled(cart).simpleBlock$dock()));
-		return carts.isEmpty() ? null : new Station(rail.immutable(), carts.getFirst(), mode);
+		return carts.isEmpty() ? null : new Station(rail.immutable(), carts.getFirst(), mode, side);
 	}
 
 	/**
@@ -182,7 +195,7 @@ public final class SkipStations {
 		if (BlastFurnaceStructure.hopperAt(level, hopper) == null || !level.getBlockState(overRim).getCollisionShape(level, overRim).isEmpty()) {
 			return null;
 		}
-		return new Station(hopper.immutable(), null, Mode.FURNACE);
+		return new Station(hopper.immutable(), null, Mode.FURNACE, skip.facing());
 	}
 
 	/** How many items could move now at {@code station}: from its source, as many as its destination has room for. */
@@ -281,7 +294,7 @@ public final class SkipStations {
 		skip.setDoors(open && exchange.mode == Mode.LOAD, open && exchange.mode != Mode.LOAD);
 		if (open && exchange.mode == Mode.LOAD && station != null && same) {
 			// The cart's gate that faces the skip: an end gate (ramp) or a side gate (lifted), as it stands.
-			LoadingTracks.freight(station.cart()).simpleBlock$holdGateOpen(skip.facing().getOpposite(), 3);
+			LoadingTracks.freight(station.cart()).simpleBlock$holdGateOpen(station.side().getOpposite(), 3);
 		}
 	}
 

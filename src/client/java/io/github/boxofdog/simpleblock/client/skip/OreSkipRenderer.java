@@ -32,7 +32,7 @@ import io.github.boxofdog.simpleblock.skip.SkipPartBlock;
 /**
  * M07: draws the ore skip from its part models ({@code block/ore_skip_*}), stacked up its column and
  * turned to its facing: the chute (block 1), the bin (blocks 2-3) with its discharge gate closed or
- * open, the intake's lid closed or open, and the bridle (block 4); and, when it hangs on a cable, the
+ * open, the intake's lid (M13: two doors opening to the sides) closed or open, and the bridle (block 4); and, when it hangs on a cable, the
  * cable from the bridle's apex up to the anchor's roller.
  */
 public class OreSkipRenderer extends EntityRenderer<OreSkip, OreSkipRenderer.State> {
@@ -41,14 +41,18 @@ public class OreSkipRenderer extends EntityRenderer<OreSkip, OreSkipRenderer.Sta
 	/** The discharge gate slides this far sideways to open (as {@code block/ore_skip_gate_open}). */
 	private static final float GATE_SLIDE = 10.0F / 16.0F;
 	private static final float LID_HINGE_Y = 0.75F / 16.0F;
-	private static final float LID_HINGE_Z = 14.25F / 16.0F;
+	/** M13 (BUG-006): each lid door's hinge runs front to back along its outer edge (model x -4 and 20). */
+	private static final float LID_LEFT_HINGE_X = -4.0F / 16.0F;
+	private static final float LID_RIGHT_HINGE_X = 20.0F / 16.0F;
 	private static final float LID_OPEN_DEGREES = 100.0F;
 
 	public static class State extends EntityRenderState {
 		final BlockModelRenderState chute = new BlockModelRenderState();
 		final BlockModelRenderState bin = new BlockModelRenderState();
 		final BlockModelRenderState gate = new BlockModelRenderState();
-		final BlockModelRenderState lid = new BlockModelRenderState();
+		final BlockModelRenderState lidLeft = new BlockModelRenderState();
+		final BlockModelRenderState lidRight = new BlockModelRenderState();
+		final BlockModelRenderState lidRim = new BlockModelRenderState();
 		final BlockModelRenderState bridle = new BlockModelRenderState();
 		Direction facing = Direction.NORTH;
 		boolean bridled;
@@ -91,9 +95,12 @@ public class OreSkipRenderer extends EntityRenderer<OreSkip, OreSkipRenderer.Sta
 		super.extractRenderState(skip, state, partialTicks);
 		this.part(state.chute, SkipPartBlock.Part.CHUTE);
 		this.part(state.bin, SkipPartBlock.Part.BIN);
-		// The closed models, moved by the animation: the gate slides sideways, the lid swings up on its hinge.
+		// The closed models, moved by the animation: the gate slides sideways, the lid's two doors swing up
+		// and out to the sides (M13, BUG-006: both ends of the intake clear, for a cart at either end).
 		this.part(state.gate, SkipPartBlock.Part.GATE_CLOSED);
-		this.part(state.lid, SkipPartBlock.Part.LID_CLOSED);
+		this.part(state.lidLeft, SkipPartBlock.Part.LID_LEFT);
+		this.part(state.lidRight, SkipPartBlock.Part.LID_RIGHT);
+		this.part(state.lidRim, SkipPartBlock.Part.LID_RIM);
 		state.lidOpen = net.minecraft.util.Mth.lerp(partialTicks, skip.lidAnimO, skip.lidAnim);
 		state.gateOpen = net.minecraft.util.Mth.lerp(partialTicks, skip.gateAnimO, skip.gateAnim);
 		state.bridled = skip.bridled();
@@ -137,12 +144,18 @@ public class OreSkipRenderer extends EntityRenderer<OreSkip, OreSkipRenderer.Sta
 		state.gate.submit(poseStack, collector, light, OverlayTexture.NO_OVERLAY, state.outlineColor);
 		poseStack.popPose();
 		poseStack.translate(0.0F, 2.0F, 0.0F);
+		state.lidRim.submit(poseStack, collector, light, OverlayTexture.NO_OVERLAY, state.outlineColor);
 		poseStack.pushPose();
-		// The lid's hinge runs across the back of the intake (model y 0.75, z 14.25).
-		poseStack.translate(0.0F, LID_HINGE_Y, LID_HINGE_Z);
-		poseStack.rotateDegrees(Axis.XP, state.lidOpen * LID_OPEN_DEGREES);
-		poseStack.translate(0.0F, -LID_HINGE_Y, -LID_HINGE_Z);
-		state.lid.submit(poseStack, collector, light, OverlayTexture.NO_OVERLAY, state.outlineColor);
+		poseStack.translate(LID_LEFT_HINGE_X, LID_HINGE_Y, 0.0F);
+		poseStack.rotateDegrees(Axis.ZP, state.lidOpen * LID_OPEN_DEGREES);
+		poseStack.translate(-LID_LEFT_HINGE_X, -LID_HINGE_Y, 0.0F);
+		state.lidLeft.submit(poseStack, collector, light, OverlayTexture.NO_OVERLAY, state.outlineColor);
+		poseStack.popPose();
+		poseStack.pushPose();
+		poseStack.translate(LID_RIGHT_HINGE_X, LID_HINGE_Y, 0.0F);
+		poseStack.rotateDegrees(Axis.ZP, -state.lidOpen * LID_OPEN_DEGREES);
+		poseStack.translate(-LID_RIGHT_HINGE_X, -LID_HINGE_Y, 0.0F);
+		state.lidRight.submit(poseStack, collector, light, OverlayTexture.NO_OVERLAY, state.outlineColor);
 		poseStack.popPose();
 		if (state.bridled) {
 			// Owner's playtest patch §3: the bridle exists only while the skip hangs on its cable.

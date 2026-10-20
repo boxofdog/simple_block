@@ -20,6 +20,15 @@
 		},
 		"part=bridle": {
 			"model": "simple_block:block/ore_skip_bridle"
+		},
+		"part=lid_left": {
+			"model": "simple_block:block/ore_skip_lid_left"
+		},
+		"part=lid_right": {
+			"model": "simple_block:block/ore_skip_lid_right"
+		},
+		"part=lid_rim": {
+			"model": "simple_block:block/ore_skip_lid_rim"
 		}
 	}
 }

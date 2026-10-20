@@ -1,0 +1,82 @@
+{
+	"credit": "Made by tools/models/split_skip_lid.py from ore_skip_lid_closed (M13, BUG-006); editable source art/blockbench/ore_skip_lid_right.bbmodel",
+	"texture_size": [
+		256,
+		256
+	],
+	"textures": {
+		"0": "simple_block:block/ore_skip",
+		"particle": "simple_block:block/ore_skip"
+	},
+	"elements": [
+		{
+			"name": "lid_door_right",
+			"from": [
+				8.0,
+				0.0,
+				2.5
+			],
+			"to": [
+				20.0,
+				1.5,
+				13.5
+			],
+			"faces": {
+				"north": {
+					"uv": [
+						0.6875,
+						4.25,
+						1.4375,
+						4.3438
+					],
+					"texture": "#0"
+				},
+				"east": {
+					"uv": [
+						0.0,
+						4.25,
+						0.6875,
+						4.3438
+					],
+					"texture": "#0"
+				},
+				"south": {
+					"uv": [
+						3.625,
+						4.25,
+						4.375,
+						4.3438
+					],
+					"texture": "#0"
+				},
+				"west": {
+					"uv": [
+						2.1875,
+						4.25,
+						2.875,
+						4.3438
+					],
+					"texture": "#0"
+				},
+				"up": {
+					"uv": [
+						1.4375,
+						3.5625,
+						2.1875,
+						4.25
+					],
+					"texture": "#0"
+				},
+				"down": {
+					"uv": [
+						2.9375,
+						3.5625,
+						3.6875,
+						4.25
+					],
+					"texture": "#0"
+				}
+			}
+		}
+	]
+}
