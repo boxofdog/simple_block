@@ -16,6 +16,7 @@ import org.jspecify.annotations.Nullable;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerEntityEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
+import net.fabricmc.fabric.api.event.player.UseBlockCallback;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceKey;
@@ -30,6 +31,7 @@ import net.minecraft.world.entity.vehicle.minecart.AbstractMinecart;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import io.github.boxofdog.simpleblock.feature.Feedback;
 
@@ -111,6 +113,19 @@ public final class Couplings {
 			if (entity instanceof AbstractMinecart cart && entity.getRemovalReason() != null && entity.getRemovalReason().shouldDestroy()) {
 				destroyed(cart, level);
 			}
+		});
+		// M13 (BUG-007): a chain used on a block just behind or under a cart couples that cart instead of
+		// being placed (a cart's hitbox is easy to miss; the rail or ground behind it took the chain).
+		UseBlockCallback.EVENT.register((player, level, hand, hit) -> {
+			if (player.isSpectator() || !player.getItemInHand(hand).is(Items.IRON_CHAIN)) {
+				return InteractionResult.PASS;
+			}
+			AbstractMinecart cart = aimedCart(player, hit.getLocation());
+			if (cart == null) {
+				return InteractionResult.PASS;
+			}
+			InteractionResult result = interact(cart, player, hand, hit.getLocation().subtract(cart.position()));
+			return result == null ? InteractionResult.PASS : result;
 		});
 		ServerLifecycleEvents.SERVER_STOPPED.register(server -> {
 			PENDING.clear();
@@ -244,6 +259,29 @@ public final class Couplings {
 			}
 		}
 		return InteractionResult.SUCCESS;
+	}
+
+	/** How far round a cart's hitbox a look still counts as aimed at it, for coupling (BUG-007). */
+	static final double AIM_SLACK = 0.3;
+
+	/**
+	 * The cart a player using a chain on a block at {@code blockHit} is aiming at: the nearest one whose
+	 * hitbox, grown by {@link #AIM_SLACK}, the look passes through before the block (or within half a block
+	 * past it). Null if none.
+	 */
+	public static @Nullable AbstractMinecart aimedCart(Player player, Vec3 blockHit) {
+		Vec3 eye = player.getEyePosition();
+		Vec3 end = eye.add(player.getViewVector(1.0F).scale(eye.distanceTo(blockHit) + 0.5));
+		AbstractMinecart best = null;
+		double bestDistance = Double.MAX_VALUE;
+		for (AbstractMinecart cart : player.level().getEntitiesOfClass(AbstractMinecart.class, new AABB(eye, end).inflate(1.0), AbstractMinecart::isAlive)) {
+			var clip = cart.getBoundingBox().inflate(AIM_SLACK).clip(eye, end);
+			if (clip.isPresent() && clip.get().distanceToSqr(eye) < bestDistance) {
+				bestDistance = clip.get().distanceToSqr(eye);
+				best = cart;
+			}
+		}
+		return best;
 	}
 
 	private static int freeSlot(AbstractMinecart cart) {
