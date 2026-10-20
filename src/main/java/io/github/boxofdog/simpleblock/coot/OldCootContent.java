@@ -44,5 +44,7 @@ public final class OldCootContent {
 	public static void register() {
 		FabricDefaultAttributeRegistry.register(OLD_COOT, OldCoot.createAttributes());
 		CreativeModeTabEvents.modifyOutputEvent(CreativeModeTabs.SPAWN_EGGS).register(output -> output.insertAfter(Items.WITCH_SPAWN_EGG, SPAWN_EGG));
+		CootResidents.register();
+		CootAnger.register();
 	}
 }
