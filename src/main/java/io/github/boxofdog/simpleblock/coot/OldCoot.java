@@ -69,9 +69,11 @@ public class OldCoot extends PathfinderMob {
 	public static final double LOSE_DISTANCE = 40.0;
 	/** A quarry out of his sight this long has got away. */
 	public static final int LOSE_UNSEEN = 600;
-	/** Ticks between digs: a passage, then a rest. */
+	/** Ticks of rest after a passage. */
 	public static final int MINE_PAUSE_MIN = 100;
 	public static final int MINE_PAUSE_SPREAD = 300;
+	/** Ticks before he looks again for a face to dig when he found none. */
+	public static final int MINE_LOOK_PAUSE = 40;
 	/** Pickaxe blows carry like a player's (heard to 16 blocks). */
 	public static final float BLOW_VOLUME = 1.0F;
 	/** Torches a natural home may ever get from its residents, or an egg-spawned Coot may ever put up. */
@@ -222,11 +224,12 @@ public class OldCoot extends PathfinderMob {
 
 	@Override
 	protected void customServerAiStep(ServerLevel level) {
-		super.customServerAiStep(level);
 		if (this.anchor == null) {
+			// An egg or command spawned Coot works around where he was put.
 			this.anchor = this.blockPosition();
 			this.setHomeTo(this.anchor, TERRITORY);
 		}
+		super.customServerAiStep(level);
 		if (this.mineCooldown > 0) {
 			this.mineCooldown--;
 		}

@@ -190,8 +190,8 @@ public class OldCootGameTests {
 		ledger.forget(homeChunk.pack());
 		ledger.forget(vacantChunk.pack());
 		List<String> log = new ArrayList<>();
-		// (Time for the light to spread.)
-		helper.startSequence().thenIdle(20).thenExecute(() -> {
+		helper.startSequence().thenWaitUntil(() -> helper.assertTrue(level.getBrightness(LightLayer.BLOCK, new BlockPos(x0 + 10, Y + 1, z0 + 5)) > 0,
+			"waiting for the light to spread")).thenExecute(() -> {
 			StructureStart home = mineshaft(level, homeChunk, litCorridor, corridor);
 			StructureStart cave = new StructureStart(home.getStructure(), new ChunkPos(0, 0), 0, new PiecesContainer(List.of(new Piece(caveBox))));
 			var mineshafts = level.registryAccess().lookupOrThrow(Registries.STRUCTURE).getOrThrow(net.minecraft.tags.StructureTags.MINESHAFT);
@@ -280,6 +280,69 @@ public class OldCootGameTests {
 	}
 
 	/**
+	 * The live check: a player standing at one end of a long mineshaft corridor (a home) brings its resident,
+	 * who appears in the corridor at least 16 blocks from the player; however many checks follow, he stays the
+	 * only one. A player in the rock outside any mineshaft brings nobody.
+	 */
+	@GameTest(structure = CAVERN, maxTicks = 100)
+	public void aPlayerInAMineshaftBringsItsResident(GameTestHelper helper) {
+		ServerLevel level = helper.getLevel();
+		BlockPos origin = helper.absolutePos(BlockPos.ZERO);
+		int x0 = origin.getX();
+		int Y = origin.getY();
+		int z0 = origin.getZ();
+		rock(level, new BlockPos(x0, Y, z0), new BlockPos(x0 + 63, Y + 5, z0 + 12), Blocks.STONE);
+		carve(level, new BlockPos(x0 + 2, Y + 1, z0 + 4), new BlockPos(x0 + 60, Y + 3, z0 + 6));
+		BoundingBox corridor = new BoundingBox(x0 + 2, Y, z0 + 4, x0 + 60, Y + 3, z0 + 6);
+		ChunkPos homeChunk = startChunk(level, (x0 >> 4) - 60, z0 >> 4, true);
+		CootHomes ledger = CootHomes.get(level);
+		ledger.forget(homeChunk.pack());
+		AABB around = new AABB(Vec3.atCenterOf(new BlockPos(x0, Y, z0)), Vec3.atCenterOf(new BlockPos(x0 + 63, Y + 5, z0 + 12))).inflate(2);
+		helper.startSequence().thenIdle(1).thenExecute(() -> {
+			mineshaft(level, homeChunk, corridor);
+			ServerPlayer outside = TestPlayers.create(helper, GameType.SURVIVAL, BlockPos.ZERO);
+			outside.teleportTo(x0 + 30.5, Y + 9, z0 + 30.5);
+			for (int i = 0; i < 50; i++) {
+				CootResidents.check(level);
+			}
+			helper.assertTrue(level.getEntitiesOfClass(OldCoot.class, around).isEmpty() && ledger.find(homeChunk.pack()) == null,
+				"a player outside the mineshaft brings nobody, and the mineshaft is not even looked at");
+			ServerPlayer explorer = TestPlayers.create(helper, GameType.SURVIVAL, BlockPos.ZERO);
+			explorer.teleportTo(x0 + 3.5, Y + 1, z0 + 5.5);
+			int checks = 0;
+			while (level.getEntitiesOfClass(OldCoot.class, around).isEmpty() && checks < 400) {
+				CootResidents.check(level);
+				checks++;
+			}
+			long t0 = System.nanoTime();
+			for (int i = 0; i < 1000; i++) {
+				CootResidents.check(level);
+			}
+			double checkMicros = (System.nanoTime() - t0) / 1000 / 1e3;
+			List<OldCoot> coots = level.getEntitiesOfClass(OldCoot.class, around);
+			CootMineGoal look = new CootMineGoal(coots.getFirst());
+			t0 = System.nanoTime();
+			for (int i = 0; i < 1000; i++) {
+				coots.getFirst().mineCooldown = 0;
+				look.canUse();
+			}
+			double lookMicros = (System.nanoTime() - t0) / 1000 / 1e3;
+			SimpleBlockTestLog.info("M14 COST: a check round (one player in a mineshaft) {} us; a look for a face to dig {} us", checkMicros, lookMicros);
+			SimpleBlockTestLog.info("M14 LIVE CHECK: resident after {} checks, {} Coots after 1000 more{}", checks, coots.size(),
+				coots.isEmpty() ? "" : ", " + coots.getFirst().distanceTo(explorer) + " blocks from the player");
+			helper.assertTrue(coots.size() == 1, "exactly one resident: " + coots.size());
+			OldCoot resident = coots.getFirst();
+			helper.assertTrue(corridor.isInside(resident.blockPosition()) && resident.distanceTo(explorer) >= CootResidents.PLAYER_CLEARANCE
+				&& resident.home() == homeChunk.pack(), "in the corridor, out of the player's way, and of this home");
+			resident.discard();
+			ledger.forget(homeChunk.pack());
+			TestPlayers.remove(outside);
+			TestPlayers.remove(explorer);
+			helper.succeed();
+		});
+	}
+
+	/**
 	 * Mining: an egg-spawned Coot in a small room cut in rock digs real passages into its stone and deepslate
 	 * walls (each blow a swing of his arm) with nothing dropped and no experience. Coal ore, cobblestone and
 	 * a stone block with water behind it stay; nothing below his feet or above head height goes. The rules
@@ -304,6 +367,11 @@ public class OldCootGameTests {
 		level.setBlockAndUpdate(coal, Blocks.COAL_ORE.defaultBlockState());
 		level.setBlockAndUpdate(cobble, Blocks.COBBLESTONE.defaultBlockState());
 		level.setBlockAndUpdate(dammed.north(), Blocks.WATER.defaultBlockState());
+		// A dark gallery for the torch checks, its far end lit (out of his territory's way of digging: no stone face in reach).
+		BlockPos darkSpot = new BlockPos(x0 + 20, Y + 1, z0 + 3);
+		BlockPos litSpot = new BlockPos(x0 + 37, Y + 1, z0 + 3);
+		carve(level, new BlockPos(x0 + 19, Y + 1, z0 + 2), new BlockPos(x0 + 38, Y + 2, z0 + 4));
+		fill(level, new BlockPos(x0 + 37, Y + 3, z0 + 3), new BlockPos(x0 + 37, Y + 3, z0 + 3), Blocks.GLOWSTONE);
 		Map<BlockPos, BlockState> before = new HashMap<>();
 		for (BlockPos pos : BlockPos.betweenClosed(min, max)) {
 			before.put(pos.immutable(), level.getBlockState(pos));
@@ -352,7 +420,15 @@ public class OldCootGameTests {
 			BlockPos far = c.anchor().east(OldCoot.TERRITORY + 2);
 			level.setBlockAndUpdate(far, Blocks.STONE.defaultBlockState());
 			helper.assertTrue(!CootMineGoal.diggable(level, c, far), "stone beyond his territory is not his to dig");
-			helper.assertTrue(c.torchesLeft() == OldCoot.TORCH_CAP - c.torches(), "torches counted");
+			// Torches: a real one on a dark floor; not in the light, not on an occupied spot, not again too soon,
+			// and never past the lifetime cap.
+			boolean lit = CootMineGoal.placeTorch(level, c, litSpot);
+			boolean placed = CootMineGoal.placeTorch(level, c, darkSpot);
+			boolean again = CootMineGoal.placeTorch(level, c, darkSpot.east());
+			SimpleBlockTestLog.info("M14 TORCHES: in the light {}, in the dark {}, straight after {}; {} left", lit, placed, again, c.torchesLeft());
+			helper.assertTrue(!lit && placed && level.getBlockState(darkSpot).is(Blocks.TORCH) && !again,
+				"a torch in the dark only, and not twice in a row: light " + lit + ", dark " + placed + ", again " + again);
+			helper.assertTrue(c.torchesLeft() == OldCoot.TORCH_CAP - 1, "torches counted");
 			while (c.torchesLeft() > 0) {
 				c.torchPlaced();
 			}

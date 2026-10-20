@@ -48,7 +48,8 @@ public final class CootResidents {
 		});
 	}
 
-	private static void check(ServerLevel level) {
+	/** One round of checks: the mineshaft each player is in or over (every {@link #INTERVAL} ticks). */
+	public static void check(ServerLevel level) {
 		HolderSet<Structure> mineshafts = level.registryAccess().lookupOrThrow(Registries.STRUCTURE).get(StructureTags.MINESHAFT)
 			.<HolderSet<Structure>>map(set -> set).orElse(null);
 		if (mineshafts == null) {

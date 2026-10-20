@@ -47,7 +47,7 @@ public final class CootMineGoal extends Goal {
 	private int nextBlow;
 	private int stuck;
 
-	CootMineGoal(OldCoot coot) {
+	public CootMineGoal(OldCoot coot) {
 		this.coot = coot;
 		this.setFlags(EnumSet.of(Flag.MOVE, Flag.LOOK));
 	}
@@ -62,7 +62,7 @@ public final class CootMineGoal extends Goal {
 		if (this.coot.getTarget() != null || this.coot.mineCooldown > 0 || !(this.coot.level() instanceof ServerLevel)) {
 			return false;
 		}
-		this.coot.mineCooldown = OldCoot.MINE_PAUSE_MIN + this.coot.getRandom().nextInt(OldCoot.MINE_PAUSE_SPREAD);
+		this.coot.mineCooldown = OldCoot.MINE_LOOK_PAUSE;
 		BlockPos feet = this.coot.blockPosition();
 		Direction first = Direction.Plane.HORIZONTAL.getRandomDirection(this.coot.getRandom());
 		for (int turn = 0; turn < 4; turn++) {
@@ -106,6 +106,7 @@ public final class CootMineGoal extends Goal {
 		this.slice = null;
 		this.block = null;
 		this.coot.getNavigation().stop();
+		this.coot.mineCooldown = OldCoot.MINE_PAUSE_MIN + this.coot.getRandom().nextInt(OldCoot.MINE_PAUSE_SPREAD);
 	}
 
 	@Override
@@ -206,14 +207,24 @@ public final class CootMineGoal extends Goal {
 		this.stuck = 0;
 	}
 
-	/** Now and then a real torch on the floor where a passage ends, if it is dark there and he has torches left. */
+	/** Now and then a real torch on the floor where a passage ends. */
 	private void maybeTorch(ServerLevel level, BlockPos at) {
-		if (this.coot.getRandom().nextFloat() >= TORCH_CHANCE || !level.getBlockState(at).isAir()
-			|| level.getBrightness(LightLayer.BLOCK, at) >= TORCH_DARK || !Blocks.TORCH.defaultBlockState().canSurvive(level, at)
-			|| !this.coot.mayPlaceTorch()) {
-			return;
+		if (this.coot.getRandom().nextFloat() < TORCH_CHANCE) {
+			placeTorch(level, this.coot, at);
+		}
+	}
+
+	/**
+	 * A torch on the floor here if the spot is empty and dark, a torch can stand there, and he may put one up
+	 * (not too soon after the last, and his home's lifetime allowance not spent). Returns whether he did.
+	 */
+	public static boolean placeTorch(ServerLevel level, OldCoot coot, BlockPos at) {
+		if (!level.getBlockState(at).isAir() || level.getBrightness(LightLayer.BLOCK, at) >= TORCH_DARK
+			|| !Blocks.TORCH.defaultBlockState().canSurvive(level, at) || !coot.mayPlaceTorch()) {
+			return false;
 		}
 		level.setBlockAndUpdate(at, Blocks.TORCH.defaultBlockState());
-		this.coot.torchPlaced();
+		coot.torchPlaced();
+		return true;
 	}
 }
