@@ -73,7 +73,7 @@ Counts reflect source files only, not proof of implemented or tested behavior.
 | Source set | First-level package | Java files |
 |---|---|---:|
 | client | client | 36 |
-| gametest | gametest | 70 |
+| gametest | gametest | 71 |
 | main | (root) | 1 |
 | main | cable | 19 |
 | main | coot | 6 |
