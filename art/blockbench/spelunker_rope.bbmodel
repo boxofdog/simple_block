@@ -32,14 +32,14 @@
 			"render_order": "default",
 			"allow_mirror_modeling": true,
 			"from": [
-				7.0,
+				6.5,
 				0.0,
-				7.0
+				6.5
 			],
 			"to": [
-				9.0,
+				9.5,
 				16.0,
-				9.0
+				9.5
 			],
 			"autouv": 0,
 			"color": 0,
@@ -56,55 +56,55 @@
 			"faces": {
 				"north": {
 					"uv": [
-						2,
-						2,
-						4.0,
-						18.0
+						3,
+						3,
+						6.0,
+						19.0
 					],
 					"texture": 0
 				},
 				"east": {
 					"uv": [
 						0,
-						2,
-						2.0,
-						18.0
+						3,
+						3.0,
+						19.0
 					],
 					"texture": 0
 				},
 				"south": {
 					"uv": [
-						6,
-						2,
-						8.0,
-						18.0
+						9,
+						3,
+						12.0,
+						19.0
 					],
 					"texture": 0
 				},
 				"west": {
 					"uv": [
-						4,
-						2,
-						6.0,
-						18.0
+						6,
+						3,
+						9.0,
+						19.0
 					],
 					"texture": 0
 				},
 				"up": {
 					"uv": [
-						2,
+						3,
 						0,
-						4.0,
-						2.0
+						6.0,
+						3.0
 					],
 					"texture": 0
 				},
 				"down": {
 					"uv": [
-						4,
+						6,
 						0,
-						6.0,
-						2.0
+						9.0,
+						3.0
 					],
 					"texture": 0
 				}
@@ -143,7 +143,7 @@
 			"saved": true,
 			"uuid": "e5f04018-5886-5458-a2b7-82473002abda",
 			"relative_path": "../../src/main/resources/assets/simple_block/textures/block/spelunker_rope.png",
-			"source": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAYAAACqaXHeAAAB5klEQVR4nO3YPUibQRzH8W/EqWiLFnzHxUFoi6uVglAFEXF0CIJDBBEcdGwpGRwcBEUouBSKg4siggasikgGkaoIChKDluogtcVS6KC4nkNU+iSXPC1InqTP7zPl7n/P5fjfSy5PgFvx8S4DMLd9CsDw/F4AF4ObawYgFvkEQHTsveszyXrCHcZW/2XvzNp+ZzmW9juiI9vWvpZ2F63tJyKjgULXEWZBU2eDo7y1dABAXUONo/7k4FvaPsZDk2ZmY9oaq69+xvF5PKW+r23AFE71NxuAs19XANQ+LQJg9W27AWgfXf3nWfVS8/MWR3njMJoxVpCVUeUw3ycgJ86Auz2fLNOefyhZS8DQZNB6QpdWPLG2L614bK3v6H1l7YfED5FjzyezxQJ3h2BVySMAvv++5s/yh8rXaTssLi8D4PLip2ub6WAoJw9TnQFuDRaG3uTkzD0U368AJcDrAXhNCfB6AF5TArwegNd8n4D7S8672XjKHXt/fS7lgZWPw46L0dfNXgMwGzkCIDz2Oa8uTloB3eEpA/DjJJYSrKx7QbpY6GXiFVN1eeIN0vnFlaPcGpzPi5Xg+C9Q39h2//l4Z42/jeUz328BxwrINLP/06yLiIiIiIiIiIiIiIiIiIiIiIiIiD/cAJt3fVlytvirAAAAAElFTkSuQmCC"
+			"source": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAYAAACqaXHeAAAC30lEQVR4nO2ZTWgTQRTH/wk9GG3T1lhjI5ZSav0qeIhUkFqDSFHBQ0QPCi1EkOqlpwo9+AEexEMQvLTUowUFCSpYv6oEraVoadBCCGlItWqaGqu2WNGLsB5Chv0cNjGbbZP3O82892Zn9u3Mm5m3Fojo9XmETPndVJLJn4zFLNDJuQM7BJ5+MrHAbT8cTerqK9jdzu1nKJzgtr8WjFgAoEyuOLx3Kx69igIAmhs3IBz/omc8Eg5t36gqfxyZTT/XVaWqDycXs+7rf1E4IPPyAHJ6eaPxe90CANye+MC12+K0AwCmUj9V9af3bBYAoOzEwZ1sKi0s/WEG1XYbK3cd281sBgJvdC8Ho2lrdKrKR+Ip3XZWAGhp3sSE+9wNrKwlLyasZg/AbEreAYogmA8y0V4LM6K9Flk7IBOFtXBW2HhqOCtWcfUdLQ3c56dEgTofGDIDCoU82udil7UDeu6Fls02mA9KPgiSA8wegNmQA8wegNmQA8wegNlYAWA8/JkJXobes7KWvJjQPNSIU1viNJbelNUZ7y7JkTYyMy/Rj7z9qHhOsLtdGAonWLpKXgeA+/6TiqPy09dxRf/9gXFd4+QuAXFqSyuNxcPjrofHXc/qTXUONNU5VG39Xrcwu/gbrkobBjtbBXk96851smLuApe79gsAMPdtSaGrdZQDAGqq1zBZf+8RAQDOXn3AnQmGOuBFaEZSj336bmR3OZE3B5z3tUmm6bqq1eDVj3q2Sez/ymKEnIsDQUMuYVwHiBMbRicxzLplWrQSHOLEhlYSQmzTcXN0RV6TS/4gxL7axJ0exUy4+3xS0eDKjWeSLz3cd0rR7uFoVC7C9VtjrJ38t5b8N5Z43zeagm+Dmf1djKvSJllOg52tQqGWlKXvwnEBAGpr7Arl3Hz6t5KaLjadDpDr15YrdF9//NLU+S4FllWsKPkYQBAEQRAEQRAEQRAEQRAEQRAEQRAEQRAEUfT8A7J/4gMGomZZAAAAAElFTkSuQmCC"
 		}
 	]
 }

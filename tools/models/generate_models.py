@@ -506,18 +506,24 @@ HEADLAMP = [
     Cube('copper_cap', [5.5, 26, 5.5], [10.5, 27, 10.5]),
     Cube('cap_knob', [7, 27, 7], [9, 28, 9]),
 ]
-ROPE_LINE = [Cube('rope', [7, 0, 7], [9, 16, 9])]
-ROPE_COIL = [Cube('rope', [7, 4, 7], [9, 16, 9])] + ring_y('coil', 8, 8, 0, 4, 5, 2)
+# M13 BUG-009: a thicker (3-pixel) rope, a chunkier anchor (a thick plate, a shackle loop the rope is knotted
+# through) and a coil wound from three stacked, slightly offset turns.
+ROPE_LINE = [Cube('rope', [6.5, 0, 6.5], [9.5, 16, 9.5])]
+ROPE_COIL = ([Cube('rope', [6.5, 5, 6.5], [9.5, 16, 9.5])] + ring_y('coil_low', 8, 8, 0, 2, 5, 2)
+             + ring_y('coil_mid', 8.5, 7.5, 2, 4, 4.5, 2) + ring_y('coil_top', 8, 8, 4, 6, 4, 2))
 ROPE_ANCHOR = [
-    Cube('anchor_plate', [5, 15, 5], [11, 16, 11]),
-    Cube('anchor_eye', [7, 11, 7], [9, 15, 9]),
-    Cube('rope', [7, 0, 7], [9, 11, 9]),
+    Cube('anchor_plate', [4, 14, 4], [12, 16, 12]),
+    Cube('anchor_loop_left', [6, 10, 7.5], [7, 14, 8.5]),
+    Cube('anchor_loop_right', [9, 10, 7.5], [10, 14, 8.5]),
+    Cube('anchor_loop_bottom', [6, 9, 7.5], [10, 10, 8.5]),
+    Cube('anchor_knot', [6, 7, 6], [10, 9, 10]),
+    Cube('rope', [6.5, 0, 6.5], [9.5, 7, 9.5]),
 ]
 ROPE_ANCHOR_SIDE = [
-    Cube('anchor_plate_side', [5, 8, 0], [11, 14, 1]),
-    Cube('anchor_arm', [7, 12, 1], [9, 14, 8]),
-    Cube('anchor_eye', [7, 10, 7], [9, 12, 9]),
-    Cube('rope', [7, 0, 7], [9, 10, 9]),
+    Cube('anchor_plate_side', [4, 7, 0], [12, 15, 2]),
+    Cube('anchor_arm', [6.5, 11, 2], [9.5, 13, 8]),
+    Cube('anchor_knot', [6, 8, 6], [10, 11, 10]),
+    Cube('rope', [6.5, 0, 6.5], [9.5, 8, 9.5]),
 ]
 
 GROUPS = {
@@ -569,6 +575,11 @@ PALETTE = [(214, 140, 84), (122, 168, 214), (150, 200, 120), (220, 196, 98), (19
 # Template colours by UV key for the M08 furnace's template, so that it reads as materials:
 # brick, firebrick, stone, iron, fire and molten metal. Keys not listed take the palette.
 BRICK, STONE, IRON, DARK_IRON, DARK, FIRE, MOLTEN = (156, 82, 62), (128, 128, 124), (112, 114, 120), (66, 68, 74), (34, 28, 26), (255, 170, 40), (255, 112, 24)
+# M13 BUG-009: the Spelunker's Rope template reads as hemp rope on copper fittings, each coil turn a shade apart.
+HEMP, COPPER = (194, 158, 104), (190, 110, 70)
+ROPE_COLOURS = {'rope': HEMP, 'coil_low': (176, 140, 90), 'coil_mid': (204, 170, 116), 'coil_top': (186, 150, 98),
+                'anchor_knot': (168, 132, 84), 'anchor_plate': COPPER, 'anchor_plate_side': COPPER, 'anchor_arm': COPPER,
+                'anchor_loop_left': COPPER, 'anchor_loop_right': COPPER, 'anchor_loop_bottom': COPPER}
 MATERIAL_COLOURS = {
     'footing': STONE, 'body': BRICK, 'string_course': STONE, 'body_upper': BRICK,
     'facade': IRON, 'post': DARK_IRON, 'cornice': DARK_IRON, 'band_low': DARK_IRON, 'band_high': DARK_IRON, 'tap_housing': DARK_IRON,
@@ -736,7 +747,8 @@ def main():
     for texture, models in GROUPS.items():
         cubes = [c for cs in models.values() for c in cs]
         size, regions, keys = pack(cubes)
-        png = template_png(size, regions, keys, MATERIAL_COLOURS if texture == 'block/blast_furnace' else None)
+        png = template_png(size, regions, keys, MATERIAL_COLOURS if texture == 'block/blast_furnace'
+                           else ROPE_COLOURS if texture == 'block/spelunker_rope' else None)
         tex_file = os.path.join(ASSETS, 'textures', texture + '.png')
         write(tex_file, png, binary=True)
         texture_id = f'{NAMESPACE}:{texture}'

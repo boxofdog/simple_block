@@ -26,7 +26,7 @@ import net.minecraft.world.phys.shapes.VoxelShape;
  */
 public class RopeLineBlock extends Block {
 	private static final VoxelShape ROPE = Block.box(6.5, 0.0, 6.5, 9.5, 16.0, 9.5);
-	private static final VoxelShape COIL = Shapes.or(Block.box(3.0, 0.0, 3.0, 13.0, 4.0, 13.0), ROPE);
+	private static final VoxelShape COIL = Shapes.or(Block.box(2.0, 0.0, 2.0, 14.0, 6.0, 14.0), ROPE);
 	private final boolean coil;
 
 	public RopeLineBlock(BlockBehaviour.Properties properties, boolean coil) {

@@ -35,11 +35,11 @@ public class RopeAnchorBlock extends BaseEntityBlock {
 	public static final EnumProperty<Direction> SUPPORT = EnumProperty.create("support", Direction.class, Direction.UP, Direction.NORTH,
 		Direction.EAST, Direction.SOUTH, Direction.WEST);
 	private static final Map<Direction, VoxelShape> SHAPES = Map.of(
-		Direction.UP, Block.box(5.0, 10.0, 5.0, 11.0, 16.0, 11.0),
-		Direction.NORTH, Block.box(5.0, 8.0, 0.0, 11.0, 14.0, 10.0),
-		Direction.SOUTH, Block.box(5.0, 8.0, 6.0, 11.0, 14.0, 16.0),
-		Direction.WEST, Block.box(0.0, 8.0, 5.0, 10.0, 14.0, 11.0),
-		Direction.EAST, Block.box(6.0, 8.0, 5.0, 16.0, 14.0, 11.0));
+		Direction.UP, Block.box(4.0, 7.0, 4.0, 12.0, 16.0, 12.0),
+		Direction.NORTH, Block.box(4.0, 7.0, 0.0, 12.0, 15.0, 10.0),
+		Direction.SOUTH, Block.box(4.0, 7.0, 6.0, 12.0, 15.0, 16.0),
+		Direction.WEST, Block.box(0.0, 7.0, 4.0, 10.0, 15.0, 12.0),
+		Direction.EAST, Block.box(6.0, 7.0, 4.0, 16.0, 15.0, 12.0));
 
 	public RopeAnchorBlock(BlockBehaviour.Properties properties) {
 		super(properties);

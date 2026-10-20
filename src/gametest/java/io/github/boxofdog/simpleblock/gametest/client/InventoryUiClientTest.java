@@ -51,6 +51,7 @@ public class InventoryUiClientTest implements FabricClientGameTest {
 			loadBar(context, server, chest, "m13");
 			sortButton(context, server, chest, "m13");
 			oldPro(context, server, chest);
+			ropeScene(context, server, chest);
 		}
 		try (TestDedicatedServerContext server = context.worldBuilder().createServer();
 			TestDedicatedServerConnection connection = server.connect()) {
@@ -265,12 +266,14 @@ public class InventoryUiClientTest implements FabricClientGameTest {
 			String[] result = server.computeOnServer(s -> {
 				ServerPlayer player = s.overworld().players().getFirst();
 				int cobble = s.overworld().getEntitiesOfClass(net.minecraft.world.entity.item.ItemEntity.class, new net.minecraft.world.phys.AABB(stone).inflate(3),
-					item -> item.getItem().is(net.minecraft.world.item.Items.COBBLESTONE)).size();
+					item -> item.getItem().is(net.minecraft.world.item.Items.COBBLESTONE)).size()
+					// It may already have been picked up.
+					+ player.getInventory().countItem(net.minecraft.world.item.Items.COBBLESTONE);
 				return new String[] {String.valueOf(s.overworld().getBlockState(stone).isAir()), String.valueOf(cobble),
 					String.valueOf(player.getOffhandItem().getDamageValue()), String.valueOf(player.getMainHandItem().getDamageValue()),
 					io.github.boxofdog.simpleblock.workwear.Workwear.bonus(player).toString()};
 			});
-			log.add((outfit ? "outfit (" : "no outfit (") + result[4] + "): stone broken " + result[0] + ", cobblestone dropped " + result[1]
+			log.add((outfit ? "outfit (" : "no outfit (") + result[4] + "): stone broken " + result[0] + ", cobblestone dropped (on the ground or picked up) " + result[1]
 				+ ", pickaxe damage " + result[2] + ", sword damage " + result[3]);
 			if (outfit) {
 				assertTrue(result[0].equals("true") && result[1].equals("1") && result[2].equals("1") && result[3].equals("0"),
@@ -283,6 +286,36 @@ public class InventoryUiClientTest implements FabricClientGameTest {
 		server.runCommand("kill @e[type=item]");
 		server.runCommand("setblock " + at + " minecraft:air");
 		SimpleBlockTestLog.info("CLIENT M13 BUG-017 OLD PRO (attack held 30 ticks on stone, iron sword in hand, iron pickaxe in the offhand): {}", log);
+	}
+
+	/**
+	 * BUG-009: the remodelled Spelunker's Rope near and far: a line under a stone overhang down to a coil on
+	 * the ground, and one on a side anchor; screenshots only (the art is for the owner to judge).
+	 */
+	private static void ropeScene(ClientGameTestContext context, TestServerContext server, BlockPos chest) {
+		int x = chest.getX() - 3;
+		int y = chest.getY();
+		int z = chest.getZ() - 1;
+		server.runCommand("fill " + (x - 1) + " " + (y + 4) + " " + (z - 1) + " " + (x + 2) + " " + (y + 4) + " " + (z + 1) + " minecraft:stone");
+		server.runCommand("setblock " + x + " " + (y + 3) + " " + z + " simple_block:spelunker_rope_anchor[support=up]");
+		server.runCommand("setblock " + x + " " + (y + 2) + " " + z + " simple_block:spelunker_rope");
+		server.runCommand("setblock " + x + " " + (y + 1) + " " + z + " simple_block:spelunker_rope");
+		server.runCommand("setblock " + x + " " + y + " " + z + " simple_block:spelunker_rope_coil");
+		// A side anchor on the face of a stone block, facing the camera.
+		server.runCommand("setblock " + (x + 2) + " " + (y + 3) + " " + z + " minecraft:stone");
+		server.runCommand("setblock " + (x + 2) + " " + (y + 3) + " " + (z + 1) + " simple_block:spelunker_rope_anchor[support=north]");
+		server.runCommand("setblock " + (x + 2) + " " + (y + 2) + " " + (z + 1) + " simple_block:spelunker_rope");
+		server.runCommand("setblock " + (x + 2) + " " + (y + 1) + " " + (z + 1) + " simple_block:spelunker_rope");
+		server.runCommand("clear @a");
+		for (double distance : new double[] {4.0, 9.0}) {
+			server.runCommand("tp @a " + (x + 1.0) + " " + y + " " + (z + 0.5 + distance) + " 180 0");
+			context.waitTicks(5);
+			lookAtPoint(context, new Vec3(x + 1.5, y + 1.8, z + 0.5));
+			context.waitTicks(3);
+			context.takeScreenshot("m13-rope-" + (distance < 6 ? "near" : "far"));
+		}
+		server.runCommand("fill " + (x - 1) + " " + y + " " + (z - 1) + " " + (x + 2) + " " + (y + 4) + " " + (z + 2) + " minecraft:air");
+		server.runCommand("tp @a " + (X + 0.5) + " " + y + " " + (Z + 0.5) + " 180 30");
 	}
 
 	/** The chest Sort button, clicked with the real mouse: the chest is sorted, the player's inventory is not. */
