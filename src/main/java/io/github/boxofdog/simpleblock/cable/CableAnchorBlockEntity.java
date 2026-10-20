@@ -42,6 +42,10 @@ public class CableAnchorBlockEntity extends BlockEntity {
 	public void setDrum(@Nullable BlockPos drum) {
 		this.drum = drum == null ? null : drum.immutable();
 		this.changed();
+		// M13 (BUG-021): a freed anchor's roller goes back to its usual place.
+		if (drum == null && this.level != null && !this.level.isClientSide()) {
+			CableRoutes.setDrop(this.level, this.getBlockPos(), 0);
+		}
 	}
 
 	/** Whether a copper anchor is fitted here as a loop's return wheel (it comes back when the loop opens). */

@@ -122,10 +122,12 @@ public class OreSkipRenderer extends EntityRenderer<OreSkip, OreSkipRenderer.Sta
 	private static Vec3 dropPoint(net.minecraft.world.level.block.state.BlockState state, BlockPos anchor) {
 		if (state.hasProperty(CableAnchorBlock.RETURN) && state.getValue(CableAnchorBlock.RETURN) == CableAnchorBlock.Return.PULLEY) {
 			Direction facing = state.getValue(CableAnchorBlock.FACING);
-			return new Vec3(anchor.getX() + 0.5 + facing.getStepX() * CableHoists.PULLEY_DROP, anchor.getY() + CableHoists.PULLEY_AXLE_Y,
+			return new Vec3(anchor.getX() + 0.5 + facing.getStepX() * CableHoists.PULLEY_DROP,
+				anchor.getY() + CableHoists.PULLEY_AXLE_Y - state.getValue(CableAnchorBlock.DROP) * CableRoutes.DROP_STEP,
 				anchor.getZ() + 0.5 + facing.getStepZ() * CableHoists.PULLEY_DROP);
 		}
-		return CableRoutes.point(anchor, false);
+		return CableRoutes.point(anchor, false).subtract(0.0, state.hasProperty(CableAnchorBlock.DROP) ? state.getValue(CableAnchorBlock.DROP)
+			* CableRoutes.DROP_STEP : 0.0, 0.0);
 	}
 
 	@Override

@@ -146,7 +146,7 @@ public class CableDrumBlockEntity extends BlockEntity {
 		List<Vec3> points = new ArrayList<>();
 		points.add(this.exitPoint());
 		for (BlockPos anchor : this.route) {
-			points.add(CableRoutes.point(anchor, false));
+			points.add(this.level == null ? CableRoutes.point(anchor, false) : CableRoutes.rollerPoint(this.level, anchor));
 		}
 		if (this.endDrum != null) {
 			points.add(CableRoutes.drumPoint(this.endDrum, this.endHanging));

@@ -65,7 +65,7 @@ public final class CableHoists {
 			return new Attach(false, CableRoutes.message("hoist_no_anchor", "Run the cable through an anchor over the shaft first: the skip hangs under the last one"));
 		}
 		BlockPos anchor = drum.routeEnd();
-		Vec3 roller = CableRoutes.point(anchor, false);
+		Vec3 roller = CableRoutes.rollerPoint(level, anchor);
 		if (anchor.getX() != column.getX() || anchor.getZ() != column.getZ()) {
 			return new Attach(false, CableRoutes.message("hoist_not_under", "The skip must stand straight under the cable's last anchor, at %s",
 				anchor.toShortString()));

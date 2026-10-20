@@ -364,9 +364,15 @@ public class CableGameTests {
 				assertCableKept(helper, drum, "after C");
 				log.add("A->B straight: " + spanB + ", B->C turn and climb 2: " + spanC);
 
-				// Using an anchor already on the route does nothing.
+				// M13 (BUG-020, owner-directed): using an earlier anchor of the route with the end winds the cable
+				// back to it, the end hanging there; picked up again, it is run on through B and C as before.
 				useBlock(helper, player, a, false);
-				helper.assertValueEqual(drum.route().size(), 3, "anchors on the route after using A again");
+				helper.assertValueEqual(drum.route().size(), 1, "anchors on the route after using A again");
+				helper.assertFalse(hook.isHeld(), "the end hangs at A after winding back");
+				player.interactOn(hook, InteractionHand.MAIN_HAND, hook.position());
+				useBlock(helper, player, b, false);
+				useBlock(helper, player, c, false);
+				helper.assertValueEqual(drum.route(), absolute(helper, a, b, c), "route after running on through B and C again");
 
 				int spanD = CableRoutes.spanLength(helper.absolutePos(c), false, helper.absolutePos(d));
 				useBlock(helper, player, d, false);

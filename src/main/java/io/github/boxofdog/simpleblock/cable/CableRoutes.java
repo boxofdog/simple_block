@@ -80,13 +80,34 @@ public final class CableRoutes {
 		return new Vec3(pos.getX() + 0.5, pos.getY() + (hanging ? HANGING_EXIT_Y : DRUM_EXIT_Y), pos.getZ() + 0.5);
 	}
 
-	/** Where the cable runs at a support in the world (a drum's exit depends on how it is mounted). */
+	/** Where the cable runs at a support in the world (a drum's exit depends on how it is mounted, an anchor's roller on its drop). */
 	public static Vec3 point(BlockGetter level, BlockPos pos, boolean drum) {
 		if (drum) {
 			BlockState state = level.getBlockState(pos);
 			return drumPoint(pos, state.hasProperty(CableDrumBlock.HANGING) && state.getValue(CableDrumBlock.HANGING));
 		}
-		return point(pos, false);
+		return rollerPoint(level, pos);
+	}
+
+	/** M13 (BUG-021): one step of an anchor's roller drop, in blocks (2 px; at most 4 steps, half a block). */
+	public static final double DROP_STEP = 2.0 / 16.0;
+
+	/** How many {@link #DROP_STEP}s the roller at {@code pos} hangs low (0 if not an anchor). */
+	public static int drop(BlockGetter level, BlockPos pos) {
+		BlockState state = level.getBlockState(pos);
+		return state.hasProperty(CableAnchorBlock.DROP) ? state.getValue(CableAnchorBlock.DROP) : 0;
+	}
+
+	/** Where the cable runs over the anchor at {@code pos}: its roller, lowered by its drop. */
+	public static Vec3 rollerPoint(BlockGetter level, BlockPos pos) {
+		return point(pos, false).subtract(0.0, drop(level, pos) * DROP_STEP, 0.0);
+	}
+
+	static void setDrop(net.minecraft.world.level.Level level, BlockPos pos, int drop) {
+		BlockState state = level.getBlockState(pos);
+		if (state.hasProperty(CableAnchorBlock.DROP) && state.getValue(CableAnchorBlock.DROP) != drop) {
+			level.setBlock(pos, state.setValue(CableAnchorBlock.DROP, drop), net.minecraft.world.level.block.Block.UPDATE_ALL);
+		}
 	}
 
 	/** A span's length in whole blocks (rounded up). */
@@ -249,16 +270,25 @@ public final class CableRoutes {
 		}
 		BlockPos from = drum.routeEnd();
 		boolean fromDrum = drum.route().isEmpty();
-		Vec3 start = fromDrum ? drum.exitPoint() : point(from, false);
+		Vec3 start = fromDrum ? drum.exitPoint() : rollerPoint(level, from);
 		double distance = start.distanceTo(point(pos, false));
 		int length = Mth.ceil(distance);
 		if (distance > maxSpan()) {
 			return message("too_far", "Too far: a span can be at most %s blocks, this one would be %s", maxSpan(), length);
 		}
-		BlockPos obstacle = obstacle(level, start, point(pos, false), fromDrum ? supports(from, drum.hanging(), pos) : supports(from, true, pos));
+		Set<BlockPos> ignored = fromDrum ? supports(from, drum.hanging(), pos) : supports(from, true, pos);
+		BlockPos obstacle = obstacle(level, start, point(pos, false), ignored);
+		int drop = 0;
+		// M13 (BUG-021): an inclined span that catches something on its way may hang this anchor's roller
+		// lower, a step at a time up to half a block, just enough to clear it.
+		while (obstacle != null && Math.abs(start.y - point(pos, false).y) > 1.0E-6 && drop < 4) {
+			drop++;
+			obstacle = obstacle(level, start, point(pos, false).subtract(0.0, drop * DROP_STEP, 0.0), ignored);
+		}
 		if (obstacle != null) {
 			return message("blocked", "The cable would run through %s at %s", level.getBlockState(obstacle).getBlock().getName(), obstacle.toShortString());
 		}
+		setDrop(level, pos, drop);
 		anchor.setDrum(drum.getBlockPos());
 		drum.addAnchor(pos);
 		level.playSound(null, pos, SoundEvents.CHAIN_PLACE, SoundSource.BLOCKS, 1.0F, 1.2F);
@@ -272,7 +302,7 @@ public final class CableRoutes {
 	 * otherwise catch the beam's edge.
 	 */
 	public static @Nullable BlockPos obstacle(BlockGetter level, BlockPos from, boolean fromDrum, BlockPos to) {
-		return obstacle(level, point(level, from, fromDrum), point(to, false), supports(from, !fromDrum, to));
+		return obstacle(level, point(level, from, fromDrum), rollerPoint(level, to), supports(from, !fromDrum, to));
 	}
 
 	/** The supports a span from {@code from} to the anchor {@code to} may pass: both ends and the beam over the anchor (and over {@code from}, if it hangs). */

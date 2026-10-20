@@ -51,6 +51,13 @@ import org.jspecify.annotations.Nullable;
  */
 public class CableAnchorBlock extends BaseEntityBlock {
 	public static final EnumProperty<Direction> FACING = BlockStateProperties.HORIZONTAL_FACING;
+	/**
+	 * M13 (BUG-021): how far the roller hangs below its usual place, in steps of
+	 * {@link CableRoutes#DROP_STEP} (a longer arm, the plate fixed under its beam), so an inclined span to
+	 * it clears what is in its way; 0 normally. Set when the cable is routed through it, back to 0 when freed.
+	 */
+	public static final net.minecraft.world.level.block.state.properties.IntegerProperty DROP =
+		net.minecraft.world.level.block.state.properties.IntegerProperty.create("drop", 0, 4);
 
 	/** M05: what an anchor carries for a closed loop's return strand ({@link CableLoops}). */
 	public enum Return implements StringRepresentable {
@@ -94,7 +101,7 @@ public class CableAnchorBlock extends BaseEntityBlock {
 
 	@Override
 	protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
-		builder.add(FACING, RETURN);
+		builder.add(FACING, RETURN, DROP);
 	}
 
 	@Override

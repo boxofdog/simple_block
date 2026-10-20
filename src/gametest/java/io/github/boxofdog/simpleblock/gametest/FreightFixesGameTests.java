@@ -372,6 +372,51 @@ public class FreightFixesGameTests {
 			.thenSucceed();
 	}
 
+	/**
+	 * BUG-021: a span climbing from the first anchor (7, 3) to an anchor at (14, 5) grazes a block at
+	 * (11, 5): routed through, the receiving anchor's roller hangs one 2 px step lower and the span clears
+	 * it (the cable's points follow). With a block squarely in the way at (13, 5) instead, no drop of up to
+	 * half a block clears it: refused, the drop stays 0. Wound back off the anchor, its roller goes back up.
+	 */
+	@GameTest(structure = "simple_block-gametest:cable_yard", maxTicks = 200)
+	public void inclineAnchorDropsJustEnough(GameTestHelper helper) {
+		ServerPlayer player = TestPlayers.create(helper, GameType.SURVIVAL, new BlockPos(12, 1, 6));
+		io.github.boxofdog.simpleblock.cable.CableDrumBlockEntity home = CableLoopGameTests.line(helper, player, 1);
+		BlockPos receiving = CableGameTests.hangAnchor(helper, player, new BlockPos(14, 6, 4));
+		BlockPos grazed = new BlockPos(11, 5, 4);
+		BlockPos square = new BlockPos(13, 5, 4);
+		helper.startSequence()
+			.thenIdle(2)
+			.thenExecute(() -> {
+				// Squarely in the way: refused at every drop.
+				helper.setBlock(square, Blocks.STONE);
+				TwoDrumGameTests.pickUp(helper, player);
+				CableGameTests.useBlock(helper, player, CableLoopGameTests.ANCHORS[0], false);
+				CableGameTests.useBlock(helper, player, receiving, false);
+				helper.assertValueEqual(home.route().size(), 1, "anchors routed past a block squarely in the way");
+				helper.assertValueEqual(helper.getBlockState(receiving).getValue(io.github.boxofdog.simpleblock.cable.CableAnchorBlock.DROP), 0,
+					"drop after a refusal");
+				helper.setBlock(square, Blocks.AIR);
+				// Grazed: one step lower clears it.
+				helper.setBlock(grazed, Blocks.STONE);
+				CableGameTests.useBlock(helper, player, receiving, false);
+				helper.assertValueEqual(home.route().size(), 2, "anchors routed past the grazed block");
+				int drop = helper.getBlockState(receiving).getValue(io.github.boxofdog.simpleblock.cable.CableAnchorBlock.DROP);
+				helper.assertValueEqual(drop, 1, "the receiving anchor's drop");
+				double y = home.points().getLast().y - helper.absolutePos(receiving).getY();
+				helper.assertTrue(Math.abs(y - (12.0 - 2.0) / 16.0) < 1.0E-6, "the cable runs over the lowered roller: " + y);
+				// Wound back off it (the end used on the first anchor): the roller goes back up.
+				CableGameTests.useBlock(helper, player, CableLoopGameTests.ANCHORS[0], false);
+				helper.assertValueEqual(home.route().size(), 1, "wound back to the first anchor");
+				helper.assertValueEqual(helper.getBlockState(receiving).getValue(io.github.boxofdog.simpleblock.cable.CableAnchorBlock.DROP), 0,
+					"drop after the anchor is freed");
+				SimpleBlockTestLog.info("BUG-021: block squarely in the way refused (drop 0); grazed block cleared with the receiving roller 2 px lower "
+					+ "(cable point {}); freed anchor back to drop 0", y);
+				TestPlayers.remove(player);
+			})
+			.thenSucceed();
+	}
+
 	static void rail(GameTestHelper helper, BlockPos rail, Direction facing) {
 		helper.setBlock(rail.below(), Blocks.STONE);
 		helper.setBlock(rail, TrainContent.LOADING_TRACK.defaultBlockState().setValue(LoadingTrackBlock.FACING, facing)
