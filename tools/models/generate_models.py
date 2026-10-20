@@ -527,15 +527,16 @@ ROPE_ANCHOR_SIDE = [
 ]
 
 # M15 the Cobblestone Engine's rear selector lever, in the engine model's frame (x runs from the smokestack
-# to the firebox door at the back): a plate on the back of the cart with the pivot boss, and the handle the
-# renderer swings about the pivot (16.5, 8, 12.5) across the cart: left THROUGH, upright NEUTRAL, right SERVICE.
+# to the firebox door at the back): a plate on the back of the firebox just above its door, inside the cart's
+# end wall (whose inner face is x 16), on the engine's centre line; and the handle the renderer swings about
+# the pivot (15.75, 17, 8) across the cart: left THROUGH, upright NEUTRAL, right SERVICE (seen from behind).
+# No face shares a plane with the firebox (back face x 15.5, crown from y 18), its door or the cart's wall.
 ENGINE_LEVER_BASE = [
-    Cube('lever_plate', [16, 5.5, 10.5], [17, 10.5, 14.5]),
-    Cube('lever_boss', [16.75, 7, 11.5], [17.75, 9, 13.5]),
+    Cube('lever_plate', [15.55, 16.6, 6.5], [15.95, 17.9, 9.5]),
 ]
 ENGINE_LEVER_HANDLE = [
-    Cube('lever_handle', [17, 8, 12], [18, 18, 13]),
-    Cube('lever_grip', [16.75, 17, 11.75], [18.25, 20, 13.25]),
+    Cube('lever_handle', [15.1, 16.7, 7.6], [15.9, 26.6, 8.4]),
+    Cube('lever_grip', [14.9, 25.4, 7.4], [15.95, 28.4, 8.6]),
 ]
 
 GROUPS = {

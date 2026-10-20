@@ -39,12 +39,12 @@ public final class EngineSelector {
 	public static final int ARM_TICKS = 20;
 	/**
 	 * The lever's pivot in the engine's model frame (pixels; x runs along the cart from the smokestack to
-	 * the firebox door at the back, y up from the rail, z across). It stands on the back of the cart, its
-	 * handle above the end wall.
+	 * the firebox door at the back, y up from the rail, z across). It stands on the back of the firebox above
+	 * its door, inside the cart's end wall, on the engine's centre line; its handle rises above the wall.
 	 */
-	public static final double LEVER_X = 16.5;
-	public static final double LEVER_Y = 8.0;
-	public static final double LEVER_Z = 12.5;
+	public static final double LEVER_X = 15.75;
+	public static final double LEVER_Y = 17.0;
+	public static final double LEVER_Z = 8.0;
 	/** Where on the cart (model frame, blocks from its middle) a hit or use works the lever: the back end, round the lever. */
 	private static final double ZONE_X_MIN = 0.3;
 	private static final double ZONE_Y_MIN = 0.15;
