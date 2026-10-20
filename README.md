@@ -77,10 +77,10 @@ Counts reflect source files only, not proof of implemented or tested behavior.
 | main | (root) | 1 |
 | main | cable | 19 |
 | main | effigy | 9 |
-| main | feature | 27 |
+| main | feature | 28 |
 | main | metallurgy | 12 |
-| main | mixin | 62 |
-| main | network | 4 |
+| main | mixin | 64 |
+| main | network | 6 |
 | main | rope | 7 |
 | main | skip | 7 |
 | main | train | 10 |
