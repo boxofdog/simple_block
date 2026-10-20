@@ -445,6 +445,43 @@ public class FreightStationGameTests {
 			});
 	}
 
+	/**
+	 * A train that cannot be lined up is not docked: SERVICE chosen by hand over a two-rail station, with a
+	 * stray seat standing on the rail where the engine's berth would be, docks nothing and moves no car;
+	 * with the seat gone, the same choice lines it up.
+	 */
+	@GameTest(structure = YARD, maxTicks = 200)
+	public void aCartInTheWayStopsTheLineUp(GameTestHelper helper) {
+		station(helper, 18, 20);
+		ServerPlayer player = TestPlayers.create(helper, GameType.SURVIVAL, new BlockPos(14, 1, 7));
+		hopper(helper, new BlockPos(20, 2, Z), new ItemStack(Items.RAW_IRON, 5));
+		Minecart a = wagon(helper, 20.3, Items.AIR, 0);
+		Minecart b = wagon(helper, 18.7, Items.AIR, 0);
+		MinecartFurnace engine = TrainGameTests.engine(helper, 17.1, Z, 1);
+		Minecart stray = seat(helper, 15.9);
+		List<AbstractMinecart> train = List.of(a, b, engine);
+		helper.startSequence()
+			.thenIdle(2)
+			.thenExecute(() -> {
+				TrainGameTests.couple(player, a, b);
+				TrainGameTests.couple(player, b, engine);
+				// (The loose wagons on the Loading Rails may have docked one by one; the line-up is what is tested.)
+				double before = TrainGameTests.x(helper, engine);
+				EngineSelector.set(engine, EngineSelector.Mode.SERVICE);
+				helper.assertTrue(Math.abs(TrainGameTests.x(helper, engine) - before) < 0.01, "a cart in the engine's berth: not lined up, "
+					+ where(helper, train));
+				EngineSelector.set(engine, EngineSelector.Mode.THROUGH);
+				stray.discard();
+				EngineSelector.set(engine, EngineSelector.Mode.SERVICE);
+				helper.assertTrue(Math.abs(TrainGameTests.x(helper, engine) - 16.5) < 0.01 && Couplings.coupled(a).simpleBlock$dock() != null,
+					"the way clear: lined up, " + where(helper, train));
+				SimpleBlockTestLog.info("M15 BLOCKED: a stray cart on a berth stops the line-up; cleared, it lines up");
+				train.forEach(AbstractMinecart::discard);
+				TestPlayers.remove(player);
+				helper.succeed();
+			});
+	}
+
 	private static void jump(ServerPlayer player, boolean jump) {
 		player.setLastClientInput(new Input(false, false, false, false, jump, false, false));
 	}

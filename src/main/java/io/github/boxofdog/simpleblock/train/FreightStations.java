@@ -58,7 +58,7 @@ public final class FreightStations {
 	public static final int SPACING = 2;
 	/** Ticks a transfer may go without moving an item before it is over. */
 	public static final int GRACE_TICKS = 24;
-	/** How far (blocks) a train's leading car may be from the terminal rail for SERVICE chosen by hand to line it up. */
+	/** How far (blocks) SERVICE chosen by hand may move any car of a standing train to line it up. */
 	public static final double HAND_ALIGN = 1.6;
 
 	/** A wagon's transfer at a station. */
@@ -330,18 +330,15 @@ public final class FreightStations {
 		}
 	}
 
-	/** The station a standing train is over, lined up for SERVICE chosen by hand: its leading car within {@value #HAND_ALIGN} blocks of the terminal rail. */
+	/**
+	 * The station a standing train is over, lined up for SERVICE chosen by hand: of the line-ups that move no
+	 * car more than {@value #HAND_ALIGN} blocks (no shoving a train along the track), the one that moves the
+	 * cars least. Null if there is none.
+	 */
 	private static @Nullable Plan handPlan(ServerLevel level, MinecartFurnace lead, List<AbstractMinecart> train) {
-		Vec3 heading = CobblestoneEngine.engine(lead).simpleBlock$heading();
-		List<Direction> ways = new ArrayList<>();
-		if (heading.lengthSqr() > 0.5) {
-			Direction preferred = Direction.getApproximateNearest(heading.x, 0.0, heading.z);
-			ways.add(preferred);
-			ways.add(preferred.getOpposite());
-		} else {
-			ways.addAll(List.of(Direction.NORTH, Direction.SOUTH, Direction.EAST, Direction.WEST));
-		}
-		for (Direction way : ways) {
+		Plan best = null;
+		double bestShift = Double.MAX_VALUE;
+		for (Direction way : Direction.Plane.HORIZONTAL) {
 			List<AbstractMinecart> order = inOrder(train, way);
 			for (AbstractMinecart car : order) {
 				BlockPos rail = car.getCurrentBlockPosOrRailBelow();
@@ -353,16 +350,22 @@ public final class FreightStations {
 				while (LoadingTrackBlock.front(level.getBlockState(terminal.relative(way, SPACING))) != null) {
 					terminal = terminal.relative(way, SPACING);
 				}
-				if (order.getFirst().position().distanceTo(Vec3.atBottomCenterOf(terminal)) > HAND_ALIGN + 0.5) {
+				Plan plan = Plan.of(level, terminal, way, order);
+				if (plan == null) {
 					continue;
 				}
-				Plan plan = Plan.of(level, terminal, way, order);
-				if (plan != null) {
-					return plan;
+				double shift = 0.0;
+				for (int i = 0; i < order.size(); i++) {
+					BlockPos berth = plan.berths().get(i);
+					shift = Math.max(shift, Math.hypot(order.get(i).getX() - (berth.getX() + 0.5), order.get(i).getZ() - (berth.getZ() + 0.5)));
+				}
+				if (shift <= HAND_ALIGN && shift < bestShift) {
+					best = plan;
+					bestShift = shift;
 				}
 			}
 		}
-		return null;
+		return best;
 	}
 
 	/** SERVICE left: every transfer of the train stops where it is; buttons' openings close. Nothing resumes until SERVICE is chosen again. */
