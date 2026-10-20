@@ -3,62 +3,22 @@ milestone: M17
 status: PLANNED - NOT READY
 ---
 
-# M17 — Villager belonging, new homes and settlement wellbeing
+# M17 — Villager commerce, professions and daily work overhaul
 
-**Owner-directed early design, 2026-10-20. PLANNED - NOT READY; not implementation authorization.** Villagers should behave like people who belong to communities, not movable trading machines. Players can found **functional new villages** by providing genuine living conditions, rather than merely confining villagers near beds. Inspiration: **a more demanding Terraria-style NPC settlement**, implemented through Minecraft villager behavior.
+**Owner-directed early design, 2026-10-20. PLANNED - NOT READY; not implementation authorization.** With physical settlements established in [M16](MILESTONE_16.md), give villagers meaningful work, a more compelling buying/trading loop and visible community routines. This is **the commerce and jobs milestone**. Its real workplaces and daily activity provide the foundations for [M18](MILESTONE_18.md) protective behavior and [M19](MILESTONE_19.md) work/happiness checks.
 
-This milestone addresses homesickness, settlement adoption, unhappy behavior and player-facing explanations. The larger ideas for villages, pubs, shops, building generation and new trading services **remain separate in the [backlog](BACKLOG.md#future-design-backlog--inhabited-villages)**.
+## Broad goals — jobs and commerce
 
-## 1. Original homes and homesickness
+- **A general store for ordinary commerce:** Put routine buying and selling in a recognizable centralized shop, with a **shopkeeper behind a counter during trading hours**, rather than every roaming villager acting as an interchangeable personal vending machine. Final store inventory and transaction rules are not yet settled.
+- **Profession-specific work and services:** Villagers actually attend accessible workplaces. A smith is visibly at the smithy; other workers similarly occupy their work areas. Consider specialized **services at the workplace** (such as smithing/repair, maps or other useful trade skills) rather than duplicating the general store.
+- **Purposeful daily routines:** Villagers move among their homes, workplaces, streets, central public areas and social destinations. A suitably sized **pub/tavern** from M16 can host communal gathering in the evening; define schedules that also allow safe nighttime return home.
+- **An economy worth visiting:** Trade and services should reward supporting a living village rather than warehousing rows of captive merchants. Don't make existing mining, crafting, freight or player progression obsolete with cheap universal buying shortcuts.
+- **Compatibility:** Revisit the Armorer's job site and services because M08 retired the ordinary vanilla blast furnace. Investigate profession availability/workstation links deliberately rather than quietly breaking vanilla residents.
 
-- On **birth or natural spawning**, a villager acquires a persistent **home-village identity**.
-- If taken away from that village without finding a legitimate new one, they become **homesick**. Trapped or isolated villagers pace slowly, make distressed sounds and **refuse trading/services**; right-click remains available for a useful explanation instead of a trade window.
-- If freedom and a plausible route permit it, a displaced villager **tries to return home**. Do not force-load chunks or attempt unbounded pathfinding across the world.
-- A new home is earned through a **functional settlement**, not a special item, arbitrary trading reset or a timer alone.
+## Boundaries and open decisions
 
-## 2. Five necessary settlement conditions
+**M16 owns buildings and geography.** M17 owns commercial transactions, trade/service locations, profession attendance and relevant daily schedules. **M18** owns Iron Golem defense; **M19** owns homesickness, the five-condition settlement adoption test, unhappiness and diagnosis. Do not prematurely apply M19's trade refusal/happiness rules while implementing M17. Keep the trading system understandable without a village-management dashboard.
 
-**All five conditions** must be genuinely present before a villager adopts a settlement as home.
+**Still unresolved:** Shared store stock versus individual inventories, what villagers actually buy/sell, replenishment and prices, player selling, trading hours, profession/service list and workplaces, unemployed residents, restocking and schedules, pub routines, interactions with M08 and survival balance, and what happens to established vanilla trading mechanics. These require further owner-directed design before moving to READY; no final trade tables or recipes are approved here.
 
-| Condition | Player-visible expectation |
-|---|---|
-| **Eligible homes** | Real usable and accessible housing/sleeping places. |
-| **Eligible workstations** | Accessible legitimate work areas; decorative or unreachable job blocks are insufficient. |
-| **An Iron Golem** | A functioning local guardian provides security; see prerequisite [M16](MILESTONE_16.md). |
-| **Another villager** | A real companion with opportunities to meet/socialize; a solitary captive is not settled. |
-| **Freedom to path in open space** | Residents can actually traverse reasonable space between home, work and communal areas. A cramped prison with token beds, jobs and a golem must fail. |
-
-These are observable conditions, **not** a hidden happiness score. Both naturally generated and **player-built settlements** can qualify. Exact housing/job validity, village boundaries, access/pathing checks, distances and frequency still need owner-approved design; avoid a global village-simulation engine.
-
-## 3. Permanent adoption, temporary threats and prolonged unhappiness
-
-- Once the five conditions hold consistently for a suitable period, the villager **adopts the present settlement as their home** and **forgets the original village**. It becomes their one home, not an additional address.
-- **Belonging persists, wellbeing depends on conditions.** If one or more conditions disappear, villagers do **not** automatically lose their adopted home or run back to a forgotten original village.
-- If conditions remain unsatisfied for a **prolonged period**, residents become **unhappy**: distressed behavior and refusal to trade or perform normal services. Short outages should not instantly cause chronic unhappiness or rapidly toggle state.
-- **Guardian death has an immediate safety response:** When the village loses its effective Iron Golem protection, villagers retreat indoors and stop casually wandering outside. This happens before any prolonged-unhappiness timer expires. Losing one golem need not mean unprotected if another functioning guardian remains.
-- Once conditions return, residents can resume their ordinary lives **in the same adopted village**, without a second resettlement ritual.
-
-## 4. Diagnosing unhappy villagers
-
-**Right-clicking an unhappy villager opens a simple dialogue/status box instead of the ordinary trade interface.** Show the status of **all five conditions**:
-
-- Which conditions are currently **satisfied**.
-- Which are **missing or failing**, in plain player-friendly terms.
-
-This should let the player see why a villager is refusing trade and what needs attention. It is **not** a quest system, numeric happiness grind, hidden reputation economy or a general village-management GUI. Healthy villagers use their normal appropriate interaction. Future trading-loop changes require their own design.
-
-## 5. Example behaviors to preserve
-
-- A villager transported far away and locked alone in a tiny trading cell is homesick and refuses service.
-- Two villagers with usable houses, workplaces, protection, genuine open movement and social contact can adopt a **new player-built village**; their original homes are then forgotten.
-- A fake village that crams two villagers, beds, workstations and a golem inside a tiny enclosure **does not** satisfy freedom of movement.
-- Killing the community's last guardian makes residents immediately shelter indoors; sustained insecurity eventually makes them unhappy. Restoring protection allows them to recover without changing home identity.
-- An unhappy resident's right-click dialogue distinguishes **satisfied** conditions from **problems**, instead of forcing the player to guess.
-
-## Prerequisite, limits, and unresolved decisions
-
-**[M16](MILESTONE_16.md) should establish reliable Iron Golem defense first.** Preserve ordinary villager jobs, trades and existing hostile-mob behavior until separately approved changes are specified. Run bounded checks; never force distant chunks to find homes or destinations.
-
-**Not yet ready for implementation:** Agree on settlement identification and reassignment timing; what counts as an eligible home, job, guardian and open path; time thresholds for homesickness/unhappiness and recovery; behavior at destroyed or inaccessible original villages; multiplayer/save persistence and UI details. Real-client testing must cover escape/homecoming, genuine relocation, false-positive trading prisons, golem death, prolonged hardship, restored security, and informative dialogues.
-
-**Lifecycle:** PLANNED - NOT READY. This records the approved *direction*, not final numerical rules, a completed feature, or permission for Claude Code to start. Separate owner approval is required to move to READY and later to IMPLEMENTING.
+**Lifecycle:** PLANNED - NOT READY. The commerce/job direction is recorded, but this is not authorization to start implementation. M17 follows M16 and is a prerequisite to the proposed M18/M19 overhaul.

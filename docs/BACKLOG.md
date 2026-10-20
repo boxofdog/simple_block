@@ -23,7 +23,7 @@
 | I-015 | Train coupling/operation, sequential coupled-wagon unloading | Related to open **M07 playtest decision**; no silent M06 revision |
 | I-016 | Full mine-to-smelter logistics playtest | Future integrated owner playtest, not a new mod system |
 | I-017 | Selective redstone redesign while retaining useful devices | No blanket removal of worthwhile standalone mechanisms |
-| I-018 | Inhabited villages, stores, pubs and settlement architecture | Future work; guardian improvement and wellbeing now have separate [M16](MILESTONE_16.md)/[M17](MILESTONE_17.md) briefs |
+| I-018 | Village overhaul ideas (assigned to milestones) | Moved to [M16](MILESTONE_16.md) village design, [M17](MILESTONE_17.md) commerce/jobs, [M18](MILESTONE_18.md) golems and [M19](MILESTONE_19.md) wellbeing |
 | I-019 | Large winch-operated iron defense gate | **Deferred from M09 by owner**; unnumbered future design, not authorized |
 
 ## I-019 — Deferred industrial iron gate
@@ -58,45 +58,9 @@ Place witch huts on remote mountain peaks and in deep deepslate caverns. Each fe
 
 ## Future design backlog — inhabited villages
 
-**Status: OWNER-APPROVED DIRECTION / NOT IMPLEMENTATION-AUTHORIZED.** These remain future ideas for settlement generation, architecture, routines, shops and services. Guardian defense and villager wellbeing now have their own early [M16](MILESTONE_16.md) and [M17](MILESTONE_17.md) briefs; neither is implementation-authorized.
+**This former unnumbered village workstream is now divided into four preliminary milestones, in dependency order:** [M16 — villages and architecture](MILESTONE_16.md), [M17 — commerce, jobs and daily routines](MILESTONE_17.md), [M18 — Iron Golem protection](MILESTONE_18.md), and [M19 — villager belonging and wellbeing](MILESTONE_19.md).
 
-### Settlement geography and architecture
-
-- **Restrict bad sites:** Strongly discourage or reject village generation when the planned village footprint contains extreme elevation variation, cliffs, or terrain that would create disconnected buildings, sheer paths, or dirt pedestals. Favor contiguous, reasonably level land; mountain plateaus and manageable slopes remain possible.
-- **Larger, convincing structures:** Houses should feel like homes, with enough room to enter and inhabit. The same applies to professional workshops, general stores, and communal buildings; avoid the tiny playset-like interiors of many vanilla structures.
-- **Real layouts:** Construct connected, traversable streets, coherent building placement, an intelligible village center, and accessible public spaces. Building interiors and doors must support villager and player navigation.
-- **Population density:** Villages should feel actually populated. Resident counts ought to relate sensibly to available homes, workplaces, and village scale, rather than leave large settlements nearly deserted.
-
-### Daily life and communal destinations
-
-- **Purposeful schedules:** Villagers should prioritize identifiable destinations beyond their homes during the day: workplaces, shops, public areas, and social spaces. They should visibly inhabit and use the buildings that define their village.
-- **Pub / tavern:** Include a suitably large communal pub where **most villagers gather and mingle during the evening/night**. It must support multiple villagers inside at once instead of operating as a decorative empty building. Later return-home/sleep schedules need design, not assumption.
-- **Profession presence:** An existing smithy should reliably have a smith at work; other workplaces likewise should have their associated professionals present and visibly working when appropriate.
-- **Armorer and retired blast-furnace follow-up:** M08 replaces vanilla blast-furnace blocks in newly generated village structures with regular furnaces and retires the vanilla blast furnace from ordinary acquisition. **M08 must not change villager professions, AI, trades or job-site rules.** Investigate later whether Armorer workstation assignment, profession availability, workplace presentation or trade behavior needs redesign under the separate inhabited-villages workstream; owner approval required before changing any of it.
-
-### Commerce, skilled work, and services
-
-- **General store:** Ordinary buying and selling occurs at a centralized general store, with a shopkeeper stationed **behind a counter** during trading hours.
-- **Workplace services:** Professionals offer specialized **services at their workplaces**, rather than every wandering worker simply carrying a personal trade menu. Smithing, repairing, mapmaking, and similar functions are examples to design, not currently finalized mechanics.
-- **Avoid economic shortcuts:** Village services must not make the mod's mining, crafting, or freight economy obsolete. Shared store inventory versus consolidated trades, stock limits, replenishment, and pricing are still open decisions.
-
-### Real protection and sensible nighttime survival
-
-- **Golem guardian improvements now belong to [M16](MILESTONE_16.md):** Villager protection-dependent settlement behavior belongs to [M17](MILESTONE_17.md).
-- **Monsters should threaten villagers appropriately:** Existing hostile behaviors and new light-entrancement rules must interact coherently with village safety, rather than golems ignoring attacks or villages being routinely depopulated.
-- **Safe gathering:** A pub that draws villagers together at night must have plausible protection. Avoid designing social routines that simply turn villagers into helpless victims.
-
-### Candidate village milestones — explicitly not scheduled
-
-1. Village footprint terrain-suitability checks.
-2. Larger, enterable buildings and coherent navigable village layout.
-3. Population scaling and workplace occupancy.
-4. Social-destination scheduling and pub.
-5. Centralized general-store trading.
-6. Profession-specific services.
-7. Responsive golem defense and nighttime safety.
-
-**Out of scope until discussed:** Complex autonomous economies, village simulation/management, town growth systems, and automatic industrial production.
+The original village ideas (terrain suitability, larger enterable houses/workshops, streets, population, pub, centralized general store, workplace services, responsive golems and settlement conditions) are now tracked in those briefs. **All four remain PLANNED - NOT READY; none authorizes implementation.** Their milestone specifications, not this historical backlog pointer, own further design.
 
 ## Explicitly rejected BTA-inspired directions
 
