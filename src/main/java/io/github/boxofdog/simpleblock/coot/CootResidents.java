@@ -9,6 +9,8 @@ import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.HolderSet;
+import net.minecraft.core.Registry;
+import net.minecraft.core.SectionPos;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
@@ -22,12 +24,13 @@ import net.minecraft.world.level.levelgen.structure.StructureStart;
 import net.minecraft.world.phys.AABB;
 
 /**
- * M14 natural Old Coots: each abandoned mineshaft a player is in or above (its bounding box, looked up for
- * each player's own position: no scan of the world) is checked every {@link #INTERVAL} ticks against its
- * {@link CootHomes} record. A vacant home gets its first resident soon after anyone first comes near
- * ({@link #FIRST_CHANCE} a check); after a resident dies, nobody for seven days, then only now and then
- * ({@link #RETRY_CHANCE} a check). The resident appears at any light, standing in one of the mineshaft's own
- * pieces (its corridors, crossings and rooms), in a loaded, ticking chunk, out of the way of players.
+ * M14 natural Old Coots: every abandoned mineshaft a player is in or above (its bounding box, looked up from
+ * the structure references of the player's own chunk: no scan of the world; mineshafts overlap, so all of
+ * them) is checked every {@link #INTERVAL} ticks against its {@link CootHomes} record. A vacant home gets its
+ * first resident soon after anyone first comes near ({@link #FIRST_CHANCE} a check); after a resident dies,
+ * nobody for seven days, then only now and then ({@link #RETRY_CHANCE} a check). The resident appears at any
+ * light, standing in one of the mineshaft's own pieces (its corridors, crossings and rooms), in a loaded,
+ * ticking chunk, out of the way of players.
  */
 public final class CootResidents {
 	public static final int INTERVAL = 200;
@@ -48,10 +51,10 @@ public final class CootResidents {
 		});
 	}
 
-	/** One round of checks: the mineshaft each player is in or over (every {@link #INTERVAL} ticks). */
+	/** One round of checks: every mineshaft each player is in or over (every {@link #INTERVAL} ticks). */
 	public static void check(ServerLevel level) {
-		HolderSet<Structure> mineshafts = level.registryAccess().lookupOrThrow(Registries.STRUCTURE).get(StructureTags.MINESHAFT)
-			.<HolderSet<Structure>>map(set -> set).orElse(null);
+		Registry<Structure> structures = level.registryAccess().lookupOrThrow(Registries.STRUCTURE);
+		HolderSet<Structure> mineshafts = structures.get(StructureTags.MINESHAFT).<HolderSet<Structure>>map(set -> set).orElse(null);
 		if (mineshafts == null) {
 			return;
 		}
@@ -60,9 +63,13 @@ public final class CootResidents {
 			if (player.isSpectator()) {
 				continue;
 			}
-			StructureStart start = level.structureManager().getStructureAt(player.blockPosition(), mineshafts);
-			if (start.isValid() && seen.add(start.getChunkPos().pack())) {
-				visit(level, start, level.getRandom(), false);
+			BlockPos at = player.blockPosition();
+			// Mineshafts overlap: all of those around the player, not just the first found.
+			for (StructureStart start : level.structureManager().startsForStructure(SectionPos.blockToSectionCoord(at.getX()),
+				SectionPos.blockToSectionCoord(at.getZ()), structure -> mineshafts.contains(structures.wrapAsHolder(structure)))) {
+				if (start.isValid() && start.getBoundingBox().isInside(at) && seen.add(start.getChunkPos().pack())) {
+					visit(level, start, level.getRandom(), false);
+				}
 			}
 		}
 	}
