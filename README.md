@@ -73,15 +73,15 @@ Counts reflect source files only, not proof of implemented or tested behavior.
 | Source set | First-level package | Java files |
 |---|---|---:|
 | client | client | 33 |
-| gametest | gametest | 64 |
+| gametest | gametest | 65 |
 | main | (root) | 1 |
 | main | cable | 19 |
 | main | effigy | 9 |
 | main | feature | 29 |
 | main | metallurgy | 12 |
-| main | mixin | 64 |
+| main | mixin | 65 |
 | main | network | 6 |
-| main | rope | 7 |
+| main | rope | 9 |
 | main | skip | 7 |
 | main | train | 10 |
 | main | tuning | 1 |
