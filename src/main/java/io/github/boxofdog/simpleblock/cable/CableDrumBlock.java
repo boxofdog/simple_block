@@ -27,6 +27,7 @@ import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import net.minecraft.world.level.block.state.properties.EnumProperty;
 import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
@@ -86,17 +87,62 @@ public class CableDrumBlock extends BaseEntityBlock {
 			: super.updateShape(state, level, ticks, pos, directionToNeighbour, neighbourPos, neighbourState, random);
 	}
 
-	/** The block plus the crank, which sticks out on its side. */
+	/**
+	 * The handle on the crank side, in model pixels relative to the axle: {@code out} past the block's
+	 * side, {@code dy} along the drum's up (flipped when hanging), {@code across} from the middle. The
+	 * crank turns in a 6 px circle; the coal winch's lever (M13, BUG-008) stands 9 px up from the axle and
+	 * leans 35 degrees either way, so its knob reaches 18 px high and 5.5 px to either side.
+	 */
+	private static double[] handle(BlockState state) {
+		return state.getValue(POWERED)
+			? new double[] {16.0, 19.0, -2.0, 9.5, 6.5}
+			: new double[] {16.0, 21.0, -CRANK_RADIUS, CRANK_RADIUS, CRANK_RADIUS - 1.0};
+	}
+
+	/** The block plus the crank or the lever, which sticks out on its side. */
 	@Override
 	protected VoxelShape getShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {
-		double y0 = state.getValue(HANGING) ? 16.0 - 9.5 - CRANK_RADIUS : 9.5 - CRANK_RADIUS;
-		VoxelShape crank = switch (crankSide(state)) {
-			case EAST -> Block.box(16.0, y0, 8.0 - CRANK_RADIUS + 1.0, 21.0, y0 + 2 * CRANK_RADIUS, 8.0 + CRANK_RADIUS - 1.0);
-			case WEST -> Block.box(-5.0, y0, 8.0 - CRANK_RADIUS + 1.0, 0.0, y0 + 2 * CRANK_RADIUS, 8.0 + CRANK_RADIUS - 1.0);
-			case SOUTH -> Block.box(8.0 - CRANK_RADIUS + 1.0, y0, 16.0, 8.0 + CRANK_RADIUS - 1.0, y0 + 2 * CRANK_RADIUS, 21.0);
-			default -> Block.box(8.0 - CRANK_RADIUS + 1.0, y0, -5.0, 8.0 + CRANK_RADIUS - 1.0, y0 + 2 * CRANK_RADIUS, 0.0);
+		double[] h = handle(state);
+		boolean hanging = state.getValue(HANGING);
+		double axleY = hanging ? 16.0 - 9.5 : 9.5;
+		double y0 = hanging ? axleY - h[3] : axleY + h[2];
+		double y1 = Math.min(hanging ? axleY - h[2] : axleY + h[3], 24.0);
+		y0 = Math.max(y0, -8.0);
+		double a0 = 8.0 - h[4];
+		double a1 = 8.0 + h[4];
+		double o0 = h[0];
+		double o1 = h[1];
+		VoxelShape handle = switch (crankSide(state)) {
+			case EAST -> Block.box(o0, y0, a0, o1, y1, a1);
+			case WEST -> Block.box(16.0 - o1, y0, a0, 16.0 - o0, y1, a1);
+			case SOUTH -> Block.box(a0, y0, o0, a1, y1, o1);
+			default -> Block.box(a0, y0, 16.0 - o1, a1, y1, 16.0 - o0);
 		};
-		return Shapes.or(Shapes.block(), crank);
+		return Shapes.or(Shapes.block(), handle);
+	}
+
+	/**
+	 * M13 (BUG-008): the crank and the lever stick out of the drum's cell (the lever's knob above it), and
+	 * the game's look test only tries a block's shape where the look passes through that block's own
+	 * cell. This finds the nearest drum within a block of the look whose shape the look hits, for the
+	 * client's crosshair to take when it is nearer than what the look hit otherwise. Null if none.
+	 */
+	public static @Nullable BlockHitResult pickOverhang(BlockGetter level, Vec3 from, Vec3 to) {
+		BlockHitResult best = null;
+		double bestDistance = Double.MAX_VALUE;
+		AABB box = new AABB(from, to).inflate(1.0);
+		for (BlockPos pos : BlockPos.betweenClosed(BlockPos.containing(box.minX, box.minY, box.minZ), BlockPos.containing(box.maxX, box.maxY, box.maxZ))) {
+			BlockState state = level.getBlockState(pos);
+			if (!(state.getBlock() instanceof CableDrumBlock)) {
+				continue;
+			}
+			BlockHitResult hit = state.getShape(level, pos).clip(from, to, pos.immutable());
+			if (hit != null && hit.getLocation().distanceToSqr(from) < bestDistance) {
+				bestDistance = hit.getLocation().distanceToSqr(from);
+				best = hit;
+			}
+		}
+		return best;
 	}
 
 	@Override
@@ -110,8 +156,8 @@ public class CableDrumBlock extends BaseEntityBlock {
 	}
 
 	/**
-	 * Whether a click at {@code hit} (world position) is on the crank: on the crank side's outer part,
-	 * within the crank's reach of the axle.
+	 * Whether a click at {@code hit} (world position) is on the crank or lever: on the crank side's outer
+	 * part, within the crank's reach of the axle, or (a coal winch, M13 BUG-008) anywhere on the lever's swing.
 	 */
 	public static boolean isCrank(BlockState state, BlockPos pos, Vec3 hit) {
 		Direction side = crankSide(state);
@@ -123,9 +169,14 @@ public class CableDrumBlock extends BaseEntityBlock {
 			default -> 16.0 - local.z;
 		};
 		double across = side.getAxis() == Direction.Axis.X ? local.z : local.x;
-		double axleY = state.getValue(HANGING) ? 16.0 - 9.5 : 9.5;
-		double dy = local.y - axleY;
+		boolean hanging = state.getValue(HANGING);
+		double axleY = hanging ? 16.0 - 9.5 : 9.5;
+		double dy = (local.y - axleY) * (hanging ? -1.0 : 1.0);
 		double dc = across - 8.0;
+		if (state.getValue(POWERED)) {
+			double[] h = handle(state);
+			return out >= CRANK_SIDE_X && dy >= h[2] - 0.01 && dy <= h[3] + 0.01 && Math.abs(dc) <= h[4] + 0.01;
+		}
 		return out >= CRANK_SIDE_X && dy * dy + dc * dc <= CRANK_RADIUS * CRANK_RADIUS;
 	}
 

@@ -156,6 +156,60 @@ public class FreightFixesGameTests {
 			.thenSucceed();
 	}
 
+	/**
+	 * BUG-008: a coal winch's lever is hit wherever it is aimed at: its knob and upper bar (above the drum)
+	 * from straight on, from 45 degrees either side and from above, upright or leaning, on a drum on the
+	 * ground and one hung under a beam; every such look lands on the drum and counts as the lever.
+	 */
+	@GameTest(structure = SHAFT, maxTicks = 100)
+	public void winchLeverIsHitFromObliqueAngles(GameTestHelper helper) {
+		List<String> log = new ArrayList<>();
+		for (boolean hanging : new boolean[] {false, true}) {
+			BlockPos drum = hanging ? new BlockPos(12, 6, 6) : new BlockPos(12, 1, 6);
+			helper.setBlock(drum, io.github.boxofdog.simpleblock.cable.CableContent.CABLE_DRUM.defaultBlockState()
+				.setValue(io.github.boxofdog.simpleblock.cable.CableDrumBlock.FACING, Direction.NORTH)
+				.setValue(io.github.boxofdog.simpleblock.cable.CableDrumBlock.POWERED, true)
+				.setValue(io.github.boxofdog.simpleblock.cable.CableDrumBlock.HANGING, hanging));
+			net.minecraft.world.level.block.state.BlockState state = helper.getBlockState(drum);
+			BlockPos abs = helper.absolutePos(drum);
+			// The crank side of a north-facing drum is east; the knob 8.5-9 px up from the axle (9.5 px), leaning to either side.
+			double sign = hanging ? -1.0 : 1.0;
+			double axle = hanging ? 6.5 / 16.0 : 9.5 / 16.0;
+			int hits = 0;
+			int total = 0;
+			for (double lean : new double[] {-35.0, 0.0, 35.0}) {
+				double r = Math.toRadians(lean);
+				net.minecraft.world.phys.Vec3 knob = new net.minecraft.world.phys.Vec3(abs.getX() + 17.5 / 16.0,
+					abs.getY() + axle + sign * Math.cos(r) * 8.5 / 16.0, abs.getZ() + 0.5 + Math.sin(r) * 8.5 / 16.0);
+				for (net.minecraft.world.phys.Vec3 from : List.of(knob.add(3.0, 0.2 * sign, 0.0), knob.add(2.2, 0.3 * sign, 2.2),
+					knob.add(2.2, 0.3 * sign, -2.2), knob.add(1.0, 3.0 * sign, 0.5))) {
+					// As the client's crosshair does: the ordinary look test, then the drum's handle sticking out of its cell.
+					net.minecraft.world.phys.Vec3 to = from.add(knob.subtract(from).normalize().scale(4.5));
+					net.minecraft.world.phys.HitResult hit = helper.getLevel().clip(new net.minecraft.world.level.ClipContext(from, to,
+						net.minecraft.world.level.ClipContext.Block.OUTLINE, net.minecraft.world.level.ClipContext.Fluid.NONE,
+						net.minecraft.world.phys.shapes.CollisionContext.empty()));
+					net.minecraft.world.phys.BlockHitResult handle = io.github.boxofdog.simpleblock.cable.CableDrumBlock.pickOverhang(helper.getLevel(), from, to);
+					if (handle != null && (hit.getType() == net.minecraft.world.phys.HitResult.Type.MISS
+						|| handle.getLocation().distanceToSqr(from) < hit.getLocation().distanceToSqr(from))) {
+						hit = handle;
+					}
+					total++;
+					if (hit instanceof net.minecraft.world.phys.BlockHitResult blockHit && hit.getType() == net.minecraft.world.phys.HitResult.Type.BLOCK
+						&& blockHit.getBlockPos().equals(abs) && io.github.boxofdog.simpleblock.cable.CableDrumBlock.isCrank(state, abs, hit.getLocation())) {
+						hits++;
+					} else {
+						SimpleBlockTestLog.info("BUG-008 miss: lean {} from {} hit {} {} pos {} crank {}", lean, from.subtract(knob), hit.getType(), ((net.minecraft.world.phys.BlockHitResult) hit).getBlockPos().subtract(abs), io.github.boxofdog.simpleblock.cable.CableDrumBlock.isCrank(state, abs, hit.getLocation()), hit.getLocation().subtract(
+							net.minecraft.world.phys.Vec3.atLowerCornerOf(abs)).scale(16.0));
+					}
+				}
+			}
+			helper.assertValueEqual(hits, total, (hanging ? "hung" : "standing") + " winch: looks at the lever's knob that hit the lever");
+			log.add((hanging ? "hung" : "standing") + ": " + hits + "/" + total);
+		}
+		SimpleBlockTestLog.info("BUG-008 lever knob hit from straight, 45 degrees each side and above, at three leans: {}", log);
+		helper.succeed();
+	}
+
 	static void rail(GameTestHelper helper, BlockPos rail, Direction facing) {
 		helper.setBlock(rail.below(), Blocks.STONE);
 		helper.setBlock(rail, TrainContent.LOADING_TRACK.defaultBlockState().setValue(LoadingTrackBlock.FACING, facing)

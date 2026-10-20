@@ -12,7 +12,8 @@
 		"MultiPlayerGameModeMixin",
 		"SkeletonModelMixin",
 		"SkeletonRenderStateMixin",
-		"HumanoidArmorLayerMixin"
+		"HumanoidArmorLayerMixin",
+		"LocalPlayerPickMixin"
 	],
 	"injectors": {
 		"defaultRequire": 1
