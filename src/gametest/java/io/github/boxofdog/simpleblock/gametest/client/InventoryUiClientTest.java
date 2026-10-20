@@ -48,6 +48,7 @@ public class InventoryUiClientTest implements FabricClientGameTest {
 			world.getConnection().waitForChunksRender();
 			context.waitTicks(10);
 			glide(context, server, chest, "m13");
+			loadBar(context, server, chest, "m13");
 		}
 		try (TestDedicatedServerContext server = context.worldBuilder().createServer();
 			TestDedicatedServerConnection connection = server.connect()) {
@@ -180,6 +181,85 @@ public class InventoryUiClientTest implements FabricClientGameTest {
 		server.runCommand("data merge block " + c + " {Items:[]}");
 
 		SimpleBlockTestLog.info("CLIENT M13 GLIDE ({}): {}", shots, log);
+	}
+
+	/**
+	 * BUG-010: the load bar stays on screen and clear of every slot, with and without the Overalls' backpack
+	 * row, in the inventory, a chest and a double chest, at GUI scales 2 and 3 (at 1280 x 720, scale 3 leaves
+	 * a double chest no room under its panel, so the bar takes the inventory label's row).
+	 */
+	private static void loadBar(ClientGameTestContext context, TestServerContext server, BlockPos chest, String shots) {
+		BlockPos double0 = chest.east(2);
+		server.runCommand("setblock " + double0.getX() + " " + double0.getY() + " " + double0.getZ() + " minecraft:chest[facing=south,type=right]");
+		server.runCommand("setblock " + (double0.getX() + 1) + " " + double0.getY() + " " + double0.getZ() + " minecraft:chest[facing=south,type=left]");
+		List<String> log = new ArrayList<>();
+		int scaleBefore = context.computeOnClient(client -> client.options.guiScale().get());
+		for (boolean overalls : new boolean[] {false, true}) {
+			server.runCommand("clear @a");
+			if (overalls) {
+				server.runCommand("item replace entity @a armor.chest with simple_block:overalls");
+			}
+			server.runCommand("item replace entity @a container.20 with minecraft:iron_ingot 40");
+			server.runCommand("item replace entity @a container.21 with minecraft:copper_ingot 30");
+			context.waitTicks(5);
+			for (int scale : new int[] {2, 3}) {
+				context.runOnClient(client -> {
+					client.options.guiScale().set(scale);
+					client.resizeGui();
+				});
+				context.waitTicks(2);
+				String tag = (overalls ? "overalls" : "plain") + "-scale" + scale;
+				context.getInput().pressKey(options -> options.keyInventory);
+				context.waitForScreen(net.minecraft.client.gui.screens.inventory.InventoryScreen.class);
+				context.waitTicks(3);
+				log.add(barCheck(context, "inventory " + tag));
+				close(context);
+				open(context, chest);
+				log.add(barCheck(context, "chest " + tag));
+				close(context);
+				open(context, double0);
+				int slots = context.computeOnClient(client -> ((AbstractContainerScreen<?>) client.gui.screen()).getMenu().slots.size());
+				assertTrue(slots == 54 + 36, "a double chest: " + slots);
+				log.add(barCheck(context, "double chest " + tag));
+				if (overalls) {
+					context.takeScreenshot(shots + "-double-chest-" + tag);
+				}
+				close(context);
+			}
+		}
+		context.runOnClient(client -> {
+			client.options.guiScale().set(scaleBefore);
+			client.resizeGui();
+		});
+		server.runCommand("clear @a");
+		SimpleBlockTestLog.info("CLIENT M13 BUG-010 LOAD BAR ({}): {}", shots, log);
+	}
+
+	/** Asserts the load bar is on screen and clear of every active slot (and, in the label row, of the label); describes where it is. */
+	private static String barCheck(ClientGameTestContext context, String what) {
+		String[] result = context.computeOnClient(client -> {
+			AbstractContainerScreen<?> screen = (AbstractContainerScreen<?>) client.gui.screen();
+			int[] bar = InventoryScreenAddons.barBounds(screen);
+			AbstractContainerScreenAccessor panel = (AbstractContainerScreenAccessor) screen;
+			int left = panel.simpleBlock$getLeftPos();
+			int top = panel.simpleBlock$getTopPos();
+			boolean onScreen = bar[0] >= 0 && bar[1] >= 0 && bar[2] <= screen.width && bar[3] <= screen.height;
+			String overlap = "";
+			for (var slot : screen.getMenu().slots) {
+				int x0 = left + slot.x - 1;
+				int y0 = top + slot.y - 1;
+				if (slot.isActive() && bar[0] < x0 + 18 && x0 < bar[2] && bar[1] < y0 + 18 && y0 < bar[3]) {
+					overlap += slot.index + " ";
+				}
+			}
+			String place = InventoryScreenAddons.labelRowBar(screen) ? "label row"
+				: bar[1] >= top + panel.simpleBlock$getImageHeight() ? "under the panel" : "in the row";
+			return new String[] {String.valueOf(onScreen), overlap, place + " y " + (bar[1] - top) + "-" + (bar[3] - top) + " of panel "
+				+ panel.simpleBlock$getImageHeight() + ", screen " + screen.height};
+		});
+		assertTrue(result[0].equals("true"), what + ": the load bar must be on screen: " + result[2]);
+		assertTrue(result[1].isEmpty(), what + ": the load bar overlaps slots " + result[1] + ": " + result[2]);
+		return what + ": " + result[2];
 	}
 
 	private static void open(ClientGameTestContext context, BlockPos chest) {

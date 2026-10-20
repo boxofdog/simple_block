@@ -14,7 +14,8 @@
 		"SkeletonRenderStateMixin",
 		"HumanoidArmorLayerMixin",
 		"LocalPlayerPickMixin",
-		"AbstractContainerScreenGlideMixin"
+		"AbstractContainerScreenGlideMixin",
+		"AbstractContainerScreenLabelMixin"
 	],
 	"injectors": {
 		"defaultRequire": 1

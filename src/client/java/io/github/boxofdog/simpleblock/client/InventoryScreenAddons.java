@@ -44,7 +44,8 @@ import io.github.boxofdog.simpleblock.workwear.Workwear;
  * carried equipment included, and at the cap that only commodities are refused.
  *
  * <p>M10: with the Overalls on, the row is a backpack (usable slots), so the bar and the Sort button sit on
- * a strip just under the panel instead; the bar's allowance is the player's own (more with Mining Boots).
+ * a strip just under the panel instead (BUG-010: or, where that strip would leave the screen, in place
+ * of the player inventory's label); the bar's allowance is the player's own (more with Mining Boots).
  * The armor slots the commodity-overload lock holds are greyed and outlined in red, and the legs slot
  * the Overalls take is greyed: display only, the server enforces both.
  */
@@ -97,10 +98,25 @@ public final class InventoryScreenAddons {
 			return null;
 		}
 		if (Workwear.backpack(Minecraft.getInstance().player)) {
+			if (labelRowBar(screen)) {
+				// The bar's frame sits where the label's text was, clear of the slots below.
+				int labelY = ((AbstractContainerScreenAccessor) screen).simpleBlock$getInventoryLabelY();
+				return new int[] {minX - 1, labelY - 1 - BAR_Y, maxX + 17, labelY - 1 - BAR_Y + 18};
+			}
 			int below = ((AbstractContainerScreenAccessor) screen).simpleBlock$getImageHeight() + 1;
 			return new int[] {minX - 1, below, maxX + 17, below + 18};
 		}
 		return new int[] {minX - 1, y - 1, maxX + 17, y + 17};
+	}
+
+	/**
+	 * BUG-010: with the Overalls on, whether the strip under the panel would leave the screen (a double
+	 * chest at a large GUI scale); the bar then takes the player inventory label's row instead.
+	 */
+	public static boolean labelRowBar(AbstractContainerScreen<?> screen) {
+		AbstractContainerScreenAccessor panel = (AbstractContainerScreenAccessor) screen;
+		return Workwear.backpack(Minecraft.getInstance().player)
+			&& panel.simpleBlock$getTopPos() + panel.simpleBlock$getImageHeight() + 1 + 18 > screen.height;
 	}
 
 	/** M13: quick-moves sent by Shift + right-button glides (the first, vanilla, click excluded); read by the client test. */
@@ -199,9 +215,14 @@ public final class InventoryScreenAddons {
 		AbstractContainerScreenAccessor panel = (AbstractContainerScreenAccessor) container;
 		int x = panel.simpleBlock$getLeftPos();
 		int y = panel.simpleBlock$getTopPos();
-		graphics.fill(x + row[0], y + row[1], x + row[2], y + row[3], PANEL);
-		if (Workwear.backpack(player)) {
+		if (labelRowBar(container)) {
+			// Inside the panel: only the bar's own band, not the slots under it.
+			graphics.fill(x + row[0], y + row[1] + BAR_Y - 1, x + row[2], y + row[1] + BAR_Y + BAR_HEIGHT + 3, PANEL);
+		} else if (Workwear.backpack(player)) {
+			graphics.fill(x + row[0], y + row[1], x + row[2], y + row[3], PANEL);
 			graphics.outline(x + row[0] - 1, y + row[1] - 1, row[2] - row[0] + 2, row[3] - row[1] + 2, FRAME);
+		} else {
+			graphics.fill(x + row[0], y + row[1], x + row[2], y + row[3], PANEL);
 		}
 		long[] units = HeavyLoad.carriedByMaterial(player);
 		long load = Arrays.stream(units).sum();
