@@ -4,6 +4,7 @@
 	"compatibilityLevel": "JAVA_25",
 	"mixins": [
 		"cable.CrafterMenuMixin",
+		"rope.BowItemMixin",
 		"cable.CrafterMixin",
 		"cable.CraftingMenuMixin",
 		"chestcart.AbstractMinecartMixin",

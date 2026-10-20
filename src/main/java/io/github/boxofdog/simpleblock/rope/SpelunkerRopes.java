@@ -191,6 +191,46 @@ public final class SpelunkerRopes {
 		return retrieving;
 	}
 
+	/**
+	 * Why an anchor cannot hang on {@code support}'s {@code face} (as a message), or null if it can: a sturdy
+	 * bottom or side face, an open block for the anchor and open air under it.
+	 */
+	static @Nullable Component problem(Level level, BlockPos support, Direction face) {
+		if (face == Direction.UP) {
+			return message("needs_hold", "Fix it under a block or on its side");
+		}
+		BlockPos anchor = support.relative(face);
+		if (!level.isLoaded(anchor) || !canHangOn(level, support, face)
+			|| !level.getBlockState(anchor).canBeReplaced() || !level.getFluidState(anchor).isEmpty() || !open(level.getBlockState(anchor.below()))) {
+			return message("no_room", "No room to hang a rope here");
+		}
+		return null;
+	}
+
+	/**
+	 * Fixes a Spelunker's Rope's anchor on {@code support}'s {@code face} and lets its rope down, by hand or
+	 * shot from a bow; or tells {@code player} why not. Whether it was hung (the caller then uses up the rope).
+	 */
+	static boolean hang(ServerLevel level, BlockPos support, Direction face, @Nullable Player player) {
+		Component problem = problem(level, support, face);
+		if (problem != null) {
+			if (player != null) {
+				tell(player, problem);
+			}
+			return false;
+		}
+		BlockPos anchor = support.relative(face);
+		level.setBlock(anchor, RopeContent.ROPE_ANCHOR.defaultBlockState().setValue(RopeAnchorBlock.SUPPORT, face.getOpposite()), Block.UPDATE_ALL);
+		if (level.getBlockEntity(anchor) instanceof RopeAnchorBlockEntity entity) {
+			int added = lower(level, anchor, entity);
+			if (player != null) {
+				tell(player, message("hung", "Rope hung: %s blocks down (Rope lets it down 12 more)", added));
+			}
+		}
+		level.playSound(null, anchor, SoundEvents.CHAIN_PLACE, SoundSource.BLOCKS, 1.0F, 1.2F);
+		return true;
+	}
+
 	/** Whether an anchor may hang on {@code support} from its {@code face}: a sturdy face, bottom or side. */
 	static boolean canHangOn(Level level, BlockPos support, Direction face) {
 		return face != Direction.UP && level.getBlockState(support).isFaceSturdy(level, support, face);

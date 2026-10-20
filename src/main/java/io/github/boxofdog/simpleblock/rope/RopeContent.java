@@ -9,6 +9,8 @@ import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.MobCategory;
 import net.minecraft.world.item.CreativeModeTabs;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Items;
@@ -41,6 +43,16 @@ public final class RopeContent {
 
 	public static final BlockEntityType<RopeAnchorBlockEntity> ROPE_ANCHOR_ENTITY = Registry.register(BuiltInRegistries.BLOCK_ENTITY_TYPE,
 		id("spelunker_rope_anchor"), new BlockEntityType<>(RopeAnchorBlockEntity::new, Set.of(ROPE_ANCHOR)));
+
+	public static final ResourceKey<EntityType<?>> ROPE_SHOT_KEY = ResourceKey.create(Registries.ENTITY_TYPE, id("spelunker_rope_shot"));
+	/** M13: a Spelunker's Rope shot from a bow; a thrown item's size and tracking. */
+	public static final EntityType<RopeShot> ROPE_SHOT = Registry.register(BuiltInRegistries.ENTITY_TYPE, ROPE_SHOT_KEY,
+		EntityType.Builder.<RopeShot>of(RopeShot::new, MobCategory.MISC)
+			.noLootTable()
+			.sized(0.25F, 0.25F)
+			.clientTrackingRange(4)
+			.updateInterval(10)
+			.build(ROPE_SHOT_KEY));
 
 	private RopeContent() {
 	}

@@ -11,6 +11,7 @@
 		"fabric-gametest": [
 			"io.github.boxofdog.simpleblock.gametest.SleepGameTests",
 			"io.github.boxofdog.simpleblock.gametest.BedRestGameTests",
+			"io.github.boxofdog.simpleblock.gametest.BowRopeGameTests",
 			"io.github.boxofdog.simpleblock.gametest.PhantomGameTests",
 			"io.github.boxofdog.simpleblock.gametest.ElytraGameTests",
 			"io.github.boxofdog.simpleblock.gametest.ShulkerBoxGameTests",
