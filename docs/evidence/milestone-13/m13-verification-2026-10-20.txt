@@ -1,0 +1,46 @@
+M13 verification — 2026-10-20 (local runs; CI Build #85, run 39413117425, source 0cce3b248a1afde948f0b50899a71587dee5d6a2)
+
+== Server game tests (./gradlew build, local on 2bcd197): All 243 required tests passed. After it: e8b052a extended the BUG-014 test (held load); ui_fixes, minecart_ and freight_transfer suites re-run locally (2+12+7 passed); CI Build #85 ran the whole build with server tests on 0cce3b2: PASS
+M13 BED REST: after 222 ticks at night (clock 18292 -> 18514): [half health 10.0->20.0 hp, food 20->17, credit 2, one food point 4.0->8.0 hp, food 1->0, credit 0, starving 4.0->4.0 hp, food 0->0, credit 0, full health 20.0->20.0 hp, food 20->20, credit 0, straw bed 16.0->20.0 hp, food 10->9, credit 0]
+M13 BED REST: daytime thunderstorm: lying down allowed, day storm 10.0->10.0 hp, food 20->20, credit 0
+M13 BOW ROPE: [full draw at the ceiling: anchor at BlockPos{x=21, y=14, z=10} with 12 rope; arrows 16, ropes 2, bow damage 1, no arrow entity, 1-tick draw: nothing shot, nothing used, shot at the floor (a top face): given back, ropes 2, no arrows: drew and hung a second rope; ropes 1, rope out of the offhand: no draw without arrows; with arrows an ordinary arrow fired]
+M13 BOW ROPE RANGE (15 degrees up, back to launch height): full draw: arrow 76.5 blocks (31 ticks), rope 59.0 (26 ticks), 77%; half draw (0.4): arrow 15.4, rope 10.7, 69%
+BUG-003 rod reach (cable.rod_reach_max 6.0): [anchors 6 over the rail: no grip]
+BUG-003 rod reach (cable.rod_reach_max 6.0): [anchors 3 over the rail: grips at 3.69, anchors 4 over the rail: grips at 4.69, anchors 5 over the rail: grips at 5.69]
+BUG-004 climb between level anchors: cable at the foot of the climb in the old reach (1.5-3) false, in the new (1.0-6.0) true; cart hauled from x 3.5 to x 17 (top of the climb at 13) in 340 ticks, gripping all the way (reach 1.42-3.95); line's last stop null
+BUG-008 lever knob hit from straight, 45 degrees each side and above, at three leans: [standing: 12/12, hung: 12/12]
+BUG-013 engine box: opened with 3, shift-click filled to 64 (3 kept), charcoal refused, half taken and put back, lever unchanged, 67 coal conserved
+BUG-007: chain used on the blocks just past two carts coupled them, no chain blocks; with no cart, a chain block
+BUG-018/019 second drum: [ground: 16/16 and hung: 16/16 facings x faces made fast, drum with its own coil: refused, both coils kept, nothing dropped]
+BUG-006 skip intake from either end: [behind: 100 in, lid and the cart's front gate opened, in front: 50 more in, behind at the chute's height: nothing moved]
+BUG-021: block squarely in the way refused (drop 0); grazed block cleared with the receiving roller 2 px lower (cable point 0.625); freed anchor back to drop 0
+BUG-014 cargo window: [empty hand: window with 200 raw iron, no slots, clicks move nothing, follows another player's loading (204), held cargo loads, sneak unloads, empty main hand with off-hand cargo inspects]
+M13 chest Sort: [single: 0=3 minecraft:dirt; 1=64 minecraft:cobblestone; 2=10 minecraft:cobblestone(named); 3=16 minecraft:cobblestone; 4=1 minecraft:iron_pickaxe; 5=1 minecraft:iron_pickaxe; , double: 0=63 minecraft:dirt; 1=64 minecraft:cobblestone; 2=10 minecraft:cobblestone(named); 3=16 minecraft:cobblestone; 4=1 minecraft:iron_pickaxe; 5=1 minecraft:iron_pickaxe; , trapped sorted; barrel, stale id and spectator refused; inventory untouched; repeat changes nothing]
+BUG-020: held end used on the first of three routed anchors: wound back to it, two anchors freed, end hanging there
+M13 BUG-011 casting light: [pouring at fill 4/8: mold 11, channel 9, cast done, block shown: mold 0, channel 0, fuel out at fill 6/8: mold 0, channel 0, block light at the pouring mold 11, stopped: 0]
+M13 BED REST: zombie nearby refused twice, no healing or food; zombie gone: 10 -> 14.0 hp, food 19
+
+== Client game tests (runClientGameTest, 18 classes incl. dedicated-server runs, local on the code of 0cce3b2): BUILD SUCCESSFUL in 14m 57s
+CLIENT M13 BUG-013 COAL WINCH SCREEN: an empty-hand use on the engine box opened it, showing 3 coal
+CLIENT M10 TRAIL BLAZER (m10): Trail Blazer true; 7 ghosts behind the wall: player's torch yellow true, world torch blue true, world ladder blue true, rope yellow true
+CLIENT M10 TRAIL BLAZER (m10-server): Trail Blazer true; 7 ghosts behind the wall: player's torch yellow true, world torch blue true, world ladder blue true, rope yellow true
+CLIENT M13 GLIDE (m13): [glide: chest -,-,-,-,- | hotbar 30 cobblestone,1 iron_pickaxe,5 dirt,- | glide moves 3, cap: chest -,64 iron_ingot, refused slot tried 1x, overalls: without 7 cobblestone, with: chest -, row 9-17 -,-,-,-,-,-,-,-,7 cobblestone, Shift up mid-glide -,-,3 dirt,4 dirt; plain right-drag -,-,3 dirt,4 dirt; one Shift + right-click -,-,-,4 dirt, cursor -]
+CLIENT M13 BUG-010 LOAD BAR (m13): [inventory plain-scale2: in the row y 88-96 of panel 166, screen 240, chest plain-scale2: in the row y 89-97 of panel 168, screen 240, double chest plain-scale2: in the row y 143-151 of panel 222, screen 240, inventory plain-scale3: in the row y 88-96 of panel 166, screen 240, chest plain-scale3: in the row y 89-97 of panel 168, screen 240, double chest plain-scale3: in the row y 143-151 of panel 222, screen 240, inventory overalls-scale2: under the panel y 172-180 of panel 166, screen 240, chest overalls-scale2: under the panel y 174-182 of panel 168, screen 240, double chest overalls-scale2: label row y 127-135 of panel 222, screen 240, inventory overalls-scale3: under the panel y 172-180 of panel 166, screen 240, chest overalls-scale3: under the panel y 174-182 of panel 168, screen 240, double chest overalls-scale3: label row y 127-135 of panel 222, screen 240]
+CLIENT M13 CHEST SORT (m13): chest 3 dirt,64 cobblestone,16 cobblestone,- | player 19-22 5 cobblestone,-,-,5 dirt
+CLIENT M13 BUG-017 OLD PRO (attack held 30 ticks on stone, iron sword in hand, iron pickaxe in the offhand): [no outfit (NONE): stone broken false, cobblestone dropped (on the ground or picked up) 0, pickaxe damage 0, sword damage 0, outfit (OLD_PRO): stone broken true, cobblestone dropped (on the ground or picked up) 1, pickaxe damage 1, sword damage 0]
+CLIENT M13 BUG-011/012 CASTING (midnight, 200 ticks each): pouring: mold light 11, channel light 10, fill 1/8, 7 cinders; fuel out: mold light 0, channel light 0, fill 1/8, 0 cinders
+CLIENT M13 BUG-016 TRAIL BLAZER BENCHMARK: [Trail Blazer off (0 ghosts): 848 frames in 15.0 s (56.6 fps), render median 0.31 ms, p95 0.44 ms, worst 1.03 ms, Trail Blazer on (113 ghosts): 669 frames in 15.0 s (44.6 fps), render median 0.59 ms, p95 0.84 ms, worst 2.51 ms, Trail Blazer on (11 ghosts): 448 frames in 15.0 s (29.8 fps), render median 0.43 ms, p95 0.63 ms, worst 1.77 ms]
+CLIENT M13 BUG-014 CARGO WINDOW: empty-hand use opened "Freight Cart" with 0 slots, showing 100 (server: 100 raw iron)
+CLIENT M13 GLIDE (m13-server): [glide: chest -,-,-,-,- | hotbar 30 cobblestone,1 iron_pickaxe,5 dirt,- | glide moves 3, cap: chest -,64 iron_ingot, refused slot tried 1x, overalls: without 7 cobblestone, with: chest -, row 9-17 -,-,-,-,-,-,-,-,7 cobblestone, Shift up mid-glide -,-,3 dirt,4 dirt; plain right-drag -,-,3 dirt,4 dirt; one Shift + right-click -,-,-,4 dirt, cursor -]
+
+== Negative controls (source edited, focused tests run, source restored; each edit failed its test)
+Glide: no once-per-glide guard; Shift read from the press event; no glide -> 3/3 caught
+BUG-010: label-row fallback off -> caught (bar off screen)
+Bed rest: healing without paying food; heals by day; heals every tick -> 3/3 caught
+Bow rope: rope as fast as an arrow; no drawing without arrows; a miss keeps the rope; an arrow fired too -> 4/4 caught
+BUG-014: no hold check -> caught (window opened during a held load)
+
+== BUG-016 benchmark before/after (software rendering under xvfb, 300 ticks, frames rendered/elapsed)
+Box gizmos (M10): off 53.6 fps; 113 ghosts 43.0 fps; 11 ghosts 30.0 fps
+Outline-pass silhouette (4a67b67, replaced): off 52.5; 113 ghosts 32.1; 11 ghosts 29.5
+Model-edge lines (2bcd197, delivered): see CLIENT M13 BUG-016 line above

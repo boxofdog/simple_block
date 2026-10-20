@@ -155,7 +155,7 @@ The entries below are **16 separate owner findings** across M07/M08/M10/M11 and 
 
 **Expected / reproduction and acceptance:** Add restrained local cinder effects tied to actual molten pour/fill (not constant idle particles); avoid excessive particle volume and preserve current casting timing and item state.
 
-**Status:** **REQUESTED — implemented and tested in M13 (`960926a`); awaiting owner review**. Lava cinders rise from the mold's molten surface only while pouring (client counted 15 in 10 s; none stopped). No owner acceptance is claimed.
+**Status:** **REQUESTED — implemented and tested in M13 (`960926a`); awaiting owner review**. Lava cinders rise from the mold's molten surface only while pouring (final client run counted 7 in 10 s; none once stopped). No owner acceptance is claimed.
 
 ### BUG-013
 
@@ -195,7 +195,7 @@ The entries below are **16 separate owner findings** across M07/M08/M10/M11 and 
 
 **Expected / reproduction and acceptance:** Explore a silhouette-following outline on the actual model; if disproportionately difficult, ask owner about removing this highlight rather than keeping a misleading blob. Preserve the agreed Trail Blazer mechanics until the owner chooses an alternative.
 
-**Status:** **REQUESTED — implemented and tested in M13 (`2bcd197`); awaiting owner review**. Owner direction (2026-10-20): translucent lines along the model's own edges (torch stick, rope/anchor/coil; ladder traced as rails and rungs). Benchmark, 113 ghosts, software rendering: 43.3 fps vs old boxes 43.0 (a filled outline-pass silhouette, `4a67b67`, measured 32.1 and was replaced). No owner acceptance is claimed.
+**Status:** **REQUESTED — implemented and tested in M13 (`2bcd197`); awaiting owner review**. Owner direction (2026-10-20): translucent lines along the model's own edges (torch stick, rope/anchor/coil; ladder traced as rails and rungs). Benchmark, 113 ghosts, software rendering: 43.3–44.6 fps across runs vs old boxes 43.0 (a filled outline-pass silhouette, `4a67b67`, measured 32.1 and was replaced). No owner acceptance is claimed.
 
 ### BUG-017
 

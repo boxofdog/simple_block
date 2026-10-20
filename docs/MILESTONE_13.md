@@ -1,6 +1,6 @@
 ---
 milestone: M13
-status: IMPLEMENTING
+status: PLAYTESTING
 ---
 
 # M13 — Widespread bug-fixing, playtesting and feature-refinement patch
@@ -203,3 +203,41 @@ All four items await investigation, implementation where needed and owner retest
 3. Validate changed UI, VFX and models in actual clients at multiple perspectives and GUI scales. Cover dedicated server, multiplayer, chunk/save/reload and interrupted transfers. Preserve hand-painted artwork and UVs.
 4. Previously implemented M07/M08 follow-ups are not to be blindly reimplemented; obtain actual owner retest. **Include before/after Trail Blazer client performance evidence** and obtain owner approval before removing its silhouette/bonus or materially redefining the shorter-than-arrow rope launch.
 5. After **separate, explicit implementation authorization**, place a dated `## Implementation and verification — YYYY-MM-DD` appendix at this file's **end** per [REPORTING_POLICY.json](REPORTING_POLICY.json), citing actual tested full SHA, CI artifact, test counts and gaps. No CI result alone makes M13 **SHIPPED**; only explicit owner signoff does.
+
+## Implementation and verification — 2026-10-20
+
+**Metadata:** M13 | PLAYTESTING | Playtest bug fixes BUG-006–022, bed rest, bow rope, glide transfer and chest sorting.
+
+**Implementation**
+- Commits: 22 code commits, `ba686173b25ce0c36f5664fca5cfa7784293595d` (BUG-006) through `0cce3b248a1afde948f0b50899a71587dee5d6a2` (test updates); per-bug commits in [BUG_LOG](BUG_LOG.md).
+- Delivered: BUG-006–008, 013, 018–021 freight repairs; cargo window; glide quick-move; chest Sort; load bar (BUG-010); night bed rest (1 heart/2 s, ½ food per heart); bow rope (77% of arrow range); rope remodel; casting light, cinders; z-fight separation (painted art untouched); Trail Blazer edge outlines.
+- Deviations: BUG-016 per owner direction 2026-10-20 (edge lines, not silhouette). BUG-017 not reproduced: works with the full outfit.
+
+**CI**
+- Build: #85 | Run ID: 39413117425 | PASS
+- Source SHA: `0cce3b248a1afde948f0b50899a71587dee5d6a2`
+- URL: https://github.com/boxofdog/simple_block/actions/runs/39413117425
+- Artifact: `simple-block-mod` id 12259763198, available.
+
+**Tests**
+
+| Category | Result | Passed/Total | Evidence / Notes |
+|---|---|---|---|
+| Server | PASS | 243/243 | local `2bcd197`, CI #85 final; [log](evidence/milestone-13/m13-verification-2026-10-20.txt) |
+| Client | PASS | 18/18 | three older tests updated for new screens; [screenshots](evidence/milestone-13/screenshots/) |
+| Dedicated server | PASS | 10/10 | client classes with dedicated runs |
+| Negative controls | PASS | 12/12 | [log](evidence/milestone-13/m13-verification-2026-10-20.txt) |
+
+**Known gaps**
+- GAP-01: MINOR — z-fighting fix proven by geometry scan only; next: owner retest.
+- GAP-02: MINOR — FPS measured in software rendering; next: owner hardware check.
+- GAP-03: MINOR — rope speed, rest pace, cinder rate provisional; next: playtest.
+- GAP-04: MINOR — glide untested in creative and crafting screens; next: playtest.
+- GAP-05: MINOR — rope uses template colours; next: Joe paints.
+
+**Owner playtest**
+- Load a skip from either end; couple carts; winch lever and coal screen.
+- Glide-transfer; sort a double chest; wear Overalls.
+- Rest in bed at night; shoot rope from a bow.
+- Watch a night cast; look for furnace and skip flicker.
+- Trail Blazer outlines; Old Pro with the full outfit.
