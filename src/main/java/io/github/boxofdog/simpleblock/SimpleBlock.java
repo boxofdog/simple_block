@@ -185,6 +185,7 @@ public class SimpleBlock implements ModInitializer {
 		WorkwearContent.register();
 		RopeContent.register();
 		EffigyContent.register();
+		io.github.boxofdog.simpleblock.coot.OldCootContent.register();
 		NoElytraFlight.register();
 		RemovedRocks.register();
 		IronWorldgen.register();

@@ -31,6 +31,7 @@ public class SimpleBlockClient implements ClientModInitializer {
 		CableHookRenderer.register();
 		CobblestoneEngineRenderer.register();
 		OreSkipRenderer.register();
+		io.github.boxofdog.simpleblock.client.coot.OldCootRenderer.register();
 		// M13: a rope shot from a bow flies as its item, like a thrown snowball.
 		net.fabricmc.fabric.api.client.rendering.v1.EntityRendererRegistry.register(io.github.boxofdog.simpleblock.rope.RopeContent.ROPE_SHOT,
 			net.minecraft.client.renderer.entity.ThrownItemRenderer::new);

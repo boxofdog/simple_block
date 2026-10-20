@@ -85,6 +85,8 @@
 	"simple_block.winch.lever_skipped": "Lever: %s (%s is blocked here)",
 	"item.simple_block.ore_skip": "Ore Skip",
 	"entity.simple_block.ore_skip": "Ore Skip",
+	"entity.simple_block.old_coot": "Old Coot",
+	"item.simple_block.old_coot_spawn_egg": "Old Coot Spawn Egg",
 	"entity.simple_block.spelunker_rope_shot": "Spelunker's Rope",
 	"container.simple_block.ore_skip": "Ore Skip",
 	"block.simple_block.blast_furnace": "Blast Furnace",
