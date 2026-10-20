@@ -559,7 +559,8 @@ public class FreightStationGameTests {
 			.thenExecute(() -> {
 				log.add("the only seat of a train works its engine across a wagon");
 				// By hand, from behind the lever.
-				Vec3 leverAt = EngineSelector.fromModel(engine, EngineSelector.LEVER_X, EngineSelector.LEVER_Y, EngineSelector.LEVER_Z);
+				// The cart's back end under the lever (the lever's handle stands above the cart's hit box).
+				Vec3 leverAt = EngineSelector.fromModel(engine, EngineSelector.LEVER_X, 8.0, EngineSelector.LEVER_Z);
 				Vec3 away = leverAt.subtract(engine.position()).multiply(1.0, 0.0, 1.0).normalize();
 				Vec3 stand = leverAt.add(away.scale(1.8));
 				hand.snapTo(stand.x, engine.getY(), stand.z, 0.0F, 0.0F);
