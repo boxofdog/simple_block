@@ -30,15 +30,17 @@ import io.github.boxofdog.simpleblock.client.mixin.AbstractContainerScreenAccess
 import io.github.boxofdog.simpleblock.gametest.SimpleBlockTestLog;
 
 /**
- * M13 inventory UI in a real client ({@code m13-*} screenshots), in singleplayer and over a dedicated server:
+ * M13 in a real client ({@code m13-*} screenshots). In singleplayer and over a dedicated server:
  * the Shift + right-button glide across a chest's slots with real mouse input. One glide quick-moves each
  * occupied slot it crosses, once (gliding back changes nothing); gaps are harmless; the heavy-load cap and
  * the Overalls row still decide where things may go; letting go of Shift stops the glide; a plain right-drag
  * and a one-off Shift + right-click still do what vanilla does.
  */
-public class InventoryUiClientTest implements FabricClientGameTest {
+public class M13ClientTest implements FabricClientGameTest {
 	private static final int X = 110;
 	private static final int Z = 20;
+	/** Where the M13 Blast Furnace and Ore Skip go (BUG-011/012/015/022). */
+	private static final int FURNACE_X = 150;
 
 	@Override
 	public void runTest(ClientGameTestContext context) {
@@ -52,6 +54,7 @@ public class InventoryUiClientTest implements FabricClientGameTest {
 			sortButton(context, server, chest, "m13");
 			oldPro(context, server, chest);
 			ropeScene(context, server, chest);
+			furnaceScene(context, server, "m13");
 		}
 		try (TestDedicatedServerContext server = context.worldBuilder().createServer();
 			TestDedicatedServerConnection connection = server.connect()) {
@@ -286,6 +289,52 @@ public class InventoryUiClientTest implements FabricClientGameTest {
 		server.runCommand("kill @e[type=item]");
 		server.runCommand("setblock " + at + " minecraft:air");
 		SimpleBlockTestLog.info("CLIENT M13 BUG-017 OLD PRO (attack held 30 ticks on stone, iron sword in hand, iron pickaxe in the offhand): {}", log);
+	}
+
+	/**
+	 * BUG-015 and BUG-022: the Blast Furnace (placed with a real use-key press) and an Ore Skip, seen at grazing
+	 * angles where flush, coplanar faces would flicker: the furnace front (posts and cornice, door frames, the
+	 * tap), the output mold's clamps, the skip's corner posts and rims. Screenshots for the owner's retest.
+	 */
+	private static void furnaceScene(ClientGameTestContext context, TestServerContext server, String shots) {
+		int g = server.computeOnServer(s -> {
+			s.overworld().getChunk(FURNACE_X >> 4, 0);
+			return s.overworld().getHeight(Heightmap.Types.MOTION_BLOCKING, FURNACE_X, 8);
+		});
+		server.runCommand("fill " + (FURNACE_X - 10) + " " + (g - 1) + " -4 " + (FURNACE_X + 10) + " " + (g - 1) + " 16 minecraft:stone");
+		server.runCommand("fill " + (FURNACE_X - 10) + " " + g + " -4 " + (FURNACE_X + 10) + " " + (g + 8) + " 16 minecraft:air");
+		server.runCommand("clear @a");
+		server.runCommand("tp @a " + (FURNACE_X + 0.5) + " " + g + " 3.5 0 20");
+		context.waitTicks(10);
+		BlockPos front = new BlockPos(FURNACE_X, g, 8);
+		server.runCommand("item replace entity @a weapon.mainhand with simple_block:blast_furnace");
+		context.waitTicks(3);
+		lookAtPoint(context, new Vec3(front.getX() + 0.5, front.getY() - 0.02, front.getZ() - 1.5));
+		context.getInput().pressKey(options -> options.keyUse);
+		context.waitTicks(10);
+		server.runCommand("clear @a");
+		server.runOnServer(s -> {
+			var skip = io.github.boxofdog.simpleblock.skip.SkipContent.ORE_SKIP.create(s.overworld(), net.minecraft.world.entity.EntitySpawnReason.EVENT);
+			skip.snapTo(FURNACE_X + 7.5, g, 0.5, 0.0F, 0.0F);
+			s.overworld().addFreshEntity(skip);
+		});
+		Object[][] views = {
+			{"furnace-front", new Vec3(FURNACE_X - 5.5, g + 2.5, 0.5), new Vec3(FURNACE_X + 0.5, g + 1.0, 7.0)},
+			{"furnace-front-far", new Vec3(FURNACE_X + 9.5, g + 4.0, -3.5), new Vec3(FURNACE_X + 0.5, g + 1.5, 7.0)},
+			{"mold", new Vec3(FURNACE_X + 3.5, g + 1.5, 4.5), new Vec3(FURNACE_X + 0.5, g + 0.3, 6.5)},
+			{"skip", new Vec3(FURNACE_X + 4.5, g + 4.5, -2.5), new Vec3(FURNACE_X + 8.0, g + 2.5, 1.0)},
+			{"skip-far", new Vec3(FURNACE_X - 2.5, g + 6.0, -3.5), new Vec3(FURNACE_X + 8.0, g + 2.5, 1.0)},
+		};
+		for (Object[] view : views) {
+			Vec3 eye = (Vec3) view[1];
+			server.runCommand("tp @a " + eye.x + " " + (eye.y - 1.62) + " " + eye.z);
+			context.waitTicks(5);
+			lookAtPoint(context, (Vec3) view[2]);
+			context.waitTicks(3);
+			context.takeScreenshot(shots + "-zfight-" + view[0]);
+		}
+		server.runCommand("kill @e[type=simple_block:ore_skip]");
+		server.runCommand("tp @a " + (X + 0.5) + " " + g + " " + (Z + 0.5) + " 180 30");
 	}
 
 	/**

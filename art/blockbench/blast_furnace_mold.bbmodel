@@ -566,14 +566,14 @@
 			"render_order": "default",
 			"allow_mirror_modeling": true,
 			"from": [
-				0.0,
-				0.0,
-				0.0
+				-0.05,
+				-0.05,
+				-0.05
 			],
 			"to": [
-				2.0,
-				16.0,
-				2.0
+				2.05,
+				16.05,
+				2.05
 			],
 			"autouv": 0,
 			"color": 6,
@@ -655,14 +655,14 @@
 			"render_order": "default",
 			"allow_mirror_modeling": true,
 			"from": [
-				14.0,
-				0.0,
-				0.0
+				13.95,
+				-0.05,
+				-0.05
 			],
 			"to": [
-				16.0,
-				16.0,
-				2.0
+				16.05,
+				16.05,
+				2.05
 			],
 			"autouv": 0,
 			"color": 7,
@@ -744,14 +744,14 @@
 			"render_order": "default",
 			"allow_mirror_modeling": true,
 			"from": [
-				0.0,
-				0.0,
-				14.0
+				-0.05,
+				-0.05,
+				13.95
 			],
 			"to": [
-				2.0,
-				16.0,
-				16.0
+				2.05,
+				16.05,
+				16.05
 			],
 			"autouv": 0,
 			"color": 0,
@@ -833,14 +833,14 @@
 			"render_order": "default",
 			"allow_mirror_modeling": true,
 			"from": [
-				14.0,
-				0.0,
-				14.0
+				13.95,
+				-0.05,
+				13.95
 			],
 			"to": [
-				16.0,
-				16.0,
-				16.0
+				16.05,
+				16.05,
+				16.05
 			],
 			"autouv": 0,
 			"color": 1,
