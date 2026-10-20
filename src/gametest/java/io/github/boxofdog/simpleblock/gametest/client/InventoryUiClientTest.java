@@ -50,6 +50,7 @@ public class InventoryUiClientTest implements FabricClientGameTest {
 			glide(context, server, chest, "m13");
 			loadBar(context, server, chest, "m13");
 			sortButton(context, server, chest, "m13");
+			oldPro(context, server, chest);
 		}
 		try (TestDedicatedServerContext server = context.worldBuilder().createServer();
 			TestDedicatedServerConnection connection = server.connect()) {
@@ -234,6 +235,54 @@ public class InventoryUiClientTest implements FabricClientGameTest {
 		});
 		server.runCommand("clear @a");
 		SimpleBlockTestLog.info("CLIENT M13 BUG-010 LOAD BAR ({}): {}", shots, log);
+	}
+
+	/**
+	 * BUG-017: Old Pro's offhand pickaxe, with the real attack key held on stone and a sword in the main hand.
+	 * Without the full outfit (Headlamp, Overalls, Mining Boots) the sword is what mines: 30 ticks leave
+	 * the stone standing. With it, the offhand iron pickaxe mines: the stone breaks in those 30 ticks,
+	 * drops cobblestone, and the pickaxe (not the sword) wears.
+	 */
+	private static void oldPro(ClientGameTestContext context, TestServerContext server, BlockPos chest) {
+		BlockPos stone = chest.west(2).above();
+		String at = stone.getX() + " " + stone.getY() + " " + stone.getZ();
+		List<String> log = new ArrayList<>();
+		for (boolean outfit : new boolean[] {false, true}) {
+			server.runCommand("clear @a");
+			server.runCommand("kill @e[type=item]");
+			server.runCommand("setblock " + at + " minecraft:stone");
+			server.runCommand("item replace entity @a weapon.mainhand with minecraft:iron_sword");
+			server.runCommand("item replace entity @a weapon.offhand with minecraft:iron_pickaxe");
+			if (outfit) {
+				server.runCommand("item replace entity @a armor.head with simple_block:headlamp");
+				server.runCommand("item replace entity @a armor.chest with simple_block:overalls");
+				server.runCommand("item replace entity @a armor.feet with simple_block:mining_boots");
+			}
+			context.waitTicks(5);
+			lookAtPoint(context, Vec3.atCenterOf(stone));
+			context.getInput().holdKeyFor(options -> options.keyAttack, 30);
+			context.waitTicks(5);
+			String[] result = server.computeOnServer(s -> {
+				ServerPlayer player = s.overworld().players().getFirst();
+				int cobble = s.overworld().getEntitiesOfClass(net.minecraft.world.entity.item.ItemEntity.class, new net.minecraft.world.phys.AABB(stone).inflate(3),
+					item -> item.getItem().is(net.minecraft.world.item.Items.COBBLESTONE)).size();
+				return new String[] {String.valueOf(s.overworld().getBlockState(stone).isAir()), String.valueOf(cobble),
+					String.valueOf(player.getOffhandItem().getDamageValue()), String.valueOf(player.getMainHandItem().getDamageValue()),
+					io.github.boxofdog.simpleblock.workwear.Workwear.bonus(player).toString()};
+			});
+			log.add((outfit ? "outfit (" : "no outfit (") + result[4] + "): stone broken " + result[0] + ", cobblestone dropped " + result[1]
+				+ ", pickaxe damage " + result[2] + ", sword damage " + result[3]);
+			if (outfit) {
+				assertTrue(result[0].equals("true") && result[1].equals("1") && result[2].equals("1") && result[3].equals("0"),
+					"Old Pro mines with the offhand pickaxe: " + log);
+			} else {
+				assertTrue(result[0].equals("false") && result[2].equals("0"), "without the outfit the sword mines (slowly): " + log);
+			}
+		}
+		server.runCommand("clear @a");
+		server.runCommand("kill @e[type=item]");
+		server.runCommand("setblock " + at + " minecraft:air");
+		SimpleBlockTestLog.info("CLIENT M13 BUG-017 OLD PRO (attack held 30 ticks on stone, iron sword in hand, iron pickaxe in the offhand): {}", log);
 	}
 
 	/** The chest Sort button, clicked with the real mouse: the chest is sorted, the player's inventory is not. */
