@@ -25,7 +25,7 @@ A Minecraft Java Edition overhaul about **hostile nights, meaningful mining, ind
 | M13 | Planned bug-fixing and refinement patch: offhand rope bow launch, night-only bed healing paid from hunger (retaining vanilla nearby-monster refusal), Shift + right-click drag transfer, and one-click chest sorting. | [M13](docs/MILESTONE_13.md) |
 | M14 | Ready for authorization: uncommon, 1¼-block-tall abandoned-mineshaft miner with a **real villager nose and scraggly modeled beard**, audible stone/deepslate tunneling, territorial ore hearing, spider protection and persistent home residency. | [M14](docs/MILESTONE_14.md) |
 | M15 | Planned **three-position physical lever on the back of the Cobblestone Engine**, cycled with Space while riding a coupled passenger cart; Through/Load/Unload mode controls when freight trains dock at Loading Rails. | [M15](docs/MILESTONE_15.md) |
-| M16 | Planned larger villages with usable buildings, navigable streets, social spaces and sensible population. | [M16](docs/MILESTONE_16.md) |
+| M16 | Planned overhaul of village generation: expansive, cohesive settlements with properly scaled Minecraft-style buildings, usable streets, farms and owner-built regional structure kits. | [M16](docs/MILESTONE_16.md) |
 | M17 | Planned general-store commerce, profession-specific work/services and daily village routines. | [M17](docs/MILESTONE_17.md) |
 | M18 | Preliminary improvement of Iron Golem patrols, defense and village security. | [M18](docs/MILESTONE_18.md) |
 | M19 | Planned homesickness, functional-settlement adoption, lasting belonging and unhappy-villager dialogue. | [M19](docs/MILESTONE_19.md) |
