@@ -137,12 +137,17 @@ public class SurvivalSmokeClientTest implements FabricClientGameTest {
 		assertTrue(held == 0, "raw iron left in hand: " + held);
 		assertTrue(loadedMessage.isEmpty(), "M11: the cart says nothing, saw: " + loadedMessage);
 
-		// Empty hand: no seat, just the cargo.
+		// Empty hand: no seat; since M13 (BUG-014) the read-only cargo window opens instead.
+		context.waitTicks(15);
 		context.getInput().pressKey(options -> options.keyUse);
 		context.waitTicks(5);
 		boolean riding = context.computeOnClient(client -> client.player.getVehicle() != null);
 		boolean ridingOnServer = server.computeOnServer(s -> playerOf(s.overworld()).getVehicle() != null);
+		boolean window = context.computeOnClient(client -> client.gui.screen() instanceof io.github.boxofdog.simpleblock.client.train.CargoInspectScreen);
 		assertTrue(!riding && !ridingOnServer, "using a minecart with an empty hand should not seat the player");
+		assertTrue(window, "M13: an empty-hand use opens the cargo window");
+		context.getInput().pressKey(options -> options.keyInventory);
+		context.waitTicks(3);
 
 		// Sneak + use: one stack comes back.
 		context.getInput().holdKey(options -> options.keyShift);

@@ -13,7 +13,6 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
-import net.minecraft.world.phys.shapes.CollisionContext;
 
 import net.fabricmc.fabric.api.client.gametest.v1.FabricClientGameTest;
 import net.fabricmc.fabric.api.client.gametest.v1.context.ClientGameTestContext;
@@ -135,9 +134,12 @@ public class MachineryArtClientTest implements FabricClientGameTest {
 		assertTrue(after.getValue(CableDrumBlock.HANGING) == hanging && manualKept && sameShape, where + ": orientation, manual drum and shape kept");
 	}
 
+	/**
+	 * The drum's body is kept: its collision shape. (Its selection outline follows the handle since M13 BUG-008:
+	 * the crank's on a hand drum, the lever's once a furnace is fitted, so that one changes by design.)
+	 */
 	private static boolean sameShape(ServerLevel level, BlockPos pos, BlockState before, BlockState after) {
-		return before.getShape(level, pos, CollisionContext.empty()).toAabbs().equals(after.getShape(level, pos, CollisionContext.empty()).toAabbs())
-			&& before.getCollisionShape(level, pos).toAabbs().equals(after.getCollisionShape(level, pos).toAabbs());
+		return before.getCollisionShape(level, pos).toAabbs().equals(after.getCollisionShape(level, pos).toAabbs());
 	}
 
 	/** An engine made by real key presses, coupled to a freight cart; stopped, running, on a curve and a slope. */

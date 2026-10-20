@@ -212,6 +212,11 @@ public class FreightStationClientTest implements FabricClientGameTest {
 		use(context);
 		String inspect = overlayMessage(context);
 		CableLines.Lever afterInspect = server.computeOnServer(s -> CableLines.line(s.overworld(), drumPos).lever());
+		// M13 (BUG-013): the empty hand opens the engine box's coal screen; close it.
+		boolean coalScreen = context.computeOnClient(client -> client.gui.screen() instanceof io.github.boxofdog.simpleblock.client.cable.CoalWinchScreen);
+		assertTrue(coalScreen, "M13: an empty hand on the engine box opens its coal screen");
+		context.getInput().pressKey(options -> options.keyInventory);
+		context.waitTicks(3);
 		server.runCommand("tp @a 18.0 " + (g + 1) + " 3.5 -40 25");
 		context.waitTicks(10);
 		context.takeScreenshot("m06-winch-furnace-side");

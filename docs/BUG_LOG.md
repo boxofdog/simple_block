@@ -11,23 +11,23 @@
 | BUG-003 | [Cable-grip connecting rod / upper anchor height (M07 playtest)](#bug-003) | **OPEN — fix implemented and tested |
 | BUG-004 | [Cable-driven cart on inclining route (M07 playtest)](#bug-004) | **OPEN — fix implemented and tested |
 | BUG-005 | [Inclined cable visual geometry (M07 playtest)](#bug-005) | **OPEN — fix implemented and tested |
-| BUG-006 | [M07 cart → skip transfer — rear end](#bug-006) | **OPEN — owner playtest 2026-10-14** |
-| BUG-007 | [Minecart coupling — chains above rails](#bug-007) | **OPEN — owner playtest 2026-10-14** |
-| BUG-008 | [Coal winch lever — inaccessible oblique hitbox](#bug-008) | **OPEN — owner playtest 2026-10-14** |
-| BUG-009 | [M10 Spelunker's Rope — rope and coil geometry](#bug-009) | **REQUESTED — owner playtest 2026-10-14** |
-| BUG-010 | [M10 Overalls — weight bar hidden](#bug-010) | **OPEN — owner playtest 2026-10-14** |
-| BUG-011 | [M08 Blast Furnace — casting light](#bug-011) | **REQUESTED — owner playtest 2026-10-14** |
-| BUG-012 | [M08 Blast Furnace — molten cinders](#bug-012) | **REQUESTED — owner playtest 2026-10-14** |
-| BUG-013 | [M06/M07 coal winch — engine-box coal GUI](#bug-013) | **REQUESTED — owner playtest 2026-10-14** |
-| BUG-014 | [M11 freight minecart — read-only cargo GUI](#bug-014) | **REQUESTED — owner playtest 2026-10-14** |
-| BUG-015 | [M08 Blast Furnace — z-fighting](#bug-015) | **OPEN — owner playtest 2026-10-14** |
-| BUG-016 | [M10 Trail Blazer — ghost highlight silhouette](#bug-016) | **REQUESTED — owner playtest 2026-10-14** |
-| BUG-017 | [M10 Old Pro — off-hand pickaxe mining](#bug-017) | **OPEN — owner playtest 2026-10-14** |
-| BUG-018 | [M07 two-drum cables — ground/hanging attachment and coil ownership](#bug-018) | **OPEN — owner playtest 2026-10-14** |
-| BUG-019 | [M07 two-drum cables — receiver facing restriction](#bug-019) | **OPEN — owner playtest 2026-10-14** |
-| BUG-020 | [M07 cable anchors — selective mid-route detach](#bug-020) | **REQUESTED — owner playtest 2026-10-14** |
-| BUG-021 | [M07 cable anchors — inclined-span obstruction clearance](#bug-021) | **REQUESTED — owner playtest 2026-10-14** |
-| BUG-022 | [M07 Ore Skip — z-fighting / overlapping rendered faces](#bug-022) | **OPEN — owner report 2026-10-17** |
+| BUG-006 | [M07 cart → skip transfer — rear end](#bug-006) | **OPEN — fix implemented and tested in M13 (`ba68617`); awaiting owner retest** |
+| BUG-007 | [Minecart coupling — chains above rails](#bug-007) | **OPEN — fix implemented and tested in M13 (`7168b80`); awaiting owner retest** |
+| BUG-008 | [Coal winch lever — inaccessible oblique hitbox](#bug-008) | **OPEN — fix implemented and tested in M13 (`80ecf37`); awaiting owner retest** |
+| BUG-009 | [M10 Spelunker's Rope — rope and coil geometry](#bug-009) | **REQUESTED — implemented and tested in M13 (`15d55a7`); awaiting owner review** |
+| BUG-010 | [M10 Overalls — weight bar hidden](#bug-010) | **OPEN — fix implemented and tested in M13 (`95e955a`); awaiting owner retest** |
+| BUG-011 | [M08 Blast Furnace — casting light](#bug-011) | **REQUESTED — implemented and tested in M13 (`960926a`); awaiting owner review** |
+| BUG-012 | [M08 Blast Furnace — molten cinders](#bug-012) | **REQUESTED — implemented and tested in M13 (`960926a`); awaiting owner review** |
+| BUG-013 | [M06/M07 coal winch — engine-box coal GUI](#bug-013) | **REQUESTED — implemented and tested in M13 (`4c0cf56`); awaiting owner review** |
+| BUG-014 | [M11 freight minecart — read-only cargo GUI](#bug-014) | **REQUESTED — implemented and tested in M13 (`2d99113`, `e8b052a`); awaiting owner review** |
+| BUG-015 | [M08 Blast Furnace — z-fighting](#bug-015) | **OPEN — fix implemented and tested in M13 (`d290c2d`); awaiting owner retest** |
+| BUG-016 | [M10 Trail Blazer — ghost highlight silhouette](#bug-016) | **REQUESTED — implemented and tested in M13 (`2bcd197`); awaiting owner review** |
+| BUG-017 | [M10 Old Pro — off-hand pickaxe mining](#bug-017) | **OPEN — not reproduced in M13 (`292fcb5`): works with the full outfit; awaiting owner retest** |
+| BUG-018 | [M07 two-drum cables — ground/hanging attachment and coil ownership](#bug-018) | **OPEN — fix implemented and tested in M13 (`a7b297a`); awaiting owner retest** |
+| BUG-019 | [M07 two-drum cables — receiver facing restriction](#bug-019) | **OPEN — fix implemented and tested in M13 (`a7b297a`); awaiting owner retest** |
+| BUG-020 | [M07 cable anchors — selective mid-route detach](#bug-020) | **REQUESTED — implemented and tested in M13 (`13bb744`); awaiting owner review** |
+| BUG-021 | [M07 cable anchors — inclined-span obstruction clearance](#bug-021) | **REQUESTED — implemented and tested in M13 (`635efff`); awaiting owner review** |
+| BUG-022 | [M07 Ore Skip — z-fighting / overlapping rendered faces](#bug-022) | **OPEN — fix implemented and tested in M13 (`d290c2d`); awaiting owner retest** |
 
 ## Symptoms, evidence and verification
 
@@ -95,7 +95,7 @@ The entries below are **16 separate owner findings** across M07/M08/M10/M11 and 
 
 **Expected / reproduction and acceptance:** Test both short end gates, orientations, rail/skip levels, bridle/intake alignment and docked Loading Rail conditions. A correctly positioned cart can pour into the skip from **either end**, with the matching minecart end gate and **both lateral-opening skip lid doors** visibly clearing the cargo path. Check opened lid clearance against neighboring blocks, hoist bridle, support cables and station structures; preserve the skip's lower discharge chute, transfer direction, capacities and item conservation. Close/restore the lid appropriately on successful finish, refusal, interruption, reload and client/server sync.
 
-**Status:** **OPEN — owner-observed, not yet independently diagnosed, fixed or verified**. No CI, client test or owner acceptance is claimed.
+**Status:** **OPEN — fix implemented and tested in M13 (`ba68617`); awaiting owner retest**. Cargo goes over either short end of a docked skip; the closed lid is two side doors. Server test `skipTakesCargoFromEitherEnd`. No owner acceptance is claimed.
 
 ### BUG-007
 
@@ -105,7 +105,7 @@ The entries below are **16 separate owner findings** across M07/M08/M10/M11 and 
 
 **Expected / reproduction and acceptance:** Inspect chain-held right-click target priority, rail block placement, hitboxes and cart proximity from common camera angles. An intentional two-cart coupling interaction should take precedence without unintentionally disabling ordinary chain placement elsewhere; test Survival and client/server behavior.
 
-**Status:** **OPEN — owner-observed, not yet independently diagnosed, fixed or verified**. No CI, client test or owner acceptance is claimed.
+**Status:** **OPEN — fix implemented and tested in M13 (`7168b80`); awaiting owner retest**. A chain used just behind a cart (on the rail) couples it. Server test `chainOnTheRailBehindACartCouples`. No owner acceptance is claimed.
 
 ### BUG-008
 
@@ -115,7 +115,7 @@ The entries below are **16 separate owner findings** across M07/M08/M10/M11 and 
 
 **Expected / reproduction and acceptance:** Compare visual lever geometry with actual interaction/collision/raycast selection from straight, diagonal and side angles. Improve targetability while preserving distinct lever and furnace/engine-box controls and avoiding accidental command changes.
 
-**Status:** **OPEN — owner-observed, not yet independently diagnosed, fixed or verified**. No CI, client test or owner acceptance is claimed.
+**Status:** **OPEN — fix implemented and tested in M13 (`80ecf37`); awaiting owner retest**. The lever is part of the drum's selection shape and picked from any side (client pick mixin). Server test `winchLeverIsHitFromObliqueAngles`. No owner acceptance is claimed.
 
 ### BUG-009
 
@@ -125,7 +125,7 @@ The entries below are **16 separate owner findings** across M07/M08/M10/M11 and 
 
 **Expected / reproduction and acceptance:** Make the bundle visibly wound, hanging rope thicker, and anchor chunkier. Preserve climb/collision/retrieval mechanics and verify near/far readability in client. No resource or new tool required.
 
-**Status:** **REQUESTED — owner-directed refinement, not yet implemented or verified**. No CI, client test or owner acceptance is claimed.
+**Status:** **REQUESTED — implemented and tested in M13 (`15d55a7`); awaiting owner review**. 3-pixel rope, copper plate anchors with a shackle and knot, a coil of three offset turns; only the rope's own unpainted art regenerated. Client screenshots `m13-rope-near/far`. No owner acceptance is claimed.
 
 ### BUG-010
 
@@ -135,7 +135,7 @@ The entries below are **16 separate owner findings** across M07/M08/M10/M11 and 
 
 **Expected / reproduction and acceptance:** Reposition/layout the weight bar so it stays readable with either 27- or 36-slot inventory configurations, including overload state, locked slots, scaling and UI overlays.
 
-**Status:** **OPEN — owner-observed, not yet independently diagnosed, fixed or verified**. No CI, client test or owner acceptance is claimed.
+**Status:** **OPEN — fix implemented and tested in M13 (`95e955a`); awaiting owner retest**. Where the strip under the panel would leave the screen (double chest, GUI height 240) the bar takes the inventory label's row. Client check of inventory, chest and double chest with and without Overalls; negative control caught. No owner acceptance is claimed.
 
 ### BUG-011
 
@@ -145,7 +145,7 @@ The entries below are **16 separate owner findings** across M07/M08/M10/M11 and 
 
 **Expected / reproduction and acceptance:** During active molten casting, make mold and heat grates visibly emit light; coordinate emission with real cast state, interruptions and completion, without leaving stray light on stop/unload or creating false fuel/progress signals.
 
-**Status:** **REQUESTED — owner-directed refinement, not yet implemented or verified**. No CI, client test or owner acceptance is claimed.
+**Status:** **REQUESTED — implemented and tested in M13 (`960926a`); awaiting owner review**. Mold light 11 and channel light 9 only while pouring (none through the hold or a fuel-out); grilles, tap and running metal render full-bright. Server and midnight client checks. No owner acceptance is claimed.
 
 ### BUG-012
 
@@ -155,7 +155,7 @@ The entries below are **16 separate owner findings** across M07/M08/M10/M11 and 
 
 **Expected / reproduction and acceptance:** Add restrained local cinder effects tied to actual molten pour/fill (not constant idle particles); avoid excessive particle volume and preserve current casting timing and item state.
 
-**Status:** **REQUESTED — owner-directed refinement, not yet implemented or verified**. No CI, client test or owner acceptance is claimed.
+**Status:** **REQUESTED — implemented and tested in M13 (`960926a`); awaiting owner review**. Lava cinders rise from the mold's molten surface only while pouring (client counted 15 in 10 s; none stopped). No owner acceptance is claimed.
 
 ### BUG-013
 
@@ -165,7 +165,7 @@ The entries below are **16 separate owner findings** across M07/M08/M10/M11 and 
 
 **Expected / reproduction and acceptance:** Provide a compact coal-input interface by targeting the engine box, separate from reliable lever interaction; preserve actual fuel inventory/capacity, coal-only behavior, control mirroring at the receiving drum and server synchronization.
 
-**Status:** **REQUESTED — owner-directed refinement, not yet implemented or verified**. No CI, client test or owner acceptance is claimed.
+**Status:** **REQUESTED — implemented and tested in M13 (`4c0cf56`); awaiting owner review**. Empty hand on the engine box opens a furnace-style coal screen (one coal slot, burn flame). Server and real-client checks. No owner acceptance is claimed.
 
 ### BUG-014
 
@@ -175,7 +175,7 @@ The entries below are **16 separate owner findings** across M07/M08/M10/M11 and 
 
 **Expected / reproduction and acceptance:** Show exactly one grayed-out, noninteractive cargo slot representing the current item and count; show NO player inventory. Inspection is read-only, cannot move items, and must coexist with loading/unloading/coupling/cushions and current visual fill. This *later* owner request supersedes only M11's no-replacement-GUI clause, not the ban on hover labels or narration.
 
-**Status:** **REQUESTED — owner-directed refinement, not yet implemented or verified**. No CI, client test or owner acceptance is claimed.
+**Status:** **REQUESTED — implemented and tested in M13 (`2d99113`, `e8b052a`); awaiting owner review**. Empty main hand opens a read-only "Freight Cart" window (no slots); Shift + use still unloads; a held use after a stack runs out keeps loading, no window. Server (with negative control) and client checks. No owner acceptance is claimed.
 
 ### BUG-015
 
@@ -185,7 +185,7 @@ The entries below are **16 separate owner findings** across M07/M08/M10/M11 and 
 
 **Expected / reproduction and acceptance:** Inspect coplanar model faces/animated layers, UV/depth offsets and render states from multiple angles and during idle/active pour. Fix z-fighting without regenerating/overwriting the owner's hand-painted PNGs, repacking UVs, or reducing the furnace detail.
 
-**Status:** **OPEN — owner-observed, not yet independently diagnosed, fixed or verified**. No CI, client test or owner acceptance is claimed.
+**Status:** **OPEN — fix implemented and tested in M13 (`d290c2d`); awaiting owner retest**. A face scan found flush faces with different texels (posts/cornice, door frames, tap, mold clamps); separated by 0.05 px, UVs and painted PNG untouched; the scan now finds none. Grazing-angle screenshots; flicker is not visible in still frames, so owner retest decides. No owner acceptance is claimed.
 
 ### BUG-016
 
@@ -195,7 +195,7 @@ The entries below are **16 separate owner findings** across M07/M08/M10/M11 and 
 
 **Expected / reproduction and acceptance:** Explore a silhouette-following outline on the actual model; if disproportionately difficult, ask owner about removing this highlight rather than keeping a misleading blob. Preserve the agreed Trail Blazer mechanics until the owner chooses an alternative.
 
-**Status:** **REQUESTED — owner-directed refinement, not yet implemented or verified**. No CI, client test or owner acceptance is claimed.
+**Status:** **REQUESTED — implemented and tested in M13 (`2bcd197`); awaiting owner review**. Owner direction (2026-10-20): translucent lines along the model's own edges (torch stick, rope/anchor/coil; ladder traced as rails and rungs). Benchmark, 113 ghosts, software rendering: 43.3 fps vs old boxes 43.0 (a filled outline-pass silhouette, `4a67b67`, measured 32.1 and was replaced). No owner acceptance is claimed.
 
 ### BUG-017
 
@@ -205,7 +205,7 @@ The entries below are **16 separate owner findings** across M07/M08/M10/M11 and 
 
 **Expected / reproduction and acceptance:** First verify the full Headlamp + Overalls + Mining Boots 'Old Pro' bonus is active (the off-hand mining feature is not unconditional). Document/test exact break input while the main hand holds a sword/axe, then reproduce in client; if equipped and invoked correctly but failing, fix without breaking vanilla mainhand actions or duplicating drops.
 
-**Status:** **OPEN — owner-observed, not yet independently diagnosed, fixed or verified**. No CI, client test or owner acceptance is claimed.
+**Status:** **OPEN — not reproduced in M13 (`292fcb5`): works with the full outfit; awaiting owner retest**. Real client: holding attack on stone with an iron sword in hand and iron pickaxe in the offhand breaks it with the pickaxe (it wears, the sword does not) only with Headlamp + Overalls + Mining Boots (Old Pro); without the outfit the sword mines. Control: ordinary attack button. No owner acceptance is claimed.
 
 ### BUG-018
 
@@ -215,7 +215,7 @@ The entries below are **16 separate owner findings** across M07/M08/M10/M11 and 
 
 **Expected / reproduction and acceptance:** Make attachment of a held, routed cable end to an otherwise empty receiving winch behave consistently whether grounded or hanging. The receiver must NOT require its own cable coil. Resolve handling of a preloaded receiver coil without duplication/loss or involuntary incorrect ejection; preserve one source coil's ownership and safe detach/refund rules.
 
-**Status:** **OPEN — owner-observed, not yet independently diagnosed, fixed or verified**. No CI, client test or owner acceptance is claimed.
+**Status:** **OPEN — fix implemented and tested in M13 (`a7b297a`); awaiting owner retest**. A held cable end is made fast to a drum clicked anywhere (ground or hanging). Server test `secondDrumTakesTheEndAnyWay`. No owner acceptance is claimed.
 
 ### BUG-019
 
@@ -225,7 +225,7 @@ The entries below are **16 separate owner findings** across M07/M08/M10/M11 and 
 
 **Expected / reproduction and acceptance:** Allow a receiving drum to accept a valid cable end regardless of drum facing; keep cable geometry, route obstruction, per-end PULL/FEED controls and visual winding direction coherent. Do not assume facing can override an actually obstructed path.
 
-**Status:** **OPEN — owner-observed, not yet independently diagnosed, fixed or verified**. No CI, client test or owner acceptance is claimed.
+**Status:** **OPEN — fix implemented and tested in M13 (`a7b297a`); awaiting owner retest**. The receiving drum accepts the end whichever way it faces. Server test `secondDrumTakesTheEndAnyWay`. No owner acceptance is claimed.
 
 ### BUG-020
 
@@ -235,7 +235,7 @@ The entries below are **16 separate owner findings** across M07/M08/M10/M11 and 
 
 **Expected / reproduction and acceptance:** Implement intentional selected-anchor disconnect/retraction rather than only full-route disconnect. Specify which segments are retracted versus retained from the user's stated 'up to that one' behavior, respect skip/grip safety and no duplication, and visually leave a free hanging end at the selected anchor.
 
-**Status:** **REQUESTED — owner-directed refinement, not yet implemented or verified**. No CI, client test or owner acceptance is claimed.
+**Status:** **REQUESTED — implemented and tested in M13 (`13bb744`); awaiting owner review**. Using the held end on an earlier anchor of its route winds the route back to it. Server test `heldEndWindsBackToAnEarlierAnchor`. No owner acceptance is claimed.
 
 ### BUG-021
 
@@ -245,7 +245,7 @@ The entries below are **16 separate owner findings** across M07/M08/M10/M11 and 
 
 **Expected / reproduction and acceptance:** Investigate obstruction cases and a bounded downward roller/hanger offset while the mounting block stays fixed. Establish a conservative maximum drop and tests for clearance, diagonal spans, rod reach, anchor rendering and support validity; do not auto-route through solid blocks or silently extend cable beyond physical constraints.
 
-**Status:** **REQUESTED — owner-directed refinement, not yet implemented or verified**. No CI, client test or owner acceptance is claimed.
+**Status:** **REQUESTED — implemented and tested in M13 (`635efff`); awaiting owner review**. On an inclined span the receiving anchor's roller hangs up to 4 steps (2 px) lower until the span clears. Server test `inclineAnchorDropsJustEnough`. No owner acceptance is claimed.
 
 ### BUG-022
 
@@ -255,6 +255,6 @@ The entries below are **16 separate owner findings** across M07/M08/M10/M11 and 
 
 **Expected / reproduction and acceptance:** Inspect the Ore Skip's assembled model and each relevant component/animated state (bin, chute, gates, lid, bridle) in the real client from multiple camera angles and during operation to **identify which overlapping/coplanar faces actually flicker**. Check geometry overlap, face visibility, depth separation and render layering before selecting the smallest geometry/render fix. Eliminate visible flicker without changing freight behavior, removing intended detail, shifting owner-approved UVs, or overwriting the owner's hand-painted `ore_skip.png` texture or editable Blockbench sources. Capture before/after client evidence and obtain owner visual retest. This defect is within [M13's M07 visual regression work](MILESTONE_13.md); it does not claim implementation authorization.
 
-**Status:** **OPEN — owner-reported, not yet independently reproduced, diagnosed, fixed or verified**. No CI, client test or owner acceptance is claimed.
+**Status:** **OPEN — fix implemented and tested in M13 (`d290c2d`); awaiting owner retest**. Scan of the skip as the renderer stacks it: corner posts flush with rims, chute back bar through its posts; separated by 0.05 px, painted `ore_skip.png` untouched; scan clean. No owner acceptance is claimed.
 
 Keep a defect open until its specific owner-observed symptom has been checked in game. Historical analysis can describe hypotheses that were later disproved; don't mistake them for the final cause.
