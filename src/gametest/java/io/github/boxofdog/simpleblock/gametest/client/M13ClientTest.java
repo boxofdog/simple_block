@@ -58,6 +58,7 @@ public class M13ClientTest implements FabricClientGameTest {
 			ropeScene(context, server, chest);
 			furnaceScene(context, server, "m13");
 			trailBlazerBenchmark(context, server, "m13");
+			cargoScreen(context, server, chest);
 		}
 		try (TestDedicatedServerContext server = context.worldBuilder().createServer();
 			TestDedicatedServerConnection connection = server.connect()) {
@@ -339,6 +340,42 @@ public class M13ClientTest implements FabricClientGameTest {
 		server.runCommand("kill @e[type=simple_block:ore_skip]");
 		casting(context, server, front, shots);
 		server.runCommand("tp @a " + (X + 0.5) + " " + g + " " + (Z + 0.5) + " 180 30");
+	}
+
+	/**
+	 * BUG-014: an empty-hand use on a freight cart (a minecart holding 100 raw iron) opens the read-only cargo
+	 * window showing the cart's real contents, with no slot to take from or put in.
+	 */
+	private static void cargoScreen(ClientGameTestContext context, TestServerContext server, BlockPos chest) {
+		Vec3 at = new Vec3(chest.getX() - 2.5, chest.getY(), chest.getZ() + 2.5);
+		server.runCommand("clear @a");
+		server.runCommand("tp @a " + at.x + " " + at.y + " " + (at.z + 2.5) + " 180 20");
+		server.runOnServer(s -> {
+			var cart = net.minecraft.world.entity.EntityTypes.MINECART.create(s.overworld(), net.minecraft.world.entity.EntitySpawnReason.EVENT);
+			cart.snapTo(at.x, at.y, at.z, 0.0F, 0.0F);
+			s.overworld().addFreshEntity(cart);
+			((io.github.boxofdog.simpleblock.feature.MinecartCargo.Cart) cart).simpleBlock$setCargo(net.minecraft.world.item.Items.RAW_IRON, 100);
+		});
+		context.waitTicks(10);
+		lookAtPoint(context, at.add(0.0, 0.4, 0.0));
+		context.getInput().pressKey(options -> options.keyUse);
+		context.waitForScreen(io.github.boxofdog.simpleblock.client.train.CargoInspectScreen.class);
+		context.waitTicks(5);
+		context.takeScreenshot("m13-cargo-inspect");
+		String shown = context.computeOnClient(client -> client.gui.screen().getTitle().getString());
+		int[] data = context.computeOnClient(client -> {
+			var menu = ((io.github.boxofdog.simpleblock.client.train.CargoInspectScreen) client.gui.screen()).getMenu();
+			return new int[] {menu.slots.size(), menu.count()};
+		});
+		context.getInput().pressKey(options -> options.keyInventory);
+		context.waitTicks(3);
+		int cargo = server.computeOnServer(s -> ((io.github.boxofdog.simpleblock.feature.MinecartCargo.Cart) s.overworld().getEntitiesOfClass(
+			net.minecraft.world.entity.vehicle.minecart.Minecart.class, new net.minecraft.world.phys.AABB(BlockPos.containing(at)).inflate(2)).getFirst())
+			.simpleBlock$count());
+		server.runCommand("kill @e[type=minecraft:minecart]");
+		SimpleBlockTestLog.info("CLIENT M13 BUG-014 CARGO WINDOW: empty-hand use opened \"{}\" with {} slots, showing {} (server: {} raw iron)", shown,
+			data[0], data[1], cargo);
+		assertTrue(data[0] == 0 && data[1] == 100 && cargo == 100, "read-only, showing the cart's 100: slots " + data[0] + ", shown " + data[1]);
 	}
 
 	/**

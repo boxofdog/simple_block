@@ -287,6 +287,18 @@ public class SkipClientTest implements FabricClientGameTest {
 			use(context);
 		}
 		server.runCommand("clear @a");
+		// M13 BUG-013: with an empty hand the engine box opens its coal screen, showing the 3 coal.
+		context.waitTicks(3);
+		context.getInput().pressKey(options -> options.keyUse);
+		context.waitForScreen(io.github.boxofdog.simpleblock.client.cable.CoalWinchScreen.class);
+		context.waitTicks(3);
+		int shownCoal = context.computeOnClient(client -> ((io.github.boxofdog.simpleblock.client.cable.CoalWinchScreen) client.gui.screen())
+			.getMenu().getSlot(0).getItem().getCount());
+		context.takeScreenshot("m13-coal-winch-screen");
+		context.getInput().pressKey(options -> options.keyInventory);
+		context.waitTicks(3);
+		SimpleBlockTestLog.info("CLIENT M13 BUG-013 COAL WINCH SCREEN: an empty-hand use on the engine box opened it, showing {} coal", shownCoal);
+		assertTrue(shownCoal == 3, "the coal screen shows the winch's 3 coal: " + shownCoal);
 		lever(context, server, g, CableLines.Lever.FEED);
 		context.waitTicks(80);
 		double midway = hookEye(server, g);
