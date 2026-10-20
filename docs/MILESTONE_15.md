@@ -1,60 +1,109 @@
 ---
 milestone: M15
-status: PLANNED - NOT READY
+status: PLANNED - READY
 ---
 
-# M15 — Cobblestone Engine three-position freight selector
+# M15 — Cobblestone Engine selector and multi-wagon freight stations
 
-**Owner-directed design, 2026-10-19. Planning only; this document does not authorize implementation.** Give the Cobblestone Engine an **actual, rear-mounted, three-position mechanical lever** that a player operates with **Space while riding in a coupled cushioned passenger cart**. It decides whether the engine's train passes Loading Rails or performs a valid loading/unloading transaction. This is an improvement to the *existing* M05–M07/M11 freight and station system, not a new locomotive, cargo cart, inventory GUI, or automation tech tree.
+**Owner-approved design revision, 2026-10-20. PLANNED - READY is NOT implementation authorization.** After a separate explicit owner START, implement a physical three-position control on the existing Cobblestone Engine, two-block-spaced Loading Rail stations that can service several coupled freight wagons together, and optional vanilla hopper-side lever/button controls. This revises M05–M07/M11 freight behavior; it does not introduce a new locomotive, a new item-routing system, or a cargo GUI.
 
-## 1. Physical engine model — non-negotiable
+## 1. The engine's physical three-position selector
 
-- **Location:** Remodel the **BACK of the existing Cobblestone Engine** to include a substantial, visually identifiable **three-position mechanical selector/lever**. It belongs on the engine's actual 3D model, in the existing recognizable minecart-sized engine body; do not put it on the front, on a floating sign, or only in the rider's UI.
-- **Three real detents:** THROUGH, LOAD and UNLOAD correspond to **three visually different lever positions/angles**. The control **physically moves between positions** on a client-visible state change; its geometry and placement make the selected position readable without words. It is **not a flat texture change**, recolored pixel, static decal, floating text, nameplate, action-bar message, or substitute HUD icon. A small non-textual detail may complement the lever, but must not replace it.
-- **Editability/art ownership:** Preserve and update the editable source at [`art/blockbench/cobblestone_engine.bbmodel`](../art/blockbench/cobblestone_engine.bbmodel), and the existing engine's renderer/UV mapping as necessary. Claude supplies functional model geometry, mechanical movement, animation/state sync and appropriate editable sources after authorization; Joe retains ownership of final painting/visual approval in [Joe's queue](Joe's%20To-Do/BLOCKBENCH_PAINTING.md). **Never overwrite hand-painted engine art or flatten the new geometry into a texture trick.** No new model or artwork is claimed to exist yet.
-- **Feedback:** A restrained mechanical click on each successful change, plus the changed **physical lever position**, should communicate state. **No floating or written status feedback**. The lever must render consistently in singleplayer, multiplayer, first/third person where visible, and after chunk reload.
+Mount a **real three-detent mechanical lever on the BACK** of the existing Cobblestone Engine. Each position must be visibly different and actually move in its 3D model:
 
-## 2. Seated controls and selector state
-
-- **Space cycles exactly once per distinct key press:** THROUGH → LOAD → UNLOAD → THROUGH (order is the proposed intuitive cycle; confirm during owner playtest). Holding Space must **not auto-repeat**. Normal Shift dismount, forward travel and braking controls continue functioning; do not create unintended jumps or dismounts. Verify actual Minecraft 26.3 passenger-cart key behavior in a real client before choosing input hooks.
-- **Where it works:** A rider seated in **any cushioned passenger minecart coupled into the same train as a Cobblestone Engine** operates that engine's rear-mounted selector remotely. The player does not leave the cart, click the engine, or open a menu. Space outside an eligible seated coupled consist is unchanged.
-- **State belongs to the engine, not the passenger cart**; it is server-authoritative, persisted over save/reload and synchronized to every observing client/model. Disconnecting the passenger car must not silently copy the setting to another vehicle. The selected mode is an engine setting, not a new item.
-- **Default selection, multi-engine consists, competing riders/inputs, and whether Space should cycle while the train is held at a station** need explicit conflict-safe design/owner review. Do not let two passengers race into unintended repeated changes or redirect a different train.
-
-## 3. Three functional modes: permission, not forced stopping
-
-A Loading Rail docks an engine-hauled freight train **only when the selected mode matches a genuinely possible physical transfer for the freight cart arriving there**. The source/receiver must meet all established M07/M11 geometry, commodity, capacity, obstruction, docking and ticking requirements. A hopper's *existence alone* is not a transaction.
-
-| Selected mode | Eligible source/receiver at the arriving freight wagon | Behavior |
+| Lever position | Name | Meaning |
 |---|---|---|
-| **THROUGH** | Anything | Train passes the Loading Rail without docking, opening a freight gate or transferring cargo. |
-| **LOAD** | A valid, currently available **source** (e.g. a supplying hopper above or a correctly aligned ore skip) that can put actual accepted cargo into this cart | Dock and load incrementally. If only unloading is possible, or no actual compatible source/item/room exists, pass through. |
-| **UNLOAD** | A valid **receiver** (e.g. appropriately positioned receiving hopper or ore skip) that can accept actual cargo from this cart | Dock and unload incrementally. If only loading is possible, or no actual acceptable destination/cargo exists, pass through. |
+| **LEFT** | **THROUGH** | Freight service bypass: pass Loading Rails without docking or transferring. Releases an existing station service hold; the player still operates the train normally. |
+| **CENTER** | **NEUTRAL** | No freight loading or unloading. A train already docked remains held; this does not release the station stop. |
+| **RIGHT** | **SERVICE** | Seek a station, dock/snap when appropriate, and let each rail-aligned wagon determine loading or unloading from its actual hopper connections. |
 
-- The mode is a **filter for direction and eligibility**. It does not mean stop at every Loading Rail or perform the wrong-direction transaction. In particular, **LOAD at an unload-only station is THROUGH behavior**, and **UNLOAD at an intake-only station is THROUGH behavior**.
-- A rail with no available cargo, mismatched item, full freight cart in LOAD, empty freight cart in UNLOAD, full/blocked receiver, obstructed gate, wrong geometry, or incompatible source/destination is **passed without docking** when first encountered. Preserve the M11 constraints: one commodity per 256-item freight cart, gradual transfers, physical gates, exact item conservation and actual hopper cooldown/locking semantics. Do not infer a transfer from cargo-type labels or add invented item teleportation.
-- **Once a valid transfer has begun and a train is docked**, later exhaustion, backpressure, a briefly full hopper or loss of throughput must **not silently send the train away or switch it into a different direction**. Hold safely and resume when the original exchange is again valid, or allow an explicit, safe operator release/cancel. Neither materials nor coal may duplicate or vanish. Distinguish an initially ineligible station (pass) from an already-engaged station (hold).
-- A docked cart must not begin loading and unloading simultaneously. Preserve end/side gate alignment, the M11 above-hopper intake versus side/end-hopper discharge distinction, and established skip/cart directional geometry.
-- A passenger-only consist with no eligible freight cart passes Loading Rails in all modes. A freight cart coupled to the engine may be *ahead or behind* the engine: evaluate the actual arriving wagon and the complete consist, not only the locomotive's position.
+The selector controls freight service, **not throttle or propulsion**. It must not make stationary carts drive away on its own.
 
-## 4. Coupled trains, rail yards and existing machinery
+- **Space** cycles THROUGH → NEUTRAL → SERVICE → THROUGH, **once per distinct key press**, without repeating while held.
+- **Left-click** on the actual engine lever steps one detent **left**, toward THROUGH; **right-click** steps one detent **right**, toward SERVICE. End positions stay at their ends. Both require ordinary physical interaction range.
+- Seated **Space control** is allowed only while riding a **cushioned passenger cart** that is **directly coupled to the engine**, **or is the sole passenger cart in that engine's coupled train** (freight wagons between it and the engine do not disqualify the sole passenger cart). A nonadjacent passenger cart in a train with multiple passenger carts does **not** get Space control.
+- Physical left/right-clicks never acquire remote range merely because the rider is seated. Ordinary interaction with the engine remains possible within reach.
+- The selected state belongs to the **engine**, not the seat/cart; synchronize server-authoritatively to clients and persist over save/reload. No accidental selector copying when consists split. Competing player inputs are serialized on the server. For multiple engines, remote Space control must fail safely unless the intended engine is unambiguous; a direct physical click affects only the clicked engine.
+- Keep Shift dismount, normal cart controls, coal/engine movement, and other Space uses unaffected outside an eligible seat. Test Minecraft 26.3 input handling in an actual client before settling hooks.
+- Use a restrained mechanical click and the moving 3D lever for feedback, **not floating text/HUD labels**. Preserve and update the editable engine Blockbench source at [art/blockbench/cobblestone_engine.bbmodel](../art/blockbench/cobblestone_engine.bbmodel); the owner retains painting/visual approval. Do not overwrite hand-painted assets. A conservative **THROUGH default** for a newly created engine is an implementation safety default to verify at playtest, not an additional operating mode.
 
-- **One setting governs the whole Cobblestone Engine consist**, but each freight wagon has its own cargo and must be assessed against the Loading Rail and receiver/source where *that wagon* is located. Do not transfer a distant wagon's inventory through another cart or require uncoupling merely to use its long-side gate.
-- Respect M06's train-wide hold, gates and hinged rail stops when an exchange actually docks. The existing implementation switches off an engine at any dock; **in-seat operation must not strand the rider with no way to resume service**. Design a safe rider-operated hold/release/resume behavior compatible with the selector and physical stop before declaring M15 implementation complete. Do not let a parked train roll away unexpectedly.
-- **Unresolved, explicitly NOT claimed solved by the selector:** automatic progression of multiple coupled wagons through a *single* Loading Rail; simultaneous servicing of several wagons at several Loading Rails; choice/prioritization of multiple competing hoppers; precise release/restart controls after a partial or finished exchange. The M07 sequential-wagon GAP-01 and M13 safety/stop requirements remain relevant. Propose a minimal coherent rule with the owner before implementation, test coupled consists and preserve conservation. **Do not silently add autonomous whole-train shunting or arbitrary cargo routing.**
-- **Keep winches and cable-hauled carts working as before.** A cart hauled by a connecting rod/cable without Cobblestone Engine remains governed by the Loading Rail's existing physical docking and winch-stop behavior; a free/single ordinary freight cart is not granted an engine selector. Vertical skips retain their existing winch controls and station geometry. A train involving both a cable grip and an engine must have an explicitly defined control priority; do not rewrite winching accidentally.
-- Through-running is an **engine-controlled exception** to existing automatic Loading Rail docking, **not a global toggle that causes established winch terminal stops to fail**. No new trackside lever, station GUI, signal circuitry, special hopper, extra intermediate machine, junction/turnout system or lift hill is included in M15.
+## 2. Straight station geometry, lookahead, and snapping
 
-## 5. Implementation acceptance after separate owner authorization
+- A multi-wagon station is a **straight run of Loading Rails spaced exactly two track blocks apart**, with ordinary rail between consecutive Loading Rails. From a Loading Rail, look **two blocks forward along the track in the train's direction of travel**: if another Loading Rail continues the run, keep rolling. **The forward-most/terminal Loading Rail is the docking reference**; do not stop at the rear of the station.
+- On ordinary SERVICE-mode approach, dock only for a viable train/station freight opportunity; assess the **actual freight wagons and their positions across the consist**, not merely whether the lead engine, passenger cart, or first wagon contains cargo. The terminal reference determines alignment, not an arbitrary permission to unload the leading wagon.
+- **Manual docking exception:** A player may position the train over the station and select SERVICE even if **every station hopper is capped**. That docks/snaps the consist for manual button/lever operation. Do not require a currently open or stocked hopper just to align it manually.
+- Coupled carts normally have approximately **1.6-block center spacing** on the railway. **Only while docked**, temporarily align them at **2-block centers** to match the station's Loading Rails; restore the normal coupling spacing on release. Keep the couplings connected, within their actual permitted stretch, and prevent collision, rail departure, teleporting through obstacles, or invalid snaps. Test both engine-at-front and engine-at-rear approaches.
+- Each rail-aligned freight cart may use **its own** physically aligned source/receiver and transfer **simultaneously** with other wagons. Engine/passenger carts occupying a berth do no freight transfer. If the consist has **more wagons than rail berths**, the remaining caboose/extra wagons are still shoved into the temporary snapped formation but **perform no transfer without a Loading Rail underneath**. More rails than wagons simply leave unused berths.
+- If a station cannot be safely aligned (curve, insufficient track, obstruction, chunk edge), do not fabricate a remote transfer or forcibly move carts through blocks. No autonomous train shunting, automatic multi-stop indexing, or world-scale track search. Two-block lookahead and station scans must remain bounded and loaded-chunk aware.
 
-1. Real-client inspection of the **BACK** of the engine shows a **genuine modeled three-detent lever**, visibly moving for each state, including viewing from behind and appropriate rider perspectives. Texture-only, floating text, hovering icons and static lever substitutes fail acceptance. Edited `.bbmodel` remains valid; Joe's existing painted files are preserved.
-2. From a cushioned cart anywhere in the same coupled consist, three discrete Space presses visit the three positions in order; holding Space produces only one change. Remote clients see the same physical lever, including after save/reload. Shift still dismounts and existing driving/braking inputs still work; ineligible passengers/other carts don't control it.
-3. THROUGH passes otherwise-valid intake and discharge rails with zero docking, cargo transfer, stop raising or engine shutdown. Freight carts without a coupled Cobblestone Engine retain their established Loading Rail behavior.
-4. LOAD docks and accepts real hopper→cart or valid skip→cart cargo. It passes an unload-only station, empty/incompatible source and full cart **without stopping**. UNLOAD docks and discharges to a valid physical hopper or skip, but passes load-only stations, empty carts and unusable receivers.
-5. A once-valid transaction that stalls does **not** auto-bypass or reroute to another hopper. Verify gating, partial transfers, reactivation, manual cancellation/release, resource conservation and no new unattended fuel drain or stuck stop.
-6. Mixed passenger/freight trains, engine at either end, multiple freight carts, adjacent/competing hoppers and sequential Loading Rails receive dedicated server and actual-client tests. Cover interactions with M07 GAP-01 and M13 stop/release changes; never claim autonomous multi-wagon servicing without a settled design and passing tests.
-7. Winched single carts, winched coupled carts, and vertical ore skips retain their existing safety, transfer, start/stop and dock behavior. Test simultaneous/ambiguous engine-plus-cable control and unloaded chunk boundaries without forced loading.
+## 3. Automatic freight decision — PER WAGON
 
-**Open owner decisions before READY:** mode default on a newly converted engine; operator arbitration if several riders/engines share a train; rider release/resume/cancel input and whether the mode changes while docked; sequential wagon advancement versus manual indexing; competing hopper outlet selection; shared cable/engine driving priority. These are **real implementation/UX decisions**, not permission to invent a new fully autonomous station system.
+In SERVICE, each **properly rail-aligned freight cart** independently decides what is physically possible, in this order. A transfer requires a real, currently permitted source/destination, acceptable item type, room, correct geometry and gates; proximity alone is insufficient.
 
-**Lifecycle:** M15 is **PLANNED - NOT READY**. Nothing has been coded, modeled, painted, tested or accepted for M15. Implementation requires separate explicit owner authorization and later evidence under [RULES.md](RULES.md).
+1. **TRY LOAD FIRST:** A hopper **above** the freight cart, with **1–3 unobstructed blocks of vertical clearance** between its outlet and the cart, can supply items directly to the wagon: no intervening chest required. This is deliberately beyond normal vanilla cart/hopper reach. Accept only a commodity compatible with the cart's existing type and capacity; a **partly filled** wagon may be topped up with more of the same commodity. A full wagon, empty hopper, incompatible cargo, obstruction, or **capped** connection is not a valid load.
+2. **OTHERWISE TRY UNLOAD:** If no eligible loading exists, look for a **valid adjacent receiving hopper** at the rail/wagon's unloading interface. If it is **open** and can accept the wagon's cargo, unload. An empty wagon, full/blocked receiver, wrong-facing or capped hopper, or incompatible inventory is not eligible.
+3. **NEITHER POSSIBLE:** This particular wagon does nothing; leave its cargo untouched. On ordinary approach, a station with no eligible wagons is passed rather than treated as an automatic transaction. Manual docking remains possible under §2.
+
+A station may **load some wagons, unload others, and leave others untouched at the same time**. Hopper positions and their individual controls decide; the engine's SERVICE position does **not** force all wagons to perform the same direction.
+
+**Latch the direction of each wagon's transaction.** Once loading starts, it must not flip to unloading during that same station visit merely because the supplying hopper empties. Once unloading starts, it must not flip to loading. Reevaluate and choose anew only upon a **newly requested** SERVICE operation after completion or cancellation; never automatically cycle cargo through the same station. Preserve M11's one-commodity/256-item limit, gradual hopper throughput, physical gates, exact conservation and Ore Skip/cart transfers with their established directional/position requirements.
+
+## 4. Ordinary hopper levers, buttons, and physical caps
+
+Use **ordinary Minecraft levers or buttons on a block ADJACENT TO the relevant hopper**. They are **not** modeled as attachments to the hopper and do not require multiple new Hopper Blockbench states, a special block or a trackside GUI. Resolve which nearby control governs **which individual hopper's freight-facing opening** deterministically; never let one lever accidentally control a whole station.
+
+| Hopper's local control | Freight-facing opening | Cart transaction behavior |
+|---|---|---|
+| **No lever/button** | Open | Participates automatically in §3. |
+| **Lever ON** | Open | Stays eligible for automatic freight transfers. |
+| **Lever OFF** | **Capped** | Never participates in an automatic cart transaction. |
+| **Button nearby** | **Normally capped** | A press temporarily opens this specific connection and requests **one complete eligible transaction** for its aligned wagon, then the cap closes again. |
+
+A button means **one full loading or unloading operation, not one item**. A button press with no aligned SERVICE-mode cart or no valid transfer does not extract/insert anything. Button control allows deliberate per-wagon freight handling; a lever is the persistent alternative.
+
+- Model a **simple visible lid/cap covering only the hopper opening that interfaces with the Loading Rail**. Above-cart supplying hoppers close their downward freight outlet; adjacent receiving hoppers close their cart-facing intake. Where appropriate, a free-hanging freight outlet is capped, **not** a legitimate chest connection. Avoid generating dozens of 3D model variants.
+- **Closing the freight opening does NOT lock the whole hopper.** Example: chest → hopper above rail still fills the hopper while its freight outlet is capped; items already in a side hopper can still flow into its attached chest while its cart-facing entrance is capped.
+- For hoppers **actually associated with a Loading Rail freight interface**, bypass vanilla redstone **hopper-locking** effects on that hopper: the nearby lever/button governs the **freight lid and eligibility**, not an unintended global inventory freeze. Retain vanilla item movement at the hopper's other inputs/outputs and all ordinary hopper behavior **outside** a Loading Rail installation. Do not globally disable redstone locking or introduce remote item teleportation.
+- For ambiguous/multiple neighboring controls, use a documented, fail-closed deterministic binding rule; never silently enable transfer through an explicitly closed lid.
+- Changing a hopper's own lever to OFF during service must shut **that opening** without moving any additional items; it must not cancel transfers at other wagons. Button openings close on completion or cancellation.
+
+## 5. Docking, completion, grace periods and release
+
+**A transaction moves items incrementally, not in one burst.** Keep the physical loading/unloading gates and existing hopper/skip transfer pacing.
+
+A wagon's **LOAD** transaction completes when:
+- It reaches full 256-item capacity; **or**
+- Its supplying hopper runs dry and **stays dry for a short grace period** (a few ticks, long enough to respect actual hopper transfer cadence).
+
+A wagon's **UNLOAD** transaction completes when:
+- Its cargo becomes empty; **or**
+- Its receiving hopper remains **full/unable to accept cargo for the same grace period**, indicating the connected storage is backed up.
+
+For either direction, **resumed legitimate material flow resets the grace countdown**. A short interruption is not completion; an expired grace period permits the wagon to finish **with remaining capacity or cargo**. No leftovers vanish or move into an impossible inventory. Tune and test the exact short delay against real hopper transfer cadence and network latency.
+
+- **All-wagon coordination:** The engine returns automatically from SERVICE to **NEUTRAL only when at least one transaction has actually begun and all currently participating wagon transactions have completed**. One wagon finishing cannot interrupt another's active exchange.
+- **Waiting for a manual command:** If the player manually docks in SERVICE with every hopper capped, **stay docked and armed in SERVICE**, even with zero active transactions, so nearby button presses or lever openings can initiate work. Do not instantly return to NEUTRAL for "nothing to do." A button only triggers freight while the train is actually docked in SERVICE; it cannot bypass NEUTRAL or THROUGH.
+- **Explicit train-wide override:** Any **player-commanded switch away from SERVICE to NEUTRAL or THROUGH** immediately stops **every** active wagon transaction, including button-initiated ones. Grace periods are ignored; any button-controlled openings return to capped. Already moved items stay put, untransferred items stay where they were. Interrupted transactions must **not silently resume** without a new SERVICE request. Lever settings are not reset.
+- **NEUTRAL retains the physical station hold and prevents all further transfers** (including newly pressed buttons). **THROUGH** cancels service, releases the station hold, restores normal coupling spacing and allows player-operated forward movement/bypass. Neither state drives a stationary train automatically.
+- Release or cancellation must preserve cargo and coal, correct train stops, gates, and synchronization across clients. An engine switched to NEUTRAL while not docked does not invent a new permanent railway brake; these modes govern station service/holds, not general propulsion.
+
+## 6. Compatibility and implementation boundaries
+
+- Preserve non-engine Loading Rail and winch/cable behavior for free carts, cable-hauled carts and vertical Ore Skips. THROUGH is **only** the Cobblestone Engine's station-bypass instruction, not permission to bypass an existing cable winch's safety/terminal stop.
+- Preserve existing ore-skip interfaces, M06 hinged-stop and train-wide hold rules, M07 sequential-wagon and M13 station safety fixes where applicable. Engine-plus-cable combinations must behave safely and deterministically: do not let the engine selector defeat winch safety constraints or move a held consist unexpectedly.
+- Server decides selector permission, station ownership/alignment, hopper binding/lids, transaction eligibility, direction, transfer count, stop/release and completion; clients render synced state. Do not scan unloaded track, minecart entities or inventories without bounds or force chunk loads to find more stations.
+- No new locomotive, freight variant, special hopper item, cargo GUI, floating text, station control network, full redstone redesign, automated train dispatch or artificial item teleportation. Preserve Joe's engine textures/paint; the physical lever and simple hopper caps require functional placeholder geometry only until approved.
+
+## 7. Acceptance tests after explicit implementation authorization
+
+1. **Controls/model:** Real rear-engine three-position lever visibly changes THROUGH / NEUTRAL / SERVICE in singleplayer and dedicated multiplayer and after reload. Space cycles once per key press in the **directly coupled OR sole passenger** cushioned cart, not a distant cart when multiple passenger carts exist. Physical left/right clicks step in the correct direction only within reach. Normal movement/dismount still works.
+2. **Two-block station:** Intermediate rails pass; forward-most/terminal rail anchors docking. On SERVICE, coupled carts snap from 1.6 to 2.0 spacing, transfer on each occupied eligible Loading Rail **simultaneously**, and return to regular spacing on THROUGH. Test engine at either end, mixed passenger/freight consists, surplus caboose wagons, extra rails, obstructions and unloaded edges.
+3. **Manual docking:** With ALL hoppers capped, a player can position a train, choose SERVICE, snap/hold it without a live transaction, then initiate a valid transfer using a button or by opening a lever. It must not auto-neutral before a transaction begins.
+4. **Direction and clearance:** Load from a real overhead hopper with 1, 2 and 3 clear blocks; reject blocked/out-of-range sources. Empty and partly filled carts load compatible items, mismatches are rejected. With no eligible overhead cargo, an eligible side hopper unloads; load-first wins when both are actually viable. No wagon changes direction within the same service visit.
+5. **Controls and lid:** No-control automatic, lever ON/open, lever OFF/capped, button normally capped/one full transaction. Adjacent-block placement chooses the intended hopper only. Physical lid closes **only the freight opening**; normal chest ↔ hopper flow continues. Test ordinary redstone-locking outside stations remains vanilla and station controls do not inadvertently lock the hopper itself.
+6. **End/interrupt:** Loading completes at capacity or after dry-source grace; unloading completes at empty or after full-receiver grace. Brief restoration resets grace. Different wagons may finish separately; the last active finisher returns the engine to NEUTRAL. Player switching to NEUTRAL or THROUGH cancels **all** transfers immediately, keeps exact inventory conservation, and caps button ports; THROUGH releases the hold without automatic acceleration.
+7. **Regression:** Verify item conservation under partial loads, full hoppers, simultaneous transfers and rapid lever/Space inputs; no duplicate items/XP, no stranded engine. Test hoppers, skips, gates, single-cart and winched operations, engine/cable overlap, chunk reload/multiplayer, and M07/M11/M13 integration. Run scoped game tests, real-client tests and CI; include negative controls that fail if caps, direction latching, clearance, snap, or cancellation are broken.
+
+## Lifecycle and handoff
+
+**PLANNED - READY (owner design agreed 2026-10-20).** This document replaces M15's earlier separate LOAD versus UNLOAD modes and earlier "any seated cart controls the engine" proposal. All requirements above are ready for a bounded Claude Code implementation **only after the owner separately authorizes START**. Unspecified numerical tuning (e.g. exact few-tick grace) and safe fail-closed ambiguity handling are implementation choices, not permission to add features; escalate any unavoidable tradeoff that changes player-visible behavior. When implemented, record commits, exact tested SHA, CI, test counts, gaps and owner playtest steps in one dated appendix to this file per [RULES.md](RULES.md). Do not promote to SHIPPED without explicit owner acceptance.
