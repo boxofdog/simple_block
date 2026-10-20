@@ -32,6 +32,8 @@ public final class TrainContent {
 	public static final Block ENGINE_MODEL = technical("cobblestone_engine_model", Block::new);
 	/** M11: the models of a freight cart's load, drawn by the minecart renderer. */
 	public static final CargoFillBlock CARGO_FILL_MODEL = (CargoFillBlock) technical("cargo_fill", CargoFillBlock::new);
+	/** M15: the engine's selector lever and the freight hoppers' lids, drawn by the client. */
+	public static final FreightModelBlock FREIGHT_MODEL = (FreightModelBlock) technical("freight_model", FreightModelBlock::new);
 	public static final Block LOADING_TRACK = block("loading_track", LoadingTrackBlock::new,
 		BlockBehaviour.Properties.of().noCollision().noOcclusion().strength(0.7F).sound(SoundType.METAL));
 	public static final Item LOADING_TRACK_ITEM = item("loading_track", LOADING_TRACK);
@@ -64,5 +66,6 @@ public final class TrainContent {
 		CreativeModeTabEvents.modifyOutputEvent(CreativeModeTabs.TOOLS_AND_UTILITIES).register(output ->
 			output.insertAfter(Items.RAIL, LOADING_TRACK_ITEM));
 		Couplings.register();
+		EngineSelector.register();
 	}
 }

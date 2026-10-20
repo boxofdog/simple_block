@@ -1,0 +1,16 @@
+{
+	"variants": {
+		"part=lever_base": {
+			"model": "simple_block:block/cobblestone_engine_lever_base"
+		},
+		"part=lever_handle": {
+			"model": "simple_block:block/cobblestone_engine_lever_handle"
+		},
+		"part=cap_spout": {
+			"model": "simple_block:block/hopper_cap_spout"
+		},
+		"part=cap_top": {
+			"model": "simple_block:block/hopper_cap_top"
+		}
+	}
+}

@@ -98,6 +98,21 @@ public final class LoadingTracks {
 		@Nullable RailShape simpleBlock$lastShape();
 
 		void simpleBlock$setLastRail(@Nullable BlockPos pos, @Nullable RailShape shape);
+
+		/** M15: this wagon's transfer at an engine train's station ({@link FreightStations}). Saved. Setting it clears {@link #simpleBlock$idle}. */
+		FreightStations.Service simpleBlock$service();
+
+		void simpleBlock$setService(FreightStations.Service service);
+
+		/** M15: ticks since the wagon's transfer last moved an item. Not saved. */
+		int simpleBlock$idle();
+
+		void simpleBlock$setIdle(int ticks);
+
+		/** M15: the hopper a button opened for this wagon's transfer, or null. Synced and saved. */
+		@Nullable BlockPos simpleBlock$port();
+
+		void simpleBlock$setPort(@Nullable BlockPos hopper);
 	}
 
 	private LoadingTracks() {
@@ -154,7 +169,8 @@ public final class LoadingTracks {
 			freight.simpleBlock$setOnReleased(false);
 		}
 		Direction front = LoadingTrackBlock.front(state);
-		if (front != null) {
+		if (front != null && !FreightStations.stationTrain(cart)) {
+			// M15: an engine train docks only at a station's terminal rail, by its selector.
 			dock(level, cart, pos, front);
 		}
 	}
@@ -238,7 +254,18 @@ public final class LoadingTracks {
 			return InteractionResult.SUCCESS;
 		}
 		for (AbstractMinecart cart : docked) {
-			releaseTrain(cart, pos);
+			MinecartFurnace lead = FreightStations.leadEngine(Couplings.consist(cart));
+			if (lead != null) {
+				// M15: an engine train is let go as by its lever at THROUGH.
+				for (AbstractMinecart car : Couplings.consist(cart)) {
+					if (car instanceof MinecartFurnace engine) {
+						EngineSelector.set(engine, EngineSelector.Mode.THROUGH);
+					}
+				}
+				FreightStations.release(serverLevel, lead);
+			} else {
+				releaseTrain(cart, pos);
+			}
 		}
 		setStop(serverLevel, pos, false);
 		level.playSound(null, pos, SoundEvents.IRON_TRAPDOOR_OPEN, SoundSource.BLOCKS, 0.8F, 0.9F);

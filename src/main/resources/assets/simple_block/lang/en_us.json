@@ -142,5 +142,7 @@
 	"simple_block.effigy.place": "Place",
 	"container.simple_block.coal_winch": "Coal Winch",
 	"container.simple_block.freight_cart": "Freight Cart",
-	"simple_block.chest.sort.tooltip": "Sort this chest by item: top row first, left to right. Your inventory is left alone."
+	"simple_block.chest.sort.tooltip": "Sort this chest by item: top row first, left to right. Your inventory is left alone.",
+	"block.simple_block.freight_model": "Freight Station Part",
+	"simple_block.engine.docked_station": "Held at a station: set the lever to THROUGH to leave"
 }

@@ -1,0 +1,239 @@
+{
+	"meta": {
+		"format_version": "4.10",
+		"model_format": "java_block",
+		"box_uv": false
+	},
+	"name": "cobblestone_engine_lever_base",
+	"model_identifier": "",
+	"parent": "",
+	"ambientocclusion": true,
+	"front_gui_light": false,
+	"visible_box": [
+		1,
+		1,
+		0
+	],
+	"variable_placeholders": "",
+	"variable_placeholder_buttons": [],
+	"export_path": "../../src/main/resources/assets/simple_block/models/block/cobblestone_engine_lever_base.json",
+	"unhandled_root_fields": {},
+	"resolution": {
+		"width": 16,
+		"height": 16
+	},
+	"elements": [
+		{
+			"name": "lever_plate",
+			"box_uv": false,
+			"rescale": false,
+			"locked": false,
+			"light_emission": 0,
+			"render_order": "default",
+			"allow_mirror_modeling": true,
+			"from": [
+				16.0,
+				5.5,
+				10.5
+			],
+			"to": [
+				17.0,
+				10.5,
+				14.5
+			],
+			"autouv": 0,
+			"color": 0,
+			"origin": [
+				8,
+				8,
+				8
+			],
+			"rotation": [
+				0,
+				0,
+				0
+			],
+			"faces": {
+				"north": {
+					"uv": [
+						8,
+						4,
+						9.0,
+						9.0
+					],
+					"texture": 0
+				},
+				"east": {
+					"uv": [
+						4,
+						4,
+						8.0,
+						9.0
+					],
+					"texture": 0
+				},
+				"south": {
+					"uv": [
+						13,
+						4,
+						14.0,
+						9.0
+					],
+					"texture": 0
+				},
+				"west": {
+					"uv": [
+						9,
+						4,
+						13.0,
+						9.0
+					],
+					"texture": 0
+				},
+				"up": {
+					"uv": [
+						8,
+						0,
+						9.0,
+						4.0
+					],
+					"texture": 0
+				},
+				"down": {
+					"uv": [
+						9,
+						0,
+						10.0,
+						4.0
+					],
+					"texture": 0
+				}
+			},
+			"type": "cube",
+			"uuid": "d99d83b3-0595-5856-9150-8d1bb9508d48"
+		},
+		{
+			"name": "lever_boss",
+			"box_uv": false,
+			"rescale": false,
+			"locked": false,
+			"light_emission": 0,
+			"render_order": "default",
+			"allow_mirror_modeling": true,
+			"from": [
+				16.75,
+				7.0,
+				11.5
+			],
+			"to": [
+				17.75,
+				9.0,
+				13.5
+			],
+			"autouv": 0,
+			"color": 1,
+			"origin": [
+				8,
+				8,
+				8
+			],
+			"rotation": [
+				0,
+				0,
+				0
+			],
+			"faces": {
+				"north": {
+					"uv": [
+						10,
+						13,
+						11.0,
+						15.0
+					],
+					"texture": 0
+				},
+				"east": {
+					"uv": [
+						8,
+						13,
+						10.0,
+						15.0
+					],
+					"texture": 0
+				},
+				"south": {
+					"uv": [
+						13,
+						13,
+						14.0,
+						15.0
+					],
+					"texture": 0
+				},
+				"west": {
+					"uv": [
+						11,
+						13,
+						13.0,
+						15.0
+					],
+					"texture": 0
+				},
+				"up": {
+					"uv": [
+						10,
+						11,
+						11.0,
+						13.0
+					],
+					"texture": 0
+				},
+				"down": {
+					"uv": [
+						11,
+						11,
+						12.0,
+						13.0
+					],
+					"texture": 0
+				}
+			},
+			"type": "cube",
+			"uuid": "d3033cd3-9fae-55dd-86cd-8641a65bab43"
+		}
+	],
+	"outliner": [
+		"d99d83b3-0595-5856-9150-8d1bb9508d48",
+		"d3033cd3-9fae-55dd-86cd-8641a65bab43"
+	],
+	"textures": [
+		{
+			"path": "",
+			"name": "cobblestone_engine_lever.png",
+			"folder": "block",
+			"namespace": "simple_block",
+			"id": "0",
+			"group": "",
+			"width": 16,
+			"height": 16,
+			"uv_width": 16,
+			"uv_height": 16,
+			"particle": true,
+			"use_as_default": false,
+			"layers_enabled": false,
+			"sync_to_project": "",
+			"render_mode": "default",
+			"render_sides": "auto",
+			"frame_time": 1,
+			"frame_order_type": "loop",
+			"frame_order": "",
+			"frame_interpolate": false,
+			"visible": true,
+			"internal": false,
+			"saved": true,
+			"uuid": "6c05da35-5ab9-51a2-8f75-abdd83b31dda",
+			"relative_path": "../../src/main/resources/assets/simple_block/textures/block/cobblestone_engine_lever.png",
+			"source": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAA5UlEQVR4nGNgYGBgmHai4n9Uhcd/BizgWk/I/4YQI6xyDAwMDEz5UyL+v37ynkFURoChcU06ToU4DSBVA9UNYEEXSHJQQ/HGozdfGB69+YIiHmahxODRsYMRpwts1CUYbNQlCIrhNIAUQP0wYGBgYDhy8wVRYlgNmHfgFiMaH0MTshjFXoDbdudI0n8GBgaGFRtvMDAwMDDUdB9DcUnVimv/z+9ZxbB9TgOKOOUuWDQRkomkxXkYGBgYGJ6+/MKAzJ97xYuBgYGBgU9EiuHTm2dw9owCD9wJiRSANRqRwbKWJEZ88gAGK0YwfZwREQAAAABJRU5ErkJggg=="
+		}
+	]
+}

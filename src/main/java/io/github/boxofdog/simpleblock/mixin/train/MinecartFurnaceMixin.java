@@ -1,6 +1,11 @@
 package io.github.boxofdog.simpleblock.mixin.train;
 
+import org.jspecify.annotations.Nullable;
+
+import net.minecraft.core.BlockPos;
 import net.minecraft.network.syncher.EntityDataAccessor;
+import net.minecraft.network.syncher.EntityDataSerializers;
+import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.EntityType;
@@ -22,13 +27,14 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import io.github.boxofdog.simpleblock.train.CobblestoneEngine;
+import io.github.boxofdog.simpleblock.train.EngineSelector;
 
 /**
  * M05: vanilla's furnace minecart is the Cobblestone Engine ({@link CobblestoneEngine}). Its own
  * fuel-and-push handling is bypassed: uses go to the engine's controls, its push stays zero, and each
  * server tick runs the engine's traction after vanilla has moved it. Vanilla's synced "has fuel" flag
  * is kept true while it burns coal, for the smoke. The engine's state is saved under
- * {@code simple_block:engine_*}.
+ * {@code simple_block:engine_*}. M15: its rear selector lever ({@link EngineSelector}), synced and saved.
  */
 @Mixin(MinecartFurnace.class)
 abstract class MinecartFurnaceMixin extends AbstractMinecart implements CobblestoneEngine.Engine {
@@ -46,6 +52,14 @@ abstract class MinecartFurnaceMixin extends AbstractMinecart implements Cobblest
 	private double simpleBlock$speed;
 	@Unique
 	private boolean simpleBlock$burning;
+	@Unique
+	private static final EntityDataAccessor<Byte> SIMPLE_BLOCK_SELECTOR = SynchedEntityData.defineId(MinecartFurnace.class, EntityDataSerializers.BYTE);
+	@Unique
+	private long simpleBlock$armedAt;
+	@Unique
+	private boolean simpleBlock$serviceBegan;
+	@Unique
+	private @Nullable BlockPos simpleBlock$passed;
 
 	private MinecartFurnaceMixin(EntityType<?> type, Level level) {
 		super(type, level);
@@ -97,6 +111,52 @@ abstract class MinecartFurnaceMixin extends AbstractMinecart implements Cobblest
 		this.entityData.set(DATA_ID_FUEL, burning);
 	}
 
+	@Override
+	public EngineSelector.Mode simpleBlock$selector() {
+		return EngineSelector.Mode.of(this.entityData.get(SIMPLE_BLOCK_SELECTOR));
+	}
+
+	@Override
+	public void simpleBlock$setSelector(EngineSelector.Mode mode) {
+		this.entityData.set(SIMPLE_BLOCK_SELECTOR, (byte) mode.ordinal());
+	}
+
+	@Override
+	public long simpleBlock$armedAt() {
+		return this.simpleBlock$armedAt;
+	}
+
+	@Override
+	public void simpleBlock$setArmedAt(long time) {
+		this.simpleBlock$armedAt = time;
+	}
+
+	@Override
+	public boolean simpleBlock$serviceBegan() {
+		return this.simpleBlock$serviceBegan;
+	}
+
+	@Override
+	public void simpleBlock$setServiceBegan(boolean began) {
+		this.simpleBlock$serviceBegan = began;
+	}
+
+	@Override
+	public @Nullable BlockPos simpleBlock$passed() {
+		return this.simpleBlock$passed;
+	}
+
+	@Override
+	public void simpleBlock$setPassed(@Nullable BlockPos rail) {
+		this.simpleBlock$passed = rail;
+	}
+
+	@Inject(method = "defineSynchedData", at = @At("TAIL"))
+	private void simpleBlock$defineSelector(SynchedEntityData.Builder entityData, CallbackInfo ci) {
+		// A new engine starts at THROUGH: it never stops at a station until asked to.
+		entityData.define(SIMPLE_BLOCK_SELECTOR, (byte) EngineSelector.Mode.THROUGH.ordinal());
+	}
+
 	@Inject(method = "interact", at = @At("HEAD"), cancellable = true)
 	private void simpleBlock$engineControls(Player player, InteractionHand hand, Vec3 location, CallbackInfoReturnable<InteractionResult> cir) {
 		cir.setReturnValue(CobblestoneEngine.interact((MinecartFurnace) (Object) this, player, hand, location));
@@ -118,6 +178,9 @@ abstract class MinecartFurnaceMixin extends AbstractMinecart implements Cobblest
 		output.putDouble("simple_block:engine_heading_x", this.simpleBlock$heading.x);
 		output.putDouble("simple_block:engine_heading_z", this.simpleBlock$heading.z);
 		output.putDouble("simple_block:engine_speed", this.simpleBlock$speed);
+		output.putByte("simple_block:engine_selector", (byte) this.simpleBlock$selector().ordinal());
+		output.putLong("simple_block:engine_armed_at", this.simpleBlock$armedAt);
+		output.putBoolean("simple_block:engine_service_began", this.simpleBlock$serviceBegan);
 	}
 
 	@Inject(method = "readAdditionalSaveData", at = @At("TAIL"))
@@ -126,5 +189,8 @@ abstract class MinecartFurnaceMixin extends AbstractMinecart implements Cobblest
 		this.simpleBlock$running = input.getBooleanOr("simple_block:engine_running", false);
 		this.simpleBlock$heading = new Vec3(input.getDoubleOr("simple_block:engine_heading_x", 0.0), 0.0, input.getDoubleOr("simple_block:engine_heading_z", 0.0));
 		this.simpleBlock$speed = Math.max(0.0, input.getDoubleOr("simple_block:engine_speed", 0.0));
+		this.simpleBlock$setSelector(EngineSelector.Mode.of(input.getByteOr("simple_block:engine_selector", (byte) 0)));
+		this.simpleBlock$armedAt = input.getLongOr("simple_block:engine_armed_at", 0L);
+		this.simpleBlock$serviceBegan = input.getBooleanOr("simple_block:engine_service_began", false);
 	}
 }

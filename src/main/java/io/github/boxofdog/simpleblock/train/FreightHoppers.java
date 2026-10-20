@@ -32,9 +32,9 @@ import io.github.boxofdog.simpleblock.tuning.Tuning;
  * an ordinary hopper, an ordinary freight cart, a Loading Rail.
  *
  * <ul>
- *   <li><b>In, from above.</b> A hopper pointing down, in the block straight over the Loading Rail,
+ *   <li><b>In, from above.</b> A hopper pointing down over the Loading Rail (M15: up to three clear blocks above it),
  *       feeds the cart docked there through its open top, as a hopper feeds any container under it:
- *       at the hopper's own pace (one item every 8 ticks), and not while it is locked by redstone, out
+ *       at the hopper's own pace (one item every 8 ticks; M15: redstone does not lock a freight hopper), not out
  *       of loaded chunks or empty. The cart takes only cargo of the kind it holds, up to its 256; the
  *       hopper keeps what the cart refuses. Only a docked cart is fed (one passing under is not), and
  *       only while its gates are shut. ({@code mixin/train/HopperBlockEntityMixin}: the cart stands
@@ -59,7 +59,9 @@ import io.github.boxofdog.simpleblock.tuning.Tuning;
  *       above, is let go as a skip lets go of the car it has worked ({@link LoadingTracks#releaseCar}).</li>
  * </ul>
  * A hopper under the Loading Rail gets nothing: the cart's floor is closed; vanilla hoppers draw only
- * from containers and dropped items above them.
+ * from containers and dropped items above them. M15: a freight hopper's lid ({@link FreightPorts}) closes its
+ * opening to the cart, and at an engine train's station each wagon loads or unloads only as its transfer
+ * says ({@link FreightStations}); such a wagon is not let go when full or empty (the train waits for its lever).
  */
 public final class FreightHoppers {
 	/** Ticks a gate takes to open before the cargo runs. */
@@ -99,18 +101,14 @@ public final class FreightHoppers {
 	 * the Loading Rail straight under a hopper that points down. Null otherwise.
 	 */
 	public static @Nullable Container intake(ServerLevel level, BlockPos hopperPos, BlockState hopper) {
-		if (!(hopper.getBlock() instanceof HopperBlock) || hopper.getValue(HopperBlock.FACING) != Direction.DOWN) {
-			return null;
-		}
-		BlockPos rail = hopperPos.below();
-		Minecart cart = dockedAt(level, rail);
-		return cart == null ? null : new Intake(level, cart, rail.immutable());
+		BlockPos rail = FreightPorts.railBelow(level, hopperPos, hopper);
+		Minecart cart = rail == null ? null : dockedAt(level, rail);
+		return cart == null ? null : new Intake(level, cart, rail.immutable(), hopperPos.immutable());
 	}
 
 	/** Whether a hopper over the Loading Rail at {@code rail} points down into it (the cart there is being loaded). */
 	static boolean fedFromAbove(ServerLevel level, BlockPos rail) {
-		BlockState above = level.getBlockState(rail.above());
-		return above.getBlock() instanceof HopperBlock && above.getValue(HopperBlock.FACING) == Direction.DOWN;
+		return FreightPorts.hopperAbove(level, rail) != null;
 	}
 
 	/** A docked cart as the one-slot container under a hopper: it only takes, a whole offered stack or nothing. */
@@ -118,16 +116,19 @@ public final class FreightHoppers {
 		private final ServerLevel level;
 		private final Minecart cart;
 		private final BlockPos rail;
+		private final BlockPos hopper;
 
-		Intake(ServerLevel level, Minecart cart, BlockPos rail) {
+		Intake(ServerLevel level, Minecart cart, BlockPos rail, BlockPos hopper) {
 			this.level = level;
 			this.cart = cart;
 			this.rail = rail;
+			this.hopper = hopper;
 		}
 
 		private boolean open() {
 			return this.cart.isAlive() && this.rail.equals(Couplings.coupled(this.cart).simpleBlock$dock())
-				&& !LoadingTracks.freight(this.cart).simpleBlock$gateOpen() && !SkipStations.working(this.level, this.cart);
+				&& !LoadingTracks.freight(this.cart).simpleBlock$gateOpen() && !SkipStations.working(this.level, this.cart)
+				&& FreightStations.mayLoad(this.level, this.cart, this.hopper);
 		}
 
 		@Override
@@ -142,7 +143,8 @@ public final class FreightHoppers {
 				return;
 			}
 			cargo.simpleBlock$setCargo(stack.getItem(), cargo.simpleBlock$count() + stack.getCount());
-			if (cargo.simpleBlock$count() >= MinecartCargo.CAPACITY) {
+			FreightStations.moved(this.cart);
+			if (cargo.simpleBlock$count() >= MinecartCargo.CAPACITY && !FreightStations.stationTrain(this.cart)) {
 				LoadingTracks.releaseCar(this.level, this.cart, this.rail);
 			}
 		}
@@ -234,7 +236,9 @@ public final class FreightHoppers {
 		LoadingTracks.Freight freight = LoadingTracks.freight(cart);
 		Discharge discharge = DISCHARGING.get(cart);
 		Direction gate = freight.simpleBlock$gateSide();
-		if (cargo.simpleBlock$count() <= 0 || fedFromAbove(level, rail) || SkipStations.working(level, cart)
+		boolean station = FreightStations.stationTrain(cart);
+		if (cargo.simpleBlock$count() <= 0 || !station && fedFromAbove(level, rail) || SkipStations.working(level, cart)
+			|| station && freight.simpleBlock$service() != FreightStations.Service.UNLOAD
 			|| discharge != null && gate != null && gate != discharge.side) {
 			// Nothing to tip, a loading station, or another exchange has the gate: leave it be.
 			DISCHARGING.remove(cart);
@@ -247,7 +251,7 @@ public final class FreightHoppers {
 			}
 			for (Direction side : order(level, rail)) {
 				HopperBlockEntity hopper = receiver(level, rail, side, cart);
-				if (hopper != null && takes(hopper, item)) {
+				if (hopper != null && takes(hopper, item) && FreightStations.mayUnload(level, cart, hopper.getBlockPos())) {
 					discharge = new Discharge(side);
 					DISCHARGING.put(cart, discharge);
 					level.playSound(null, rail, SoundEvents.IRON_TRAPDOOR_OPEN, SoundSource.BLOCKS, 0.8F, 0.8F);
@@ -259,7 +263,7 @@ public final class FreightHoppers {
 			}
 		}
 		HopperBlockEntity hopper = receiver(level, rail, discharge.side, cart);
-		if (hopper == null || !takes(hopper, item)) {
+		if (hopper == null || !takes(hopper, item) || !FreightStations.mayUnload(level, cart, hopper.getBlockPos())) {
 			// Full, gone or blocked: the gate shuts where it is.
 			DISCHARGING.remove(cart);
 			level.playSound(null, rail, SoundEvents.IRON_TRAPDOOR_CLOSE, SoundSource.BLOCKS, 0.8F, 0.8F);
@@ -277,12 +281,22 @@ public final class FreightHoppers {
 		}
 		cargo.simpleBlock$setCargo(item, cargo.simpleBlock$count() - moved);
 		MOVED.merge(cart, moved, Integer::sum);
+		FreightStations.moved(cart);
 		if (level.getGameTime() % 4 == 0) {
 			level.playSound(null, rail, SoundEvents.GRAVEL_FALL, SoundSource.BLOCKS, 0.6F, 0.9F);
 		}
 		if (cargo.simpleBlock$count() <= 0) {
 			DISCHARGING.remove(cart);
-			LoadingTracks.releaseCar(level, cart, rail);
+			if (!station) {
+				LoadingTracks.releaseCar(level, cart, rail);
+			}
+		}
+	}
+
+	/** M15: a wagon's tipping stops where it is (its station transfer is over or stopped); the gate shuts. */
+	static void stopDischarge(Minecart cart) {
+		if (DISCHARGING.remove(cart) != null) {
+			LoadingTracks.freight(cart).simpleBlock$holdGateOpen(null, 0);
 		}
 	}
 

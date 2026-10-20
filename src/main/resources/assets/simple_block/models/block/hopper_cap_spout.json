@@ -1,0 +1,42 @@
+{
+	"credit": "M15 freight hopper lid (spout): vanilla hopper texture, drawn by the client over a capped opening",
+	"textures": {
+		"0": "minecraft:block/hopper_outside",
+		"particle": "minecraft:block/hopper_outside"
+	},
+	"elements": [
+		{
+			"name": "cap",
+			"from": [
+				5.5,
+				-0.75,
+				5.5
+			],
+			"to": [
+				10.5,
+				1.5,
+				10.5
+			],
+			"faces": {
+				"north": {
+					"texture": "#0"
+				},
+				"east": {
+					"texture": "#0"
+				},
+				"south": {
+					"texture": "#0"
+				},
+				"west": {
+					"texture": "#0"
+				},
+				"up": {
+					"texture": "#0"
+				},
+				"down": {
+					"texture": "#0"
+				}
+			}
+		}
+	]
+}

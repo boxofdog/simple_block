@@ -34,6 +34,7 @@ import net.fabricmc.fabric.api.gametest.v1.GameTest;
 import io.github.boxofdog.simpleblock.cable.CableContent;
 import io.github.boxofdog.simpleblock.feature.MinecartCargo;
 import io.github.boxofdog.simpleblock.train.CobblestoneEngine;
+import io.github.boxofdog.simpleblock.train.EngineSelector;
 import io.github.boxofdog.simpleblock.train.Couplings;
 import io.github.boxofdog.simpleblock.train.LoadingTrackBlock;
 import io.github.boxofdog.simpleblock.train.LoadingTracks;
@@ -167,11 +168,12 @@ public class LoadingTrackGameTests {
 	}
 
 	/**
-	 * LT-03: an engine-hauled train (engine, two freight carts) docks when its lead freight cart
-	 * reaches the track: the whole train is held, the engine switched off and burning nothing, and it
-	 * cannot be started until released. Using the track releases it; nothing moves until the engine is
-	 * started again, then the whole train passes over the track without docking again, and the first
-	 * freight car coming back to it later docks.
+	 * LT-03 (revised by M15: engine trains dock by their selector): an engine pushing two freight carts, its
+	 * selector at SERVICE, reaches a one-rail station whose receiving hopper can take the lead cart's copper:
+	 * the lead cart docks on the rail, the train is held, the engine switched off and burning nothing, and it
+	 * cannot be started. Using the rail lets it go (the selector goes to THROUGH); nothing moves until the
+	 * engine is started again, and then the whole train, at THROUGH, passes over the rail. Coming back the
+	 * other way at SERVICE, only the engine would stand on the rail (a wagon must, to be served): it passes.
 	 */
 	@GameTest(structure = YARD, maxTicks = 1200)
 	public void trainDocksIsHeldAndReleased(GameTestHelper helper) {
@@ -179,6 +181,7 @@ public class LoadingTrackGameTests {
 		TrainGameTests.track(helper, 4, 0, 29);
 		BlockPos station = new BlockPos(16, 1, 4);
 		loadingTrack(helper, station, Direction.WEST);
+		helper.setBlock(station.north().below(), Blocks.HOPPER);
 		MinecartFurnace engine = TrainGameTests.engine(helper, 5.5, 4, 4);
 		Minecart rear = TrainGameTests.cart(helper, 7.1, 4);
 		Minecart lead = TrainGameTests.cart(helper, 8.7, 4);
@@ -194,6 +197,7 @@ public class LoadingTrackGameTests {
 				MinecartCargo.cart(lead).simpleBlock$setCargo(Items.RAW_COPPER, 200);
 				TrainGameTests.couple(player, engine, rear);
 				TrainGameTests.couple(player, rear, lead);
+				EngineSelector.set(engine, EngineSelector.Mode.SERVICE);
 				TrainGameTests.use(player, engine, ItemStack.EMPTY);
 				helper.assertTrue(state.simpleBlock$running(), "started");
 			}))
@@ -219,12 +223,14 @@ public class LoadingTrackGameTests {
 				helper.assertValueEqual(state.simpleBlock$fuel(), fuel[0], "fuel while docked");
 				helper.assertValueEqual(front(lead), Direction.WEST, "the docked cart's front is the track's way, not the way it came");
 				TrainGameTests.assertSpacingPublic(helper, List.of(engine, rear, lead), "docked");
-				log.add("40 ticks docked: all three cars held, engine refused to start, no fuel burnt");
+				log.add("40 ticks docked: all three cars held, engine refused to start, no fuel burnt; lead tipped "
+					+ (200 - MinecartCargo.cart(lead).simpleBlock$count()) + " copper into the hopper");
 				helper.assertTrue(raised(helper, station), "stop raised while the train is held");
 				useTrack(helper, player, station);
 				for (AbstractMinecart car : train) {
 					helper.assertTrue(Couplings.coupled(car).simpleBlock$dock() == null, "released");
 				}
+				helper.assertValueEqual(EngineSelector.mode(engine), EngineSelector.Mode.THROUGH, "using the rail sets the lever to THROUGH");
 				helper.assertFalse(raised(helper, station), "stop folded on release");
 			}))
 			.thenIdle(40)
@@ -241,24 +247,24 @@ public class LoadingTrackGameTests {
 			.thenWaitUntil(() -> helper.assertTrue(TrainGameTests.x(helper, engine) > 18.0, "the whole train past the track"))
 			.thenExecute(CableGameTests.step(failed, () -> {
 				for (AbstractMinecart car : train) {
-					helper.assertTrue(Couplings.coupled(car).simpleBlock$dock() == null, "a released train passes over its track");
+					helper.assertTrue(Couplings.coupled(car).simpleBlock$dock() == null, "a train at THROUGH passes over the track");
 				}
-				log.add(String.format("restarted: the whole train passed the track (engine x %.1f) without docking", TrainGameTests.x(helper, engine)));
+				log.add(String.format("restarted at THROUGH: the whole train passed the track (engine x %.1f) without docking", TrainGameTests.x(helper, engine)));
 				TrainGameTests.use(player, engine, ItemStack.EMPTY);
 			}))
 			.thenWaitUntil(() -> helper.assertTrue(state.simpleBlock$speed() < 1.0E-4, "stopped"))
 			.thenExecute(CableGameTests.step(failed, () -> {
+				EngineSelector.set(engine, EngineSelector.Mode.SERVICE);
 				CableGameTests.teleport(helper, player, new BlockPos(28, 1, 6));
 				TrainGameTests.use(player, engine, ItemStack.EMPTY);
 				helper.assertTrue(state.simpleBlock$running(), "started back west");
 			}))
-			.thenWaitUntil(() -> helper.assertTrue(docked(rear, helper, station), String.format(
-				"the first freight car to come back docks: engine x %.2f running %s, rear x %.2f released %s",
-				TrainGameTests.x(helper, engine), state.simpleBlock$running(), TrainGameTests.x(helper, rear),
-				LoadingTracks.freight(rear).simpleBlock$released())))
+			.thenWaitUntil(() -> helper.assertTrue(TrainGameTests.x(helper, lead) < 13.0, "the whole train back past the track"))
 			.thenExecute(CableGameTests.step(failed, () -> {
-				helper.assertFalse(state.simpleBlock$running(), "switched off again");
-				log.add("coming back west: the engine passed over, the first freight car (the rear one) docked, front " + front(rear));
+				for (AbstractMinecart car : train) {
+					helper.assertTrue(Couplings.coupled(car).simpleBlock$dock() == null, "only the engine would stand on the rail: passed");
+				}
+				log.add("back west at SERVICE: the engine leads, no wagon would stand on the rail: passed");
 				SimpleBlockTestLog.info("LT-03: {}", log);
 				train.forEach(Entity::discard);
 				TestPlayers.remove(player);

@@ -23,6 +23,8 @@ import net.minecraft.world.item.Items;
 import net.minecraft.world.level.GameType;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.HopperBlock;
+import net.minecraft.world.level.block.LeverBlock;
+import net.minecraft.world.level.block.state.properties.AttachFace;
 import net.minecraft.world.level.block.RailBlock;
 import net.minecraft.world.level.block.entity.HopperBlockEntity;
 import net.minecraft.world.level.block.state.properties.RailShape;
@@ -259,7 +261,7 @@ public class FreightTransferGameTests {
 	/**
 	 * HOP-01: a hopper pointing down over a cart docked at a Loading Rail feeds it, one item every 8
 	 * ticks (the hopper's own pace), through the open top, gates shut; full, it is let go. No Loading
-	 * Rail, a hopper locked by redstone, a hopper pointing sideways or two blocks up, another kind of
+	 * Rail, a hopper capped by a lever off (M15), a hopper pointing sideways or four clear blocks up (M15), another kind of
 	 * cargo, a non-cargo item and a full cart all move nothing.
 	 */
 	@GameTest(structure = YARD, maxTicks = 1200)
@@ -308,11 +310,16 @@ public class FreightTransferGameTests {
 		List<Refusal> refusals = List.of(
 			new Refusal("plain rail", () -> helper.setBlock(RAIL, Blocks.RAIL.defaultBlockState().setValue(RailBlock.SHAPE, RailShape.NORTH_SOUTH)),
 				Items.AIR, 0, new ItemStack(Items.RAW_IRON, 10)),
-			new Refusal("locked hopper", () -> helper.setBlock(above.east(), Blocks.REDSTONE_BLOCK), Items.AIR, 0, new ItemStack(Items.RAW_IRON, 10)),
+			// M15: a lever off beside a freight hopper caps its spout (redstone no longer locks it).
+			new Refusal("capped hopper (lever off)", () -> {
+				helper.setBlock(above.east().east(), Blocks.STONE);
+				helper.setBlock(above.east(), Blocks.LEVER.defaultBlockState().setValue(LeverBlock.FACE, AttachFace.WALL).setValue(LeverBlock.FACING, Direction.WEST));
+			}, Items.AIR, 0, new ItemStack(Items.RAW_IRON, 10)),
 			new Refusal("hopper pointing east", () -> hopper(helper, above, Direction.EAST), Items.AIR, 0, new ItemStack(Items.RAW_IRON, 10)),
-			new Refusal("hopper two blocks up", () -> {
+			// M15: up to three clear blocks between the spout and the cart; four is too far.
+			new Refusal("hopper four clear blocks up", () -> {
 				helper.setBlock(above, Blocks.AIR);
-				hopper(helper, above.above(), Direction.DOWN);
+				hopper(helper, above.above(4), Direction.DOWN);
 			}, Items.AIR, 0, new ItemStack(Items.RAW_IRON, 10)),
 			new Refusal("other cargo", () -> {
 			}, Items.RAW_COPPER, 30, new ItemStack(Items.RAW_IRON, 10)),
@@ -328,9 +335,15 @@ public class FreightTransferGameTests {
 					clear(helper, above);
 					hopper(helper, above, Direction.DOWN);
 					helper.setBlock(above.east(), Blocks.AIR);
-					clear(helper, above.above());
+					helper.setBlock(above.east().east(), Blocks.AIR);
+					for (int up = 1; up <= 4; up++) {
+						clear(helper, above.above(up));
+					}
 					r.setUp().run();
-					BlockPos at = helper.getBlockState(above).is(Blocks.HOPPER) ? above : above.above();
+					BlockPos at = above;
+					while (!helper.getBlockState(at).is(Blocks.HOPPER)) {
+						at = at.above();
+					}
 					source[0] = (HopperBlockEntity) helper.getLevel().getBlockEntity(helper.absolutePos(at));
 					source[0].setItem(0, r.offered().copy());
 					cart[0] = SkipGameTests.cartOn(helper, RAIL, r.cartItem(), r.cartCount());
@@ -341,8 +354,11 @@ public class FreightTransferGameTests {
 						r.name() + ": cart " + count(cart[0]) + ", hopper " + source[0].getItem(0));
 					log.add(r.name() + ": nothing moved");
 					remove(cart[0]);
-					clear(helper, above);
-					clear(helper, above.above());
+					helper.setBlock(above.east(), Blocks.AIR);
+					helper.setBlock(above.east().east(), Blocks.AIR);
+					for (int up = 0; up <= 4; up++) {
+						clear(helper, above.above(up));
+					}
 				});
 		}
 		sequence.thenExecute(() -> SimpleBlockTestLog.info("HOP-01 hopper over a docked cart: {}", log)).thenSucceed();
@@ -406,8 +422,8 @@ public class FreightTransferGameTests {
 	 * HOP-03: what stops a cart tipping into a hopper beside it, and which hopper it uses. A full hopper,
 	 * one full of something else, a block or a rail or another cart in the way, a hopper level with the
 	 * rail, and a hopper feeding the cart from above all keep the cargo in and the gates shut. A hopper
-	 * with room for 10 takes 10 and the gate shuts. A hopper locked by redstone still takes items in, as
-	 * from another hopper. Of hoppers on the right, the left and the front, the right one is used until
+	 * with room for 10 takes 10 and the gate shuts. A hopper with redstone beside it still takes items in
+	 * (M15: a freight hopper is not locked by redstone); one capped by a lever off takes nothing. Of hoppers on the right, the left and the front, the right one is used until
 	 * full, then the left one.
 	 */
 	@GameTest(structure = YARD, maxTicks = 1600)
@@ -445,7 +461,13 @@ public class FreightTransferGameTests {
 			new Case("locked hopper", () -> {
 				receiver[0] = hopper(helper, south, Direction.DOWN);
 				helper.setBlock(south.east(), Blocks.REDSTONE_BLOCK);
-			}, 30));
+			}, 30),
+			// M15: a lever off beside the receiving hopper caps its top.
+			new Case("capped hopper (lever off)", () -> {
+				receiver[0] = hopper(helper, south, Direction.DOWN);
+				helper.setBlock(south.east().east(), Blocks.STONE);
+				helper.setBlock(south.east(), Blocks.LEVER.defaultBlockState().setValue(LeverBlock.FACE, AttachFace.WALL).setValue(LeverBlock.FACING, Direction.WEST));
+			}, 0));
 		var sequence = helper.startSequence();
 		for (Case c : cases) {
 			sequence = sequence
@@ -470,7 +492,7 @@ public class FreightTransferGameTests {
 					for (Minecart other : helper.getLevel().getEntitiesOfClass(Minecart.class, new AABB(helper.absolutePos(RAIL)).inflate(3.0))) {
 						remove(other);
 					}
-					for (BlockPos pos : List.of(south, south.east(), RAIL.south(), RAIL.above())) {
+					for (BlockPos pos : List.of(south, south.east(), south.east().east(), RAIL.south(), RAIL.above())) {
 						clear(helper, pos);
 					}
 				});

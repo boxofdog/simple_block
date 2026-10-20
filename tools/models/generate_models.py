@@ -526,6 +526,18 @@ ROPE_ANCHOR_SIDE = [
     Cube('rope', [6.5, 0, 6.5], [9.5, 8, 9.5]),
 ]
 
+# M15 the Cobblestone Engine's rear selector lever, in the engine model's frame (x runs from the smokestack
+# to the firebox door at the back): a plate on the back of the cart with the pivot boss, and the handle the
+# renderer swings about the pivot (16.5, 8, 12.5) across the cart: left THROUGH, upright NEUTRAL, right SERVICE.
+ENGINE_LEVER_BASE = [
+    Cube('lever_plate', [16, 5.5, 10.5], [17, 10.5, 14.5]),
+    Cube('lever_boss', [16.75, 7, 11.5], [17.75, 9, 13.5]),
+]
+ENGINE_LEVER_HANDLE = [
+    Cube('lever_handle', [17, 8, 12], [18, 18, 13]),
+    Cube('lever_grip', [16.75, 17, 11.75], [18.25, 20, 13.25]),
+]
+
 GROUPS = {
     'block/cable_anchor': {'cable_anchor': ANCHOR, 'cable_anchor_guide': ANCHOR_GUIDE, 'cable_anchor_wheel_front': ANCHOR_WHEEL_FRONT,
                            'cable_anchor_wheel_back': ANCHOR_WHEEL_BACK},
@@ -547,6 +559,7 @@ GROUPS = {
     'item/cable': {'cable': CABLE_ITEM},
     'item/cable_coil': {'cable_coil': COIL_ITEM},
     'block/cobblestone_engine': {'cobblestone_engine': ENGINE},
+    'block/cobblestone_engine_lever': {'cobblestone_engine_lever_base': ENGINE_LEVER_BASE, 'cobblestone_engine_lever_handle': ENGINE_LEVER_HANDLE},
     'block/ore_skip': {'ore_skip_chute': SKIP_CHUTE, 'ore_skip_bin': SKIP_BIN, 'ore_skip_gate_closed': SKIP_GATE_CLOSED,
                        'ore_skip_gate_open': SKIP_GATE_OPEN, 'ore_skip_lid_closed': SKIP_LID_CLOSED, 'ore_skip_lid_open': SKIP_LID_OPEN,
                        'ore_skip_bridle': SKIP_BRIDLE, 'ore_skip': ORE_SKIP_ITEM},

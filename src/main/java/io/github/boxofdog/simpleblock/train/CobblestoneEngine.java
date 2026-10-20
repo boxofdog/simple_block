@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.jspecify.annotations.Nullable;
 
+import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
@@ -43,6 +44,8 @@ import io.github.boxofdog.simpleblock.feature.Feedback;
  *   <li><b>From the seat</b> (owner's choice): a player sitting in any cushioned cart coupled to it
  *       drives it. Holding forward powers the train towards where they look (along the track: forwards
  *       or back); holding back brakes. Their input overrides the ground setting while held.</li>
+ *   <li><b>M15 selector lever</b> on the back ({@link EngineSelector}): THROUGH, NEUTRAL or SERVICE at
+ *       Loading Rail stations ({@link FreightStations}).</li>
  * </ul>
  *
  * <p>Traction (tuning {@code train.*}, masses in {@link TrainPhysics}): the engine's force accelerates
@@ -79,6 +82,26 @@ public final class CobblestoneEngine {
 
 		/** Whether it is burning coal right now (synced: smoke and the lit firebox). */
 		void simpleBlock$setBurning(boolean burning);
+
+		/** M15: the rear selector lever's position ({@link EngineSelector.Mode}). Synced and saved. */
+		EngineSelector.Mode simpleBlock$selector();
+
+		void simpleBlock$setSelector(EngineSelector.Mode mode);
+
+		/** M15: the game time from which a SERVICE selection may start transfers (the arming delay). Saved. */
+		long simpleBlock$armedAt();
+
+		void simpleBlock$setArmedAt(long time);
+
+		/** M15: whether a freight transfer has begun since SERVICE was last chosen (for the automatic return to NEUTRAL). Saved. */
+		boolean simpleBlock$serviceBegan();
+
+		void simpleBlock$setServiceBegan(boolean began);
+
+		/** M15: the terminal Loading Rail it last passed without docking (looked at once per arrival), or null. Not saved. */
+		@Nullable BlockPos simpleBlock$passed();
+
+		void simpleBlock$setPassed(@Nullable BlockPos rail);
 	}
 
 	private CobblestoneEngine() {
@@ -142,14 +165,24 @@ public final class CobblestoneEngine {
 			}
 			return InteractionResult.SUCCESS;
 		}
-		if (hand != InteractionHand.MAIN_HAND || !held.isEmpty()) {
+		if (hand != InteractionHand.MAIN_HAND) {
+			return InteractionResult.PASS;
+		}
+		// M15: the rear selector lever, by hand.
+		InteractionResult lever = EngineSelector.use(engine, player, location);
+		if (lever != null) {
+			return lever;
+		}
+		if (!held.isEmpty()) {
 			return InteractionResult.PASS;
 		}
 		if (player instanceof ServerPlayer serverPlayer) {
 			if (state.simpleBlock$running()) {
 				state.simpleBlock$setRunning(false);
 			} else if (Couplings.docked(engine)) {
-				Feedback.quiet(serverPlayer, message("docked", "Held at a Loading Rail: use the rail to release it"));
+				Feedback.quiet(serverPlayer, FreightStations.stationTrain(engine)
+					? message("docked_station", "Held at a station: set the lever to THROUGH to leave")
+					: message("docked", "Held at a Loading Rail: use the rail to release it"));
 			} else if (state.simpleBlock$fuel() <= 0) {
 				Feedback.quiet(serverPlayer, message("no_fuel", "Needs coal"));
 			} else {
@@ -186,12 +219,13 @@ public final class CobblestoneEngine {
 
 	/** Server, every tick: rider input, traction, fuel; the train is then moved by {@link Couplings}. */
 	public static void tick(MinecartFurnace engine) {
-		if (!(engine.level() instanceof ServerLevel)) {
+		if (!(engine.level() instanceof ServerLevel level)) {
 			return;
 		}
 		Engine state = engine(engine);
-		if (Couplings.docked(engine)) {
-			// M06: docked at a loading track: switched off and held until released and started again.
+		if (FreightStations.tick(level, engine)) {
+			// M06: docked at a loading track: switched off and held until released and started again (M15: at a
+			// station, until the selector goes to THROUGH).
 			state.simpleBlock$setRunning(false);
 			state.simpleBlock$setSpeed(0.0);
 			state.simpleBlock$setBurning(false);

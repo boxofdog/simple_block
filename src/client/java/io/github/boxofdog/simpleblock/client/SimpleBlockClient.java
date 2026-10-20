@@ -30,6 +30,7 @@ public class SimpleBlockClient implements ClientModInitializer {
 		CableDrumRenderer.register();
 		CableHookRenderer.register();
 		CobblestoneEngineRenderer.register();
+		io.github.boxofdog.simpleblock.client.train.FreightHopperLidRenderer.register();
 		OreSkipRenderer.register();
 		io.github.boxofdog.simpleblock.client.coot.OldCootRenderer.register();
 		// M13: a rope shot from a bow flies as its item, like a thrown snowball.

@@ -1,5 +1,6 @@
 package io.github.boxofdog.simpleblock.mixin.train;
 
+import java.util.Optional;
 import java.util.UUID;
 
 import net.minecraft.core.BlockPos;
@@ -25,6 +26,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import io.github.boxofdog.simpleblock.train.Couplings;
+import io.github.boxofdog.simpleblock.train.FreightStations;
 import io.github.boxofdog.simpleblock.train.LoadingTracks;
 
 /**
@@ -37,7 +39,8 @@ import io.github.boxofdog.simpleblock.train.LoadingTracks;
  * ({@code simple_block:dock}), the track it was released from ({@code simple_block:released}) and the
  * way its front points ({@code simple_block:front}, synced). M07: which of its four gates is open into a
  * skip (synced, not saved: the skip keeps it open while it tips the cart, and it closes by itself a few
- * ticks after the skip stops).
+ * ticks after the skip stops). M15: a wagon's station transfer ({@code simple_block:freight_service}) and the
+ * hopper a button opened for it ({@code simple_block:freight_port}, synced for the hopper's lid).
  */
 @Mixin(AbstractMinecart.class)
 abstract class AbstractMinecartMixin extends VehicleEntity implements Couplings.Coupled, LoadingTracks.Freight {
@@ -50,6 +53,14 @@ abstract class AbstractMinecartMixin extends VehicleEntity implements Couplings.
 	private static final EntityDataAccessor<Byte> SIMPLE_BLOCK_FRONT = SynchedEntityData.defineId(AbstractMinecart.class, EntityDataSerializers.BYTE);
 	@Unique
 	private static final EntityDataAccessor<Byte> SIMPLE_BLOCK_GATE_SIDE = SynchedEntityData.defineId(AbstractMinecart.class, EntityDataSerializers.BYTE);
+	/** M15: the hopper a button has opened for this wagon (synced: its lid is drawn open). */
+	@Unique
+	private static final EntityDataAccessor<Optional<BlockPos>> SIMPLE_BLOCK_PORT = SynchedEntityData.defineId(AbstractMinecart.class,
+		EntityDataSerializers.OPTIONAL_BLOCK_POS);
+	@Unique
+	private FreightStations.Service simpleBlock$service = FreightStations.Service.NONE;
+	@Unique
+	private int simpleBlock$idle;
 	@Unique
 	private int simpleBlock$gateHold;
 	/** Client: the gate's swing, 0 shut to 1 open, now and last tick (over 10 ticks, as the skip's doors), and which gate it is. */
@@ -193,6 +204,37 @@ abstract class AbstractMinecartMixin extends VehicleEntity implements Couplings.
 	}
 
 	@Override
+	public FreightStations.Service simpleBlock$service() {
+		return this.simpleBlock$service;
+	}
+
+	@Override
+	public void simpleBlock$setService(FreightStations.Service service) {
+		this.simpleBlock$service = service;
+		this.simpleBlock$idle = 0;
+	}
+
+	@Override
+	public int simpleBlock$idle() {
+		return this.simpleBlock$idle;
+	}
+
+	@Override
+	public void simpleBlock$setIdle(int ticks) {
+		this.simpleBlock$idle = ticks;
+	}
+
+	@Override
+	public @Nullable BlockPos simpleBlock$port() {
+		return this.entityData.get(SIMPLE_BLOCK_PORT).orElse(null);
+	}
+
+	@Override
+	public void simpleBlock$setPort(@Nullable BlockPos hopper) {
+		this.entityData.set(SIMPLE_BLOCK_PORT, Optional.ofNullable(hopper == null ? null : hopper.immutable()));
+	}
+
+	@Override
 	public @Nullable BlockPos simpleBlock$lastRail() {
 		return this.simpleBlock$lastRail;
 	}
@@ -214,6 +256,7 @@ abstract class AbstractMinecartMixin extends VehicleEntity implements Couplings.
 		entityData.define(SIMPLE_BLOCK_COUPLED_1, -1);
 		entityData.define(SIMPLE_BLOCK_FRONT, (byte) -1);
 		entityData.define(SIMPLE_BLOCK_GATE_SIDE, (byte) -1);
+		entityData.define(SIMPLE_BLOCK_PORT, Optional.empty());
 	}
 
 	@Inject(method = "tick", at = @At("TAIL"))
@@ -248,6 +291,8 @@ abstract class AbstractMinecartMixin extends VehicleEntity implements Couplings.
 		}
 		output.storeNullable("simple_block:dock", BlockPos.CODEC, this.simpleBlock$dock);
 		output.storeNullable("simple_block:released", BlockPos.CODEC, this.simpleBlock$released);
+		output.putByte("simple_block:freight_service", (byte) this.simpleBlock$service.ordinal());
+		output.storeNullable("simple_block:freight_port", BlockPos.CODEC, this.simpleBlock$port());
 		output.storeNullable("simple_block:front", Direction.CODEC, this.simpleBlock$front());
 	}
 
@@ -258,6 +303,8 @@ abstract class AbstractMinecartMixin extends VehicleEntity implements Couplings.
 		}
 		this.simpleBlock$dock = input.read("simple_block:dock", BlockPos.CODEC).orElse(null);
 		this.simpleBlock$released = input.read("simple_block:released", BlockPos.CODEC).orElse(null);
+		this.simpleBlock$service = FreightStations.Service.of(input.getByteOr("simple_block:freight_service", (byte) 0));
+		this.simpleBlock$setPort(input.read("simple_block:freight_port", BlockPos.CODEC).orElse(null));
 		this.simpleBlock$setFront(input.read("simple_block:front", Direction.CODEC).orElse(null));
 	}
 }

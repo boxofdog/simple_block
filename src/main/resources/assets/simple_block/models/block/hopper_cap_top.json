@@ -1,0 +1,75 @@
+{
+	"credit": "M15 freight hopper lid (top): vanilla hopper texture, drawn by the client over a capped opening",
+	"textures": {
+		"0": "minecraft:block/hopper_outside",
+		"particle": "minecraft:block/hopper_outside"
+	},
+	"elements": [
+		{
+			"name": "lid",
+			"from": [
+				1,
+				15.25,
+				1
+			],
+			"to": [
+				15,
+				16.5,
+				15
+			],
+			"faces": {
+				"north": {
+					"texture": "#0"
+				},
+				"east": {
+					"texture": "#0"
+				},
+				"south": {
+					"texture": "#0"
+				},
+				"west": {
+					"texture": "#0"
+				},
+				"up": {
+					"texture": "#0"
+				},
+				"down": {
+					"texture": "#0"
+				}
+			}
+		},
+		{
+			"name": "handle",
+			"from": [
+				7,
+				16.5,
+				6
+			],
+			"to": [
+				9,
+				17.25,
+				10
+			],
+			"faces": {
+				"north": {
+					"texture": "#0"
+				},
+				"east": {
+					"texture": "#0"
+				},
+				"south": {
+					"texture": "#0"
+				},
+				"west": {
+					"texture": "#0"
+				},
+				"up": {
+					"texture": "#0"
+				},
+				"down": {
+					"texture": "#0"
+				}
+			}
+		}
+	]
+}
