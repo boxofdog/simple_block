@@ -6,6 +6,7 @@ import net.fabricmc.fabric.api.client.rendering.v1.ModelLayerRegistry;
 import io.github.boxofdog.simpleblock.client.workwear.RearWarning;
 import io.github.boxofdog.simpleblock.client.workwear.TrailBlazerGhosts;
 import io.github.boxofdog.simpleblock.client.cable.CableDrumRenderer;
+import io.github.boxofdog.simpleblock.client.cable.CoalWinchScreen;
 import io.github.boxofdog.simpleblock.client.cable.CableHookRenderer;
 import io.github.boxofdog.simpleblock.client.effigy.EffigyPlacementScreen;
 import io.github.boxofdog.simpleblock.client.effigy.EffigyRenderer;
@@ -30,6 +31,7 @@ public class SimpleBlockClient implements ClientModInitializer {
 		CobblestoneEngineRenderer.register();
 		OreSkipRenderer.register();
 		BlastFurnaceScreen.register();
+		CoalWinchScreen.register();
 		EffigyPlacementScreen.register();
 		EffigyRenderer.register();
 	}

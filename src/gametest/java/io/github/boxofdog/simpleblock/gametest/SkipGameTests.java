@@ -59,7 +59,7 @@ import io.github.boxofdog.simpleblock.train.TrainContent;
  */
 public class SkipGameTests {
 	static final String SHAFT = "simple_block-gametest:skip_shaft";
-	private static final BlockPos DRUM = new BlockPos(2, 1, 5);
+	static final BlockPos DRUM = new BlockPos(2, 1, 5);
 	private static final BlockPos MID_ANCHOR = new BlockPos(7, 6, 5);
 	private static final BlockPos HEAD_ANCHOR = new BlockPos(12, 11, 5);
 	static final BlockPos COLUMN = new BlockPos(12, 1, 5);
@@ -136,12 +136,12 @@ public class SkipGameTests {
 		player.interactOn(skip, InteractionHand.MAIN_HAND, skip.position());
 	}
 
-	private static CableLines.Line line(GameTestHelper helper) {
+	static CableLines.Line line(GameTestHelper helper) {
 		return CableLines.line(helper.getLevel(), helper.absolutePos(DRUM));
 	}
 
 	/** A right-click on the drum's body with {@code held} (a furnace, coal). */
-	private static void body(GameTestHelper helper, ServerPlayer player, ItemStack held) {
+	static void body(GameTestHelper helper, ServerPlayer player, ItemStack held) {
 		player.setItemInHand(InteractionHand.MAIN_HAND, held);
 		CableGameTests.useBlock(helper, player, DRUM, Direction.UP);
 		player.setItemInHand(InteractionHand.MAIN_HAND, ItemStack.EMPTY);
@@ -182,7 +182,7 @@ public class SkipGameTests {
 	}
 
 	/** Fits a furnace and {@code coal} coal. */
-	private static void coalWinch(GameTestHelper helper, ServerPlayer player, int coal) {
+	static void coalWinch(GameTestHelper helper, ServerPlayer player, int coal) {
 		body(helper, player, new ItemStack(Items.FURNACE));
 		for (int i = 0; i < coal; i++) {
 			body(helper, player, new ItemStack(Items.COAL));

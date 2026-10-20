@@ -210,6 +210,52 @@ public class FreightFixesGameTests {
 		helper.succeed();
 	}
 
+	/**
+	 * BUG-013: an empty hand on a coal winch's body opens its engine box: one slot showing the winch's coal
+	 * (the line's own count), coal only, up to the capacity. Shift-clicking 70 coal in puts 64 in (6 stay),
+	 * other fuel is refused, taking coal out lowers the winch's count, and the lever never moves.
+	 */
+	@GameTest(structure = SHAFT, maxTicks = 200)
+	public void coalWinchEngineBoxScreen(GameTestHelper helper) {
+		ServerPlayer player = TestPlayers.create(helper, GameType.SURVIVAL, new BlockPos(4, 1, 6));
+		SkipGameTests.layShaft(helper, player);
+		SkipGameTests.coalWinch(helper, player, 3);
+		helper.startSequence()
+			.thenIdle(2)
+			.thenExecute(() -> {
+				helper.assertValueEqual(SkipGameTests.line(helper).coal(), 3, "coal put in by hand");
+				var lever = SkipGameTests.line(helper).lever();
+				SkipGameTests.body(helper, player, ItemStack.EMPTY);
+				helper.assertTrue(player.containerMenu instanceof io.github.boxofdog.simpleblock.cable.CoalWinchMenu, "engine box screen opened");
+				var menu = player.containerMenu;
+				helper.assertTrue(menu.getSlot(0).getItem().is(Items.COAL) && menu.getSlot(0).getItem().getCount() == 3, "the slot shows the winch's 3 coal");
+				int coalSlot = InventoryGameTests.menuIndex(menu, player.getInventory(), 18);
+				int charcoalSlot = InventoryGameTests.menuIndex(menu, player.getInventory(), 19);
+				player.getInventory().setItem(18, new ItemStack(Items.COAL, 64));
+				player.getInventory().setItem(19, new ItemStack(Items.CHARCOAL, 10));
+				menu.clicked(coalSlot, 0, net.minecraft.world.inventory.ContainerInput.QUICK_MOVE, player);
+				helper.assertValueEqual(SkipGameTests.line(helper).coal(), 64, "coal after a shift-click (capacity 64)");
+				helper.assertValueEqual(player.getInventory().getItem(18).getCount(), 3, "coal left in the inventory");
+				menu.clicked(charcoalSlot, 0, net.minecraft.world.inventory.ContainerInput.QUICK_MOVE, player);
+				helper.assertValueEqual(player.getInventory().getItem(19).getCount(), 10, "charcoal refused");
+				// Take 32 out (right-click picks up half).
+				menu.clicked(0, 1, net.minecraft.world.inventory.ContainerInput.PICKUP, player);
+				helper.assertValueEqual(menu.getCarried().getCount(), 32, "half taken onto the cursor");
+				helper.assertValueEqual(SkipGameTests.line(helper).coal(), 32, "the winch's coal after taking half");
+				menu.clicked(0, 0, net.minecraft.world.inventory.ContainerInput.PICKUP, player);
+				helper.assertValueEqual(SkipGameTests.line(helper).coal(), 64, "coal put back");
+				helper.assertTrue(menu.getCarried().isEmpty(), "nothing left on the cursor");
+				helper.assertValueEqual(SkipGameTests.line(helper).lever(), lever, "the lever unchanged");
+				player.closeContainer();
+				int total = SkipGameTests.line(helper).coal() + player.getInventory().countItem(Items.COAL);
+				helper.assertValueEqual(total, 67, "coal conserved (3 in the winch + 64 brought)");
+				SimpleBlockTestLog.info("BUG-013 engine box: opened with 3, shift-click filled to 64 (3 kept), charcoal refused, half taken and put back, "
+					+ "lever unchanged, 67 coal conserved");
+				TestPlayers.remove(player);
+			})
+			.thenSucceed();
+	}
+
 	static void rail(GameTestHelper helper, BlockPos rail, Direction facing) {
 		helper.setBlock(rail.below(), Blocks.STONE);
 		helper.setBlock(rail, TrainContent.LOADING_TRACK.defaultBlockState().setValue(LoadingTrackBlock.FACING, facing)

@@ -137,14 +137,14 @@ public final class CoalWinch {
 		return InteractionResult.SUCCESS;
 	}
 
-	/** An empty-hand use of a coal winch's body: how much coal it has (never moves the lever). */
+	/**
+	 * An empty-hand use of a coal winch's body (its engine box): M13 (BUG-013) opens the coal screen
+	 * ({@link CoalWinchMenu}). It never moves the lever.
+	 */
 	static InteractionResult inspect(Level level, BlockPos pos, Player player) {
-		if (level instanceof ServerLevel serverLevel) {
-			CableLines.Line line = CableLines.line(serverLevel, pos);
-			if (line != null) {
-				CableRoutes.tell(player, message("status", "Coal winch: %s coal, %s s alight, lever %s", line.coal, (line.burn + 19) / 20,
-					leverName(line.lever)));
-			}
+		if (level instanceof ServerLevel serverLevel && CableLines.line(serverLevel, pos) != null) {
+			player.openMenu(new net.minecraft.world.SimpleMenuProvider((id, inventory, p) -> CoalWinchMenu.server(id, inventory, serverLevel, pos),
+				Component.translatableWithFallback("container.simple_block.coal_winch", "Coal Winch")));
 		}
 		return InteractionResult.SUCCESS;
 	}

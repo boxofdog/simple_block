@@ -105,6 +105,10 @@ public final class CableContent {
 		return Registry.register(BuiltInRegistries.ITEM, key, item);
 	}
 
+	/** M13 (BUG-013): the coal winch's engine box screen. */
+	public static final net.minecraft.world.inventory.MenuType<CoalWinchMenu> COAL_WINCH_MENU = Registry.register(BuiltInRegistries.MENU, id("coal_winch"),
+		new net.minecraft.world.inventory.MenuType<>(CoalWinchMenu::new, net.minecraft.world.flag.FeatureFlags.VANILLA_SET));
+
 	/** Registers everything (class initialisation), the creative-tab entries and the loaded-cable bookkeeping. */
 	public static void register() {
 		CreativeModeTabEvents.modifyOutputEvent(CreativeModeTabs.TOOLS_AND_UTILITIES).register(output ->
