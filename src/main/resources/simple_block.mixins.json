@@ -67,7 +67,8 @@
 		"effigy.MobFearMixin",
 		"effigy.ResultSlotMixin",
 		"inventory.ChestMenuMixin",
-		"inventory.CompoundContainerAccessor"
+		"inventory.CompoundContainerAccessor",
+		"train.ServerPlayerInputMixin"
 	],
 	"injectors": {
 		"defaultRequire": 1

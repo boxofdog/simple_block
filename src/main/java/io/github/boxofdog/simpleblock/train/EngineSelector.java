@@ -1,13 +1,9 @@
 package io.github.boxofdog.simpleblock.train;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.UUID;
 
 import org.jspecify.annotations.Nullable;
 
-import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import net.fabricmc.fabric.api.event.player.AttackEntityCallback;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
@@ -74,9 +70,6 @@ public final class EngineSelector {
 		}
 	}
 
-	/** Whether each rider held Space last tick (one step per press). */
-	private static final Map<UUID, Boolean> JUMPING = new HashMap<>();
-
 	private EngineSelector() {
 	}
 
@@ -85,18 +78,6 @@ public final class EngineSelector {
 	}
 
 	public static void register() {
-		ServerTickEvents.END_SERVER_TICK.register(server -> {
-			for (ServerPlayer player : server.getPlayerList().getPlayers()) {
-				boolean jump = player.getLastClientInput().jump();
-				boolean was = Boolean.TRUE.equals(JUMPING.put(player.getUUID(), jump));
-				if (jump && !was && player.getVehicle() instanceof Minecart seat && MinecartCushions.isFitted(seat)) {
-					MinecartFurnace engine = seatEngine(seat);
-					if (engine != null) {
-						set(engine, mode(engine).cycled());
-					}
-				}
-			}
-		});
 		AttackEntityCallback.EVENT.register((player, level, hand, entity, hit) -> {
 			if (entity instanceof MinecartFurnace engine && !player.isSpectator() && aimsAtLever(player, engine)) {
 				if (!level.isClientSide()) {
@@ -106,6 +87,16 @@ public final class EngineSelector {
 			}
 			return InteractionResult.PASS;
 		});
+	}
+
+	/** A press of Space by {@code player} (seen as their input arrives, {@code mixin/train/ServerPlayerInputMixin}): from an eligible seat, one step. */
+	public static void jumpPressed(ServerPlayer player) {
+		if (player.getVehicle() instanceof Minecart seat && MinecartCushions.isFitted(seat)) {
+			MinecartFurnace engine = seatEngine(seat);
+			if (engine != null) {
+				set(engine, mode(engine).cycled());
+			}
+		}
 	}
 
 	/**
@@ -156,13 +147,16 @@ public final class EngineSelector {
 		return InteractionResult.SUCCESS;
 	}
 
-	/** {@code world} in the engine model's frame, in blocks from the cart's middle (the renderer turns the model by 180 - yaw about y). */
+	/**
+	 * {@code world} in the engine model's frame, in blocks from the cart's middle. The minecart renderer turns
+	 * the model to the cart's yaw: the model's +x (towards the firebox door) points along (cos yaw, 0, sin yaw)
+	 * in the world and its +z along (-sin yaw, 0, cos yaw).
+	 */
 	public static Vec3 toModel(AbstractMinecart engine, Vec3 world) {
 		double yaw = Math.toRadians(engine.getYRot());
 		Vec3 d = world.subtract(engine.position());
-		// The model's +x is (-cos, 0, -sin) of the yaw in the world, its +z (sin, 0, -cos).
-		double x = -d.x * Math.cos(yaw) - d.z * Math.sin(yaw);
-		double z = d.x * Math.sin(yaw) - d.z * Math.cos(yaw);
+		double x = d.x * Math.cos(yaw) + d.z * Math.sin(yaw);
+		double z = -d.x * Math.sin(yaw) + d.z * Math.cos(yaw);
 		return new Vec3(x, d.y, z);
 	}
 
@@ -171,7 +165,7 @@ public final class EngineSelector {
 		double yaw = Math.toRadians(engine.getYRot());
 		double x = px / 16.0 - 0.5;
 		double z = pz / 16.0 - 0.5;
-		return engine.position().add(-x * Math.cos(yaw) + z * Math.sin(yaw), py / 16.0, -x * Math.sin(yaw) - z * Math.cos(yaw));
+		return engine.position().add(x * Math.cos(yaw) - z * Math.sin(yaw), py / 16.0, x * Math.sin(yaw) + z * Math.cos(yaw));
 	}
 
 	/** Whether a point on the engine (in the world) is on its lever: the back end of the cart, round the lever. */
