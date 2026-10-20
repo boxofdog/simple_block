@@ -103,6 +103,9 @@ public final class InventoryScreenAddons {
 		return new int[] {minX - 1, y - 1, maxX + 17, y + 17};
 	}
 
+	/** M13: quick-moves sent by Shift + right-button glides (the first, vanilla, click excluded); read by the client test. */
+	public static int glideMoves;
+
 	/** M13: the chest menu the server last said can be sorted ({@link io.github.boxofdog.simpleblock.network.SortableChestPayload}). */
 	private static int sortableChest = Integer.MIN_VALUE;
 

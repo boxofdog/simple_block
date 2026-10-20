@@ -13,7 +13,8 @@
 		"SkeletonModelMixin",
 		"SkeletonRenderStateMixin",
 		"HumanoidArmorLayerMixin",
-		"LocalPlayerPickMixin"
+		"LocalPlayerPickMixin",
+		"AbstractContainerScreenGlideMixin"
 	],
 	"injectors": {
 		"defaultRequire": 1
