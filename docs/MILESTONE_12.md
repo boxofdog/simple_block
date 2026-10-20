@@ -5,7 +5,7 @@ status: PLAYTESTING
 
 # M12 — Monster Effigies: permanent directional fear wards
 
-**Owner-scoped 2026-10-14. Status: PLANNED - READY, not implemented.** This is the complete design handoff for four very expensive, permanent monster-repelling monuments. Adding this milestone to the repository is **not** an implementation or SHIPPED claim; Claude starts coding only on explicit owner authorization. Preserve M01–M11, especially [M09 hostile behavior](MILESTONE_09.md) and [M11's no-floating-text direction](UX_TEXT_LOG.md).
+**Owner-scoped and implementation-authorized 2026-10-14. Status: PLAYTESTING, not SHIPPED.** Four expensive, permanent monster-repelling monuments were implemented and tested; see the [dated verification appendix](#implementation-and-verification--2026-10-14) for actual builds, tests and remaining gaps. **Owner acceptance/playtesting is still outstanding; do not mark SHIPPED from CI alone.** Preserve M01–M11, especially [M09 hostile behavior](MILESTONE_09.md) and [M11's no-floating-text direction](UX_TEXT_LOG.md).
 
 **Owner decision (2026-10-14, with the implementation authorization):** Ender Pearls stack to 16, so the Enderman Block takes **nine full stacks of 16 (144 pearls)**; the Enderman Effigy costs 288 pearls plus the Eye of Ender. Pearl stacking stays vanilla. The compression rule for all four is "every grid slot holds one full stack", consuming a full stack per slot.
 
