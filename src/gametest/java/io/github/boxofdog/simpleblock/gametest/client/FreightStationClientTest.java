@@ -46,6 +46,7 @@ import io.github.boxofdog.simpleblock.cable.ConnectingRods;
 import io.github.boxofdog.simpleblock.feature.RemovedRocks;
 import io.github.boxofdog.simpleblock.gametest.SimpleBlockTestLog;
 import io.github.boxofdog.simpleblock.train.CobblestoneEngine;
+import io.github.boxofdog.simpleblock.train.EngineSelector;
 import io.github.boxofdog.simpleblock.train.Couplings;
 import io.github.boxofdog.simpleblock.train.LoadingTrackBlock;
 import io.github.boxofdog.simpleblock.train.LoadingTracks;
@@ -409,6 +410,18 @@ public class FreightStationClientTest implements FabricClientGameTest {
 		SimpleBlockTestLog.info("CLIENT TRAIN: cars on the train track: {}", cars);
 		int coupled = server.computeOnServer(s -> (int) carts(s.overworld(), g, TRACK_Z).stream().filter(Couplings::hasCouplings).count());
 		assertTrue(coupled == 3, "three coupled cars: " + coupled);
+
+		// M15: an engine train stops at a station only with its selector at SERVICE and work to do: the freight
+		// carts carry raw iron, and a hopper beside the rail takes it from the cart that stops there.
+		server.runOnServer(s -> {
+			for (AbstractMinecart car : carts(s.overworld(), g, TRACK_Z)) {
+				if (car instanceof net.minecraft.world.entity.vehicle.minecart.Minecart freight) {
+					io.github.boxofdog.simpleblock.feature.MinecartCargo.cart(freight).simpleBlock$setCargo(net.minecraft.world.item.Items.RAW_IRON, 20);
+				}
+			}
+			EngineSelector.set(engineOn(s.overworld(), g), EngineSelector.Mode.SERVICE);
+		});
+		server.runCommand("setblock 44 " + (g - 1) + " " + (TRACK_Z + 1) + " minecraft:hopper");
 
 		// Start it from the west: it runs east to the station.
 		server.runCommand("tp @a 23.5 " + g + " " + (TRACK_Z + 1.5) + " -90 20");
