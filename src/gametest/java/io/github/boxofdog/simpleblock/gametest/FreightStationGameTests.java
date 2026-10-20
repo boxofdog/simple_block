@@ -114,8 +114,9 @@ public class FreightStationGameTests {
 	 * leading car (the engine) stops on the terminal rail (x 22), not the first one it meets, and the cars
 	 * behind it are pulled to 2-block berths: A on x 20, B on x 18, C (past the run) on plain rail at x 16.
 	 * At once: A loads 40 raw iron from a hopper two clear blocks over it (and, its way latched, never tips
-	 * into the empty hopper beside it when its source runs dry), B (an empty hopper over it) unloads 30 raw
-	 * copper into the hopper beside it, C (no Loading Rail) keeps its gold. When both are over the lever
+	 * into the empty hopper beside it when its source runs dry), B (the hopper over it holds only iron it
+	 * cannot take) unloads 30 raw copper into the hopper beside it, C (no Loading Rail) keeps its gold. Had
+	 * the train stopped at the first rail it met, A would have been under that iron. When both are over the lever
 	 * goes to NEUTRAL by itself, the train still held; at THROUGH it is let go, the stops fold, and nothing
 	 * moves until someone drives it.
 	 */
@@ -125,7 +126,8 @@ public class FreightStationGameTests {
 		ServerPlayer player = TestPlayers.create(helper, GameType.SURVIVAL, new BlockPos(1, 1, 6));
 		HopperBlockEntity supplyA = hopper(helper, new BlockPos(20, 4, Z), new ItemStack(Items.RAW_IRON, 40));
 		HopperBlockEntity besideA = hopper(helper, new BlockPos(20, 0, Z - 1));
-		HopperBlockEntity emptyOverB = hopper(helper, new BlockPos(18, 2, Z));
+		// Over B: three raw iron B (copper) cannot take; an empty wagon stopped there would load it.
+		HopperBlockEntity ironOverB = hopper(helper, new BlockPos(18, 2, Z), new ItemStack(Items.RAW_IRON, 3));
 		HopperBlockEntity receiverB = hopper(helper, new BlockPos(18, 0, Z + 1));
 		HopperBlockEntity besideC = hopper(helper, new BlockPos(16, 0, Z + 1));
 		MinecartFurnace engine = TrainGameTests.engine(helper, 8.7, Z, 4);
@@ -168,7 +170,8 @@ public class FreightStationGameTests {
 					"A loaded all 40 from two clear blocks up: " + count(a));
 				helper.assertTrue(held(besideA, Items.RAW_IRON) == 0, "A, loading, never tipped into the hopper beside it");
 				helper.assertTrue(count(b) == 0 && held(receiverB, Items.RAW_COPPER) == 30, "B unloaded all 30: " + count(b));
-				helper.assertTrue(held(emptyOverB, Items.RAW_COPPER) == 0, "nothing went up");
+				helper.assertTrue(held(ironOverB, Items.RAW_COPPER) == 0 && held(ironOverB, Items.RAW_IRON) == 3,
+					"nothing went up, and the iron over B (which an early stop would have put A under) stayed");
 				helper.assertTrue(count(c) == 10 && held(besideC, Items.RAW_GOLD) == 0, "C, past the station's rails, untouched");
 				helper.assertValueEqual(LoadingTracks.freight(a).simpleBlock$service(), FreightStations.Service.DONE, "A done");
 				helper.assertValueEqual(LoadingTracks.freight(b).simpleBlock$service(), FreightStations.Service.DONE, "B done");
@@ -349,12 +352,16 @@ public class FreightStationGameTests {
 				helper.assertValueEqual(count(b) + held(receiverB, Items.RAW_COPPER), 200, "copper counted");
 				log.add("NEUTRAL mid-transfer: stopped at " + mark[0] + ", held, nothing resumed in 40 ticks");
 				// SERVICE then straight on to THROUGH within the arming delay: nothing moves, the train goes free.
+				// (A's hopper, its button gone, is open and offers more iron: a loading wagon would take it at once.)
+				helper.setBlock(button, Blocks.AIR);
+				supplyA.setItem(0, new ItemStack(Items.RAW_IRON, 10));
 				EngineSelector.set(engine, EngineSelector.Mode.SERVICE);
 			})
-			.thenIdle(5)
+			.thenIdle(10)
 			.thenExecute(() -> {
 				EngineSelector.set(engine, EngineSelector.Mode.THROUGH);
 				helper.assertValueEqual(count(b), mark[0], "a quick pass through SERVICE moved nothing");
+				helper.assertTrue(count(a) == 20 && held(supplyA, Items.RAW_IRON) == 10, "nor loaded anything: A " + count(a));
 				for (AbstractMinecart car : train) {
 					helper.assertTrue(Couplings.coupled(car).simpleBlock$dock() == null, "THROUGH lets go");
 				}
