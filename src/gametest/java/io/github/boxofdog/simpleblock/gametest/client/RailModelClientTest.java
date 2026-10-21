@@ -20,8 +20,9 @@ import net.fabricmc.fabric.api.client.gametest.v1.context.TestSingleplayerContex
 import io.github.boxofdog.simpleblock.gametest.SimpleBlockTestLog;
 
 /**
- * I-013 in a real client ({@code rail3d-*} screenshots): every shape of the ordinary rail is drawn with the
- * 3D models on the Loading Rail's texture (checked through the client's own model set), and the track
+ * I-013 in a real client ({@code rail3d-*} screenshots): every shape of the ordinary rail, and the Loading
+ * Rail folded and raised, is drawn with the 3D models on vanilla's rail texture (checked through the
+ * client's own model set; the Loading Rail's stop alone keeps its own texture), and the track
  * meets the Loading Rail flush: a straight run through a Loading Rail, curves, a slope up and down,
  * and a cart rolling round a loop (the rails' behaviour is vanilla's, covered by the server tests).
  */
@@ -57,7 +58,7 @@ public class RailModelClientTest implements FabricClientGameTest {
 	}
 
 	private static void run(ClientGameTestContext context, TestServerContext server, int g) {
-		// The client's model for every shape is the 3D one, on the Loading Rail's texture.
+		// The client's model for every shape is the 3D one, on vanilla's rail texture; the Loading Rail's too.
 		List<String> models = context.computeOnClient(client -> {
 			List<String> out = new ArrayList<>();
 			for (RailShape shape : RailShape.values()) {
@@ -67,10 +68,16 @@ public class RailModelClientTest implements FabricClientGameTest {
 				boolean missing = model == client.getModelManager().getBlockStateModelSet().missingModel();
 				out.add(shape.getSerializedName() + "=" + sprite + (missing ? " MISSING" : ""));
 			}
+			for (boolean raised : new boolean[] {false, true}) {
+				BlockState state = io.github.boxofdog.simpleblock.train.TrainContent.LOADING_TRACK.defaultBlockState()
+					.setValue(io.github.boxofdog.simpleblock.train.LoadingTrackBlock.RAISED, raised);
+				String sprite = client.getModelManager().getBlockStateModelSet().getParticleMaterial(state).sprite().contents().name().toString();
+				out.add((raised ? "loading_raised" : "loading_folded") + "=" + sprite);
+			}
 			return out;
 		});
 		SimpleBlockTestLog.info("CLIENT RAIL3D models: {}", models);
-		assertTrue(models.size() == 10 && models.stream().allMatch(m -> m.endsWith("=simple_block:block/loading_track")), "3D rail models: " + models);
+		assertTrue(models.size() == 12 && models.stream().allMatch(m -> m.endsWith("=minecraft:block/rail")), "3D rail models: " + models);
 
 		// A straight north-south run with a Loading Rail in it, and an east-west one.
 		for (int z = Z - 6; z <= Z + 2; z++) {
@@ -90,6 +97,7 @@ public class RailModelClientTest implements FabricClientGameTest {
 		context.waitTicks(10);
 		shot(context, server, "rail3d-joint-low", X + 0.5, g + 0.4, Z + 3.5, 180, 8);
 		shot(context, server, "rail3d-joint-above", X + 2.5, g + 3.0, Z - 0.5, 150, 50);
+		shot(context, server, "rail3d-loading-close", X + 1.3, g + 1.0, Z - 0.6, 135, 45);
 
 		// A loop of curves and straights, with a slope up and down on its east side.
 		int lx = X - 7;
